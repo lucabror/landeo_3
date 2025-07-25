@@ -53,7 +53,34 @@ export const localExperiences = pgTable("local_experiences", {
   rating: text("rating"),
   imageUrl: text("image_url"),
   isActive: boolean("is_active").default(true),
+  // Nuovi campi per il sistema AI
+  aiGenerated: boolean("ai_generated").default(false),
+  attractionType: text("attraction_type"),
+  estimatedDistance: text("estimated_distance"),
+  bestTimeToVisit: text("best_time_to_visit"),
+  highlights: jsonb("highlights").$type<string[]>(),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Tabella per le attrazioni suggerite in attesa di approvazione
+export const pendingAttractions = pgTable("pending_attractions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  hotelId: varchar("hotel_id").notNull().references(() => hotels.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  location: text("location").notNull(),
+  duration: text("duration").notNull(),
+  priceRange: text("price_range").notNull(),
+  highlights: jsonb("highlights").$type<string[]>().notNull(),
+  attractionType: text("attraction_type").notNull(),
+  estimatedDistance: text("estimated_distance").notNull(),
+  bestTimeToVisit: text("best_time_to_visit").notNull(),
+  searchArea: text("search_area").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  approved: boolean("approved").default(false),
+  rejected: boolean("rejected").default(false),
+  processedAt: timestamp("processed_at"),
 });
 
 export const itineraries = pgTable("itineraries", {
@@ -90,6 +117,14 @@ export const hotelsRelations = relations(hotels, ({ many }) => ({
   guestProfiles: many(guestProfiles),
   localExperiences: many(localExperiences),
   itineraries: many(itineraries),
+  pendingAttractions: many(pendingAttractions),
+}));
+
+export const pendingAttractionsRelations = relations(pendingAttractions, ({ one }) => ({
+  hotel: one(hotels, {
+    fields: [pendingAttractions.hotelId],
+    references: [hotels.id],
+  }),
 }));
 
 export const guestProfilesRelations = relations(guestProfiles, ({ one, many }) => ({
@@ -140,6 +175,12 @@ export const insertItinerarySchema = createInsertSchema(itineraries).omit({
   updatedAt: true,
 });
 
+export const insertPendingAttractionSchema = createInsertSchema(pendingAttractions).omit({
+  id: true,
+  createdAt: true,
+  processedAt: true,
+});
+
 // Types
 export type Hotel = typeof hotels.$inferSelect;
 export type InsertHotel = z.infer<typeof insertHotelSchema>;
@@ -149,3 +190,5 @@ export type LocalExperience = typeof localExperiences.$inferSelect;
 export type InsertLocalExperience = z.infer<typeof insertLocalExperienceSchema>;
 export type Itinerary = typeof itineraries.$inferSelect;
 export type InsertItinerary = z.infer<typeof insertItinerarySchema>;
+export type PendingAttraction = typeof pendingAttractions.$inferSelect;
+export type InsertPendingAttraction = z.infer<typeof insertPendingAttractionSchema>;

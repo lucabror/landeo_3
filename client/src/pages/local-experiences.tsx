@@ -26,7 +26,14 @@ import {
   Camera,
   Utensils,
   TreePine,
-  Waves
+  Waves,
+  Bot,
+  Sparkles,
+  Check,
+  X,
+  Users,
+  Building,
+  Music
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { insertLocalExperienceSchema } from "@shared/schema";
@@ -57,6 +64,11 @@ export default function LocalExperiences() {
   // Fetch local experiences
   const { data: experiences, isLoading } = useQuery({
     queryKey: ["/api/hotels", MOCK_HOTEL_ID, "local-experiences"],
+  });
+
+  // Fetch pending attractions
+  const { data: pendingAttractions, isLoading: isLoadingPending } = useQuery({
+    queryKey: ["/api/hotels", MOCK_HOTEL_ID, "pending-attractions"],
   });
 
   const form = useForm<InsertLocalExperience>({
@@ -123,6 +135,64 @@ export default function LocalExperiences() {
       toast({
         title: "Errore",
         description: error.message || "Errore durante l'eliminazione",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Generate AI attractions mutation
+  const generateAttractionsMutation = useMutation({
+    mutationFn: () => apiRequest("POST", `/api/hotels/${MOCK_HOTEL_ID}/generate-attractions`),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "pending-attractions"] });
+      toast({
+        title: "Attrazioni generate",
+        description: data.message,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore",
+        description: error.message || "Errore nella generazione delle attrazioni",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Approve attraction mutation
+  const approveAttractionMutation = useMutation({
+    mutationFn: (attractionId: string) => apiRequest("POST", `/api/hotels/${MOCK_HOTEL_ID}/pending-attractions/${attractionId}/approve`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "pending-attractions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "local-experiences"] });
+      toast({
+        title: "Attrazione approvata",
+        description: "L'attrazione è stata aggiunta alle esperienze locali",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Errore",
+        description: "Non è stato possibile approvare l'attrazione",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Reject attraction mutation
+  const rejectAttractionMutation = useMutation({
+    mutationFn: (attractionId: string) => apiRequest("POST", `/api/hotels/${MOCK_HOTEL_ID}/pending-attractions/${attractionId}/reject`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "pending-attractions"] });
+      toast({
+        title: "Attrazione rifiutata",
+        description: "L'attrazione è stata rimossa dall'elenco",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Errore",
+        description: "Non è stato possibile rifiutare l'attrazione",
         variant: "destructive",
       });
     },
@@ -210,13 +280,28 @@ export default function LocalExperiences() {
             </p>
           </div>
           
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={handleNewExperience} className="bg-primary hover:bg-primary/90">
-                <Plus className="mr-2 h-4 w-4" />
-                Nuova Esperienza
-              </Button>
-            </DialogTrigger>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => generateAttractionsMutation.mutate()}
+              disabled={generateAttractionsMutation.isPending}
+              variant="outline"
+              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 hover:from-blue-600 hover:to-purple-700"
+            >
+              {generateAttractionsMutation.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Sparkles className="w-4 h-4 mr-2" />
+              )}
+              Genera con AI
+            </Button>
+            
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={handleNewExperience} className="bg-primary hover:bg-primary/90">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nuova Esperienza
+                </Button>
+              </DialogTrigger>
             
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
@@ -402,189 +487,287 @@ export default function LocalExperiences() {
                         onClick={() => toggleTargetAudience(audience)}
                         className="capitalize"
                       >
-                        {audience.replace("_", " ")}
+                        {audience}
                       </Button>
                     ))}
                   </div>
                 </div>
                 
                 <div className="flex items-center space-x-2">
-                  <Switch
-                    id="isActive"
-                    checked={form.watch("isActive")}
+                  <Switch 
+                    checked={form.watch("isActive")} 
                     onCheckedChange={(checked) => form.setValue("isActive", checked)}
                   />
-                  <Label htmlFor="isActive">Esperienza Attiva</Label>
+                  <Label>Esperienza attiva</Label>
                 </div>
                 
-                <div className="flex justify-end space-x-3 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
                     onClick={() => setIsDialogOpen(false)}
                   >
                     Annulla
                   </Button>
-                  <Button
-                    type="submit"
+                  <Button 
+                    type="submit" 
                     disabled={mutation.isPending}
                     className="bg-primary hover:bg-primary/90"
                   >
                     {mutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Salvando...
-                      </>
-                    ) : (
-                      editingExperience ? "Aggiorna" : "Crea Esperienza"
-                    )}
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : null}
+                    {editingExperience ? "Aggiorna" : "Crea"} Esperienza
                   </Button>
                 </div>
               </form>
             </DialogContent>
-          </Dialog>
+            </Dialog>
+          </div>
         </div>
 
-        {/* Experiences Grid */}
-        {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin" />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {experiences?.map((experience: any) => {
-              const categoryConfig = getCategoryConfig(experience.category);
-              const CategoryIcon = categoryConfig.icon;
+        {/* Pending Attractions Section */}
+        {pendingAttractions && pendingAttractions.length > 0 && (
+          <div className="mb-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center mb-3">
+                <Bot className="w-5 h-5 mr-2 text-blue-600" />
+                <h3 className="text-lg font-semibold text-blue-900">
+                  Attrazioni suggerite da AI ({pendingAttractions.length})
+                </h3>
+              </div>
+              <p className="text-blue-700 text-sm mb-4">
+                L'intelligenza artificiale ha trovato queste attrazioni locali. Approva quelle che vuoi aggiungere alle tue esperienze.
+              </p>
               
-              return (
-                <Card key={experience.id} className="card-hover overflow-hidden">
-                  <div className="relative">
-                    {experience.imageUrl ? (
-                      <img 
-                        src={experience.imageUrl} 
-                        alt={experience.name}
-                        className="w-full h-48 object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                        <CategoryIcon className="h-12 w-12 text-gray-400" />
-                      </div>
-                    )}
-                    
-                    <div className="absolute top-4 right-4 flex space-x-2">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => handleEdit(experience)}
-                        className="bg-white/90 hover:bg-white"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => handleDelete(experience.id)}
-                        className="bg-white/90 hover:bg-white text-red-500 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg font-serif line-clamp-1">
-                          {experience.name}
-                        </CardTitle>
-                        <p className="text-sm text-gray-500 flex items-center mt-1">
-                          <MapPin className="h-4 w-4 mr-1" />
-                          {experience.location}
-                          {experience.distance && ` • ${experience.distance}`}
-                        </p>
-                      </div>
-                      {!experience.isActive && (
-                        <Badge variant="secondary" className="bg-gray-100 text-gray-600">
-                          Inattivo
-                        </Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent className="pt-0">
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                      {experience.description}
-                    </p>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Badge className={categoryConfig.color}>
-                          {categoryConfig.label}
-                        </Badge>
-                        {experience.rating && (
-                          <div className="flex items-center text-sm text-gray-500">
-                            <Star className="h-4 w-4 mr-1 fill-current text-yellow-400" />
-                            {experience.rating}
+              <div className="grid gap-3">
+                {pendingAttractions.map((attraction) => (
+                  <div key={attraction.id} className="bg-white border border-blue-200 rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center mb-2">
+                          <Badge variant="secondary" className="mr-2 text-xs">
+                            {attraction.attractionType}
+                          </Badge>
+                          <span className="text-xs text-gray-500">{attraction.estimatedDistance}</span>
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-1">{attraction.name}</h4>
+                        <p className="text-sm text-gray-600 mb-2">{attraction.description}</p>
+                        <div className="flex items-center text-xs text-gray-500 space-x-4">
+                          <span className="flex items-center">
+                            <MapPin className="w-3 h-3 mr-1" />
+                            {attraction.location}
+                          </span>
+                          <span className="flex items-center">
+                            <Clock className="w-3 h-3 mr-1" />
+                            {attraction.duration}
+                          </span>
+                          <Badge variant="outline" className="text-xs">
+                            {attraction.priceRange}
+                          </Badge>
+                        </div>
+                        {attraction.highlights && attraction.highlights.length > 0 && (
+                          <div className="mt-2">
+                            <div className="flex flex-wrap gap-1">
+                              {attraction.highlights.slice(0, 3).map((highlight, idx) => (
+                                <span key={idx} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                                  {highlight}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
                       
-                      {experience.duration && (
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Clock className="h-4 w-4 mr-2" />
-                          {experience.duration}
-                        </div>
-                      )}
-                      
-                      {experience.priceRange && (
-                        <p className="text-sm font-medium text-gray-900">
-                          {experience.priceRange}
-                        </p>
-                      )}
-                      
-                      {experience.targetAudience && experience.targetAudience.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {experience.targetAudience.slice(0, 3).map((audience: string) => (
-                            <Badge 
-                              key={audience} 
-                              variant="outline" 
-                              className="text-xs capitalize"
-                            >
-                              {audience.replace("_", " ")}
+                      <div className="flex gap-2 ml-4">
+                        <Button
+                          size="sm"
+                          onClick={() => approveAttractionMutation.mutate(attraction.id)}
+                          disabled={approveAttractionMutation.isPending}
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          {approveAttractionMutation.isPending ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Check className="w-3 h-3" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => rejectAttractionMutation.mutate(attraction.id)}
+                          disabled={rejectAttractionMutation.isPending}
+                          className="border-red-300 text-red-600 hover:bg-red-50"
+                        >
+                          {rejectAttractionMutation.isPending ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <X className="w-3 h-3" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Loading state */}
+        {isLoading || isLoadingPending ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        ) : (
+          <>
+            {/* Local Experiences Grid */}
+            {experiences && experiences.length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {experiences.map((experience) => {
+                  const categoryConfig = getCategoryConfig(experience.category);
+                  const IconComponent = categoryConfig.icon;
+                  
+                  return (
+                    <Card key={experience.id} className="group hover:shadow-lg transition-shadow bg-white border border-gray-200">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <div className={`p-1.5 rounded-lg ${categoryConfig.color}`}>
+                              <IconComponent className="h-4 w-4" />
+                            </div>
+                            <Badge variant="secondary" className="text-xs">
+                              {categoryConfig.label}
                             </Badge>
-                          ))}
-                          {experience.targetAudience.length > 3 && (
+                          </div>
+                          
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEdit(experience)}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(experience.id)}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700"
+                              disabled={deleteMutation.isPending}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <CardTitle className="text-lg font-semibold text-gray-900 mt-2">
+                          {experience.name}
+                        </CardTitle>
+                      </CardHeader>
+                      
+                      <CardContent className="pt-0">
+                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                          {experience.description}
+                        </p>
+                        
+                        <div className="space-y-2 text-xs text-gray-500">
+                          <div className="flex items-center">
+                            <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
+                            <span className="truncate">{experience.location}</span>
+                          </div>
+                          
+                          {experience.distance && (
+                            <div className="flex items-center">
+                              <Clock className="h-3 w-3 mr-1 flex-shrink-0" />
+                              <span>{experience.distance}</span>
+                            </div>
+                          )}
+                          
+                          {experience.duration && (
+                            <div className="flex items-center">
+                              <Clock className="h-3 w-3 mr-1 flex-shrink-0" />
+                              <span>{experience.duration}</span>
+                            </div>
+                          )}
+                          
+                          {experience.rating && (
+                            <div className="flex items-center">
+                              <Star className="h-3 w-3 mr-1 flex-shrink-0 fill-yellow-400 text-yellow-400" />
+                              <span>{experience.rating}</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {experience.targetAudience && experience.targetAudience.length > 0 && (
+                          <div className="mt-3 flex flex-wrap gap-1">
+                            {experience.targetAudience.slice(0, 3).map((audience, idx) => (
+                              <Badge key={idx} variant="outline" className="text-xs capitalize">
+                                {audience}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <div className="mt-3 flex justify-between items-center">
+                          <div className="flex items-center">
+                            <Switch 
+                              checked={experience.isActive} 
+                              onCheckedChange={(checked) => {
+                                // Handle toggle active state
+                              }}
+                              className="scale-75"
+                            />
+                            <span className="text-xs text-gray-500 ml-1">
+                              {experience.isActive ? 'Attiva' : 'Inattiva'}
+                            </span>
+                          </div>
+                          
+                          {experience.priceRange && (
                             <Badge variant="outline" className="text-xs">
-                              +{experience.targetAudience.length - 3}
+                              {experience.priceRange}
                             </Badge>
                           )}
                         </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-            
-            {(!experiences || experiences.length === 0) && (
-              <div className="col-span-full text-center py-12">
-                <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="mx-auto h-24 w-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <MapPin className="h-12 w-12 text-gray-400" />
+                </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                   Nessuna esperienza locale
                 </h3>
-                <p className="text-gray-500 mb-4">
-                  Inizia aggiungendo le prime esperienze locali convenzionate con l'hotel.
+                <p className="text-gray-500 mb-6 max-w-sm mx-auto">
+                  Inizia aggiungendo le prime esperienze locali per i tuoi ospiti, oppure usa l'AI per generare suggerimenti automatici.
                 </p>
-                <Button onClick={handleNewExperience} className="bg-primary hover:bg-primary/90">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Aggiungi Prima Esperienza
-                </Button>
+                <div className="flex gap-2 justify-center">
+                  <Button 
+                    onClick={() => generateAttractionsMutation.mutate()}
+                    disabled={generateAttractionsMutation.isPending}
+                    variant="outline"
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 hover:from-blue-600 hover:to-purple-700"
+                  >
+                    {generateAttractionsMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4 mr-2" />
+                    )}
+                    Genera con AI
+                  </Button>
+                  <Button onClick={handleNewExperience} className="bg-primary hover:bg-primary/90">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Aggiungi Esperienza
+                  </Button>
+                </div>
               </div>
             )}
-          </div>
+          </>
         )}
       </div>
     </div>
