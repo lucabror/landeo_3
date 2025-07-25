@@ -225,6 +225,14 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(itineraries.createdAt));
   }
 
+  async getItineraryByUniqueUrl(uniqueUrl: string): Promise<Itinerary | undefined> {
+    const [itinerary] = await db
+      .select()
+      .from(itineraries)
+      .where(eq(itineraries.uniqueUrl, uniqueUrl));
+    return itinerary || undefined;
+  }
+
   async deleteItinerary(id: string): Promise<void> {
     await db.delete(itineraries).where(eq(itineraries.id, id));
   }

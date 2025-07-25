@@ -239,6 +239,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get itineraries for specific guest profile
+  app.get("/api/guest-profiles/:id/itinerary", async (req, res) => {
+    try {
+      const itineraries = await storage.getItinerariesByGuestProfile(req.params.id);
+      res.json(itineraries);
+    } catch (error) {
+      console.error('Error fetching guest itineraries:', error);
+      res.status(500).json({ message: "Failed to fetch itineraries" });
+    }
+  });
+
   // Generate itinerary for specific guest profile
   app.post("/api/guest-profiles/:id/generate-itinerary", async (req, res) => {
     try {
@@ -271,6 +282,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error generating itinerary:', error);
       res.status(500).json({ message: "Failed to generate itinerary", error: error instanceof Error ? error.message : String(error) });
+    }
+  });
+
+  // Get public itinerary by unique URL
+  app.get("/api/itinerary/:uniqueUrl", async (req, res) => {
+    try {
+      const itinerary = await storage.getItineraryByUniqueUrl(req.params.uniqueUrl);
+      if (!itinerary) {
+        return res.status(404).json({ message: "Itinerary not found" });
+      }
+
+      // Get associated hotel and guest profile info for display
+      const hotel = await storage.getHotel(itinerary.hotelId);
+      const guestProfile = await storage.getGuestProfile(itinerary.guestProfileId);
+
+      res.json({
+        ...itinerary,
+        hotel: hotel ? {
+          name: hotel.name,
+          city: hotel.city,
+          region: hotel.region,
+          logoUrl: hotel.logoUrl
+        } : null,
+        guestProfile: guestProfile ? {
+          referenceName: guestProfile.referenceName,
+          type: guestProfile.type,
+          numberOfPeople: guestProfile.numberOfPeople,
+          checkInDate: guestProfile.checkInDate,
+          checkOutDate: guestProfile.checkOutDate
+        } : null
+      });
+    } catch (error) {
+      console.error('Error fetching public itinerary:', error);
+      res.status(500).json({ message: "Failed to fetch itinerary" });
     }
   });
 
