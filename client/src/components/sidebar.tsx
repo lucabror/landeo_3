@@ -14,8 +14,6 @@ const navigation = [
   { name: "Dati Hotel", href: "/hotel-setup", icon: Hotel },
   { name: "Profili Ospiti", href: "/guest-profiles", icon: Users },
   { name: "Esperienze Locali", href: "/local-experiences", icon: MapPin },
-  { name: "Itinerari Generati", href: "/itineraries", icon: Route },
-  { name: "QR Code & PDF", href: "/qr-pdf", icon: QrCode },
 ];
 
 export function Sidebar() {

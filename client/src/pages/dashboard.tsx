@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/components/sidebar";
-import { ItineraryGenerator } from "@/components/itinerary-generator";
 import { QRModal } from "@/components/qr-modal";
 import { useState } from "react";
 import { 
@@ -140,9 +139,9 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-8 mb-8">
           {/* Create Guest Profile */}
-          <Card className="card-hover">
+          <Card className="card-hover max-w-md">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-serif">Nuovo Profilo Ospite</CardTitle>
@@ -159,9 +158,6 @@ export default function Dashboard() {
               </Button>
             </CardContent>
           </Card>
-
-          {/* AI Itinerary Generation */}
-          <ItineraryGenerator hotelId={MOCK_HOTEL_ID} />
         </div>
 
         {/* Recent Activities */}

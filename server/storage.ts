@@ -217,6 +217,14 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(itineraries.createdAt));
   }
 
+  async getItinerariesByGuestProfile(guestProfileId: string): Promise<Itinerary[]> {
+    return await db
+      .select()
+      .from(itineraries)
+      .where(eq(itineraries.guestProfileId, guestProfileId))
+      .orderBy(desc(itineraries.createdAt));
+  }
+
   async deleteItinerary(id: string): Promise<void> {
     await db.delete(itineraries).where(eq(itineraries.id, id));
   }
