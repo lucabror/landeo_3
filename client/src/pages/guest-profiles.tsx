@@ -117,7 +117,13 @@ export default function GuestProfiles() {
   });
 
   const onSubmit = (data: InsertGuestProfile) => {
-    mutation.mutate(data);
+    // Ensure dates are properly formatted
+    const formattedData = {
+      ...data,
+      checkInDate: new Date(data.checkInDate),
+      checkOutDate: new Date(data.checkOutDate),
+    };
+    mutation.mutate(formattedData);
   };
 
   const handleEdit = (profile: any) => {
@@ -279,7 +285,8 @@ export default function GuestProfiles() {
                     <Input
                       id="checkInDate"
                       type="date"
-                      {...form.register("checkInDate", { valueAsDate: true })}
+                      value={form.watch("checkInDate") ? new Date(form.watch("checkInDate")).toISOString().split('T')[0] : ''}
+                      onChange={(e) => form.setValue("checkInDate", new Date(e.target.value))}
                       className="mt-1"
                     />
                   </div>
@@ -289,7 +296,8 @@ export default function GuestProfiles() {
                     <Input
                       id="checkOutDate"
                       type="date"
-                      {...form.register("checkOutDate", { valueAsDate: true })}
+                      value={form.watch("checkOutDate") ? new Date(form.watch("checkOutDate")).toISOString().split('T')[0] : ''}
+                      onChange={(e) => form.setValue("checkOutDate", new Date(e.target.value))}
                       className="mt-1"
                     />
                   </div>
