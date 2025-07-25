@@ -20,6 +20,9 @@ import { findLocalAttractions, attractionToLocalExperience } from "./services/at
 import { sendGuestPreferencesEmail } from "./services/email";
 import { generateGuestSpecificItinerary } from "./services/itinerary-generator";
 import { randomUUID } from "crypto";
+import QRCode from "qrcode";
+import PDFDocument from "pdfkit";
+import { Resend } from "resend";
 
 // Configurazione multer per upload dei loghi
 const logoStorage = multer.diskStorage({
@@ -362,9 +365,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const guestProfile = await storage.getGuestProfile(itinerary.guestProfileId);
 
       // Generate PDF with QR code
-      const PDFDocument = require('pdfkit');
-      const QRCode = require('qrcode');
-
       const doc = new PDFDocument();
       
       // Set headers for PDF download
@@ -428,7 +428,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const guestProfile = await storage.getGuestProfile(itinerary.guestProfileId);
 
       // Generate PDF with full itinerary
-      const PDFDocument = require('pdfkit');
       const doc = new PDFDocument();
       
       // Create PDF buffer
@@ -509,7 +508,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pdfBuffer = Buffer.concat(chunks);
 
       // Send email with PDF attachment
-      const { Resend } = require('resend');
       const resend = new Resend(process.env.RESEND_API_KEY);
 
       const emailResult = await resend.emails.send({
