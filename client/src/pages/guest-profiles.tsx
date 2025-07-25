@@ -179,10 +179,10 @@ export default function GuestProfiles() {
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-serif font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl font-heading font-bold text-slate-900 mb-2">
               Profili Ospiti
             </h2>
-            <p className="text-gray-600">
+            <p className="text-slate-600 font-sans">
               Gestisci i profili degli ospiti per personalizzare le loro esperienze
             </p>
           </div>
@@ -197,7 +197,7 @@ export default function GuestProfiles() {
             
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="flex items-center">
+                <DialogTitle className="flex items-center font-heading text-xl">
                   <Users className="mr-2 h-5 w-5" />
                   {editingProfile ? "Modifica Profilo Ospite" : "Nuovo Profilo Ospite"}
                 </DialogTitle>
@@ -362,121 +362,131 @@ export default function GuestProfiles() {
             {guestProfiles?.map((profile: any) => {
               const TypeIcon = getTypeIcon(profile.type);
               return (
-                <Card key={profile.id} className="card-hover shadow-sm border-gray-200 hover:shadow-md transition-all duration-200">
-                  <CardHeader className="pb-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center shadow-sm">
-                          <TypeIcon className="h-6 w-6 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <CardTitle className="text-xl font-serif text-gray-900 mb-1">
-                            {profile.referenceName}
-                          </CardTitle>
-                          <div className="flex items-center space-x-2 mb-2">
-                            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">
-                              {getTypeLabel(profile.type)}
-                            </Badge>
-                            <span className="text-sm text-gray-500">
-                              {profile.numberOfPeople} persona{profile.numberOfPeople > 1 ? 'e' : 'a'}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            {profile.preferencesCompleted ? (
-                              <Badge variant="default" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">
-                                ✓ Preferenze complete
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 text-xs">
-                                ⏳ In attesa risposta
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
+                <Card key={profile.id} className="relative overflow-hidden hover:shadow-lg transition-all duration-300 border border-slate-200 bg-white">
+                  {/* Card Header */}
+                  <div className="relative p-6 bg-gradient-to-br from-slate-50 via-white to-slate-50">
+                    {/* Action Buttons - Top Right */}
+                    <div className="absolute top-4 right-4 flex space-x-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleEdit(profile)}
+                        className="h-8 w-8 p-0 rounded-full hover:bg-blue-100 hover:text-blue-600 transition-colors"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDelete(profile.id)}
+                        className="h-8 w-8 p-0 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    
+                    {/* Guest Info */}
+                    <div className="flex items-start space-x-4 pr-20">
+                      <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-md">
+                        <TypeIcon className="h-7 w-7 text-white" />
                       </div>
-                      <div className="flex space-x-1">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleEdit(profile)}
-                          className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDelete(profile.id)}
-                          className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-heading font-semibold text-slate-900 mb-1">
+                          {profile.referenceName}
+                        </h3>
+                        <div className="flex items-center space-x-3 mb-3">
+                          <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 font-medium text-xs">
+                            {getTypeLabel(profile.type)}
+                          </Badge>
+                          <span className="text-sm text-slate-600 font-medium">
+                            {profile.numberOfPeople} persona{profile.numberOfPeople > 1 ? 'e' : 'a'}
+                          </span>
+                        </div>
+                        
+                        {/* Status Badge */}
+                        {profile.preferencesCompleted ? (
+                          <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-100">
+                            ✓ Preferenze completate
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-orange-700 border-orange-300 bg-orange-50">
+                            ⏳ In attesa
+                          </Badge>
+                        )}
                       </div>
                     </div>
-                  </CardHeader>
+                  </div>
                   
-                  <CardContent className="pt-4 space-y-4">
-                    {/* Date e Camera */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                        <span className="font-medium">
-                          {new Date(profile.checkInDate).toLocaleDateString("it-IT")} - {" "}
-                          {new Date(profile.checkOutDate).toLocaleDateString("it-IT")}
-                        </span>
+                  {/* Card Content */}
+                  <CardContent className="p-6 space-y-4">
+                    {/* Dates and Room */}
+                    <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                      <div className="flex items-center space-x-3">
+                        <Calendar className="h-5 w-5 text-slate-500" />
+                        <div>
+                          <p className="text-sm font-medium text-slate-900">
+                            {new Date(profile.checkInDate).toLocaleDateString("it-IT")} - {new Date(profile.checkOutDate).toLocaleDateString("it-IT")}
+                          </p>
+                          <p className="text-xs text-slate-600">Date soggiorno</p>
+                        </div>
                       </div>
                       {profile.roomNumber && (
-                        <div className="flex items-center text-sm text-gray-600 bg-gray-50 px-2 py-1 rounded-md">
-                          <span className="font-medium">Camera {profile.roomNumber}</span>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-slate-200">
+                          <p className="text-sm font-display font-semibold text-slate-700">Camera {profile.roomNumber}</p>
                         </div>
                       )}
                     </div>
                     
-                    {/* Status attivo */}
+                    {/* Active Guest Banner */}
                     {new Date() >= new Date(profile.checkInDate) && 
                      new Date() <= new Date(profile.checkOutDate) && (
-                      <div className="flex items-center justify-center py-2 bg-green-50 rounded-lg border border-green-200">
-                        <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-300">
-                          🏨 Ospite presente
-                        </Badge>
+                      <div className="bg-gradient-to-r from-green-100 to-emerald-100 border border-green-200 rounded-xl p-3 text-center">
+                        <p className="text-green-800 font-medium text-sm">🏨 Ospite presente in hotel</p>
                       </div>
                     )}
                     
-                    {/* Richieste speciali */}
+                    {/* Special Requests */}
                     {profile.specialRequests && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                        <p className="text-sm text-blue-800">
-                          <span className="font-medium">📝 Richieste:</span> {profile.specialRequests}
+                      <div className="bg-blue-50 border-l-4 border-blue-400 rounded-r-xl p-4">
+                        <p className="text-sm text-blue-900">
+                          <span className="font-semibold">Richieste speciali:</span>
                         </p>
+                        <p className="text-sm text-blue-800 mt-1">{profile.specialRequests}</p>
                       </div>
                     )}
                     
-                    {/* Preferenze */}
+                    {/* Preferences */}
                     {profile.preferencesCompleted && profile.preferences && profile.preferences.length > 0 && (
-                      <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
-                        <p className="text-sm font-medium text-emerald-800 mb-2 flex items-center">
-                          🎯 Preferenze di viaggio
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                        <p className="text-sm font-semibold text-emerald-900 mb-3 flex items-center">
+                          🎯 Preferenze di viaggio ({profile.preferences.length})
                         </p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {profile.preferences.slice(0, 4).map((pref: string, index: number) => (
-                            <Badge key={index} variant="outline" className="text-xs bg-white border-emerald-300 text-emerald-700">
-                              {pref}
-                            </Badge>
+                        <div className="grid grid-cols-1 gap-2">
+                          {profile.preferences.slice(0, 3).map((pref: string, index: number) => (
+                            <div key={index} className="bg-white border border-emerald-200 rounded-lg px-3 py-2">
+                              <span className="text-xs font-medium text-emerald-800">{pref}</span>
+                            </div>
                           ))}
-                          {profile.preferences.length > 4 && (
-                            <Badge variant="outline" className="text-xs bg-emerald-100 border-emerald-300 text-emerald-700">
-                              +{profile.preferences.length - 4} altre
-                            </Badge>
+                          {profile.preferences.length > 3 && (
+                            <div className="bg-emerald-100 border border-emerald-300 rounded-lg px-3 py-2 text-center">
+                              <span className="text-xs font-medium text-emerald-800">
+                                +{profile.preferences.length - 3} altre preferenze
+                              </span>
+                            </div>
                           )}
                         </div>
                       </div>
                     )}
-                    
-                    {/* Footer */}
-                    <div className="pt-2 border-t border-gray-100 text-xs text-gray-500 text-center">
-                      Creato il {new Date(profile.createdAt).toLocaleDateString("it-IT")}
-                    </div>
                   </CardContent>
+                  
+                  {/* Card Footer */}
+                  <div className="px-6 pb-4">
+                    <div className="text-center border-t border-slate-100 pt-3">
+                      <p className="text-xs text-slate-500 font-display">
+                        Creato il {new Date(profile.createdAt).toLocaleDateString("it-IT")}
+                      </p>
+                    </div>
+                  </div>
                 </Card>
               );
             })}
@@ -484,10 +494,10 @@ export default function GuestProfiles() {
             {(!guestProfiles || guestProfiles.length === 0) && (
               <div className="col-span-full text-center py-12">
                 <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <h3 className="text-lg font-heading font-medium text-slate-900 mb-2">
                   Nessun profilo ospite
                 </h3>
-                <p className="text-gray-500 mb-4">
+                <p className="text-slate-500 mb-4 font-sans">
                   Inizia creando il primo profilo ospite per personalizzare le esperienze.
                 </p>
                 <Button onClick={handleNewProfile} className="bg-primary hover:bg-primary/90">
