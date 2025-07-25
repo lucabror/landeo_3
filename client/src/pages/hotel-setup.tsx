@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Sidebar } from "@/components/sidebar";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, Hotel, Search, MapPin, CheckCircle, AlertCircle } from "lucide-react";
+import { Loader2, Save, Hotel, Search, MapPin, CheckCircle, AlertCircle, Upload, X, Image } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { insertHotelSchema } from "@shared/schema";
 import type { InsertHotel } from "@shared/schema";
@@ -22,6 +22,9 @@ export default function HotelSetup() {
   const queryClient = useQueryClient();
   const [isSearching, setIsSearching] = useState(false);
   const [searchStatus, setSearchStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch existing hotel data
   const { data: hotel, isLoading } = useQuery({
@@ -50,6 +53,9 @@ export default function HotelSetup() {
   useState(() => {
     if (hotel) {
       form.reset(hotel);
+      if (hotel.logoUrl) {
+        setLogoPreview(hotel.logoUrl);
+      }
     }
   }, [hotel]);
 
@@ -134,6 +140,81 @@ export default function HotelSetup() {
       city: form.getValues("city"),
       region: form.getValues("region")
     });
+  };
+
+  // Logo upload mutation
+  const logoUploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('logo', file);
+      
+      const res = await fetch('/api/upload/logo', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Errore durante il caricamento');
+      }
+      
+      return res.json();
+    },
+    onSuccess: (data) => {
+      form.setValue('logoUrl', data.logoUrl);
+      setLogoPreview(data.logoUrl);
+      setIsUploadingLogo(false);
+      
+      toast({
+        title: "Logo caricato!",
+        description: "Il logo è stato caricato con successo",
+      });
+    },
+    onError: (error: any) => {
+      setIsUploadingLogo(false);
+      
+      toast({
+        title: "Errore caricamento",
+        description: error.message || "Errore durante il caricamento del logo",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Verifica tipo file
+    if (!file.type.includes('image/png') && !file.type.includes('image/jpeg') && !file.type.includes('image/jpg')) {
+      toast({
+        title: "Formato non supportato",
+        description: "Carica solo file PNG o JPG",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Verifica dimensione (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File troppo grande",
+        description: "Il logo deve essere massimo 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingLogo(true);
+    logoUploadMutation.mutate(file);
+  };
+
+  const handleLogoRemove = () => {
+    setLogoPreview(null);
+    form.setValue('logoUrl', '');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const onSubmit = (data: InsertHotel) => {
@@ -402,14 +483,97 @@ export default function HotelSetup() {
                 </div>
               </div>
 
+              {/* Logo Upload */}
               <div>
-                <Label htmlFor="logoUrl">URL Logo</Label>
-                <Input
-                  id="logoUrl"
-                  {...form.register("logoUrl")}
-                  placeholder="https://example.com/logo.png"
-                  className="mt-1"
-                />
+                <Label>Logo Hotel</Label>
+                <div className="mt-2">
+                  {logoPreview ? (
+                    <div className="space-y-3">
+                      {/* Logo Preview */}
+                      <div className="flex items-center space-x-4 p-4 border rounded-lg bg-gray-50">
+                        <div className="flex-shrink-0">
+                          <img
+                            src={logoPreview}
+                            alt="Logo preview"
+                            className="h-16 w-16 object-contain rounded border"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900">Logo caricato</p>
+                          <p className="text-sm text-gray-500">PNG o JPG, max 5MB</p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleLogoRemove}
+                          className="flex-shrink-0"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      {/* Replace Button */}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploadingLogo}
+                        className="w-full"
+                      >
+                        {isUploadingLogo ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Caricamento...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Sostituisci Logo
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                      <div className="space-y-2">
+                        <Image className="mx-auto h-12 w-12 text-gray-400" />
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium text-gray-900">Carica il logo del tuo hotel</p>
+                          <p className="text-sm text-gray-500">PNG o JPG fino a 5MB</p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={isUploadingLogo}
+                          className="mt-2"
+                        >
+                          {isUploadingLogo ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Caricamento...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="mr-2 h-4 w-4" />
+                              Seleziona File
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Hidden file input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg"
+                    onChange={handleLogoUpload}
+                    className="hidden"
+                  />
+                </div>
               </div>
 
               {/* Submit Button */}

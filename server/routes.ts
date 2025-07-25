@@ -1,5 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 import { storage } from "./storage";
 import { 
   insertHotelSchema, 
@@ -13,7 +16,59 @@ import { generateItineraryPDF } from "./services/pdf";
 import { enrichHotelData, isValidItalianLocation } from "./services/geocoding";
 import { randomUUID } from "crypto";
 
+// Configurazione multer per upload dei loghi
+const logoStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadsDir = path.join(process.cwd(), 'uploads', 'logos');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = `logo-${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`;
+    cb(null, uniqueName);
+  }
+});
+
+const logoUpload = multer({
+  storage: logoStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg') {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo file PNG e JPG sono consentiti'));
+    }
+  }
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Logo upload endpoint
+  app.post("/api/upload/logo", logoUpload.single('logo'), (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "Nessun file caricato" });
+      }
+
+      const logoUrl = `/uploads/logos/${req.file.filename}`;
+      
+      res.json({
+        message: "Logo caricato con successo",
+        logoUrl: logoUrl,
+        filename: req.file.filename
+      });
+      
+    } catch (error) {
+      console.error('Logo upload error:', error);
+      res.status(500).json({ 
+        message: error.message || "Errore durante il caricamento del logo" 
+      });
+    }
+  });
+
   // Hotels
   app.get("/api/hotels", async (req, res) => {
     try {
