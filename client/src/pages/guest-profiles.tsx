@@ -364,61 +364,63 @@ export default function GuestProfiles() {
               return (
                 <Card key={profile.id} className="relative overflow-hidden hover:shadow-lg transition-all duration-300 border border-slate-200 bg-white">
                   {/* Card Header */}
-                  <div className="relative p-6 bg-gradient-to-br from-slate-50 via-white to-slate-50">
+                  <div className="relative p-5 bg-gradient-to-br from-slate-50 via-white to-slate-50">
                     {/* Action Buttons - Top Right */}
-                    <div className="absolute top-4 right-4 flex space-x-2">
+                    <div className="absolute top-3 right-3 flex space-x-1">
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => handleEdit(profile)}
-                        className="h-8 w-8 p-0 rounded-full hover:bg-blue-100 hover:text-blue-600 transition-colors"
+                        className="h-7 w-7 p-0 rounded-full hover:bg-blue-100 hover:text-blue-600 transition-colors"
                       >
-                        <Edit className="h-4 w-4" />
+                        <Edit className="h-3.5 w-3.5" />
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => handleDelete(profile.id)}
-                        className="h-8 w-8 p-0 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors"
+                        className="h-7 w-7 p-0 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                     
                     {/* Guest Info */}
-                    <div className="flex items-start space-x-4 pr-20">
-                      <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-md">
-                        <TypeIcon className="h-7 w-7 text-white" />
+                    <div className="flex items-start space-x-4 pr-16">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-sm">
+                        <TypeIcon className="h-6 w-6 text-white" />
                       </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-heading font-semibold text-slate-900 mb-1">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-heading font-semibold text-slate-900 mb-2 truncate">
                           {profile.referenceName}
                         </h3>
-                        <div className="flex items-center space-x-3 mb-3">
+                        <div className="flex items-center space-x-2 mb-2">
                           <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 font-medium text-xs">
                             {getTypeLabel(profile.type)}
                           </Badge>
-                          <span className="text-sm text-slate-600 font-medium">
+                          <span className="text-xs text-slate-600 font-medium">
                             {profile.numberOfPeople} persona{profile.numberOfPeople > 1 ? 'e' : 'a'}
                           </span>
                         </div>
                         
                         {/* Status Badge */}
-                        {profile.preferencesCompleted ? (
-                          <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-100">
-                            ✓ Preferenze completate
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-orange-700 border-orange-300 bg-orange-50">
-                            ⏳ In attesa
-                          </Badge>
-                        )}
+                        <div className="flex items-center space-x-2">
+                          {profile.preferencesCompleted ? (
+                            <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 text-xs">
+                              ✓ Completato
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-orange-700 border-orange-300 bg-orange-50 text-xs">
+                              ⏳ In attesa
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
                   
                   {/* Card Content */}
-                  <CardContent className="p-6 space-y-4">
+                  <CardContent className="p-5 space-y-4">
                     {/* Dates and Room */}
                     <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
                       <div className="flex items-center space-x-3">
@@ -455,32 +457,21 @@ export default function GuestProfiles() {
                       </div>
                     )}
                     
-                    {/* Preferences */}
-                    {profile.preferencesCompleted && profile.preferences && profile.preferences.length > 0 && (
-                      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-                        <p className="text-sm font-semibold text-emerald-900 mb-3 flex items-center">
-                          🎯 Preferenze di viaggio ({profile.preferences.length})
-                        </p>
-                        <div className="grid grid-cols-1 gap-2">
-                          {profile.preferences.slice(0, 3).map((pref: string, index: number) => (
-                            <div key={index} className="bg-white border border-emerald-200 rounded-lg px-3 py-2">
-                              <span className="text-xs font-medium text-emerald-800">{pref}</span>
-                            </div>
-                          ))}
-                          {profile.preferences.length > 3 && (
-                            <div className="bg-emerald-100 border border-emerald-300 rounded-lg px-3 py-2 text-center">
-                              <span className="text-xs font-medium text-emerald-800">
-                                +{profile.preferences.length - 3} altre preferenze
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                    {/* View Profile Button */}
+                    <div className="flex justify-center pt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full font-medium hover:bg-slate-50"
+                        onClick={() => handleEdit(profile)}
+                      >
+                        Vedi Profilo Completo
+                      </Button>
+                    </div>
                   </CardContent>
                   
                   {/* Card Footer */}
-                  <div className="px-6 pb-4">
+                  <div className="px-5 pb-4">
                     <div className="text-center border-t border-slate-100 pt-3">
                       <p className="text-xs text-slate-500 font-display">
                         Creato il {new Date(profile.createdAt).toLocaleDateString("it-IT")}
