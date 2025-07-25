@@ -27,12 +27,14 @@ export const guestProfiles = pgTable("guest_profiles", {
   type: text("type").notNull(), // famiglia, coppia, singolo, gruppo_lavoro, anziani
   numberOfPeople: integer("number_of_people").notNull(),
   referenceName: text("reference_name").notNull(),
+  email: text("email"), // Email per invio questionario preferenze
   ages: jsonb("ages").$type<number[]>(), // array of ages
   preferences: jsonb("preferences").$type<string[]>(), // array of preferences
   specialRequests: text("special_requests"),
   checkInDate: timestamp("check_in_date").notNull(),
   checkOutDate: timestamp("check_out_date").notNull(),
   roomNumber: text("room_number"),
+  preferencesCompleted: boolean("preferences_completed").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -112,6 +114,17 @@ export const itineraries = pgTable("itineraries", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Tabella per gestire i token delle preferenze ospiti
+export const guestPreferencesTokens = pgTable("guest_preferences_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  token: varchar("token").notNull().unique(),
+  guestProfileId: varchar("guest_profile_id").notNull().references(() => guestProfiles.id, { onDelete: "cascade" }),
+  emailSent: boolean("email_sent").default(false),
+  completed: boolean("completed").default(false),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const hotelsRelations = relations(hotels, ({ many }) => ({
   guestProfiles: many(guestProfiles),
@@ -133,6 +146,14 @@ export const guestProfilesRelations = relations(guestProfiles, ({ one, many }) =
     references: [hotels.id],
   }),
   itineraries: many(itineraries),
+  preferencesTokens: many(guestPreferencesTokens),
+}));
+
+export const guestPreferencesTokensRelations = relations(guestPreferencesTokens, ({ one }) => ({
+  guestProfile: one(guestProfiles, {
+    fields: [guestPreferencesTokens.guestProfileId],
+    references: [guestProfiles.id],
+  }),
 }));
 
 export const localExperiencesRelations = relations(localExperiences, ({ one }) => ({
@@ -181,6 +202,20 @@ export const insertPendingAttractionSchema = createInsertSchema(pendingAttractio
   processedAt: true,
 });
 
+export const insertGuestPreferencesTokenSchema = createInsertSchema(guestPreferencesTokens).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Schema per le preferenze ospiti dal modulo pubblico
+export const guestPreferencesSchema = z.object({
+  preferences: z.array(z.string()).min(1, "Seleziona almeno una preferenza"),
+  otherPreferences: z.string().optional(),
+  dietaryRestrictions: z.array(z.string()).optional(),
+  mobilityNeeds: z.array(z.string()).optional(),
+  specialInterests: z.string().optional(),
+});
+
 // Types
 export type Hotel = typeof hotels.$inferSelect;
 export type InsertHotel = z.infer<typeof insertHotelSchema>;
@@ -192,3 +227,6 @@ export type Itinerary = typeof itineraries.$inferSelect;
 export type InsertItinerary = z.infer<typeof insertItinerarySchema>;
 export type PendingAttraction = typeof pendingAttractions.$inferSelect;
 export type InsertPendingAttraction = z.infer<typeof insertPendingAttractionSchema>;
+export type GuestPreferencesToken = typeof guestPreferencesTokens.$inferSelect;
+export type InsertGuestPreferencesToken = z.infer<typeof insertGuestPreferencesTokenSchema>;
+export type GuestPreferences = z.infer<typeof guestPreferencesSchema>;

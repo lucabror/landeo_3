@@ -4,6 +4,7 @@ import {
   localExperiences, 
   itineraries,
   pendingAttractions,
+  guestPreferencesTokens,
   type Hotel, 
   type InsertHotel,
   type GuestProfile,
@@ -13,7 +14,9 @@ import {
   type Itinerary,
   type InsertItinerary,
   type PendingAttraction,
-  type InsertPendingAttraction
+  type InsertPendingAttraction,
+  type GuestPreferencesToken,
+  type InsertGuestPreferencesToken
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
@@ -54,6 +57,11 @@ export interface IStorage {
   getPendingAttractions(hotelId: string): Promise<PendingAttraction[]>;
   approvePendingAttraction(id: string): Promise<void>;
   rejectPendingAttraction(id: string): Promise<void>;
+
+  // Guest Preferences Tokens
+  createGuestPreferencesToken(token: InsertGuestPreferencesToken): Promise<GuestPreferencesToken>;
+  getGuestPreferencesToken(token: string): Promise<GuestPreferencesToken | undefined>;
+  updateGuestPreferencesToken(token: string, data: Partial<InsertGuestPreferencesToken>): Promise<GuestPreferencesToken>;
 
   // Dashboard stats
   getHotelStats(hotelId: string): Promise<{
@@ -300,6 +308,26 @@ export class DatabaseStorage implements IStorage {
         processedAt: new Date() 
       })
       .where(eq(pendingAttractions.id, id));
+  }
+
+  // Guest Preferences Tokens
+  async createGuestPreferencesToken(insertToken: InsertGuestPreferencesToken): Promise<GuestPreferencesToken> {
+    const [token] = await db.insert(guestPreferencesTokens).values(insertToken).returning();
+    return token;
+  }
+
+  async getGuestPreferencesToken(token: string): Promise<GuestPreferencesToken | undefined> {
+    const [result] = await db.select().from(guestPreferencesTokens).where(eq(guestPreferencesTokens.token, token));
+    return result || undefined;
+  }
+
+  async updateGuestPreferencesToken(token: string, insertToken: Partial<InsertGuestPreferencesToken>): Promise<GuestPreferencesToken> {
+    const [result] = await db
+      .update(guestPreferencesTokens)
+      .set(insertToken)
+      .where(eq(guestPreferencesTokens.token, token))
+      .returning();
+    return result;
   }
 }
 

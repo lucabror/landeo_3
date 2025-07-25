@@ -10,6 +10,7 @@ import GuestProfiles from "@/pages/guest-profiles";
 import LocalExperiences from "@/pages/local-experiences";
 import Itineraries from "@/pages/itineraries";
 import ItineraryView from "@/pages/itinerary-view";
+import GuestPreferencesPage from "@/pages/guest-preferences";
 
 function Router() {
   return (
@@ -31,6 +32,11 @@ function Router() {
       
       {/* Public itinerary view (for guests) */}
       <Route path="/itinerary/:uniqueUrl" component={ItineraryView} />
+      
+      {/* Public guest preferences form */}
+      <Route path="/guest-preferences/:token">
+        {(params) => <GuestPreferencesPage token={params.token} />}
+      </Route>
       
       {/* QR Code & PDF page redirects to itineraries for now */}
       <Route path="/qr-pdf" component={Itineraries} />

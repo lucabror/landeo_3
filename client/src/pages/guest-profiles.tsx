@@ -57,6 +57,7 @@ export default function GuestProfiles() {
       type: "",
       numberOfPeople: 1,
       referenceName: "",
+      email: "",
       ages: [],
       preferences: [],
       specialRequests: "",
@@ -141,6 +142,7 @@ export default function GuestProfiles() {
       type: "",
       numberOfPeople: 1,
       referenceName: "",
+      email: "",
       ages: [],
       preferences: [],
       specialRequests: "",
@@ -234,6 +236,20 @@ export default function GuestProfiles() {
                     placeholder="Mario Rossi"
                     className="mt-1"
                   />
+                </div>
+                
+                <div>
+                  <Label htmlFor="email">Email Ospite</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    {...form.register("email")}
+                    placeholder="email@esempio.com"
+                    className="mt-1"
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Se inserita, l'ospite riceverà automaticamente un'email con un modulo per specificare le sue preferenze di viaggio
+                  </p>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
