@@ -19,62 +19,73 @@ export async function generateGuestSpecificItinerary(
     / (1000 * 60 * 60 * 24)
   );
 
+  // Generate dates array for each day of stay
+  const checkInDate = new Date(guestProfile.checkInDate);
+  const dates = [];
+  for (let i = 0; i < stayDuration; i++) {
+    const currentDate = new Date(checkInDate);
+    currentDate.setDate(checkInDate.getDate() + i);
+    dates.push(currentDate.toISOString().split('T')[0]);
+  }
+
   // Create AI prompt for guest-specific itinerary
   const prompt = `
-Genera un itinerario personalizzato per un ospite di ${hotel.name} a ${hotel.city}, ${hotel.region}.
+Genera un itinerario personalizzato che deve basarsi ESCLUSIVAMENTE su questi tre elementi:
 
-INFORMAZIONI OSPITE:
-- Nome: ${guestProfile.referenceName}
-- Tipo: ${guestProfile.type}
-- Numero persone: ${guestProfile.numberOfPeople}
-- Durata soggiorno: ${stayDuration} giorni
-- Check-in: ${new Date(guestProfile.checkInDate).toLocaleDateString('it-IT')}
-- Check-out: ${new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT')}
-- Preferenze: ${guestProfile.preferences?.join(", ") || "Nessuna preferenza specifica"}
-- Richieste speciali: ${guestProfile.specialRequests || "Nessuna"}
+1. CARATTERISTICHE HOTEL "${hotel.name}":
+${hotel.services?.length ? 
+  hotel.services.map(service => `   - ${service}`).join('\n') : 
+  '   - Servizi standard di ospitalità'
+}
+${hotel.description ? `   - Descrizione: ${hotel.description}` : ''}
 
-HOTEL INFORMAZIONI:
-- Nome: ${hotel.name}
-- Città: ${hotel.city}, ${hotel.region}
-- Servizi: ${hotel.services?.join(", ") || "Standard"}
+2. PREFERENZE OSPITE:
+   - Tipo ospite: ${guestProfile.type}
+   - Numero persone: ${guestProfile.numberOfPeople}
+   - Preferenze specifiche: ${guestProfile.preferences?.join(", ") || "Nessuna preferenza particolare"}
+   - Richieste speciali: ${guestProfile.specialRequests || "Nessuna richiesta particolare"}
 
-ESPERIENZE LOCALI DISPONIBILI:
-${localExperiences.map(exp => `
-- ${exp.name}: ${exp.description}
-  Categoria: ${exp.category}
-  Durata: ${exp.duration}
-  Prezzo: ${exp.priceRange}
-  Località: ${exp.location}
-`).join("\n")}
+3. ESPERIENZE LOCALI SELEZIONATE DAL MANAGER:
+${localExperiences.length > 0 ? 
+  localExperiences.map(exp => `   - ID: ${exp.id}
+     Nome: ${exp.name} (${exp.category})
+     Durata: ${exp.duration} | Prezzo: ${exp.priceRange}
+     Località: ${exp.location}
+     Descrizione: ${exp.description}`).join('\n\n') :
+  '   - Nessuna esperienza locale configurata dal manager'
+}
 
-ISTRUZIONI:
-1. Crea un itinerario specifico per questo ospite di ${stayDuration} giorni
-2. Considera le preferenze dell'ospite: ${guestProfile.preferences?.join(", ") || "generale"}
-3. Includi le esperienze locali più adatte dal catalogo fornito
-4. Aggiungi suggerimenti per pasti e momenti di relax
-5. Considera il tipo di ospite: ${guestProfile.type}
-6. Bilancia attività attive e momenti di relax
+REGOLE FONDAMENTALI:
+- Crea un itinerario di ESATTAMENTE ${stayDuration} giorni (dal ${dates[0]} al ${dates[dates.length - 1]})
+- USA SOLO le esperienze locali elencate sopra con i loro ID specifici
+- NON inventare attività o esperienze non presenti nella lista
+- INTEGRA i servizi dell'hotel specificati nella lista servizi
+- RISPETTA sempre le preferenze dell'ospite: ${guestProfile.preferences?.join(", ") || "nessuna preferenza particolare"}
+- Per il tipo ospite "${guestProfile.type}" considera il target appropriato
+- Se non ci sono esperienze locali, concentrati sui servizi dell'hotel
+- Ogni giorno deve avere dalle 3 alle 5 attività distribuite dalla mattina alla sera
+- Per le esperienze locali usa sempre l'ID corrispondente nel campo "experienceId"
 
-Rispondi SOLO con un oggetto JSON valido nel seguente formato:
+FORMAT RICHIESTO - Rispondi SOLO con JSON valido:
 {
-  "title": "Titolo dell'itinerario personalizzato",
-  "description": "Breve descrizione dell'itinerario",
+  "title": "Titolo itinerario per ${guestProfile.referenceName}",
+  "description": "Breve descrizione personalizzata",
   "days": [
-    {
-      "day": 1,
-      "date": "2024-01-01",
+${dates.map((date, index) => `    {
+      "day": ${index + 1},
+      "date": "${date}",
       "activities": [
         {
           "time": "09:00",
-          "activity": "Nome attività",
-          "location": "Località",
-          "description": "Descrizione dettagliata",
-          "experienceId": "id_esperienza_se_applicabile",
-          "duration": "2 ore",
-          "notes": "Note aggiuntive"
+          "activity": "Nome attività mattutina",
+          "location": "Dove si svolge",
+          "description": "Descrizione dell'attività",
+          "experienceId": "id_se_esperienza_locale",
+          "duration": "durata stimata",
+          "notes": "Note specifiche per l'ospite"
         }
       ]
-    }
+    }`).join(',\n')}
   ]
 }
 `;
