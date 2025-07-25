@@ -18,6 +18,7 @@ export const hotels = pgTable("hotels", {
   logoUrl: text("logo_url"),
   latitude: text("latitude"),
   longitude: text("longitude"),
+  services: jsonb("services").$type<string[]>(), // array of hotel services
   createdAt: timestamp("created_at").defaultNow(),
 });
 
