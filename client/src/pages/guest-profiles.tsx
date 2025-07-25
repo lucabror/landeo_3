@@ -22,7 +22,9 @@ import {
   Heart,
   Briefcase,
   UserCheck,
-  Loader2
+  Loader2,
+  CheckCircle,
+  Clock
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { insertGuestProfileSchema } from "@shared/schema";
@@ -407,22 +409,52 @@ export default function GuestProfiles() {
                         <TypeIcon className="h-5 w-5 text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-base font-heading font-semibold text-slate-900 truncate mb-1">
+                        <h3 className="text-base font-heading font-semibold text-slate-900 truncate mb-2">
                           {profile.referenceName}
                         </h3>
-                        <p className="text-sm text-slate-600 mb-2">
-                          {new Date(profile.checkInDate).toLocaleDateString("it-IT")} - {new Date(profile.checkOutDate).toLocaleDateString("it-IT")}
-                        </p>
+                        
+                        {/* Stay Status */}
+                        {(() => {
+                          const today = new Date();
+                          const checkIn = new Date(profile.checkInDate);
+                          const checkOut = new Date(profile.checkOutDate);
+                          const isCurrentlyStaying = today >= checkIn && today <= checkOut;
+                          const hasCheckedOut = today > checkOut;
+                          const isUpcoming = today < checkIn;
+                          
+                          if (isCurrentlyStaying) {
+                            return (
+                              <div className="flex items-center space-x-1 mb-2">
+                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span className="text-xs text-green-700 font-medium">Presente in hotel</span>
+                              </div>
+                            );
+                          } else if (hasCheckedOut) {
+                            return (
+                              <div className="flex items-center space-x-1 mb-2">
+                                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                <span className="text-xs text-gray-600 font-medium">Check-out completato</span>
+                              </div>
+                            );
+                          } else if (isUpcoming) {
+                            return (
+                              <div className="flex items-center space-x-1 mb-2">
+                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                <span className="text-xs text-blue-700 font-medium">Arrivo previsto</span>
+                              </div>
+                            );
+                          }
+                        })()}
                         
                         {/* Preferences Status */}
                         {profile.preferencesCompleted ? (
                           <div className="flex items-center space-x-1">
-                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <CheckCircle className="w-3 h-3 text-green-600" />
                             <span className="text-xs text-green-700 font-medium">Preferenze completate</span>
                           </div>
                         ) : (
                           <div className="flex items-center space-x-1">
-                            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                            <Clock className="w-3 h-3 text-orange-600" />
                             <span className="text-xs text-orange-700 font-medium">In attesa preferenze</span>
                           </div>
                         )}
