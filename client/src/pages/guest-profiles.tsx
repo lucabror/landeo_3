@@ -362,122 +362,53 @@ export default function GuestProfiles() {
             {guestProfiles?.map((profile: any) => {
               const TypeIcon = getTypeIcon(profile.type);
               return (
-                <Card key={profile.id} className="relative overflow-hidden hover:shadow-lg transition-all duration-300 border border-slate-200 bg-white">
-                  {/* Card Header */}
-                  <div className="relative p-5 bg-gradient-to-br from-slate-50 via-white to-slate-50">
+                <Card key={profile.id} className="relative hover:shadow-md transition-all duration-200 border border-slate-200 bg-white">
+                  <CardContent className="p-4">
                     {/* Action Buttons - Top Right */}
-                    <div className="absolute top-3 right-3 flex space-x-1">
+                    <div className="absolute top-2 right-2 flex space-x-1">
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => handleEdit(profile)}
-                        className="h-7 w-7 p-0 rounded-full hover:bg-blue-100 hover:text-blue-600 transition-colors"
+                        className="h-6 w-6 p-0 rounded-full hover:bg-blue-100 hover:text-blue-600"
                       >
-                        <Edit className="h-3.5 w-3.5" />
+                        <Edit className="h-3 w-3" />
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => handleDelete(profile.id)}
-                        className="h-7 w-7 p-0 rounded-full hover:bg-red-100 hover:text-red-600 transition-colors"
+                        className="h-6 w-6 p-0 rounded-full hover:bg-red-100 hover:text-red-600"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
                     
-                    {/* Guest Info */}
-                    <div className="flex items-start space-x-4 pr-16">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-sm">
-                        <TypeIcon className="h-6 w-6 text-white" />
+                    {/* Main Content */}
+                    <div className="flex items-start space-x-3 pr-14 mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <TypeIcon className="h-5 w-5 text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-heading font-semibold text-slate-900 mb-2 truncate">
+                        <h3 className="text-base font-heading font-semibold text-slate-900 truncate mb-1">
                           {profile.referenceName}
                         </h3>
-                        <div className="flex items-center space-x-2 mb-2">
-                          <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 font-medium text-xs">
-                            {getTypeLabel(profile.type)}
-                          </Badge>
-                          <span className="text-xs text-slate-600 font-medium">
-                            {profile.numberOfPeople} persona{profile.numberOfPeople > 1 ? 'e' : 'a'}
-                          </span>
-                        </div>
-                        
-                        {/* Status Badge */}
-                        <div className="flex items-center space-x-2">
-                          {profile.preferencesCompleted ? (
-                            <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 text-xs">
-                              ✓ Completato
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-orange-700 border-orange-300 bg-orange-50 text-xs">
-                              ⏳ In attesa
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Card Content */}
-                  <CardContent className="p-5 space-y-4">
-                    {/* Dates and Room */}
-                    <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                      <div className="flex items-center space-x-3">
-                        <Calendar className="h-5 w-5 text-slate-500" />
-                        <div>
-                          <p className="text-sm font-medium text-slate-900">
-                            {new Date(profile.checkInDate).toLocaleDateString("it-IT")} - {new Date(profile.checkOutDate).toLocaleDateString("it-IT")}
-                          </p>
-                          <p className="text-xs text-slate-600">Date soggiorno</p>
-                        </div>
-                      </div>
-                      {profile.roomNumber && (
-                        <div className="bg-white px-3 py-2 rounded-lg border border-slate-200">
-                          <p className="text-sm font-display font-semibold text-slate-700">Camera {profile.roomNumber}</p>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Active Guest Banner */}
-                    {new Date() >= new Date(profile.checkInDate) && 
-                     new Date() <= new Date(profile.checkOutDate) && (
-                      <div className="bg-gradient-to-r from-green-100 to-emerald-100 border border-green-200 rounded-xl p-3 text-center">
-                        <p className="text-green-800 font-medium text-sm">🏨 Ospite presente in hotel</p>
-                      </div>
-                    )}
-                    
-                    {/* Special Requests */}
-                    {profile.specialRequests && (
-                      <div className="bg-blue-50 border-l-4 border-blue-400 rounded-r-xl p-4">
-                        <p className="text-sm text-blue-900">
-                          <span className="font-semibold">Richieste speciali:</span>
+                        <p className="text-sm text-slate-600">
+                          {new Date(profile.checkInDate).toLocaleDateString("it-IT")} - {new Date(profile.checkOutDate).toLocaleDateString("it-IT")}
                         </p>
-                        <p className="text-sm text-blue-800 mt-1">{profile.specialRequests}</p>
                       </div>
-                    )}
+                    </div>
                     
                     {/* View Profile Button */}
-                    <div className="flex justify-center pt-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full font-medium hover:bg-slate-50"
-                        onClick={() => handleEdit(profile)}
-                      >
-                        Vedi Profilo Completo
-                      </Button>
-                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full font-medium"
+                      onClick={() => handleEdit(profile)}
+                    >
+                      Vedi Profilo
+                    </Button>
                   </CardContent>
-                  
-                  {/* Card Footer */}
-                  <div className="px-5 pb-4">
-                    <div className="text-center border-t border-slate-100 pt-3">
-                      <p className="text-xs text-slate-500 font-display">
-                        Creato il {new Date(profile.createdAt).toLocaleDateString("it-IT")}
-                      </p>
-                    </div>
-                  </div>
                 </Card>
               );
             })}
