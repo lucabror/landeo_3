@@ -198,11 +198,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
             
             // Invia email
-            const emailSent = await sendGuestPreferencesEmail(hotel, profile, token);
+            const emailResult = await sendGuestPreferencesEmail(hotel, profile, token);
             
-            if (emailSent) {
+            if (emailResult.success) {
               await storage.updateGuestPreferencesToken(token, { emailSent: true });
               console.log(`Email preferenze inviata a ${profile.email} per ospite ${profile.referenceName}`);
+            } else {
+              console.warn('Email not sent:', emailResult.error);
             }
           }
         } catch (emailError) {
@@ -273,16 +275,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Invia email
       try {
-        const emailSent = await sendGuestPreferencesEmail(hotel, profile, token);
+        const emailResult = await sendGuestPreferencesEmail(hotel, profile, token);
         
-        if (emailSent) {
+        if (emailResult.success) {
           await storage.updateGuestPreferencesToken(token, { emailSent: true });
           res.json({ 
             message: "Email re-inviata con successo",
             email: profile.email
           });
         } else {
-          res.status(500).json({ message: "Errore nell'invio dell'email" });
+          const errorMessage = emailResult.error?.includes('Domain not verified') 
+            ? "Per inviare email è necessario verificare un dominio in Resend. Contatta l'amministratore del sistema."
+            : "Errore nell'invio dell'email: " + emailResult.error;
+          
+          res.status(500).json({ message: errorMessage });
         }
       } catch (emailError) {
         console.error('Error sending email:', emailError);

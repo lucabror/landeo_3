@@ -66,10 +66,10 @@ export async function sendGuestPreferencesEmail(
   hotel: Hotel,
   guestProfile: GuestProfile,
   preferencesToken: string
-): Promise<boolean> {
+): Promise<{success: boolean, error?: string}> {
   if (!process.env.RESEND_API_KEY) {
     console.warn('RESEND_API_KEY non configurata. Email non inviata.');
-    return false;
+    return {success: false, error: 'RESEND_API_KEY non configurata'};
   }
 
   try {
@@ -170,18 +170,21 @@ export async function sendGuestPreferencesEmail(
 
     if (error) {
       console.error('Errore Resend:', error);
-      return false;
+      if (error.message?.includes('You can only send testing emails')) {
+        return {success: false, error: 'Domain not verified. Please verify your domain in Resend to send emails to other recipients.'};
+      }
+      return {success: false, error: error.message || 'Email sending failed'};
     }
 
     if (data?.id) {
       console.log(`Email preferenze inviata con successo a ${guestProfile.email} per ospite ${guestProfile.referenceName}`);
       console.log('Email ID:', data.id);
-      return true;
+      return {success: true};
     }
 
-    return false;
+    return {success: false, error: 'Unknown error occurred'};
   } catch (error: any) {
     console.error('Errore invio email:', error);
-    return false;
+    return {success: false, error: error.message || 'Email sending failed'};
   }
 }
