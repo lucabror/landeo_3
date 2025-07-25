@@ -249,33 +249,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Hotel not found" });
       }
 
-      // Trova o crea un nuovo token per le preferenze
-      let token;
+      if (!profile.email) {
+        return res.status(400).json({ message: "No email address for this guest" });
+      }
+
+      // Crea sempre un nuovo token per il re-invio
+      const token = randomUUID();
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+      
       try {
-        // Cerca token esistente non scaduto
-        const existingToken = await storage.getGuestPreferencesTokenByProfileId(profile.id);
-        if (existingToken && !existingToken.completed && new Date() < new Date(existingToken.expiresAt)) {
-          token = existingToken.token;
-        } else {
-          // Crea nuovo token
-          token = randomUUID();
-          const expiresAt = new Date();
-          expiresAt.setDate(expiresAt.getDate() + 30);
-          
-          await storage.createGuestPreferencesToken({
-            token,
-            guestProfileId: profile.id,
-            emailSent: false,
-            completed: false,
-            expiresAt
-          });
-        }
-      } catch (error) {
-        // Se non trova token esistente, crea nuovo
-        token = randomUUID();
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 30);
-        
         await storage.createGuestPreferencesToken({
           token,
           guestProfileId: profile.id,
@@ -283,24 +266,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
           completed: false,
           expiresAt
         });
+      } catch (tokenError) {
+        console.error('Error creating token:', tokenError);
+        return res.status(500).json({ message: "Error creating preferences token" });
       }
       
       // Invia email
-      const emailSent = await sendGuestPreferencesEmail(hotel, profile, token);
-      
-      if (emailSent) {
-        await storage.updateGuestPreferencesToken(token, { emailSent: true });
-        res.json({ 
-          message: "Email re-inviata con successo",
-          email: profile.email
-        });
-      } else {
-        res.status(500).json({ message: "Errore nell'invio dell'email" });
+      try {
+        const emailSent = await sendGuestPreferencesEmail(hotel, profile, token);
+        
+        if (emailSent) {
+          await storage.updateGuestPreferencesToken(token, { emailSent: true });
+          res.json({ 
+            message: "Email re-inviata con successo",
+            email: profile.email
+          });
+        } else {
+          res.status(500).json({ message: "Errore nell'invio dell'email" });
+        }
+      } catch (emailError) {
+        console.error('Error sending email:', emailError);
+        res.status(500).json({ message: "Error sending email: " + (emailError as Error).message });
       }
       
     } catch (error) {
       console.error('Error resending email:', error);
-      res.status(500).json({ message: "Failed to resend email" });
+      res.status(500).json({ message: "Failed to resend email: " + (error as Error).message });
     }
   });
 
