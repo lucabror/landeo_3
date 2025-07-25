@@ -28,7 +28,8 @@ import {
   Save,
   Route,
   Eye,
-  QrCode
+  QrCode,
+  Mail
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { insertGuestProfileSchema } from "@shared/schema";
@@ -229,6 +230,29 @@ export default function GuestProfiles() {
         title: "Errore generazione itinerario",
         description: error.message || "Si è verificato un errore durante la generazione dell'itinerario",
         variant: "destructive"
+      });
+    }
+  };
+
+  const handleEmailPDF = async (itinerary: any, profile: any) => {
+    try {
+      const email = profile.email || prompt("Inserisci l'email dell'ospite:");
+      if (!email) return;
+
+      const response = await apiRequest("POST", `/api/itinerary/${itinerary.uniqueUrl}/email-pdf`, {
+        recipientEmail: email,
+        recipientName: profile.referenceName
+      });
+
+      toast({
+        title: "Email inviata",
+        description: "L'itinerario PDF è stato inviato con successo",
+      });
+    } catch (error) {
+      toast({
+        title: "Errore",
+        description: "Errore durante l'invio dell'email",
+        variant: "destructive",
       });
     }
   };
@@ -477,13 +501,24 @@ export default function GuestProfiles() {
                             Vedi Itinerario
                           </Button>
                           
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" className="flex-1">
+                          <div className="flex gap-2 mb-3">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="flex-1"
+                              onClick={() => window.open(`/api/itinerary/${guestItinerary[0].uniqueUrl}/qr-pdf`, '_blank')}
+                            >
                               <QrCode className="h-4 w-4 mr-1" />
-                              QR Code
+                              QR Code PDF
                             </Button>
-                            <Button size="sm" variant="outline" className="flex-1">
-                              PDF
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="flex-1"
+                              onClick={() => handleEmailPDF(guestItinerary[0], viewingProfile)}
+                            >
+                              <Mail className="h-4 w-4 mr-1" />
+                              Email PDF
                             </Button>
                           </div>
                         </div>
