@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -65,7 +65,7 @@ export default function HotelSetup() {
   });
 
   // Update form when hotel data is loaded
-  useState(() => {
+  useEffect(() => {
     if (hotel) {
       form.reset(hotel);
       if (hotel.logoUrl) {
@@ -83,7 +83,7 @@ export default function HotelSetup() {
       setIsEditing(true);
       setSelectedServices([]);
     }
-  }, [hotel]);
+  }, [hotel, form]);
 
   // Geocoding mutation
   const searchHotelMutation = useMutation({
