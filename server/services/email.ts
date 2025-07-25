@@ -1,40 +1,8 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import type { Hotel, GuestProfile } from '@shared/schema';
 
-// Configurazione trasporter Nodemailer
-const createTransporter = () => {
-  // Se abbiamo le credenziali Gmail
-  if (process.env.GMAIL_USER && process.env.GMAIL_PASSWORD) {
-    return nodemailer.createTransporter({
-      service: 'gmail',
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASSWORD // App Password per Gmail
-      }
-    });
-  }
-  
-  // Altrimenti usa SMTP generico
-  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
-    return nodemailer.createTransporter({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD
-      }
-    });
-  }
-  
-  // Fallback: simulazione invio per sviluppo
-  console.warn('Nessuna configurazione email trovata. Simulando invio email...');
-  return nodemailer.createTransporter({
-    streamTransport: true,
-    newline: 'unix',
-    buffer: true
-  });
-};
+// Inizializza Resend
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Email templates per lingua
 const EMAIL_TEMPLATES = {
@@ -99,6 +67,11 @@ export async function sendGuestPreferencesEmail(
   guestProfile: GuestProfile,
   preferencesToken: string
 ): Promise<boolean> {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY non configurata. Email non inviata.');
+    return false;
+  }
+
   try {
     const language = guestProfile.emailLanguage || 'it';
     const template = EMAIL_TEMPLATES[language as keyof typeof EMAIL_TEMPLATES];
@@ -188,35 +161,27 @@ export async function sendGuestPreferencesEmail(
 </body>
 </html>`;
 
-    const transporter = createTransporter();
-    
-    // Determina l'email mittente
-    const fromEmail = process.env.GMAIL_USER || process.env.SMTP_USER || hotel.email || 'noreply@example.com';
-    
-    const mailOptions = {
-      from: {
-        name: hotel.name,
-        address: fromEmail
-      },
-      to: guestProfile.email!,
+    const { data, error } = await resend.emails.send({
+      from: `${hotel.name} <onboarding@resend.dev>`, // Usa l'email di default di Resend
+      to: [guestProfile.email!],
       subject: template.subject(hotel.name),
       html: htmlContent,
-    };
+    });
 
-    const info = await transporter.sendMail(mailOptions);
-    
-    if (info.messageId || info.response) {
+    if (error) {
+      console.error('Errore Resend:', error);
+      return false;
+    }
+
+    if (data?.id) {
       console.log(`Email preferenze inviata con successo a ${guestProfile.email} per ospite ${guestProfile.referenceName}`);
-      console.log('Message ID:', info.messageId);
+      console.log('Email ID:', data.id);
       return true;
     }
-    
+
     return false;
   } catch (error: any) {
     console.error('Errore invio email:', error);
-    if (error.code === 'EAUTH') {
-      console.error('Errore autenticazione email. Verifica le credenziali.');
-    }
     return false;
   }
 }
