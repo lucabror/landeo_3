@@ -61,6 +61,7 @@ export interface IStorage {
   // Guest Preferences Tokens
   createGuestPreferencesToken(token: InsertGuestPreferencesToken): Promise<GuestPreferencesToken>;
   getGuestPreferencesToken(token: string): Promise<GuestPreferencesToken | undefined>;
+  getGuestPreferencesTokenByProfileId(guestProfileId: string): Promise<GuestPreferencesToken | undefined>;
   updateGuestPreferencesToken(token: string, data: Partial<InsertGuestPreferencesToken>): Promise<GuestPreferencesToken>;
 
   // Dashboard stats
@@ -318,6 +319,14 @@ export class DatabaseStorage implements IStorage {
 
   async getGuestPreferencesToken(token: string): Promise<GuestPreferencesToken | undefined> {
     const [result] = await db.select().from(guestPreferencesTokens).where(eq(guestPreferencesTokens.token, token));
+    return result || undefined;
+  }
+
+  async getGuestPreferencesTokenByProfileId(guestProfileId: string): Promise<GuestPreferencesToken | undefined> {
+    const [result] = await db.select().from(guestPreferencesTokens)
+      .where(eq(guestPreferencesTokens.guestProfileId, guestProfileId))
+      .orderBy(desc(guestPreferencesTokens.createdAt))
+      .limit(1);
     return result || undefined;
   }
 
