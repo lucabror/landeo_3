@@ -149,6 +149,10 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
     retry: false,
   });
 
+  // Determine language from guest data
+  const language = guestData?.guestProfile?.emailLanguage || 'it';
+  const isEnglish = language === 'en';
+
   // Submit mutation
   const submitMutation = useMutation({
     mutationFn: async (data: GuestPreferences) => {
@@ -210,8 +214,15 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
             <div className="text-red-500 mb-4">
               <MapPin className="h-12 w-12 mx-auto" />
             </div>
-            <h3 className="text-lg font-medium mb-2">Link non valido</h3>
-            <p className="text-gray-600">Il link potrebbe essere scaduto o non valido. Contatta l'hotel per assistenza.</p>
+            <h3 className="text-lg font-medium mb-2">
+              {isEnglish ? "Invalid Link" : "Link non valido"}
+            </h3>
+            <p className="text-gray-600">
+              {isEnglish 
+                ? "The link may be expired or invalid. Please contact the hotel for assistance."
+                : "Il link potrebbe essere scaduto o non valido. Contatta l'hotel per assistenza."
+              }
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -226,12 +237,20 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
             <div className="text-green-500 mb-4">
               <CheckCircle2 className="h-12 w-12 mx-auto" />
             </div>
-            <h3 className="text-lg font-medium mb-2">Grazie!</h3>
+            <h3 className="text-lg font-medium mb-2">
+              {isEnglish ? "Thank you!" : "Grazie!"}
+            </h3>
             <p className="text-gray-600 mb-4">
-              Le tue preferenze sono state salvate. Utilizzeremo queste informazioni per creare un itinerario personalizzato per il tuo soggiorno.
+              {isEnglish 
+                ? "Your preferences have been saved. We'll use this information to create a personalized itinerary for your stay."
+                : "Le tue preferenze sono state salvate. Utilizzeremo queste informazioni per creare un itinerario personalizzato per il tuo soggiorno."
+              }
             </p>
             <p className="text-sm text-gray-500">
-              Riceverai il tuo itinerario personalizzato prima del check-in.
+              {isEnglish 
+                ? "You'll receive your personalized itinerary before check-in."
+                : "Riceverai il tuo itinerario personalizzato prima del check-in."
+              }
             </p>
           </CardContent>
         </Card>
@@ -246,7 +265,7 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
         <Card className="mb-8">
           <CardHeader className="text-center bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
             <CardTitle className="text-2xl font-serif">
-              Personalizza il tuo soggiorno
+              {isEnglish ? "Customize your stay" : "Personalizza il tuo soggiorno"}
             </CardTitle>
             <div className="text-blue-100">
               <Building className="h-5 w-5 inline mr-2" />
@@ -256,16 +275,21 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
           <CardContent className="pt-6">
             <div className="text-center">
               <h3 className="text-lg font-medium mb-2">
-                Benvenuto/a {guestData?.guestProfile.referenceName}!
+                {isEnglish 
+                  ? `Welcome ${guestData?.guestProfile.referenceName}!`
+                  : `Benvenuto/a ${guestData?.guestProfile.referenceName}!`
+                }
               </h3>
               <p className="text-gray-600 mb-4">
-                Soggiorno dal {new Date(guestData?.guestProfile.checkInDate || "").toLocaleDateString('it-IT')} 
-                al {new Date(guestData?.guestProfile.checkOutDate || "").toLocaleDateString('it-IT')}
+                {isEnglish 
+                  ? `Stay from ${new Date(guestData?.guestProfile.checkInDate || "").toLocaleDateString('en-US')} to ${new Date(guestData?.guestProfile.checkOutDate || "").toLocaleDateString('en-US')}`
+                  : `Soggiorno dal ${new Date(guestData?.guestProfile.checkInDate || "").toLocaleDateString('it-IT')} al ${new Date(guestData?.guestProfile.checkOutDate || "").toLocaleDateString('it-IT')}`
+                }
               </p>
               <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
                 <div className="flex items-center">
                   <Users className="h-4 w-4 mr-1" />
-                  {guestData?.guestProfile.numberOfPeople} persone
+                  {guestData?.guestProfile.numberOfPeople} {isEnglish ? "people" : "persone"}
                 </div>
                 <div className="flex items-center">
                   <Heart className="h-4 w-4 mr-1" />

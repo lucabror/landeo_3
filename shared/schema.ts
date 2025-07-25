@@ -28,6 +28,7 @@ export const guestProfiles = pgTable("guest_profiles", {
   numberOfPeople: integer("number_of_people").notNull(),
   referenceName: text("reference_name").notNull(),
   email: text("email"), // Email per invio questionario preferenze
+  emailLanguage: text("email_language").default("it"), // 'it' o 'en' per lingua email
   ages: jsonb("ages").$type<number[]>(), // array of ages
   preferences: jsonb("preferences").$type<string[]>(), // array of preferences
   specialRequests: text("special_requests"),
