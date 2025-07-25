@@ -55,7 +55,8 @@ The application uses four main entities:
 3. **Guest Registration**: Guest profiles are created with preferences and stay details
 4. **AI Generation**: OpenAI generates personalized itineraries based on guest profiles and available experiences
 5. **Distribution**: QR codes and PDFs are generated for guest access
-6. **Guest Access**: Public itinerary view accessible via unique URLs
+6. **Guest Access**: Public itinerary view accessible via unique URLs with automatic expiration after checkout
+7. **Security Control**: Manager-only editing with automatic QR code deactivation after guest checkout date
 
 ## External Dependencies
 

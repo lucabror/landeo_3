@@ -512,7 +512,16 @@ export default function GuestProfiles() {
                               size="sm" 
                               variant="outline" 
                               className="flex-1"
-                              onClick={() => window.open(`/api/itinerary/${guestItinerary[0].uniqueUrl}/qr-pdf`, '_blank')}
+                              onClick={() => {
+                                // Check if QR code is expired
+                                const today = new Date();
+                                const checkoutDate = new Date(viewingProfile.checkOutDate);
+                                if (today > checkoutDate) {
+                                  alert("QR Code non disponibile: il soggiorno è terminato");
+                                  return;
+                                }
+                                window.open(`/api/itinerary/${guestItinerary[0].uniqueUrl}/qr-pdf`, '_blank');
+                              }}
                             >
                               <QrCode className="h-4 w-4 mr-1" />
                               QR Code PDF

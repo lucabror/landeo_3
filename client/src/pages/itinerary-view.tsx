@@ -123,6 +123,32 @@ export default function ItineraryView() {
     );
   }
 
+  // Handle expired itinerary (410 status)
+  if (error && error.message.includes('410')) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="mb-6">
+            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock className="h-8 w-8 text-orange-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Soggiorno Terminato</h1>
+            <p className="text-gray-600 mb-4">
+              Questo itinerario non è più accessibile in quanto il periodo di soggiorno è terminato.
+            </p>
+            <p className="text-sm text-gray-500">
+              Grazie per aver scelto la nostra struttura! Speriamo di rivederti presto.
+            </p>
+          </div>
+          <Button onClick={() => window.close()} variant="outline">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Chiudi
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (error || !itinerary) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
