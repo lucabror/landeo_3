@@ -373,8 +373,13 @@ export default function GuestProfiles() {
                           <CardTitle className="text-lg font-serif">
                             {profile.referenceName}
                           </CardTitle>
+                          {profile.preferencesCompleted && (
+                            <Badge variant="secondary" className="text-xs mt-1">
+                              ✓ Preferenze completate
+                            </Badge>
+                          )}
                           <p className="text-sm text-gray-500">
-                            {profile.numberOfPeople} persone
+                            {profile.numberOfPeople} persona{profile.numberOfPeople > 1 ? 'e' : 'a'}
                           </p>
                         </div>
                       </div>
@@ -400,9 +405,20 @@ export default function GuestProfiles() {
                   <CardContent>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <Badge variant="secondary" className="bg-primary/10 text-primary">
-                          {getTypeLabel(profile.type)}
-                        </Badge>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="secondary" className="bg-primary/10 text-primary">
+                            {getTypeLabel(profile.type)}
+                          </Badge>
+                          {profile.preferencesCompleted ? (
+                            <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">
+                              ✓ Preferenze
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-orange-600 border-orange-200">
+                              ⏳ In attesa
+                            </Badge>
+                          )}
+                        </div>
                         {profile.roomNumber && (
                           <span className="text-sm text-gray-500">
                             Camera {profile.roomNumber}
@@ -422,6 +438,26 @@ export default function GuestProfiles() {
                         <p className="text-sm text-gray-600 truncate">
                           📝 {profile.specialRequests}
                         </p>
+                      )}
+                      
+                      {profile.preferencesCompleted && profile.preferences && profile.preferences.length > 0 && (
+                        <div className="border-t pt-3 mt-3">
+                          <p className="text-sm font-medium text-gray-700 mb-2">
+                            🎯 Preferenze salvate:
+                          </p>
+                          <div className="flex flex-wrap gap-1">
+                            {profile.preferences.slice(0, 3).map((pref: string, index: number) => (
+                              <Badge key={index} variant="outline" className="text-xs">
+                                {pref}
+                              </Badge>
+                            ))}
+                            {profile.preferences.length > 3 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{profile.preferences.length - 3} altro
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
                       )}
                       
                       <div className="flex items-center justify-between text-xs text-gray-500">
