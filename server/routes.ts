@@ -350,6 +350,200 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate QR Code PDF for itinerary
+  app.get("/api/itinerary/:uniqueUrl/qr-pdf", async (req, res) => {
+    try {
+      const itinerary = await storage.getItineraryByUniqueUrl(req.params.uniqueUrl);
+      if (!itinerary) {
+        return res.status(404).json({ message: "Itinerary not found" });
+      }
+
+      const hotel = await storage.getHotel(itinerary.hotelId);
+      const guestProfile = await storage.getGuestProfile(itinerary.guestProfileId);
+
+      // Generate PDF with QR code
+      const PDFDocument = require('pdfkit');
+      const QRCode = require('qrcode');
+
+      const doc = new PDFDocument();
+      
+      // Set headers for PDF download
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="QR-Itinerario-${guestProfile?.referenceName || 'Guest'}.pdf"`);
+      
+      doc.pipe(res);
+
+      // Header with hotel info
+      if (hotel?.logoUrl) {
+        // Add logo if available (would need to fetch and add image)
+        doc.fontSize(20).text(hotel.name, 50, 50);
+      } else {
+        doc.fontSize(20).text(hotel?.name || 'Hotel', 50, 50);
+      }
+      
+      doc.fontSize(12).text(`${hotel?.city}, ${hotel?.region}`, 50, 80);
+      
+      // Title
+      doc.fontSize(18).text('QR Code Itinerario', 50, 120);
+      
+      // Guest info
+      doc.fontSize(14).text(`Ospite: ${guestProfile?.referenceName}`, 50, 160);
+      doc.text(`Periodo: ${guestProfile?.checkInDate ? new Date(guestProfile.checkInDate).toLocaleDateString('it-IT') : 'N/A'} - ${guestProfile?.checkOutDate ? new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT') : 'N/A'}`, 50, 180);
+      doc.text(`Titolo: ${itinerary.title}`, 50, 200);
+
+      // Generate QR code
+      const itineraryUrl = `${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/itinerary/${itinerary.uniqueUrl}`;
+      const qrCodeDataUrl = await QRCode.toDataURL(itineraryUrl, { width: 200 });
+      
+      // Add QR code to PDF
+      const qrCodeBuffer = Buffer.from(qrCodeDataUrl.split(',')[1], 'base64');
+      doc.image(qrCodeBuffer, 50, 240, { width: 200 });
+      
+      // Instructions
+      doc.fontSize(12).text('Scansiona questo QR code per accedere al tuo itinerario personalizzato', 50, 460);
+      doc.text(`Oppure visita: ${itineraryUrl}`, 50, 480);
+      
+      // Footer
+      doc.fontSize(10).text('Generato automaticamente dal sistema di gestione itinerari', 50, 520);
+      doc.text(`Data di generazione: ${new Date().toLocaleDateString('it-IT')}`, 50, 535);
+
+      doc.end();
+    } catch (error) {
+      console.error('Error generating QR PDF:', error);
+      res.status(500).json({ message: "Failed to generate QR PDF" });
+    }
+  });
+
+  // Generate and send itinerary PDF via email
+  app.post("/api/itinerary/:uniqueUrl/email-pdf", async (req, res) => {
+    try {
+      const { recipientEmail, recipientName } = req.body;
+      
+      const itinerary = await storage.getItineraryByUniqueUrl(req.params.uniqueUrl);
+      if (!itinerary) {
+        return res.status(404).json({ message: "Itinerary not found" });
+      }
+
+      const hotel = await storage.getHotel(itinerary.hotelId);
+      const guestProfile = await storage.getGuestProfile(itinerary.guestProfileId);
+
+      // Generate PDF with full itinerary
+      const PDFDocument = require('pdfkit');
+      const doc = new PDFDocument();
+      
+      // Create PDF buffer
+      const chunks: Buffer[] = [];
+      doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+      
+      await new Promise<void>((resolve) => {
+        doc.on('end', resolve);
+        
+        // Header
+        doc.fontSize(20).text(itinerary.title, 50, 50);
+        doc.fontSize(12).text(`${hotel?.name} - ${hotel?.city}, ${hotel?.region}`, 50, 80);
+        
+        // Guest info
+        doc.fontSize(14).text(`Ospite: ${recipientName || guestProfile?.referenceName}`, 50, 120);
+        doc.text(`Periodo: ${guestProfile?.checkInDate ? new Date(guestProfile.checkInDate).toLocaleDateString('it-IT') : 'N/A'} - ${guestProfile?.checkOutDate ? new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT') : 'N/A'}`, 50, 140);
+        doc.text(`Persone: ${guestProfile?.numberOfPeople}`, 50, 160);
+
+        // Description
+        if (itinerary.description) {
+          doc.text(`\nDescrizione: ${itinerary.description}`, 50, 190);
+        }
+
+        let yPosition = 220;
+        
+        // Days
+        if (itinerary.days && Array.isArray(itinerary.days)) {
+          itinerary.days.forEach((day: any) => {
+            if (yPosition > 700) {
+              doc.addPage();
+              yPosition = 50;
+            }
+            
+            doc.fontSize(16).text(`Giorno ${day.day} - ${new Date(day.date).toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`, 50, yPosition);
+            yPosition += 25;
+            
+            if (day.activities && Array.isArray(day.activities)) {
+              day.activities.forEach((activity: any) => {
+                if (yPosition > 700) {
+                  doc.addPage();
+                  yPosition = 50;
+                }
+                
+                doc.fontSize(12).text(`${activity.time} - ${activity.activity}`, 60, yPosition);
+                yPosition += 15;
+                
+                if (activity.location) {
+                  doc.fontSize(10).text(`📍 ${activity.location}`, 70, yPosition);
+                  yPosition += 12;
+                }
+                
+                if (activity.description) {
+                  doc.fontSize(10).text(activity.description, 70, yPosition);
+                  yPosition += 12;
+                }
+                
+                if (activity.duration) {
+                  doc.fontSize(9).text(`Durata: ${activity.duration}`, 70, yPosition);
+                  yPosition += 10;
+                }
+                
+                if (activity.notes) {
+                  doc.fontSize(9).text(`Note: ${activity.notes}`, 70, yPosition);
+                  yPosition += 10;
+                }
+                
+                yPosition += 5;
+              });
+            }
+            
+            yPosition += 15;
+          });
+        }
+
+        doc.end();
+      });
+
+      const pdfBuffer = Buffer.concat(chunks);
+
+      // Send email with PDF attachment
+      const { Resend } = require('resend');
+      const resend = new Resend(process.env.RESEND_API_KEY);
+
+      const emailResult = await resend.emails.send({
+        from: process.env.SENDGRID_FROM_EMAIL || 'noreply@hotel.com',
+        to: recipientEmail,
+        subject: `Il tuo itinerario personalizzato - ${hotel?.name}`,
+        html: `
+          <h2>Ciao ${recipientName || guestProfile?.referenceName}!</h2>
+          <p>Trova in allegato il tuo itinerario personalizzato per il soggiorno presso <strong>${hotel?.name}</strong>.</p>
+          <p><strong>Periodo del soggiorno:</strong> ${guestProfile?.checkInDate ? new Date(guestProfile.checkInDate).toLocaleDateString('it-IT') : 'N/A'} - ${guestProfile?.checkOutDate ? new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT') : 'N/A'}</p>
+          <p>Puoi anche visualizzare il tuo itinerario online visitando: <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/itinerary/${itinerary.uniqueUrl}">il tuo itinerario</a></p>
+          <p>Buon soggiorno!</p>
+          <br>
+          <p><em>Lo staff di ${hotel?.name}</em></p>
+        `,
+        attachments: [
+          {
+            filename: `Itinerario-${recipientName || guestProfile?.referenceName}.pdf`,
+            content: pdfBuffer,
+          },
+        ],
+      });
+
+      res.json({ 
+        success: true, 
+        message: "Email inviata con successo",
+        emailId: emailResult.data?.id 
+      });
+    } catch (error) {
+      console.error('Error sending email PDF:', error);
+      res.status(500).json({ message: "Failed to send email" });
+    }
+  });
+
   // Re-send preferences email
   app.post("/api/hotels/:hotelId/guest-profiles/:profileId/resend-email", async (req, res) => {
     try {
