@@ -319,6 +319,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update a specific day in an itinerary
+  app.patch("/api/itinerary/:uniqueUrl/day/:dayNumber", async (req, res) => {
+    try {
+      const { uniqueUrl, dayNumber } = req.params;
+      const { activities } = req.body;
+
+      const itinerary = await storage.getItineraryByUniqueUrl(uniqueUrl);
+      if (!itinerary) {
+        return res.status(404).json({ message: "Itinerary not found" });
+      }
+
+      // Update the specific day's activities
+      const updatedDays = (itinerary.days || []).map((day: any) => {
+        if (day.day === parseInt(dayNumber)) {
+          return { ...day, activities };
+        }
+        return day;
+      });
+
+      const updatedItinerary = await storage.updateItinerary(itinerary.id, {
+        ...itinerary,
+        days: updatedDays
+      });
+
+      res.json(updatedItinerary);
+    } catch (error) {
+      console.error('Error updating itinerary day:', error);
+      res.status(500).json({ message: "Failed to update itinerary day" });
+    }
+  });
+
   // Re-send preferences email
   app.post("/api/hotels/:hotelId/guest-profiles/:profileId/resend-email", async (req, res) => {
     try {

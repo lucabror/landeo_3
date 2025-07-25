@@ -233,6 +233,8 @@ export class DatabaseStorage implements IStorage {
     return itinerary || undefined;
   }
 
+
+
   async deleteItinerary(id: string): Promise<void> {
     await db.delete(itineraries).where(eq(itineraries.id, id));
   }
