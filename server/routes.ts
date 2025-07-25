@@ -9,13 +9,15 @@ import {
   insertGuestProfileSchema, 
   insertLocalExperienceSchema,
   insertItinerarySchema,
-  insertPendingAttractionSchema
+  insertPendingAttractionSchema,
+  guestPreferencesSchema
 } from "@shared/schema";
 import { generateItinerary } from "./services/openai";
 import { generateQRCode } from "./services/qr";
 import { generateItineraryPDF } from "./services/pdf";
 import { enrichHotelData, isValidItalianLocation } from "./services/geocoding";
 import { findLocalAttractions, attractionToLocalExperience } from "./services/attractions";
+import { sendGuestPreferencesEmail } from "./services/email";
 import { randomUUID } from "crypto";
 
 // Configurazione multer per upload dei loghi
@@ -176,6 +178,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertGuestProfileSchema.parse(req.body);
       const profile = await storage.createGuestProfile(validatedData);
+      
+      // Se l'ospite ha un'email, crea token e invia email per preferenze
+      if (profile.email) {
+        try {
+          const hotel = await storage.getHotel(profile.hotelId);
+          if (hotel) {
+            // Crea token per le preferenze con scadenza 30 giorni
+            const token = randomUUID();
+            const expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + 30);
+            
+            await storage.createGuestPreferencesToken({
+              token,
+              guestProfileId: profile.id,
+              emailSent: false,
+              completed: false,
+              expiresAt
+            });
+            
+            // Invia email
+            const emailSent = await sendGuestPreferencesEmail(hotel, profile, token);
+            
+            if (emailSent) {
+              await storage.updateGuestPreferencesToken(token, { emailSent: true });
+              console.log(`Email preferenze inviata a ${profile.email} per ospite ${profile.referenceName}`);
+            }
+          }
+        } catch (emailError) {
+          console.error('Errore invio email preferenze:', emailError);
+          // Non bloccare la creazione del profilo se l'email fallisce
+        }
+      }
+      
       res.status(201).json(profile);
     } catch (error) {
       res.status(400).json({ message: "Invalid guest profile data", error: error instanceof Error ? error.message : String(error) });
@@ -485,6 +520,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete itinerary" });
+    }
+  });
+
+  // Guest Preferences Routes
+  app.get("/api/guest-preferences/:token", async (req, res) => {
+    try {
+      const tokenData = await storage.getGuestPreferencesToken(req.params.token);
+      if (!tokenData) {
+        return res.status(404).json({ message: "Token non valido o scaduto" });
+      }
+      
+      if (tokenData.expiresAt < new Date()) {
+        return res.status(410).json({ message: "Token scaduto" });
+      }
+      
+      if (tokenData.completed) {
+        return res.status(410).json({ message: "Preferenze già completate" });
+      }
+      
+      const guestProfile = await storage.getGuestProfile(tokenData.guestProfileId);
+      if (!guestProfile) {
+        return res.status(404).json({ message: "Profilo ospite non trovato" });
+      }
+      
+      const hotel = await storage.getHotel(guestProfile.hotelId);
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel non trovato" });
+      }
+      
+      res.json({
+        guestProfile: {
+          referenceName: guestProfile.referenceName,
+          checkInDate: guestProfile.checkInDate,
+          checkOutDate: guestProfile.checkOutDate,
+          numberOfPeople: guestProfile.numberOfPeople,
+          type: guestProfile.type
+        },
+        hotel: {
+          name: hotel.name,
+          city: hotel.city,
+          region: hotel.region
+        },
+        token: req.params.token
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Errore nel recupero dati" });
+    }
+  });
+
+  app.post("/api/guest-preferences/:token", async (req, res) => {
+    try {
+      const tokenData = await storage.getGuestPreferencesToken(req.params.token);
+      if (!tokenData) {
+        return res.status(404).json({ message: "Token non valido" });
+      }
+      
+      if (tokenData.expiresAt < new Date()) {
+        return res.status(410).json({ message: "Token scaduto" });
+      }
+      
+      if (tokenData.completed) {
+        return res.status(410).json({ message: "Preferenze già completate" });
+      }
+      
+      const validatedPreferences = guestPreferencesSchema.parse(req.body);
+      
+      // Componi array delle preferenze complete
+      const allPreferences = [
+        ...validatedPreferences.preferences,
+        ...(validatedPreferences.otherPreferences ? [validatedPreferences.otherPreferences] : []),
+        ...(validatedPreferences.specialInterests ? [validatedPreferences.specialInterests] : [])
+      ].filter(Boolean);
+      
+      // Aggiungi restrizioni alimentari e bisogni di mobilità alle richieste speciali
+      let specialRequests = "";
+      if (validatedPreferences.dietaryRestrictions?.length) {
+        specialRequests += `Restrizioni alimentari: ${validatedPreferences.dietaryRestrictions.join(", ")}. `;
+      }
+      if (validatedPreferences.mobilityNeeds?.length) {
+        specialRequests += `Esigenze di mobilità: ${validatedPreferences.mobilityNeeds.join(", ")}. `;
+      }
+      
+      // Aggiorna il profilo ospite con le preferenze
+      await storage.updateGuestProfile(tokenData.guestProfileId, {
+        preferences: allPreferences,
+        specialRequests: specialRequests.trim() || undefined,
+        preferencesCompleted: true
+      });
+      
+      // Marca il token come completato
+      await storage.updateGuestPreferencesToken(req.params.token, { completed: true });
+      
+      res.json({ message: "Preferenze salvate con successo!" });
+    } catch (error) {
+      res.status(400).json({ 
+        message: "Errore nel salvataggio delle preferenze", 
+        error: error instanceof Error ? error.message : String(error) 
+      });
     }
   });
 
