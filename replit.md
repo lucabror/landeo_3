@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a full-stack TypeScript application for hotel itinerary management built with React, Express, and PostgreSQL. The system allows hotels to manage guest profiles, local experiences, and generate personalized itineraries using AI. It features QR code generation for guest access and PDF export capabilities.
+This is a comprehensive full-stack TypeScript application for Italian hotel itinerary management built with React, Express, and PostgreSQL. The system allows hotels to manage guest profiles, local experiences, and generate personalized AI-powered itineraries. Key features include manager editing of individual itinerary blocks, QR code PDF generation for guest access, and email PDF functionality for direct guest communication.
 
 ## User Preferences
 
@@ -64,9 +64,9 @@ The application uses four main entities:
 - **drizzle-orm**: Type-safe database ORM
 - **@tanstack/react-query**: Server state management
 - **openai**: AI integration for itinerary generation
-- **qrcode**: QR code generation
-- **pdfkit**: PDF document generation
-- **resend**: Email service for automated guest communication
+- **qrcode**: QR code generation for guest access
+- **pdfkit**: PDF document generation for QR codes and full itineraries
+- **resend**: Email service for automated guest communication and PDF delivery
 
 ### UI Dependencies
 - **@radix-ui/***: Accessible UI primitives
