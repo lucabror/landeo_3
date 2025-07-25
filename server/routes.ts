@@ -8,12 +8,14 @@ import {
   insertHotelSchema, 
   insertGuestProfileSchema, 
   insertLocalExperienceSchema,
-  insertItinerarySchema
+  insertItinerarySchema,
+  insertPendingAttractionSchema
 } from "@shared/schema";
 import { generateItinerary } from "./services/openai";
 import { generateQRCode } from "./services/qr";
 import { generateItineraryPDF } from "./services/pdf";
 import { enrichHotelData, isValidItalianLocation } from "./services/geocoding";
+import { findLocalAttractions, attractionToLocalExperience } from "./services/attractions";
 import { randomUUID } from "crypto";
 
 // Configurazione multer per upload dei loghi
@@ -196,6 +198,129 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete guest profile" });
+    }
+  });
+
+  // Generate AI attractions for hotel
+  app.post("/api/hotels/:hotelId/generate-attractions", async (req, res) => {
+    try {
+      const hotel = await storage.getHotel(req.params.hotelId);
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel non trovato" });
+      }
+
+      console.log(`Generating attractions for hotel: ${hotel.name} in ${hotel.city}, ${hotel.region}`);
+      
+      const attractionsResult = await findLocalAttractions(
+        hotel.city, 
+        hotel.region, 
+        { latitude: hotel.latitude, longitude: hotel.longitude }
+      );
+
+      // Salva le attrazioni come "pending" per l'approvazione
+      const pendingAttractions = [];
+      for (const attraction of attractionsResult.attractions) {
+        const pendingAttraction = {
+          hotelId: req.params.hotelId,
+          name: attraction.name,
+          description: attraction.description,
+          category: attraction.category,
+          location: attraction.location,
+          duration: attraction.recommendedDuration,
+          priceRange: attraction.priceRange,
+          highlights: attraction.highlights,
+          attractionType: attraction.type,
+          estimatedDistance: attraction.estimatedDistance,
+          bestTimeToVisit: attraction.bestTimeToVisit,
+          searchArea: attractionsResult.searchArea,
+          approved: false,
+          rejected: false
+        };
+        
+        const saved = await storage.createPendingAttraction(pendingAttraction);
+        pendingAttractions.push(saved);
+      }
+
+      res.json({
+        message: `Trovate ${attractionsResult.totalFound} attrazioni per ${attractionsResult.searchArea}`,
+        searchArea: attractionsResult.searchArea,
+        totalFound: attractionsResult.totalFound,
+        pendingAttractions: pendingAttractions
+      });
+
+    } catch (error) {
+      console.error('Error generating attractions:', error);
+      res.status(500).json({ 
+        message: "Errore nella generazione delle attrazioni: " + error.message 
+      });
+    }
+  });
+
+  // Get pending attractions for approval
+  app.get("/api/hotels/:hotelId/pending-attractions", async (req, res) => {
+    try {
+      const pendingAttractions = await storage.getPendingAttractions(req.params.hotelId);
+      res.json(pendingAttractions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch pending attractions" });
+    }
+  });
+
+  // Approve pending attraction
+  app.post("/api/hotels/:hotelId/pending-attractions/:attractionId/approve", async (req, res) => {
+    try {
+      const pendingAttraction = await storage.getPendingAttraction(req.params.attractionId);
+      if (!pendingAttraction) {
+        return res.status(404).json({ message: "Attrazione non trovata" });
+      }
+
+      // Converte l'attrazione pending in local experience
+      const localExperience = {
+        hotelId: req.params.hotelId,
+        name: pendingAttraction.name,
+        category: pendingAttraction.category,
+        description: pendingAttraction.description,
+        location: pendingAttraction.location,
+        distance: pendingAttraction.estimatedDistance,
+        duration: pendingAttraction.duration,
+        priceRange: pendingAttraction.priceRange,
+        contactInfo: {},
+        openingHours: '',
+        seasonality: '',
+        targetAudience: [],
+        rating: '',
+        imageUrl: '',
+        isActive: true,
+        aiGenerated: true,
+        attractionType: pendingAttraction.attractionType,
+        estimatedDistance: pendingAttraction.estimatedDistance,
+        bestTimeToVisit: pendingAttraction.bestTimeToVisit,
+        highlights: pendingAttraction.highlights
+      };
+
+      const savedExperience = await storage.createLocalExperience(localExperience);
+      
+      // Marca l'attrazione pending come approvata
+      await storage.approvePendingAttraction(req.params.attractionId);
+
+      res.json({
+        message: "Attrazione approvata e aggiunta alle esperienze locali",
+        localExperience: savedExperience
+      });
+
+    } catch (error) {
+      console.error('Error approving attraction:', error);
+      res.status(500).json({ message: "Errore nell'approvazione dell'attrazione" });
+    }
+  });
+
+  // Reject pending attraction
+  app.post("/api/hotels/:hotelId/pending-attractions/:attractionId/reject", async (req, res) => {
+    try {
+      await storage.rejectPendingAttraction(req.params.attractionId);
+      res.json({ message: "Attrazione rifiutata" });
+    } catch (error) {
+      res.status(500).json({ message: "Errore nel rifiuto dell'attrazione" });
     }
   });
 

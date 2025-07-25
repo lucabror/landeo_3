@@ -3,6 +3,7 @@ import {
   guestProfiles, 
   localExperiences, 
   itineraries,
+  pendingAttractions,
   type Hotel, 
   type InsertHotel,
   type GuestProfile,
@@ -10,7 +11,9 @@ import {
   type LocalExperience,
   type InsertLocalExperience,
   type Itinerary,
-  type InsertItinerary
+  type InsertItinerary,
+  type PendingAttraction,
+  type InsertPendingAttraction
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
@@ -43,6 +46,13 @@ export interface IStorage {
   updateItinerary(id: string, itinerary: Partial<InsertItinerary>): Promise<Itinerary>;
   getItinerariesByHotel(hotelId: string): Promise<Itinerary[]>;
   deleteItinerary(id: string): Promise<void>;
+
+  // Pending Attractions
+  getPendingAttraction(id: string): Promise<PendingAttraction | undefined>;
+  createPendingAttraction(attraction: InsertPendingAttraction): Promise<PendingAttraction>;
+  getPendingAttractions(hotelId: string): Promise<PendingAttraction[]>;
+  approvePendingAttraction(id: string): Promise<void>;
+  rejectPendingAttraction(id: string): Promise<void>;
 
   // Dashboard stats
   getHotelStats(hotelId: string): Promise<{
@@ -239,6 +249,46 @@ export class DatabaseStorage implements IStorage {
       localExperiences: localExperiencesResult.length,
       activeQRCodes: activeQRCodesResult.length,
     };
+  }
+
+  // Pending Attractions methods
+  async getPendingAttraction(id: string): Promise<PendingAttraction | undefined> {
+    const [result] = await db.select().from(pendingAttractions).where(eq(pendingAttractions.id, id));
+    return result;
+  }
+
+  async createPendingAttraction(attraction: InsertPendingAttraction): Promise<PendingAttraction> {
+    const [result] = await db.insert(pendingAttractions).values(attraction).returning();
+    return result;
+  }
+
+  async getPendingAttractions(hotelId: string): Promise<PendingAttraction[]> {
+    return await db.select()
+      .from(pendingAttractions)
+      .where(and(
+        eq(pendingAttractions.hotelId, hotelId),
+        eq(pendingAttractions.approved, false),
+        eq(pendingAttractions.rejected, false)
+      ))
+      .orderBy(pendingAttractions.createdAt);
+  }
+
+  async approvePendingAttraction(id: string): Promise<void> {
+    await db.update(pendingAttractions)
+      .set({ 
+        approved: true, 
+        processedAt: new Date() 
+      })
+      .where(eq(pendingAttractions.id, id));
+  }
+
+  async rejectPendingAttraction(id: string): Promise<void> {
+    await db.update(pendingAttractions)
+      .set({ 
+        rejected: true, 
+        processedAt: new Date() 
+      })
+      .where(eq(pendingAttractions.id, id));
   }
 }
 
