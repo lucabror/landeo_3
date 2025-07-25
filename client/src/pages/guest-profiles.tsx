@@ -54,9 +54,15 @@ export default function GuestProfiles() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch guest profiles
+  // Fetch guest profiles with itineraries
   const { data: guestProfiles, isLoading } = useQuery({
     queryKey: ["/api/hotels", MOCK_HOTEL_ID, "guest-profiles"],
+  });
+
+  // Fetch guest-specific itinerary when viewing profile
+  const { data: guestItinerary } = useQuery({
+    queryKey: ["/api/guest-profiles", viewingProfile?.id, "itinerary"],
+    enabled: !!viewingProfile?.id,
   });
 
   const form = useForm<InsertGuestProfile>({
@@ -443,32 +449,45 @@ export default function GuestProfiles() {
                       <Route className="h-5 w-5 mr-2" />
                       Itinerario Personalizzato
                     </h3>
-                    {viewingProfile?.itinerary ? (
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium">{viewingProfile.itinerary.title}</p>
-                            <p className="text-xs text-gray-600">
-                              Generato il {new Date(viewingProfile.itinerary.createdAt).toLocaleDateString('it-IT')}
-                            </p>
+                    {guestItinerary && guestItinerary.length > 0 ? (
+                      <div className="space-y-4">
+                        <div className="bg-white p-4 rounded-lg border border-purple-200">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <h4 className="text-base font-medium text-gray-900 mb-1">
+                                {guestItinerary[0].title}
+                              </h4>
+                              <p className="text-sm text-gray-600 mb-2">
+                                {new Date(viewingProfile.checkInDate).toLocaleDateString('it-IT')} - {new Date(viewingProfile.checkOutDate).toLocaleDateString('it-IT')}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                Generato il {new Date(guestItinerary[0].createdAt).toLocaleDateString('it-IT')}
+                              </p>
+                            </div>
+                            <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                              {guestItinerary[0].days?.length || 1} giorni
+                            </Badge>
                           </div>
-                          <Badge variant="secondary" className="bg-purple-100 text-purple-800">
-                            {viewingProfile.itinerary.days?.length || 1} giorni
-                          </Badge>
+                          
+                          <Button 
+                            className="w-full bg-purple-600 hover:bg-purple-700 mb-3"
+                            onClick={() => window.open(`/itinerary/${guestItinerary[0].uniqueUrl}`, '_blank')}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Vedi Itinerario
+                          </Button>
+                          
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline" className="flex-1">
+                              <QrCode className="h-4 w-4 mr-1" />
+                              QR Code
+                            </Button>
+                            <Button size="sm" variant="outline" className="flex-1">
+                              PDF
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" className="flex-1">
-                            <Eye className="h-4 w-4 mr-1" />
-                            Visualizza
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <QrCode className="h-4 w-4 mr-1" />
-                            QR Code
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            PDF
-                          </Button>
-                        </div>
+                        
                         <Button 
                           size="sm" 
                           variant="ghost" 

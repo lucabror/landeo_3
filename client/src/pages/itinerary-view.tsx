@@ -1,56 +1,32 @@
 import { useQuery } from "@tanstack/react-query";
+import { useParams } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useRoute } from "wouter";
+import { Button } from "@/components/ui/button";
 import { 
+  Calendar, 
   MapPin, 
   Clock, 
-  Calendar, 
   Users, 
-  Phone, 
-  Mail, 
-  Globe,
-  Star,
-  Navigation,
-  Heart,
-  Camera,
-  Loader2,
-  AlertCircle
+  ArrowLeft,
+  Download,
+  QrCode,
+  Hotel
 } from "lucide-react";
 
 export default function ItineraryView() {
-  const [match, params] = useRoute("/itinerary/:uniqueUrl");
-  const uniqueUrl = params?.uniqueUrl;
+  const { uniqueUrl } = useParams<{ uniqueUrl: string }>();
 
-  // Fetch itinerary by unique URL
   const { data: itinerary, isLoading, error } = useQuery({
     queryKey: ["/api/itinerary", uniqueUrl],
     enabled: !!uniqueUrl,
   });
 
-  // Get guest profile data from the itinerary
-  const guestProfile = itinerary?.guestProfile;
-  const hotel = itinerary?.hotel;
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("it-IT", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    });
-  };
-
-  const formatTime = (timeString: string) => {
-    return timeString;
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-gray-600">Caricamento itinerario...</p>
         </div>
       </div>
@@ -60,204 +36,193 @@ export default function ItineraryView() {
   if (error || !itinerary) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="w-full max-w-md mx-4">
-          <CardContent className="pt-6 text-center">
-            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-900 mb-2">
-              Itinerario Non Trovato
-            </h2>
-            <p className="text-gray-600">
-              L'itinerario richiesto non esiste o non è più disponibile.
-            </p>
-          </CardContent>
-        </Card>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Itinerario non trovato</h1>
+          <p className="text-gray-600 mb-4">L'itinerario richiesto non esiste o non è più disponibile.</p>
+          <Button onClick={() => window.history.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Torna Indietro
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header with hotel branding */}
-      <div className="bg-primary text-white">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-serif font-bold mb-2">
-              {hotel?.name || "Hotel"}
-            </h1>
-            {hotel?.address && (
-              <p className="text-primary-foreground/80">
-                {hotel.address}, {hotel.city}
-              </p>
-            )}
+      {/* Header */}
+      <div className="bg-white shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              {itinerary.hotel?.logoUrl && (
+                <img 
+                  src={itinerary.hotel.logoUrl} 
+                  alt={itinerary.hotel.name}
+                  className="h-12 w-12 object-contain"
+                />
+              )}
+              <div>
+                <h1 className="text-2xl font-serif font-bold text-gray-900">{itinerary.title}</h1>
+                <p className="text-gray-600">
+                  {itinerary.hotel?.name} • {itinerary.hotel?.city}, {itinerary.hotel?.region}
+                </p>
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <Button variant="outline" size="sm">
+                <QrCode className="h-4 w-4 mr-1" />
+                QR Code
+              </Button>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-1" />
+                PDF
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Content */}
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Itinerary Header */}
-        <Card className="mb-8">
+        {/* Guest Info */}
+        <Card className="mb-6">
           <CardHeader>
-            <div className="text-center">
-              <CardTitle className="text-2xl font-serif text-primary mb-4">
-                {itinerary.title}
-              </CardTitle>
-              
-              {guestProfile && (
-                <div className="flex items-center justify-center space-x-6 text-gray-600">
-                  <div className="flex items-center">
-                    <Users className="h-5 w-5 mr-2" />
-                    <span>{guestProfile.referenceName}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Calendar className="h-5 w-5 mr-2" />
-                    <span>{itinerary.days?.length || 1} giorni</span>
-                  </div>
-                </div>
-              )}
-              
-              {itinerary.description && (
-                <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
-                  {itinerary.description}
-                </p>
-              )}
-            </div>
+            <CardTitle className="flex items-center">
+              <Users className="h-5 w-5 mr-2" />
+              Informazioni Soggiorno
+            </CardTitle>
           </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex items-center">
+                <Hotel className="h-4 w-4 mr-2 text-gray-500" />
+                <span className="text-sm">
+                  <strong>Ospite:</strong> {itinerary.guestProfile?.referenceName}
+                </span>
+              </div>
+              <div className="flex items-center">
+                <Users className="h-4 w-4 mr-2 text-gray-500" />
+                <span className="text-sm">
+                  <strong>Persone:</strong> {itinerary.guestProfile?.numberOfPeople}
+                </span>
+              </div>
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+                <span className="text-sm">
+                  <strong>Periodo:</strong> {new Date(itinerary.guestProfile?.checkInDate).toLocaleDateString('it-IT')} - {new Date(itinerary.guestProfile?.checkOutDate).toLocaleDateString('it-IT')}
+                </span>
+              </div>
+            </div>
+          </CardContent>
         </Card>
 
-        {/* Itinerary Days */}
-        {itinerary.days && itinerary.days.length > 0 && (
-          <div className="space-y-8">
-            {itinerary.days.map((day: any, dayIndex: number) => (
-              <Card key={dayIndex} className="overflow-hidden">
-                <CardHeader className="bg-secondary text-white">
-                  <CardTitle className="text-xl font-serif">
-                    Giorno {day.day} - {formatDate(day.date)}
-                  </CardTitle>
-                </CardHeader>
-                
-                <CardContent className="p-0">
-                  {day.activities && day.activities.length > 0 && (
-                    <div className="divide-y divide-gray-200">
-                      {day.activities.map((activity: any, actIndex: number) => (
-                        <div key={actIndex} className="p-6">
-                          <div className="flex items-start space-x-4">
-                            <div className="flex-shrink-0">
-                              <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center">
-                                <Clock className="h-6 w-6 text-white" />
-                              </div>
-                            </div>
-                            
-                            <div className="flex-1">
-                              <div className="flex items-start justify-between mb-2">
-                                <div>
-                                  <h3 className="text-lg font-semibold text-gray-900">
-                                    {activity.activity}
-                                  </h3>
-                                  <div className="flex items-center text-accent font-medium">
-                                    <Clock className="h-4 w-4 mr-1" />
-                                    {formatTime(activity.time)}
-                                    {activity.duration && (
-                                      <span className="ml-2 text-gray-500">
-                                        ({activity.duration})
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              <div className="flex items-center text-gray-600 mb-3">
-                                <MapPin className="h-4 w-4 mr-1" />
-                                <span>{activity.location}</span>
-                              </div>
-                              
-                              {activity.description && (
-                                <p className="text-gray-700 mb-3">
-                                  {activity.description}
-                                </p>
-                              )}
-                              
-                              {activity.notes && (
-                                <div className="bg-blue-50 border-l-4 border-blue-400 p-3 mt-3">
-                                  <p className="text-sm text-blue-700">
-                                    <strong>Note:</strong> {activity.notes}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {/* Contact Information */}
-        {hotel && (
-          <Card className="mt-8">
-            <CardHeader>
-              <CardTitle className="text-center font-serif">
-                Informazioni di Contatto
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                {hotel.phone && (
-                  <div className="flex flex-col items-center">
-                    <Phone className="h-8 w-8 text-primary mb-2" />
-                    <span className="font-medium">Telefono</span>
-                    <a 
-                      href={`tel:${hotel.phone}`}
-                      className="text-primary hover:underline"
-                    >
-                      {hotel.phone}
-                    </a>
-                  </div>
-                )}
-                
-                {hotel.email && (
-                  <div className="flex flex-col items-center">
-                    <Mail className="h-8 w-8 text-primary mb-2" />
-                    <span className="font-medium">Email</span>
-                    <a 
-                      href={`mailto:${hotel.email}`}
-                      className="text-primary hover:underline"
-                    >
-                      {hotel.email}
-                    </a>
-                  </div>
-                )}
-                
-                {hotel.website && (
-                  <div className="flex flex-col items-center">
-                    <Globe className="h-8 w-8 text-primary mb-2" />
-                    <span className="font-medium">Sito Web</span>
-                    <a 
-                      href={hotel.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      Visita il sito
-                    </a>
-                  </div>
-                )}
-              </div>
+        {/* Description */}
+        {itinerary.description && (
+          <Card className="mb-6">
+            <CardContent className="pt-6">
+              <p className="text-gray-700">{itinerary.description}</p>
             </CardContent>
           </Card>
         )}
 
+        {/* Daily Itinerary */}
+        <div className="space-y-6">
+          {itinerary.days?.map((day: any, index: number) => (
+            <Card key={day.day} className="overflow-hidden">
+              <CardHeader className="bg-primary/5">
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Calendar className="h-5 w-5 mr-2" />
+                    Giorno {day.day} - {new Date(day.date).toLocaleDateString('it-IT', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </div>
+                  <Badge variant="secondary">
+                    {day.activities?.length || 0} attività
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                {day.activities && day.activities.length > 0 ? (
+                  <div className="divide-y divide-gray-100">
+                    {day.activities.map((activity: any, actIndex: number) => (
+                      <div key={actIndex} className="p-6 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-start space-x-4">
+                          <div className="flex-shrink-0">
+                            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                              <Clock className="h-5 w-5 text-primary" />
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="text-lg font-medium text-gray-900 mb-1">
+                                  {activity.activity}
+                                </h4>
+                                <div className="flex items-center text-sm text-gray-500 mb-2">
+                                  <Clock className="h-4 w-4 mr-1" />
+                                  <span className="font-medium">{activity.time}</span>
+                                  {activity.duration && (
+                                    <>
+                                      <span className="mx-2">•</span>
+                                      <span>{activity.duration}</span>
+                                    </>
+                                  )}
+                                </div>
+                                {activity.location && (
+                                  <div className="flex items-center text-sm text-gray-500 mb-3">
+                                    <MapPin className="h-4 w-4 mr-1" />
+                                    <span>{activity.location}</span>
+                                  </div>
+                                )}
+                                <p className="text-gray-700 mb-3">{activity.description}</p>
+                                {activity.notes && (
+                                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                    <p className="text-sm text-blue-800">
+                                      <strong>Note:</strong> {activity.notes}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                              {activity.experienceId && (
+                                <Badge variant="outline" className="ml-4">
+                                  Esperienza Locale
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-6 text-center text-gray-500">
+                    Nessuna attività programmata per questo giorno
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )) || (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Nessun itinerario disponibile</p>
+            </div>
+          )}
+        </div>
+
         {/* Footer */}
-        <div className="text-center mt-12 py-8 border-t border-gray-200">
-          <p className="text-gray-500 text-sm">
-            Generato da {hotel?.name || "Hotel"} • {new Date().toLocaleDateString("it-IT")}
-          </p>
-          <p className="text-gray-400 text-xs mt-2">
-            Buon viaggio e grazie per aver scelto la nostra struttura!
-          </p>
+        <div className="mt-12 text-center">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <p className="text-gray-600 mb-4">
+              Questo itinerario è stato generato appositamente per la vostra esperienza presso <strong>{itinerary.hotel?.name}</strong>
+            </p>
+            <p className="text-sm text-gray-500">
+              Per informazioni o modifiche, contattate la reception dell'hotel
+            </p>
+          </div>
         </div>
       </div>
     </div>
