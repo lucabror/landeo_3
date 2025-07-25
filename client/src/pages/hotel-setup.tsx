@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Sidebar } from "@/components/sidebar";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, Hotel } from "lucide-react";
+import { Loader2, Save, Hotel, Search, MapPin, CheckCircle, AlertCircle } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { insertHotelSchema } from "@shared/schema";
 import type { InsertHotel } from "@shared/schema";
@@ -20,6 +20,8 @@ const MOCK_HOTEL_ID = "hotel-1";
 export default function HotelSetup() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchStatus, setSearchStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   // Fetch existing hotel data
   const { data: hotel, isLoading } = useQuery({
@@ -51,6 +53,45 @@ export default function HotelSetup() {
     }
   }, [hotel]);
 
+  // Geocoding mutation
+  const searchHotelMutation = useMutation({
+    mutationFn: async ({ name, city, region }: { name: string; city?: string; region?: string }) => {
+      const res = await apiRequest("POST", "/api/hotels/geocode", { name, city, region });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      // Aggiorna il form con i dati trovati
+      form.setValue("name", data.name);
+      form.setValue("address", data.address);
+      form.setValue("city", data.city);
+      form.setValue("region", data.region);
+      form.setValue("postalCode", data.postalCode);
+      form.setValue("latitude", data.latitude);
+      form.setValue("longitude", data.longitude);
+      
+      if (data.phone) form.setValue("phone", data.phone);
+      if (data.website) form.setValue("website", data.website);
+      
+      setSearchStatus('success');
+      setIsSearching(false);
+      
+      toast({
+        title: "Hotel trovato!",
+        description: `${data.name} in ${data.city}, ${data.region}`,
+      });
+    },
+    onError: (error: any) => {
+      setSearchStatus('error');
+      setIsSearching(false);
+      
+      toast({
+        title: "Hotel non trovato",
+        description: error.message || "Verifica il nome dell'hotel e riprova",
+        variant: "destructive",
+      });
+    }
+  });
+
   const mutation = useMutation({
     mutationFn: async (data: InsertHotel) => {
       const method = hotel ? "PUT" : "POST";
@@ -73,6 +114,27 @@ export default function HotelSetup() {
       });
     },
   });
+
+  const handleHotelSearch = () => {
+    const hotelName = form.getValues("name");
+    if (!hotelName || hotelName.trim() === '') {
+      toast({
+        title: "Nome richiesto",
+        description: "Inserisci il nome dell'hotel per cercarlo",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSearching(true);
+    setSearchStatus('idle');
+    
+    searchHotelMutation.mutate({
+      name: hotelName,
+      city: form.getValues("city"),
+      region: form.getValues("region")
+    });
+  };
 
   const onSubmit = (data: InsertHotel) => {
     mutation.mutate(data);
@@ -119,15 +181,46 @@ export default function HotelSetup() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label htmlFor="name">Nome Hotel *</Label>
-                  <Input
-                    id="name"
-                    {...form.register("name")}
-                    placeholder="Grand Hotel Villa Medici"
-                    className="mt-1"
-                  />
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      id="name"
+                      {...form.register("name")}
+                      placeholder="Grand Hotel Villa Medici"
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleHotelSearch}
+                      disabled={isSearching}
+                      size="sm"
+                      className="px-3"
+                    >
+                      {isSearching ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : searchStatus === 'success' ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : searchStatus === 'error' ? (
+                        <AlertCircle className="h-4 w-4 text-red-600" />
+                      ) : (
+                        <Search className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                   {form.formState.errors.name && (
                     <p className="text-sm text-red-500 mt-1">
                       {form.formState.errors.name.message}
+                    </p>
+                  )}
+                  {!isSearching && searchStatus === 'idle' && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Clicca sul pulsante di ricerca per compilare automaticamente i dati geografici
+                    </p>
+                  )}
+                  {searchStatus === 'success' && (
+                    <p className="text-xs text-green-600 mt-1 flex items-center">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Dati hotel caricati automaticamente
                     </p>
                   )}
                 </div>
@@ -152,12 +245,17 @@ export default function HotelSetup() {
               {/* Address Information */}
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="address">Indirizzo *</Label>
+                  <Label htmlFor="address" className="flex items-center">
+                    Indirizzo *
+                    {searchStatus === 'success' && (
+                      <MapPin className="h-3 w-3 ml-1 text-green-600" />
+                    )}
+                  </Label>
                   <Input
                     id="address"
                     {...form.register("address")}
                     placeholder="Via Roma 123"
-                    className="mt-1"
+                    className={`mt-1 ${searchStatus === 'success' ? 'border-green-300 bg-green-50' : ''}`}
                   />
                   {form.formState.errors.address && (
                     <p className="text-sm text-red-500 mt-1">
@@ -168,12 +266,17 @@ export default function HotelSetup() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="city">Città *</Label>
+                    <Label htmlFor="city" className="flex items-center">
+                      Città *
+                      {searchStatus === 'success' && (
+                        <MapPin className="h-3 w-3 ml-1 text-green-600" />
+                      )}
+                    </Label>
                     <Input
                       id="city"
                       {...form.register("city")}
                       placeholder="Firenze"
-                      className="mt-1"
+                      className={`mt-1 ${searchStatus === 'success' ? 'border-green-300 bg-green-50' : ''}`}
                     />
                     {form.formState.errors.city && (
                       <p className="text-sm text-red-500 mt-1">
@@ -183,12 +286,17 @@ export default function HotelSetup() {
                   </div>
 
                   <div>
-                    <Label htmlFor="region">Regione *</Label>
+                    <Label htmlFor="region" className="flex items-center">
+                      Regione *
+                      {searchStatus === 'success' && (
+                        <MapPin className="h-3 w-3 ml-1 text-green-600" />
+                      )}
+                    </Label>
                     <Input
                       id="region"
                       {...form.register("region")}
                       placeholder="Toscana"
-                      className="mt-1"
+                      className={`mt-1 ${searchStatus === 'success' ? 'border-green-300 bg-green-50' : ''}`}
                     />
                     {form.formState.errors.region && (
                       <p className="text-sm text-red-500 mt-1">
@@ -198,12 +306,17 @@ export default function HotelSetup() {
                   </div>
 
                   <div>
-                    <Label htmlFor="postalCode">CAP *</Label>
+                    <Label htmlFor="postalCode" className="flex items-center">
+                      CAP *
+                      {searchStatus === 'success' && (
+                        <MapPin className="h-3 w-3 ml-1 text-green-600" />
+                      )}
+                    </Label>
                     <Input
                       id="postalCode"
                       {...form.register("postalCode")}
                       placeholder="50123"
-                      className="mt-1"
+                      className={`mt-1 ${searchStatus === 'success' ? 'border-green-300 bg-green-50' : ''}`}
                     />
                     {form.formState.errors.postalCode && (
                       <p className="text-sm text-red-500 mt-1">
@@ -257,22 +370,34 @@ export default function HotelSetup() {
               {/* Location */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="latitude">Latitudine</Label>
+                  <Label htmlFor="latitude" className="flex items-center">
+                    Latitudine
+                    {searchStatus === 'success' && (
+                      <MapPin className="h-3 w-3 ml-1 text-green-600" />
+                    )}
+                  </Label>
                   <Input
                     id="latitude"
                     {...form.register("latitude")}
                     placeholder="43.7696"
-                    className="mt-1"
+                    className={`mt-1 ${searchStatus === 'success' ? 'border-green-300 bg-green-50' : ''}`}
+                    readOnly={searchStatus === 'success'}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="longitude">Longitudine</Label>
+                  <Label htmlFor="longitude" className="flex items-center">
+                    Longitudine
+                    {searchStatus === 'success' && (
+                      <MapPin className="h-3 w-3 ml-1 text-green-600" />
+                    )}
+                  </Label>
                   <Input
                     id="longitude"
                     {...form.register("longitude")}
                     placeholder="11.2558"
-                    className="mt-1"
+                    className={`mt-1 ${searchStatus === 'success' ? 'border-green-300 bg-green-50' : ''}`}
+                    readOnly={searchStatus === 'success'}
                   />
                 </div>
               </div>

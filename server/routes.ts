@@ -10,6 +10,7 @@ import {
 import { generateItinerary } from "./services/openai";
 import { generateQRCode } from "./services/qr";
 import { generateItineraryPDF } from "./services/pdf";
+import { enrichHotelData, isValidItalianLocation } from "./services/geocoding";
 import { randomUUID } from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -20,6 +21,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(hotels);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch hotels" });
+    }
+  });
+
+  // Hotel geocoding endpoint
+  app.post("/api/hotels/geocode", async (req, res) => {
+    try {
+      const { name, city, region } = req.body;
+      
+      if (!name || name.trim() === '') {
+        return res.status(400).json({ message: "Nome hotel richiesto" });
+      }
+
+      console.log(`Searching for hotel: ${name}`);
+      const enrichedData = await enrichHotelData(name, { city, region });
+      
+      if (!enrichedData) {
+        return res.status(404).json({ 
+          message: "Hotel non trovato. Verifica il nome e riprova." 
+        });
+      }
+
+      // Verifica che l'hotel sia in Italia
+      if (enrichedData.latitude && enrichedData.longitude && 
+          !isValidItalianLocation(enrichedData.latitude, enrichedData.longitude)) {
+        return res.status(400).json({ 
+          message: "L'hotel deve essere localizzato in Italia" 
+        });
+      }
+
+      console.log(`Found hotel: ${enrichedData.name} in ${enrichedData.city}, ${enrichedData.region}`);
+      res.json(enrichedData);
+      
+    } catch (error) {
+      console.error("Geocoding error:", error);
+      res.status(500).json({ 
+        message: "Errore nella ricerca dell'hotel. Riprova più tardi." 
+      });
     }
   });
 
