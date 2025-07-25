@@ -362,25 +362,36 @@ export default function GuestProfiles() {
             {guestProfiles?.map((profile: any) => {
               const TypeIcon = getTypeIcon(profile.type);
               return (
-                <Card key={profile.id} className="card-hover">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                          <TypeIcon className="h-5 w-5 text-primary" />
+                <Card key={profile.id} className="card-hover shadow-sm border-gray-200 hover:shadow-md transition-all duration-200">
+                  <CardHeader className="pb-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center shadow-sm">
+                          <TypeIcon className="h-6 w-6 text-primary" />
                         </div>
-                        <div className="ml-3">
-                          <CardTitle className="text-lg font-serif">
+                        <div className="flex-1">
+                          <CardTitle className="text-xl font-serif text-gray-900 mb-1">
                             {profile.referenceName}
                           </CardTitle>
-                          {profile.preferencesCompleted && (
-                            <Badge variant="secondary" className="text-xs mt-1">
-                              ✓ Preferenze completate
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">
+                              {getTypeLabel(profile.type)}
                             </Badge>
-                          )}
-                          <p className="text-sm text-gray-500">
-                            {profile.numberOfPeople} persona{profile.numberOfPeople > 1 ? 'e' : 'a'}
-                          </p>
+                            <span className="text-sm text-gray-500">
+                              {profile.numberOfPeople} persona{profile.numberOfPeople > 1 ? 'e' : 'a'}
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            {profile.preferencesCompleted ? (
+                              <Badge variant="default" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">
+                                ✓ Preferenze complete
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 text-xs">
+                                ⏳ In attesa risposta
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex space-x-1">
@@ -388,6 +399,7 @@ export default function GuestProfiles() {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleEdit(profile)}
+                          className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -395,83 +407,74 @@ export default function GuestProfiles() {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleDelete(profile.id)}
-                          className="text-red-500 hover:text-red-700"
+                          className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Badge variant="secondary" className="bg-primary/10 text-primary">
-                            {getTypeLabel(profile.type)}
-                          </Badge>
-                          {profile.preferencesCompleted ? (
-                            <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">
-                              ✓ Preferenze
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-orange-600 border-orange-200">
-                              ⏳ In attesa
-                            </Badge>
-                          )}
-                        </div>
-                        {profile.roomNumber && (
-                          <span className="text-sm text-gray-500">
-                            Camera {profile.roomNumber}
-                          </span>
-                        )}
-                      </div>
-                      
+                  
+                  <CardContent className="pt-4 space-y-4">
+                    {/* Date e Camera */}
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center text-sm text-gray-600">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        <span>
+                        <Calendar className="h-4 w-4 mr-2 text-gray-400" />
+                        <span className="font-medium">
                           {new Date(profile.checkInDate).toLocaleDateString("it-IT")} - {" "}
                           {new Date(profile.checkOutDate).toLocaleDateString("it-IT")}
                         </span>
                       </div>
-                      
-                      {profile.specialRequests && (
-                        <p className="text-sm text-gray-600 truncate">
-                          📝 {profile.specialRequests}
-                        </p>
-                      )}
-                      
-                      {profile.preferencesCompleted && profile.preferences && profile.preferences.length > 0 && (
-                        <div className="border-t pt-3 mt-3">
-                          <p className="text-sm font-medium text-gray-700 mb-2">
-                            🎯 Preferenze salvate:
-                          </p>
-                          <div className="flex flex-wrap gap-1">
-                            {profile.preferences.slice(0, 3).map((pref: string, index: number) => (
-                              <Badge key={index} variant="outline" className="text-xs">
-                                {pref}
-                              </Badge>
-                            ))}
-                            {profile.preferences.length > 3 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{profile.preferences.length - 3} altro
-                              </Badge>
-                            )}
-                          </div>
+                      {profile.roomNumber && (
+                        <div className="flex items-center text-sm text-gray-600 bg-gray-50 px-2 py-1 rounded-md">
+                          <span className="font-medium">Camera {profile.roomNumber}</span>
                         </div>
                       )}
-                      
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span>
-                          Creato: {new Date(profile.createdAt).toLocaleDateString("it-IT")}
-                        </span>
-                        {/* Check if guest is currently staying */}
-                        {new Date() >= new Date(profile.checkInDate) && 
-                         new Date() <= new Date(profile.checkOutDate) && (
-                          <Badge variant="secondary" className="bg-success/10 text-success">
-                            Attivo
-                          </Badge>
-                        )}
+                    </div>
+                    
+                    {/* Status attivo */}
+                    {new Date() >= new Date(profile.checkInDate) && 
+                     new Date() <= new Date(profile.checkOutDate) && (
+                      <div className="flex items-center justify-center py-2 bg-green-50 rounded-lg border border-green-200">
+                        <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-300">
+                          🏨 Ospite presente
+                        </Badge>
                       </div>
+                    )}
+                    
+                    {/* Richieste speciali */}
+                    {profile.specialRequests && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <p className="text-sm text-blue-800">
+                          <span className="font-medium">📝 Richieste:</span> {profile.specialRequests}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Preferenze */}
+                    {profile.preferencesCompleted && profile.preferences && profile.preferences.length > 0 && (
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                        <p className="text-sm font-medium text-emerald-800 mb-2 flex items-center">
+                          🎯 Preferenze di viaggio
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {profile.preferences.slice(0, 4).map((pref: string, index: number) => (
+                            <Badge key={index} variant="outline" className="text-xs bg-white border-emerald-300 text-emerald-700">
+                              {pref}
+                            </Badge>
+                          ))}
+                          {profile.preferences.length > 4 && (
+                            <Badge variant="outline" className="text-xs bg-emerald-100 border-emerald-300 text-emerald-700">
+                              +{profile.preferences.length - 4} altre
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Footer */}
+                    <div className="pt-2 border-t border-gray-100 text-xs text-gray-500 text-center">
+                      Creato il {new Date(profile.createdAt).toLocaleDateString("it-IT")}
                     </div>
                   </CardContent>
                 </Card>
