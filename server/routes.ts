@@ -327,7 +327,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Local Experiences
   app.get("/api/hotels/:hotelId/local-experiences", async (req, res) => {
     try {
-      const experiences = await storage.getLocalExperiencesByHotel(req.params.hotelId);
+      // Use getAllLocalExperiencesByHotel to show both active and inactive for management
+      const experiences = await storage.getAllLocalExperiencesByHotel(req.params.hotelId);
       res.json(experiences);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch local experiences" });
