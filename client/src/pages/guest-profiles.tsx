@@ -24,7 +24,8 @@ import {
   UserCheck,
   Loader2,
   CheckCircle,
-  Clock
+  Clock,
+  Save
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { insertGuestProfileSchema } from "@shared/schema";
@@ -43,7 +44,10 @@ const GUEST_TYPES = [
 
 export default function GuestProfiles() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isViewMode, setIsViewMode] = useState(false);
+  const [isEditingInView, setIsEditingInView] = useState(false);
   const [editingProfile, setEditingProfile] = useState<any>(null);
+  const [viewingProfile, setViewingProfile] = useState<any>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -73,19 +77,25 @@ export default function GuestProfiles() {
   // Create/Update mutation
   const mutation = useMutation({
     mutationFn: async (data: InsertGuestProfile) => {
-      const method = editingProfile ? "PUT" : "POST";
-      const url = editingProfile ? `/api/guest-profiles/${editingProfile.id}` : "/api/guest-profiles";
+      const isEditing = editingProfile || (isViewMode && isEditingInView);
+      const method = isEditing ? "PUT" : "POST";
+      const profileId = editingProfile?.id || viewingProfile?.id;
+      const url = isEditing ? `/api/guest-profiles/${profileId}` : "/api/guest-profiles";
       const res = await apiRequest(method, url, data);
       return res.json();
     },
     onSuccess: () => {
+      const isEditing = editingProfile || (isViewMode && isEditingInView);
       toast({
         title: "Successo",
-        description: editingProfile ? "Profilo aggiornato con successo!" : "Profilo creato con successo!",
+        description: isEditing ? "Profilo aggiornato con successo!" : "Profilo creato con successo!",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "guest-profiles"] });
       setIsDialogOpen(false);
       setEditingProfile(null);
+      setViewingProfile(null);
+      setIsViewMode(false);
+      setIsEditingInView(false);
       form.reset();
     },
     onError: (error: any) => {
@@ -128,14 +138,42 @@ export default function GuestProfiles() {
     mutation.mutate(formattedData);
   };
 
-  const handleEdit = (profile: any) => {
-    setEditingProfile(profile);
+  const handleView = (profile: any) => {
+    setViewingProfile(profile);
+    setIsViewMode(true);
+    setIsEditingInView(false);
     form.reset({
       ...profile,
       checkInDate: new Date(profile.checkInDate),
       checkOutDate: new Date(profile.checkOutDate),
     });
     setIsDialogOpen(true);
+  };
+
+  const handleEdit = (profile: any) => {
+    setEditingProfile(profile);
+    setIsViewMode(false);
+    form.reset({
+      ...profile,
+      checkInDate: new Date(profile.checkInDate),
+      checkOutDate: new Date(profile.checkOutDate),
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleEditInView = () => {
+    setIsEditingInView(true);
+  };
+
+  const handleCancelEditInView = () => {
+    setIsEditingInView(false);
+    if (viewingProfile) {
+      form.reset({
+        ...viewingProfile,
+        checkInDate: new Date(viewingProfile.checkInDate),
+        checkOutDate: new Date(viewingProfile.checkOutDate),
+      });
+    }
   };
 
   const handleDelete = (id: string) => {
@@ -163,6 +201,9 @@ export default function GuestProfiles() {
 
   const handleNewProfile = () => {
     setEditingProfile(null);
+    setViewingProfile(null);
+    setIsViewMode(false);
+    setIsEditingInView(false);
     form.reset({
       hotelId: MOCK_HOTEL_ID,
       type: "",
@@ -216,34 +257,182 @@ export default function GuestProfiles() {
             
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="flex items-center font-heading text-xl">
-                  <Users className="mr-2 h-5 w-5" />
-                  {editingProfile ? "Modifica Profilo Ospite" : "Nuovo Profilo Ospite"}
-                </DialogTitle>
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="flex items-center font-heading text-xl">
+                    <Users className="mr-2 h-5 w-5" />
+                    {isViewMode && !isEditingInView 
+                      ? "Profilo Ospite" 
+                      : editingProfile || isEditingInView 
+                        ? "Modifica Profilo Ospite" 
+                        : "Nuovo Profilo Ospite"
+                    }
+                  </DialogTitle>
+                  {isViewMode && !isEditingInView && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleEditInView}
+                      className="flex items-center gap-2"
+                    >
+                      <Edit className="h-4 w-4" />
+                      Modifica
+                    </Button>
+                  )}
+                  {isViewMode && isEditingInView && (
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleCancelEditInView}
+                      >
+                        Annulla
+                      </Button>
+                      <Button
+                        type="submit"
+                        form="profile-form"
+                        disabled={mutation.isPending}
+                        className="flex items-center gap-2"
+                      >
+                        {mutation.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Save className="h-4 w-4" />
+                        )}
+                        Salva
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </DialogHeader>
               
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="type">Tipo Ospite *</Label>
-                    <Select 
-                      value={form.watch("type")} 
-                      onValueChange={(value) => form.setValue("type", value)}
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Seleziona tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {GUEST_TYPES.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+              {isViewMode && !isEditingInView ? (
+                // Read-only view
+                <div className="space-y-6">
+                  {/* Basic Information */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center">
+                      <User className="h-5 w-5 mr-2" />
+                      Informazioni Base
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Tipo Ospite</Label>
+                        <p className="text-sm mt-1">{getTypeLabel(viewingProfile?.type || "")}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Numero Persone</Label>
+                        <p className="text-sm mt-1">{viewingProfile?.numberOfPeople}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Nome di Riferimento</Label>
+                        <p className="text-sm mt-1">{viewingProfile?.referenceName}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Email</Label>
+                        <p className="text-sm mt-1">{viewingProfile?.email || "Non specificata"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Lingua Email</Label>
+                        <p className="text-sm mt-1">
+                          {viewingProfile?.emailLanguage === 'en' ? '🇬🇧 English' : '🇮🇹 Italiano'}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Camera</Label>
+                        <p className="text-sm mt-1">{viewingProfile?.roomNumber || "Non assegnata"}</p>
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Stay Information */}
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center">
+                      <Calendar className="h-5 w-5 mr-2" />
+                      Periodo di Soggiorno
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Check-in</Label>
+                        <p className="text-sm mt-1">
+                          {viewingProfile?.checkInDate ? new Date(viewingProfile.checkInDate).toLocaleDateString('it-IT') : "Non specificato"}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Check-out</Label>
+                        <p className="text-sm mt-1">
+                          {viewingProfile?.checkOutDate ? new Date(viewingProfile.checkOutDate).toLocaleDateString('it-IT') : "Non specificato"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Guest Preferences */}
+                  {viewingProfile?.preferences && viewingProfile.preferences.length > 0 && (
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold mb-4 flex items-center">
+                        <Heart className="h-5 w-5 mr-2" />
+                        Preferenze Raccolte
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {viewingProfile.preferences.map((pref: string, index: number) => (
+                          <Badge key={index} variant="secondary" className="bg-green-100 text-green-800">
+                            {pref}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Special Requests */}
+                  {viewingProfile?.specialRequests && (
+                    <div className="bg-orange-50 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold mb-4">Richieste Speciali</h3>
+                      <p className="text-sm">{viewingProfile.specialRequests}</p>
+                    </div>
+                  )}
+
+                  {/* Preferences Status */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4">Stato Preferenze</h3>
+                    <div className="flex items-center gap-2">
+                      {viewingProfile?.preferencesCompleted ? (
+                        <>
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                          <span className="text-sm text-green-700 font-medium">Preferenze raccolte</span>
+                        </>
+                      ) : (
+                        <>
+                          <Clock className="w-5 h-5 text-orange-600" />
+                          <span className="text-sm text-orange-700 font-medium">In attesa preferenze</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Edit form
+                <form id="profile-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="type">Tipo Ospite *</Label>
+                      <Select 
+                        value={form.watch("type")} 
+                        onValueChange={(value) => form.setValue("type", value)}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Seleziona tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {GUEST_TYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   
-                  <div>
+                    <div>
                     <Label htmlFor="numberOfPeople">Numero Persone *</Label>
                     <Input
                       id="numberOfPeople"
@@ -366,7 +555,8 @@ export default function GuestProfiles() {
                     )}
                   </Button>
                 </div>
-              </form>
+                </form>
+              )}
             </DialogContent>
           </Dialog>
         </div>
@@ -467,7 +657,7 @@ export default function GuestProfiles() {
                         variant="outline"
                         size="sm"
                         className="w-full font-medium"
-                        onClick={() => handleEdit(profile)}
+                        onClick={() => handleView(profile)}
                       >
                         Vedi Profilo
                       </Button>
