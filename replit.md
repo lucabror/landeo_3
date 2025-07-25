@@ -66,6 +66,7 @@ The application uses four main entities:
 - **openai**: AI integration for itinerary generation
 - **qrcode**: QR code generation
 - **pdfkit**: PDF document generation
+- **resend**: Email service for automated guest communication
 
 ### UI Dependencies
 - **@radix-ui/***: Accessible UI primitives
@@ -91,6 +92,7 @@ The application is designed for deployment on Replit with the following build pr
 ### Environment Configuration
 - `DATABASE_URL`: PostgreSQL connection string (required)
 - `OPENAI_API_KEY`: OpenAI API key for itinerary generation
+- `RESEND_API_KEY`: Resend API key for automated email sending
 - `REPLIT_DOMAINS`: Domain configuration for QR code generation
 
 ### Database Migration
