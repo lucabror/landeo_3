@@ -36,7 +36,8 @@ export interface IStorage {
   getLocalExperience(id: string): Promise<LocalExperience | undefined>;
   createLocalExperience(experience: InsertLocalExperience): Promise<LocalExperience>;
   updateLocalExperience(id: string, experience: Partial<InsertLocalExperience>): Promise<LocalExperience>;
-  getLocalExperiencesByHotel(hotelId: string): Promise<LocalExperience[]>;
+  getLocalExperiencesByHotel(hotelId: string): Promise<LocalExperience[]>; // Only active experiences
+  getAllLocalExperiencesByHotel(hotelId: string): Promise<LocalExperience[]>; // All experiences (active + inactive)
   deleteLocalExperience(id: string): Promise<void>;
 
   // Itineraries
@@ -149,10 +150,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getLocalExperiencesByHotel(hotelId: string): Promise<LocalExperience[]> {
+    // Returns only ACTIVE experiences for AI itinerary generation
     return await db
       .select()
       .from(localExperiences)
       .where(and(eq(localExperiences.hotelId, hotelId), eq(localExperiences.isActive, true)))
+      .orderBy(desc(localExperiences.createdAt));
+  }
+
+  async getAllLocalExperiencesByHotel(hotelId: string): Promise<LocalExperience[]> {
+    // Returns ALL experiences (active + inactive) for management interface
+    return await db
+      .select()
+      .from(localExperiences)
+      .where(eq(localExperiences.hotelId, hotelId))
       .orderBy(desc(localExperiences.createdAt));
   }
 
