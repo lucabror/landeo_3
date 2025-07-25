@@ -15,7 +15,7 @@ import { insertHotelSchema } from "@shared/schema";
 import type { InsertHotel } from "@shared/schema";
 
 // Mock hotel ID - in real app this would come from auth/context
-const MOCK_HOTEL_ID = "hotel-1";
+const MOCK_HOTEL_ID = "d2dd46f0-97d3-4121-96e3-01500370c73f";
 
 export default function HotelSetup() {
   const { toast } = useToast();
