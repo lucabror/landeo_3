@@ -18,6 +18,7 @@ import { generateItineraryPDF } from "./services/pdf";
 import { enrichHotelData, isValidItalianLocation } from "./services/geocoding";
 import { findLocalAttractions, attractionToLocalExperience } from "./services/attractions";
 import { sendGuestPreferencesEmail } from "./services/email";
+import { generateGuestSpecificItinerary } from "./services/itinerary-generator";
 import { randomUUID } from "crypto";
 
 // Configurazione multer per upload dei loghi
@@ -235,6 +236,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete guest profile" });
+    }
+  });
+
+  // Generate itinerary for specific guest profile
+  app.post("/api/guest-profiles/:id/generate-itinerary", async (req, res) => {
+    try {
+      const guestProfile = await storage.getGuestProfile(req.params.id);
+      if (!guestProfile) {
+        return res.status(404).json({ message: "Guest profile not found" });
+      }
+
+      if (!guestProfile.preferencesCompleted) {
+        return res.status(400).json({ message: "Guest preferences must be completed before generating itinerary" });
+      }
+
+      const hotel = await storage.getHotel(guestProfile.hotelId);
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      const localExperiences = await storage.getLocalExperiencesByHotel(guestProfile.hotelId);
+
+      // Delete existing itinerary for this guest if exists
+      const existingItineraries = await storage.getItinerariesByGuestProfile(guestProfile.id);
+      for (const itinerary of existingItineraries) {
+        await storage.deleteItinerary(itinerary.id);
+      }
+
+      // Generate new itinerary using AI
+      const itinerary = await generateGuestSpecificItinerary(hotel, guestProfile, localExperiences);
+      
+      res.json(itinerary);
+    } catch (error) {
+      console.error('Error generating itinerary:', error);
+      res.status(500).json({ message: "Failed to generate itinerary", error: error instanceof Error ? error.message : String(error) });
     }
   });
 

@@ -25,9 +25,12 @@ import {
   Loader2,
   CheckCircle,
   Clock,
-  Save
+  Save,
+  Route,
+  Eye,
+  QrCode
 } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { insertGuestProfileSchema } from "@shared/schema";
 import type { InsertGuestProfile } from "@shared/schema";
 
@@ -195,6 +198,31 @@ export default function GuestProfiles() {
         title: "Errore nell'invio email", 
         description: error.message || "Si è verificato un errore durante l'invio dell'email",
         variant: "destructive" 
+      });
+    }
+  };
+
+  const handleGenerateItinerary = async (profile: any) => {
+    try {
+      toast({
+        title: "Generazione in corso",
+        description: "Sto generando l'itinerario personalizzato...",
+      });
+
+      await apiRequest("POST", `/api/guest-profiles/${profile.id}/generate-itinerary`);
+      
+      // Refresh profile data
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "guest-profiles"] });
+      
+      toast({
+        title: "Itinerario generato",
+        description: "L'itinerario personalizzato è stato creato con successo!",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Errore generazione itinerario",
+        description: error.message || "Si è verificato un errore durante la generazione dell'itinerario",
+        variant: "destructive"
       });
     }
   };
@@ -407,6 +435,70 @@ export default function GuestProfiles() {
                         </>
                       )}
                     </div>
+                  </div>
+
+                  {/* Itinerary Generation & Management */}
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center">
+                      <Route className="h-5 w-5 mr-2" />
+                      Itinerario Personalizzato
+                    </h3>
+                    {viewingProfile?.itinerary ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium">{viewingProfile.itinerary.title}</p>
+                            <p className="text-xs text-gray-600">
+                              Generato il {new Date(viewingProfile.itinerary.createdAt).toLocaleDateString('it-IT')}
+                            </p>
+                          </div>
+                          <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                            {viewingProfile.itinerary.days?.length || 1} giorni
+                          </Badge>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="flex-1">
+                            <Eye className="h-4 w-4 mr-1" />
+                            Visualizza
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            <QrCode className="h-4 w-4 mr-1" />
+                            QR Code
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            PDF
+                          </Button>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="w-full text-purple-600 hover:bg-purple-100"
+                          onClick={() => handleGenerateItinerary(viewingProfile)}
+                        >
+                          <Route className="h-4 w-4 mr-1" />
+                          Rigenera Itinerario
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="text-center py-4">
+                        <p className="text-sm text-gray-600 mb-3">
+                          Nessun itinerario generato per questo ospite
+                        </p>
+                        <Button 
+                          onClick={() => handleGenerateItinerary(viewingProfile)}
+                          disabled={!viewingProfile?.preferencesCompleted}
+                          className="bg-purple-600 hover:bg-purple-700"
+                        >
+                          <Route className="h-4 w-4 mr-2" />
+                          Genera Itinerario AI
+                        </Button>
+                        {!viewingProfile?.preferencesCompleted && (
+                          <p className="text-xs text-orange-600 mt-2">
+                            Le preferenze dell'ospite devono essere raccolte prima di generare l'itinerario
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
