@@ -28,6 +28,11 @@ export default function ItineraryView() {
   const [editingActivities, setEditingActivities] = useState<any[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Check if user is accessing from hotel management (only managers can edit)
+  const isManagerView = window.location.search.includes('manager=true') ||
+                       document.referrer.includes('/guest-profiles') ||
+                       sessionStorage.getItem('isManager') === 'true';
 
   const { data: itinerary, isLoading, error } = useQuery({
     queryKey: ["/api/itinerary", uniqueUrl],
@@ -37,9 +42,12 @@ export default function ItineraryView() {
   // Mutation for updating a day's activities
   const updateDayMutation = useMutation({
     mutationFn: async ({ dayNumber, activities }: { dayNumber: number, activities: any[] }) => {
-      return await apiRequest("PATCH", `/api/itinerary/${uniqueUrl}/day/${dayNumber}`, {
+      // Add manager header to request
+      const headers = isManagerView ? { 'x-manager-request': 'true' } : {};
+      const response = await apiRequest("PATCH", `/api/itinerary/${uniqueUrl}/day/${dayNumber}?manager=true`, {
         activities
-      });
+      }, headers);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/itinerary", uniqueUrl] });
@@ -151,16 +159,18 @@ export default function ItineraryView() {
                 </p>
               </div>
             </div>
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm">
-                <QrCode className="h-4 w-4 mr-1" />
-                QR Code
-              </Button>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-1" />
-                PDF
-              </Button>
-            </div>
+            {isManagerView && (
+              <div className="flex space-x-2">
+                <Button variant="outline" size="sm">
+                  <QrCode className="h-4 w-4 mr-1" />
+                  QR Code
+                </Button>
+                <Button variant="outline" size="sm">
+                  <Download className="h-4 w-4 mr-1" />
+                  PDF
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -231,36 +241,38 @@ export default function ItineraryView() {
                       <Badge variant="secondary">
                         {activitiesToShow?.length || 0} attività
                       </Badge>
-                      {!isEditing ? (
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleEditDay(day)}
-                        >
-                          <Edit className="h-4 w-4 mr-1" />
-                          Modifica
-                        </Button>
-                      ) : (
-                        <div className="flex gap-1">
-                          <Button 
-                            size="sm" 
-                            onClick={handleSaveDay}
-                            disabled={updateDayMutation.isPending}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            <Save className="h-4 w-4 mr-1" />
-                            Salva
-                          </Button>
+                      {isManagerView && (
+                        !isEditing ? (
                           <Button 
                             size="sm" 
                             variant="outline"
-                            onClick={handleCancelEdit}
-                            disabled={updateDayMutation.isPending}
+                            onClick={() => handleEditDay(day)}
                           >
-                            <X className="h-4 w-4 mr-1" />
-                            Annulla
+                            <Edit className="h-4 w-4 mr-1" />
+                            Modifica
                           </Button>
-                        </div>
+                        ) : (
+                          <div className="flex gap-1">
+                            <Button 
+                              size="sm" 
+                              onClick={handleSaveDay}
+                              disabled={updateDayMutation.isPending}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              <Save className="h-4 w-4 mr-1" />
+                              Salva
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={handleCancelEdit}
+                              disabled={updateDayMutation.isPending}
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Annulla
+                            </Button>
+                          </div>
+                        )
                       )}
                     </div>
                   </CardTitle>

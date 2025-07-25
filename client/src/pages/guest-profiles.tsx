@@ -243,6 +243,8 @@ export default function GuestProfiles() {
         recipientEmail: email,
         recipientName: profile.referenceName
       });
+      
+      const result = await response.json();
 
       toast({
         title: "Email inviata",
@@ -495,7 +497,11 @@ export default function GuestProfiles() {
                           
                           <Button 
                             className="w-full bg-purple-600 hover:bg-purple-700 mb-3"
-                            onClick={() => window.open(`/itinerary/${guestItinerary[0].uniqueUrl}`, '_blank')}
+                            onClick={() => {
+                              // Set manager flag before navigation
+                              sessionStorage.setItem('isManager', 'true');
+                              window.open(`/itinerary/${guestItinerary[0].uniqueUrl}?manager=true`, '_blank');
+                            }}
                           >
                             <Eye className="h-4 w-4 mr-2" />
                             Vedi Itinerario

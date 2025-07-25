@@ -322,9 +322,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update a specific day in an itinerary
+  // Update a specific day in an itinerary (Manager only)
   app.patch("/api/itinerary/:uniqueUrl/day/:dayNumber", async (req, res) => {
     try {
+      // Check if request comes from manager interface
+      const isManagerRequest = req.headers['x-manager-request'] === 'true' || 
+                              req.query.manager === 'true' ||
+                              req.headers.referer?.includes('/guest-profiles');
+      
+      if (!isManagerRequest) {
+        return res.status(403).json({ message: "Access denied. Manager privileges required." });
+      }
+
       const { uniqueUrl, dayNumber } = req.params;
       const { activities } = req.body;
 
