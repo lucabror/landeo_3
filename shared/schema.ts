@@ -184,6 +184,10 @@ export const insertHotelSchema = createInsertSchema(hotels).omit({
 export const insertGuestProfileSchema = createInsertSchema(guestProfiles).omit({
   id: true,
   createdAt: true,
+  preferencesCompleted: true,
+}).extend({
+  checkInDate: z.union([z.date(), z.string().transform((str) => new Date(str))]),
+  checkOutDate: z.union([z.date(), z.string().transform((str) => new Date(str))]),
 });
 
 export const insertLocalExperienceSchema = createInsertSchema(localExperiences).omit({
