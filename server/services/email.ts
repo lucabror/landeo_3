@@ -163,7 +163,7 @@ export async function sendGuestPreferencesEmail(
     await mailService.send({
       to: guestProfile.email!,
       from: {
-        email: hotel.email,
+        email: process.env.SENDGRID_FROM_EMAIL!,
         name: hotel.name
       },
       subject: template.subject(hotel.name),
@@ -171,8 +171,11 @@ export async function sendGuestPreferencesEmail(
     });
     
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('SendGrid email error:', error);
+    if (error.response?.body?.errors) {
+      console.error('SendGrid error details:', JSON.stringify(error.response.body.errors, null, 2));
+    }
     return false;
   }
 }
