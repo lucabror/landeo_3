@@ -58,6 +58,7 @@ export default function GuestProfiles() {
       numberOfPeople: 1,
       referenceName: "",
       email: "",
+      emailLanguage: "it",
       ages: [],
       preferences: [],
       specialRequests: "",
@@ -143,6 +144,7 @@ export default function GuestProfiles() {
       numberOfPeople: 1,
       referenceName: "",
       email: "",
+      emailLanguage: "it",
       ages: [],
       preferences: [],
       specialRequests: "",
@@ -238,19 +240,38 @@ export default function GuestProfiles() {
                   />
                 </div>
                 
-                <div>
-                  <Label htmlFor="email">Email Ospite</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    {...form.register("email")}
-                    placeholder="email@esempio.com"
-                    className="mt-1"
-                  />
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Se inserita, l'ospite riceverà automaticamente un'email con un modulo per specificare le sue preferenze di viaggio
-                  </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="email">Email Ospite</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      {...form.register("email")}
+                      placeholder="email@esempio.com"
+                      className="mt-1"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="emailLanguage">Lingua Email</Label>
+                    <Select
+                      value={form.watch("emailLanguage") || "it"}
+                      onValueChange={(value) => form.setValue("emailLanguage", value)}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Lingua email" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="it">🇮🇹 Italiano</SelectItem>
+                        <SelectItem value="en">🇬🇧 English</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
+                
+                <p className="text-sm text-muted-foreground">
+                  Se inserita, l'ospite riceverà automaticamente un'email nella lingua selezionata con un modulo per specificare le sue preferenze di viaggio
+                </p>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>

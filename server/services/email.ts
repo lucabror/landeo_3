@@ -8,14 +8,78 @@ if (!process.env.SENDGRID_API_KEY) {
 const mailService = new MailService();
 mailService.setApiKey(process.env.SENDGRID_API_KEY);
 
+// Email templates per lingua
+const EMAIL_TEMPLATES = {
+  it: {
+    subject: (hotelName: string) => `Personalizza il tuo soggiorno - ${hotelName}`,
+    greeting: (name: string) => `🏨 Benvenuto/a ${name}!`,
+    subtitle: (hotelName: string) => `Personalizza il tuo soggiorno presso ${hotelName}`,
+    salutation: (name: string) => `Caro/a ${name},`,
+    welcomeText: (hotelName: string, checkin: string, checkout: string) => 
+      `Siamo entusiasti di accoglierti presso <strong>${hotelName}</strong> dal <strong>${checkin}</strong> al <strong>${checkout}</strong>!`,
+    bookingDetails: "📋 I tuoi dati di prenotazione:",
+    bookingFields: {
+      name: "Nome prenotazione:",
+      people: "Numero persone:",
+      checkin: "Check-in:",
+      checkout: "Check-out:"
+    },
+    description: "Per rendere il tuo soggiorno indimenticabile, vorremmo conoscere le tue preferenze di viaggio. Compilando il nostro breve questionario, potremo creare un <strong>itinerario personalizzato</strong> con le migliori esperienze locali adatte ai tuoi gusti.",
+    ctaButton: "✨ Compila le tue preferenze",
+    whyTitle: "Perché compilare il questionario?",
+    benefits: [
+      "🎯 Suggerimenti personalizzati basati sui tuoi interessi",
+      "🍕 Ristoranti e esperienze culinarie su misura", 
+      "🏛️ Attrazioni culturali adatte al tuo stile",
+      "🌅 Attività outdoor e relax secondo le tue preferenze",
+      "📱 Accesso facile tramite QR code durante il soggiorno"
+    ],
+    timeNote: "Il questionario richiede solo <strong>5 minuti</strong> e farà la differenza nel tuo soggiorno!",
+    closing: "Con affetto,"
+  },
+  en: {
+    subject: (hotelName: string) => `Customize your stay - ${hotelName}`,
+    greeting: (name: string) => `🏨 Welcome ${name}!`,
+    subtitle: (hotelName: string) => `Personalize your stay at ${hotelName}`,
+    salutation: (name: string) => `Dear ${name},`,
+    welcomeText: (hotelName: string, checkin: string, checkout: string) => 
+      `We're thrilled to welcome you to <strong>${hotelName}</strong> from <strong>${checkin}</strong> to <strong>${checkout}</strong>!`,
+    bookingDetails: "📋 Your booking details:",
+    bookingFields: {
+      name: "Booking name:",
+      people: "Number of people:",
+      checkin: "Check-in:",
+      checkout: "Check-out:"
+    },
+    description: "To make your stay unforgettable, we'd love to know your travel preferences. By completing our brief questionnaire, we can create a <strong>personalized itinerary</strong> with the best local experiences tailored to your tastes.",
+    ctaButton: "✨ Share your preferences",
+    whyTitle: "Why complete the questionnaire?",
+    benefits: [
+      "🎯 Personalized suggestions based on your interests",
+      "🍕 Restaurants and culinary experiences tailored for you",
+      "🏛️ Cultural attractions that match your style", 
+      "🌅 Outdoor activities and relaxation based on your preferences",
+      "📱 Easy access via QR code during your stay"
+    ],
+    timeNote: "The questionnaire takes only <strong>5 minutes</strong> and will make all the difference in your stay!",
+    closing: "With warm regards,"
+  }
+};
+
 export async function sendGuestPreferencesEmail(
   hotel: Hotel,
   guestProfile: GuestProfile,
   preferencesToken: string
 ): Promise<boolean> {
   try {
+    const language = guestProfile.emailLanguage || 'it';
+    const template = EMAIL_TEMPLATES[language as keyof typeof EMAIL_TEMPLATES];
+    
     const baseUrl = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000';
     const preferencesUrl = `https://${baseUrl}/guest-preferences/${preferencesToken}`;
+    
+    const checkinDate = new Date(guestProfile.checkInDate).toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US');
+    const checkoutDate = new Date(guestProfile.checkOutDate).toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US');
     
     const htmlContent = `
 <!DOCTYPE html>
@@ -23,7 +87,7 @@ export async function sendGuestPreferencesEmail(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Personalizza il tuo soggiorno - ${hotel.name}</title>
+  <title>${template.subject(hotel.name)}</title>
   <style>
     body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
     .container { max-width: 600px; margin: 0 auto; background-color: white; }
@@ -43,85 +107,69 @@ export async function sendGuestPreferencesEmail(
     .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #666; }
     .logo { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
     .highlight { background-color: #e8f4fd; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0; }
+    .details { background: white; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #667eea; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <div class="logo">${hotel.name}</div>
-      <p>Benvenuto nel nostro hotel!</p>
+      <h1>${template.greeting(guestProfile.referenceName)}</h1>
+      <p>${template.subtitle(hotel.name)}</p>
     </div>
     
     <div class="content">
-      <h2>Caro/a ${guestProfile.referenceName},</h2>
+      <p>${template.salutation(guestProfile.referenceName)}</p>
       
-      <p>Siamo entusiasti di accoglierti presso il nostro hotel dal <strong>${new Date(guestProfile.checkInDate).toLocaleDateString('it-IT')}</strong> al <strong>${new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT')}</strong>!</p>
+      <p>${template.welcomeText(hotel.name, checkinDate, checkoutDate)}</p>
       
-      <div class="highlight">
-        <p><strong>Per rendere il tuo soggiorno ancora più speciale</strong>, abbiamo preparato un breve questionario per conoscere le tue preferenze e creare un itinerario personalizzato della tua esperienza nella nostra magnifica città.</p>
+      <div class="details">
+        <h3>${template.bookingDetails}</h3>
+        <ul>
+          <li><strong>${template.bookingFields.name}</strong> ${guestProfile.referenceName}</li>
+          <li><strong>${template.bookingFields.people}</strong> ${guestProfile.numberOfPeople}</li>
+          <li><strong>${template.bookingFields.checkin}</strong> ${checkinDate}</li>
+          <li><strong>${template.bookingFields.checkout}</strong> ${checkoutDate}</li>
+        </ul>
       </div>
       
-      <p>Il questionario richiede solo 2-3 minuti e ci aiuterà a:</p>
-      <ul>
-        <li>🎯 Suggerire esperienze su misura per te</li>
-        <li>🍽️ Raccomandare ristoranti che amerai</li>
-        <li>🎨 Proporre attrazioni culturali di tuo interesse</li>
-        <li>📍 Creare un itinerario personalizzato con i nostri partner locali</li>
-      </ul>
+      <p>${template.description}</p>
       
       <div style="text-align: center;">
         <a href="${preferencesUrl}" class="button">
-          📝 Compila le tue preferenze
+          ${template.ctaButton}
         </a>
       </div>
       
-      <p><small>Se il pulsante non funziona, copia e incolla questo link nel tuo browser:<br>
-      <a href="${preferencesUrl}">${preferencesUrl}</a></small></p>
+      <p><strong>${template.whyTitle}</strong></p>
+      <ul>
+        ${template.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
+      </ul>
       
-      <p>Non vediamo l'ora di darti il benvenuto!</p>
-      
-      <p>Cordiali saluti,<br>
-      <strong>Il Team di ${hotel.name}</strong></p>
+      <p>${template.timeNote}</p>
     </div>
     
     <div class="footer">
-      <p>${hotel.name}<br>
-      ${hotel.address}<br>
-      ${hotel.phone} | ${hotel.email}</p>
-      <p><small>Questa email è stata inviata automaticamente dal nostro sistema di gestione ospiti.</small></p>
+      <p>${template.closing}<br><strong>Team ${hotel.name}</strong></p>
+      <p style="font-size: 12px; color: #999;">
+        ${hotel.city}, ${hotel.region}<br>
+        📧 ${hotel.email} | 📞 ${hotel.phone}
+      </p>
     </div>
   </div>
 </body>
-</html>
-    `;
-
-    const textContent = `
-Benvenuto/a ${guestProfile.referenceName}!
-
-Siamo entusiasti di accoglierti presso ${hotel.name} dal ${new Date(guestProfile.checkInDate).toLocaleDateString('it-IT')} al ${new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT')}!
-
-Per rendere il tuo soggiorno ancora più speciale, abbiamo preparato un breve questionario per conoscere le tue preferenze e creare un itinerario personalizzato.
-
-Compila le tue preferenze qui: ${preferencesUrl}
-
-Il questionario richiede solo 2-3 minuti e ci aiuterà a suggerire esperienze su misura per te.
-
-Cordiali saluti,
-Il Team di ${hotel.name}
-
-${hotel.name}
-${hotel.address}
-${hotel.phone} | ${hotel.email}
-    `;
+</html>`;
 
     await mailService.send({
-      to: guestProfile.email || '',
-      from: hotel.email || 'noreply@hotel.com',
-      subject: `Benvenuto ${guestProfile.referenceName} - Personalizza il tuo soggiorno presso ${hotel.name}`,
-      text: textContent,
+      to: guestProfile.email!,
+      from: {
+        email: hotel.email,
+        name: hotel.name
+      },
+      subject: template.subject(hotel.name),
       html: htmlContent,
     });
-
+    
     return true;
   } catch (error) {
     console.error('SendGrid email error:', error);
