@@ -140,6 +140,28 @@ export default function LocalExperiences() {
     },
   });
 
+  // Update experience mutation
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<InsertLocalExperience> }) => {
+      const res = await apiRequest("PUT", `/api/local-experiences/${id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Successo",
+        description: "Esperienza aggiornata con successo!",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "local-experiences"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore",
+        description: error.message || "Errore durante l'aggiornamento",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Generate AI attractions mutation
   const generateAttractionsMutation = useMutation({
     mutationFn: () => apiRequest("POST", `/api/hotels/${MOCK_HOTEL_ID}/generate-attractions`),
@@ -715,8 +737,12 @@ export default function LocalExperiences() {
                             <Switch 
                               checked={experience.isActive} 
                               onCheckedChange={(checked) => {
-                                // Handle toggle active state
+                                updateMutation.mutate({
+                                  id: experience.id,
+                                  data: { isActive: checked }
+                                });
                               }}
+                              disabled={updateMutation.isPending}
                               className="scale-75"
                             />
                             <span className="text-xs text-gray-500 ml-1">
