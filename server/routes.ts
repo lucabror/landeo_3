@@ -300,6 +300,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hotel = await storage.getHotel(itinerary.hotelId);
       const guestProfile = await storage.getGuestProfile(itinerary.guestProfileId);
 
+      // Check if the stay has ended (QR code should be disabled after checkout)
+      const today = new Date();
+      today.setHours(23, 59, 59, 999); // End of today for comparison
+      const checkoutDate = guestProfile?.checkOutDate ? new Date(guestProfile.checkOutDate) : null;
+      const isExpired = checkoutDate && today > checkoutDate;
+
+      // Check if this is a manager request
+      const isManagerRequest = req.headers['x-manager-request'] === 'true' || 
+                              req.query.manager === 'true' ||
+                              req.headers.referer?.includes('/guest-profiles');
+
+      // If accessing via QR code (no manager params) and stay has expired, return expired message
+      if (isExpired && !isManagerRequest) {
+        return res.status(410).json({ 
+          message: "Itinerary expired",
+          details: "Questo itinerario non è più accessibile in quanto il soggiorno è terminato.",
+          expiredDate: checkoutDate?.toISOString(),
+          hotel: hotel ? {
+            name: hotel.name,
+            city: hotel.city,
+            region: hotel.region,
+            logoUrl: hotel.logoUrl
+          } : null
+        });
+      }
+
       res.json({
         ...itinerary,
         hotel: hotel ? {
@@ -314,7 +340,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           numberOfPeople: guestProfile.numberOfPeople,
           checkInDate: guestProfile.checkInDate,
           checkOutDate: guestProfile.checkOutDate
-        } : null
+        } : null,
+        isExpired: isExpired
       });
     } catch (error) {
       console.error('Error fetching public itinerary:', error);
@@ -372,6 +399,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const hotel = await storage.getHotel(itinerary.hotelId);
       const guestProfile = await storage.getGuestProfile(itinerary.guestProfileId);
+
+      // Check if the stay has ended (QR code should not be generated after checkout)
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+      const checkoutDate = guestProfile?.checkOutDate ? new Date(guestProfile.checkOutDate) : null;
+      const isExpired = checkoutDate && today > checkoutDate;
+
+      if (isExpired) {
+        return res.status(410).json({ 
+          message: "QR Code expired",
+          details: "Il QR Code non è più disponibile in quanto il soggiorno è terminato."
+        });
+      }
 
       // Generate PDF with QR code
       const doc = new PDFDocument();
