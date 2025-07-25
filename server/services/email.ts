@@ -1,12 +1,40 @@
-import { MailService } from '@sendgrid/mail';
+import nodemailer from 'nodemailer';
 import type { Hotel, GuestProfile } from '@shared/schema';
 
-if (!process.env.SENDGRID_API_KEY) {
-  throw new Error("SENDGRID_API_KEY environment variable must be set");
-}
-
-const mailService = new MailService();
-mailService.setApiKey(process.env.SENDGRID_API_KEY);
+// Configurazione trasporter Nodemailer
+const createTransporter = () => {
+  // Se abbiamo le credenziali Gmail
+  if (process.env.GMAIL_USER && process.env.GMAIL_PASSWORD) {
+    return nodemailer.createTransporter({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASSWORD // App Password per Gmail
+      }
+    });
+  }
+  
+  // Altrimenti usa SMTP generico
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+    return nodemailer.createTransporter({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD
+      }
+    });
+  }
+  
+  // Fallback: simulazione invio per sviluppo
+  console.warn('Nessuna configurazione email trovata. Simulando invio email...');
+  return nodemailer.createTransporter({
+    streamTransport: true,
+    newline: 'unix',
+    buffer: true
+  });
+};
 
 // Email templates per lingua
 const EMAIL_TEMPLATES = {
@@ -160,21 +188,34 @@ export async function sendGuestPreferencesEmail(
 </body>
 </html>`;
 
-    await mailService.send({
-      to: guestProfile.email!,
+    const transporter = createTransporter();
+    
+    // Determina l'email mittente
+    const fromEmail = process.env.GMAIL_USER || process.env.SMTP_USER || hotel.email || 'noreply@example.com';
+    
+    const mailOptions = {
       from: {
-        email: process.env.SENDGRID_FROM_EMAIL!,
-        name: hotel.name
+        name: hotel.name,
+        address: fromEmail
       },
+      to: guestProfile.email!,
       subject: template.subject(hotel.name),
       html: htmlContent,
-    });
+    };
+
+    const info = await transporter.sendMail(mailOptions);
     
-    return true;
+    if (info.messageId || info.response) {
+      console.log(`Email preferenze inviata con successo a ${guestProfile.email} per ospite ${guestProfile.referenceName}`);
+      console.log('Message ID:', info.messageId);
+      return true;
+    }
+    
+    return false;
   } catch (error: any) {
-    console.error('SendGrid email error:', error);
-    if (error.response?.body?.errors) {
-      console.error('SendGrid error details:', JSON.stringify(error.response.body.errors, null, 2));
+    console.error('Errore invio email:', error);
+    if (error.code === 'EAUTH') {
+      console.error('Errore autenticazione email. Verifica le credenziali.');
     }
     return false;
   }
