@@ -166,272 +166,306 @@ export default function ItineraryView() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* Header - Mobile Optimized */}
       <div className="bg-white shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              {itinerary?.hotel?.logoUrl && (
-                <img 
-                  src={itinerary.hotel.logoUrl} 
-                  alt={itinerary.hotel.name}
-                  className="h-12 w-12 object-contain"
-                />
-              )}
-              <div>
-                <h1 className="text-2xl font-serif font-bold text-gray-900">{itinerary?.title || 'Itinerario'}</h1>
-                <p className="text-gray-600">
-                  {itinerary?.hotel?.name} • {itinerary?.hotel?.city}, {itinerary?.hotel?.region}
-                </p>
-              </div>
-            </div>
-            {isManagerView && (
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm">
-                  <QrCode className="h-4 w-4 mr-1" />
-                  QR Code
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-1" />
-                  PDF
-                </Button>
-              </div>
+        <div className="max-w-full mx-auto px-4 py-4 sm:px-6 sm:py-6">
+          {/* Hotel Logo & Title */}
+          <div className="flex items-start space-x-3 mb-4">
+            {itinerary?.hotel?.logoUrl && (
+              <img 
+                src={itinerary.hotel.logoUrl} 
+                alt={itinerary.hotel.name}
+                className="h-10 w-10 sm:h-12 sm:w-12 object-contain flex-shrink-0"
+              />
             )}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg sm:text-2xl font-serif font-bold text-gray-900 leading-tight">
+                {itinerary?.title || 'Itinerario'}
+              </h1>
+              <p className="text-sm sm:text-base text-gray-600 mt-1">
+                {itinerary?.hotel?.name}
+              </p>
+              <p className="text-xs sm:text-sm text-gray-500">
+                {itinerary?.hotel?.city}, {itinerary?.hotel?.region}
+              </p>
+            </div>
           </div>
+
+          {/* Manager Actions - Mobile Optimized */}
+          {isManagerView && (
+            <div className="flex gap-2 sm:gap-3">
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                <QrCode className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">QR Code</span>
+                <span className="sm:hidden">QR</span>
+              </Button>
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                <Download className="h-4 w-4 mr-1" />
+                PDF
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Guest Info */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Users className="h-5 w-5 mr-2" />
+      {/* Content - Mobile First */}
+      <div className="max-w-full mx-auto px-4 py-4 sm:px-6 sm:py-8">
+        {/* Guest Info - Mobile Optimized */}
+        <Card className="mb-4 sm:mb-6">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center text-base sm:text-lg">
+              <Users className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               Informazioni Soggiorno
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <CardContent className="pt-0">
+            <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center">
-                <Hotel className="h-4 w-4 mr-2 text-gray-500" />
-                <span className="text-sm">
+                <Hotel className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
+                <span className="text-sm sm:text-base">
                   <strong>Ospite:</strong> {itinerary?.guestProfile?.referenceName || 'N/A'}
                 </span>
               </div>
               <div className="flex items-center">
-                <Users className="h-4 w-4 mr-2 text-gray-500" />
-                <span className="text-sm">
+                <Users className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
+                <span className="text-sm sm:text-base">
                   <strong>Persone:</strong> {itinerary?.guestProfile?.numberOfPeople || 'N/A'}
                 </span>
               </div>
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-                <span className="text-sm">
-                  <strong>Periodo:</strong> {itinerary?.guestProfile?.checkInDate ? new Date(itinerary.guestProfile.checkInDate).toLocaleDateString('it-IT') : 'N/A'} - {itinerary?.guestProfile?.checkOutDate ? new Date(itinerary.guestProfile.checkOutDate).toLocaleDateString('it-IT') : 'N/A'}
-                </span>
+              <div className="flex items-start">
+                <Calendar className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0 mt-1" />
+                <div className="text-sm sm:text-base">
+                  <strong>Periodo:</strong><br className="sm:hidden" />
+                  <span className="block sm:inline sm:ml-1">
+                    {itinerary?.guestProfile?.checkInDate ? new Date(itinerary.guestProfile.checkInDate).toLocaleDateString('it-IT') : 'N/A'} - {itinerary?.guestProfile?.checkOutDate ? new Date(itinerary.guestProfile.checkOutDate).toLocaleDateString('it-IT') : 'N/A'}
+                  </span>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Description */}
+        {/* Description - Mobile Optimized */}
         {itinerary?.description && (
-          <Card className="mb-6">
-            <CardContent className="pt-6">
-              <p className="text-gray-700">{itinerary.description}</p>
+          <Card className="mb-4 sm:mb-6">
+            <CardContent className="pt-4 sm:pt-6">
+              <p className="text-sm sm:text-base text-gray-700 leading-relaxed">{itinerary.description}</p>
             </CardContent>
           </Card>
         )}
 
-        {/* Daily Itinerary */}
-        <div className="space-y-6">
+        {/* Daily Itinerary - Mobile Optimized */}
+        <div className="space-y-4 sm:space-y-6">
           {itinerary?.days?.map((day: any, index: number) => {
             const isEditing = editingDay === day.day;
             const activitiesToShow = isEditing ? editingActivities : day.activities;
             
             return (
               <Card key={day.day} className="overflow-hidden">
-                <CardHeader className="bg-primary/5">
-                  <CardTitle className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Calendar className="h-5 w-5 mr-2" />
-                      Giorno {day.day} - {new Date(day.date).toLocaleDateString('it-IT', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                      })}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">
+                <CardHeader className="bg-primary/5 pb-3 sm:pb-6">
+                  <div className="space-y-3">
+                    {/* Day Title - Mobile Stacked */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start space-x-2 flex-1 min-w-0">
+                        <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mt-0.5 text-primary flex-shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-sm sm:text-base font-semibold text-gray-900 leading-tight">
+                            Giorno {day.day}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                            {new Date(day.date).toLocaleDateString('it-IT', { 
+                              weekday: 'long', 
+                              day: 'numeric',
+                              month: 'long'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge variant="secondary" className="text-xs">
                         {activitiesToShow?.length || 0} attività
                       </Badge>
-                      {isManagerView && (
-                        !isEditing ? (
+                    </div>
+
+                    {/* Manager Actions - Mobile Optimized */}
+                    {isManagerView && (
+                      <div className="flex gap-2">
+                        {!isEditing ? (
                           <Button 
                             size="sm" 
                             variant="outline"
                             onClick={() => handleEditDay(day)}
+                            className="flex-1 sm:flex-none"
                           >
                             <Edit className="h-4 w-4 mr-1" />
-                            Modifica
+                            <span className="hidden sm:inline">Modifica</span>
+                            <span className="sm:hidden">Modifica</span>
                           </Button>
                         ) : (
-                          <div className="flex gap-1">
+                          <>
                             <Button 
                               size="sm" 
                               onClick={handleSaveDay}
                               disabled={updateDayMutation.isPending}
-                              className="bg-green-600 hover:bg-green-700"
+                              className="bg-green-600 hover:bg-green-700 flex-1 sm:flex-none"
                             >
                               <Save className="h-4 w-4 mr-1" />
-                              Salva
+                              <span className="hidden sm:inline">Salva</span>
+                              <span className="sm:hidden">Salva</span>
                             </Button>
                             <Button 
                               size="sm" 
                               variant="outline"
                               onClick={handleCancelEdit}
                               disabled={updateDayMutation.isPending}
+                              className="flex-1 sm:flex-none"
                             >
                               <X className="h-4 w-4 mr-1" />
-                              Annulla
+                              <span className="hidden sm:inline">Annulla</span>
+                              <span className="sm:hidden">Annulla</span>
                             </Button>
-                          </div>
-                        )
-                      )}
-                    </div>
-                  </CardTitle>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </CardHeader>
-              <CardContent className="p-0">
-                {activitiesToShow && activitiesToShow.length > 0 ? (
-                  <div className="divide-y divide-gray-100">
-                    {activitiesToShow.map((activity: any, actIndex: number) => (
-                      <div key={actIndex} className={`p-6 ${isEditing ? 'bg-blue-50' : 'hover:bg-gray-50'} transition-colors`}>
-                        {isEditing ? (
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                              <h4 className="text-lg font-medium text-gray-900">Attività {actIndex + 1}</h4>
-                              <Button 
-                                size="sm" 
-                                variant="destructive"
-                                onClick={() => handleRemoveActivity(actIndex)}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <label className="text-sm font-medium text-gray-700">Orario</label>
-                                <Input 
-                                  type="time"
-                                  value={activity.time || ""}
-                                  onChange={(e) => handleActivityChange(actIndex, 'time', e.target.value)}
-                                  className="mt-1"
-                                />
+                <CardContent className="p-0">
+                  {activitiesToShow && activitiesToShow.length > 0 ? (
+                    <div className="divide-y divide-gray-100">
+                      {activitiesToShow.map((activity: any, actIndex: number) => (
+                        <div key={actIndex} className={`p-4 sm:p-6 ${isEditing ? 'bg-blue-50' : 'hover:bg-gray-50'} transition-colors`}>
+                          {isEditing ? (
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <h4 className="text-base sm:text-lg font-medium text-gray-900">Attività {actIndex + 1}</h4>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                  onClick={() => handleRemoveActivity(actIndex)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
                               </div>
-                              <div>
-                                <label className="text-sm font-medium text-gray-700">Durata</label>
-                                <Input 
-                                  value={activity.duration || ""}
-                                  onChange={(e) => handleActivityChange(actIndex, 'duration', e.target.value)}
-                                  placeholder="es. 2 ore"
-                                  className="mt-1"
-                                />
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <label className="text-sm font-medium text-gray-700">Nome Attività</label>
-                              <Input 
-                                value={activity.activity || ""}
-                                onChange={(e) => handleActivityChange(actIndex, 'activity', e.target.value)}
-                                className="mt-1"
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="text-sm font-medium text-gray-700">Località</label>
-                              <Input 
-                                value={activity.location || ""}
-                                onChange={(e) => handleActivityChange(actIndex, 'location', e.target.value)}
-                                className="mt-1"
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="text-sm font-medium text-gray-700">Descrizione</label>
-                              <Textarea 
-                                value={activity.description || ""}
-                                onChange={(e) => handleActivityChange(actIndex, 'description', e.target.value)}
-                                className="mt-1"
-                                rows={3}
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="text-sm font-medium text-gray-700">Note</label>
-                              <Textarea 
-                                value={activity.notes || ""}
-                                onChange={(e) => handleActivityChange(actIndex, 'notes', e.target.value)}
-                                className="mt-1"
-                                rows={2}
-                              />
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex items-start space-x-4">
-                            <div className="flex-shrink-0">
-                              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                                <Clock className="h-5 w-5 text-primary" />
+                              
+                              {/* Mobile-First Form - All fields stacked vertically */}
+                              <div className="space-y-4">
+                                {/* Time and Duration in a flex row on larger screens only */}
+                                <div className="flex flex-col sm:flex-row sm:gap-4 space-y-4 sm:space-y-0">
+                                  <div className="flex-1">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Orario</label>
+                                    <Input 
+                                      type="time"
+                                      value={activity.time || ""}
+                                      onChange={(e) => handleActivityChange(actIndex, 'time', e.target.value)}
+                                    />
+                                  </div>
+                                  <div className="flex-1">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Durata</label>
+                                    <Input 
+                                      value={activity.duration || ""}
+                                      onChange={(e) => handleActivityChange(actIndex, 'duration', e.target.value)}
+                                      placeholder="es. 2 ore"
+                                    />
+                                  </div>
+                                </div>
+                                
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Nome Attività</label>
+                                  <Input 
+                                    value={activity.activity || ""}
+                                    onChange={(e) => handleActivityChange(actIndex, 'activity', e.target.value)}
+                                  />
+                                </div>
+                                
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Località</label>
+                                  <Input 
+                                    value={activity.location || ""}
+                                    onChange={(e) => handleActivityChange(actIndex, 'location', e.target.value)}
+                                  />
+                                </div>
+                                
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Descrizione</label>
+                                  <Textarea 
+                                    value={activity.description || ""}
+                                    onChange={(e) => handleActivityChange(actIndex, 'description', e.target.value)}
+                                    rows={3}
+                                  />
+                                </div>
+                                
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Note</label>
+                                  <Textarea 
+                                    value={activity.notes || ""}
+                                    onChange={(e) => handleActivityChange(actIndex, 'notes', e.target.value)}
+                                    rows={2}
+                                  />
+                                </div>
                               </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <h4 className="text-lg font-medium text-gray-900 mb-1">
+                          ) : (
+                            <div className="space-y-3">
+                              {/* Activity Header */}
+                              <div className="flex items-start space-x-3">
+                                <div className="flex-shrink-0">
+                                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                                    <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                                  </div>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-base sm:text-lg font-medium text-gray-900 leading-tight">
                                     {activity.activity}
                                   </h4>
-                                  <div className="flex items-center text-sm text-gray-500 mb-2">
+                                  <div className="flex flex-wrap items-center text-sm text-gray-500 mt-1 gap-1">
                                     <Clock className="h-4 w-4 mr-1" />
                                     <span className="font-medium">{activity.time}</span>
                                     {activity.duration && (
                                       <>
-                                        <span className="mx-2">•</span>
+                                        <span className="mx-1">•</span>
                                         <span>{activity.duration}</span>
                                       </>
                                     )}
                                   </div>
-                                  {activity.location && (
-                                    <div className="flex items-center text-sm text-gray-500 mb-3">
-                                      <MapPin className="h-4 w-4 mr-1" />
-                                      <span>{activity.location}</span>
-                                    </div>
-                                  )}
-                                  <p className="text-gray-700 mb-3">{activity.description}</p>
-                                  {activity.notes && (
-                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                      <p className="text-sm text-blue-800">
-                                        <strong>Note:</strong> {activity.notes}
-                                      </p>
-                                    </div>
+                                  {activity.experienceId && (
+                                    <Badge variant="outline" className="mt-2 text-xs">
+                                      Esperienza Locale
+                                    </Badge>
                                   )}
                                 </div>
-                                {activity.experienceId && (
-                                  <Badge variant="outline" className="ml-4">
-                                    Esperienza Locale
-                                  </Badge>
+                              </div>
+
+                              {/* Activity Details - Mobile Stacked */}
+                              <div className="space-y-3">
+                                {activity.location && (
+                                  <div className="flex items-start space-x-2">
+                                    <MapPin className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                                    <span className="text-sm text-gray-600">{activity.location}</span>
+                                  </div>
+                                )}
+                                
+                                {activity.description && (
+                                  <div className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                                    {activity.description}
+                                  </div>
+                                )}
+                                
+                                {activity.notes && (
+                                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                    <p className="text-xs sm:text-sm text-blue-800">
+                                      <strong>Note:</strong> {activity.notes}
+                                    </p>
+                                  </div>
                                 )}
                               </div>
                             </div>
-                          </div>
                         )}
                       </div>
                     ))}
                     
+                    {/* Add Activity Button - Mobile Optimized */}
                     {isEditing && (
-                      <div className="p-6 bg-gray-50">
+                      <div className="p-4 sm:p-6 bg-gray-50">
                         <Button 
                           variant="outline" 
                           onClick={handleAddActivity}
