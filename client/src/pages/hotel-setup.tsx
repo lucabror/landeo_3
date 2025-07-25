@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Sidebar } from "@/components/sidebar";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, Hotel, Search, MapPin, CheckCircle, AlertCircle, Upload, X, Image } from "lucide-react";
+import { Loader2, Save, Hotel, Search, MapPin, CheckCircle, AlertCircle, Upload, X, Image, Edit, Eye } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { insertHotelSchema } from "@shared/schema";
 import type { InsertHotel } from "@shared/schema";
@@ -17,13 +18,26 @@ import type { InsertHotel } from "@shared/schema";
 // Mock hotel ID - in real app this would come from auth/context
 const MOCK_HOTEL_ID = "d2dd46f0-97d3-4121-96e3-01500370c73f";
 
+// Available hotel services
+const HOTEL_SERVICES = [
+  "Piscina", "Piscina coperta", "Jacuzzi nelle camere", "Jacuzzi pubblica", 
+  "SPA", "Centro benessere", "Palestra", "Sauna", "Bagno turco",
+  "Ristorante", "Bar", "Room service", "Colazione inclusa", "Parcheggio gratuito",
+  "Parcheggio a pagamento", "WiFi gratuito", "Aria condizionata", "Riscaldamento",
+  "Reception 24h", "Servizio lavanderia", "Noleggio biciclette", "Servizio navetta",
+  "Animazione", "Sale conferenze", "Business center", "Terrazza panoramica",
+  "Giardino", "Solarium", "Campo da tennis", "Campo da calcio"
+];
+
 export default function HotelSetup() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isEditing, setIsEditing] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchStatus, setSearchStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch existing hotel data
@@ -46,6 +60,7 @@ export default function HotelSetup() {
       logoUrl: "",
       latitude: "",
       longitude: "",
+      services: [],
     },
   });
 
@@ -56,6 +71,17 @@ export default function HotelSetup() {
       if (hotel.logoUrl) {
         setLogoPreview(hotel.logoUrl);
       }
+      if (hotel.services) {
+        setSelectedServices(hotel.services);
+      } else {
+        setSelectedServices([]);
+      }
+      // Se ci sono dati hotel, mostra in modalità read-only
+      setIsEditing(false);
+    } else {
+      // Se non ci sono dati, abilita modifica per la creazione
+      setIsEditing(true);
+      setSelectedServices([]);
     }
   }, [hotel]);
 
@@ -102,7 +128,9 @@ export default function HotelSetup() {
     mutationFn: async (data: InsertHotel) => {
       const method = hotel ? "PUT" : "POST";
       const url = hotel ? `/api/hotels/${hotel.id}` : "/api/hotels";
-      const res = await apiRequest(method, url, data);
+      // Include selected services in the data
+      const dataWithServices = { ...data, services: selectedServices };
+      const res = await apiRequest(method, url, dataWithServices);
       return res.json();
     },
     onSuccess: () => {
@@ -111,6 +139,7 @@ export default function HotelSetup() {
         description: hotel ? "Dati hotel aggiornati con successo!" : "Hotel creato con successo!",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/hotels"] });
+      setIsEditing(false); // Torna alla modalità read-only dopo il salvataggio
     },
     onError: (error: any) => {
       toast({
@@ -249,15 +278,56 @@ export default function HotelSetup() {
 
         <Card className="max-w-4xl">
           <CardHeader>
-            <div className="flex items-center">
-              <Hotel className="mr-3 h-6 w-6 text-primary" />
-              <CardTitle className="text-xl font-serif">
-                {hotel ? "Modifica Dati Hotel" : "Nuovo Hotel"}
-              </CardTitle>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Hotel className="mr-3 h-6 w-6 text-primary" />
+                <CardTitle className="text-xl font-serif">
+                  {hotel ? "Dati Hotel" : "Nuovo Hotel"}
+                </CardTitle>
+              </div>
+              {hotel && !isEditing && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsEditing(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Edit className="h-4 w-4" />
+                  Modifica
+                </Button>
+              )}
+              {hotel && isEditing && (
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsEditing(false);
+                      form.reset(hotel);
+                      if (hotel.services) setSelectedServices(hotel.services);
+                    }}
+                  >
+                    Annulla
+                  </Button>
+                  <Button
+                    type="submit"
+                    form="hotel-form"
+                    disabled={mutation.isPending}
+                    className="flex items-center gap-2"
+                  >
+                    {mutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4" />
+                    )}
+                    Salva
+                  </Button>
+                </div>
+              )}
             </div>
           </CardHeader>
           <CardContent>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form id="hotel-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -268,25 +338,28 @@ export default function HotelSetup() {
                       {...form.register("name")}
                       placeholder="Grand Hotel Villa Medici"
                       className="flex-1"
+                      disabled={!isEditing}
                     />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleHotelSearch}
-                      disabled={isSearching}
-                      size="sm"
-                      className="px-3"
-                    >
-                      {isSearching ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : searchStatus === 'success' ? (
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                      ) : searchStatus === 'error' ? (
-                        <AlertCircle className="h-4 w-4 text-red-600" />
-                      ) : (
-                        <Search className="h-4 w-4" />
-                      )}
-                    </Button>
+                    {isEditing && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleHotelSearch}
+                        disabled={isSearching}
+                        size="sm"
+                        className="px-3"
+                      >
+                        {isSearching ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : searchStatus === 'success' ? (
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                        ) : searchStatus === 'error' ? (
+                          <AlertCircle className="h-4 w-4 text-red-600" />
+                        ) : (
+                          <Search className="h-4 w-4" />
+                        )}
+                      </Button>
+                    )}
                   </div>
                   {form.formState.errors.name && (
                     <p className="text-sm text-red-500 mt-1">
@@ -314,6 +387,7 @@ export default function HotelSetup() {
                     {...form.register("email")}
                     placeholder="info@grandhotel.it"
                     className="mt-1"
+                    disabled={!isEditing}
                   />
                   {form.formState.errors.email && (
                     <p className="text-sm text-red-500 mt-1">
@@ -337,6 +411,7 @@ export default function HotelSetup() {
                     {...form.register("address")}
                     placeholder="Via Roma 123"
                     className={`mt-1 ${searchStatus === 'success' ? 'border-green-300 bg-green-50' : ''}`}
+                    disabled={!isEditing}
                   />
                   {form.formState.errors.address && (
                     <p className="text-sm text-red-500 mt-1">
@@ -358,6 +433,7 @@ export default function HotelSetup() {
                       {...form.register("city")}
                       placeholder="Firenze"
                       className={`mt-1 ${searchStatus === 'success' ? 'border-green-300 bg-green-50' : ''}`}
+                      disabled={!isEditing}
                     />
                     {form.formState.errors.city && (
                       <p className="text-sm text-red-500 mt-1">
@@ -378,6 +454,7 @@ export default function HotelSetup() {
                       {...form.register("region")}
                       placeholder="Toscana"
                       className={`mt-1 ${searchStatus === 'success' ? 'border-green-300 bg-green-50' : ''}`}
+                      disabled={!isEditing}
                     />
                     {form.formState.errors.region && (
                       <p className="text-sm text-red-500 mt-1">
@@ -398,6 +475,7 @@ export default function HotelSetup() {
                       {...form.register("postalCode")}
                       placeholder="50123"
                       className={`mt-1 ${searchStatus === 'success' ? 'border-green-300 bg-green-50' : ''}`}
+                      disabled={!isEditing}
                     />
                     {form.formState.errors.postalCode && (
                       <p className="text-sm text-red-500 mt-1">
@@ -417,6 +495,7 @@ export default function HotelSetup() {
                     {...form.register("phone")}
                     placeholder="+39 055 123456"
                     className="mt-1"
+                    disabled={!isEditing}
                   />
                   {form.formState.errors.phone && (
                     <p className="text-sm text-red-500 mt-1">
@@ -432,6 +511,7 @@ export default function HotelSetup() {
                     {...form.register("website")}
                     placeholder="https://www.grandhotel.it"
                     className="mt-1"
+                    disabled={!isEditing}
                   />
                 </div>
               </div>
@@ -445,6 +525,7 @@ export default function HotelSetup() {
                   placeholder="Descrizione del hotel..."
                   className="mt-1"
                   rows={4}
+                  disabled={!isEditing}
                 />
               </div>
 
@@ -462,7 +543,7 @@ export default function HotelSetup() {
                     {...form.register("latitude")}
                     placeholder="43.7696"
                     className={`mt-1 ${searchStatus === 'success' ? 'border-green-300 bg-green-50' : ''}`}
-                    readOnly={searchStatus === 'success'}
+                    disabled={!isEditing}
                   />
                 </div>
 
@@ -478,7 +559,7 @@ export default function HotelSetup() {
                     {...form.register("longitude")}
                     placeholder="11.2558"
                     className={`mt-1 ${searchStatus === 'success' ? 'border-green-300 bg-green-50' : ''}`}
-                    readOnly={searchStatus === 'success'}
+                    disabled={!isEditing}
                   />
                 </div>
               </div>
@@ -502,39 +583,43 @@ export default function HotelSetup() {
                           <p className="text-sm font-medium text-gray-900">Logo caricato</p>
                           <p className="text-sm text-gray-500">PNG o JPG, max 5MB</p>
                         </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={handleLogoRemove}
-                          className="flex-shrink-0"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                        {isEditing && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleLogoRemove}
+                            className="flex-shrink-0"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                       
                       {/* Replace Button */}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploadingLogo}
-                        className="w-full"
-                      >
-                        {isUploadingLogo ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Caricamento...
-                          </>
-                        ) : (
-                          <>
-                            <Upload className="mr-2 h-4 w-4" />
-                            Sostituisci Logo
-                          </>
-                        )}
-                      </Button>
+                      {isEditing && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={isUploadingLogo}
+                          className="w-full"
+                        >
+                          {isUploadingLogo ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Caricamento...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="mr-2 h-4 w-4" />
+                              Sostituisci Logo
+                            </>
+                          )}
+                        </Button>
+                      )}
                     </div>
-                  ) : (
+                  ) : isEditing ? (
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
                       <div className="space-y-2">
                         <Image className="mx-auto h-12 w-12 text-gray-400" />
@@ -563,6 +648,10 @@ export default function HotelSetup() {
                         </Button>
                       </div>
                     </div>
+                  ) : (
+                    <div className="p-4 border rounded-lg bg-gray-50">
+                      <p className="text-sm text-gray-500">Nessun logo caricato</p>
+                    </div>
                   )}
                   
                   {/* Hidden file input */}
@@ -576,26 +665,64 @@ export default function HotelSetup() {
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <div className="pt-6">
-                <Button
-                  type="submit"
-                  disabled={mutation.isPending}
-                  className="w-full md:w-auto bg-primary hover:bg-primary/90"
-                >
-                  {mutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Salvando...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      {hotel ? "Aggiorna Hotel" : "Crea Hotel"}
-                    </>
-                  )}
-                </Button>
+              {/* Hotel Services */}
+              <div>
+                <Label className="text-base font-medium mb-4 block">Servizi Hotel</Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {HOTEL_SERVICES.map((service) => (
+                    <div key={service} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={service}
+                        checked={selectedServices.includes(service)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedServices([...selectedServices, service]);
+                          } else {
+                            setSelectedServices(selectedServices.filter(s => s !== service));
+                          }
+                        }}
+                        disabled={!isEditing}
+                      />
+                      <Label 
+                        htmlFor={service} 
+                        className="text-sm font-normal cursor-pointer"
+                      >
+                        {service}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+                {selectedServices.length > 0 && (
+                  <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-700">
+                      <strong>Servizi selezionati:</strong> {selectedServices.join(", ")}
+                    </p>
+                  </div>
+                )}
               </div>
+
+              {/* Submit Button - only show when creating new hotel */}
+              {!hotel && (
+                <div className="pt-6">
+                  <Button
+                    type="submit"
+                    disabled={mutation.isPending}
+                    className="w-full md:w-auto bg-primary hover:bg-primary/90"
+                  >
+                    {mutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Salvando...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        Crea Hotel
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
             </form>
           </CardContent>
         </Card>
