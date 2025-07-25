@@ -236,6 +236,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Re-send preferences email
+  app.post("/api/hotels/:hotelId/guest-profiles/:profileId/resend-email", async (req, res) => {
+    try {
+      const profile = await storage.getGuestProfile(req.params.profileId);
+      if (!profile) {
+        return res.status(404).json({ message: "Guest profile not found" });
+      }
+      
+      const hotel = await storage.getHotel(req.params.hotelId);
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      // Trova o crea un nuovo token per le preferenze
+      let token;
+      try {
+        // Cerca token esistente non scaduto
+        const existingToken = await storage.getGuestPreferencesTokenByProfileId(profile.id);
+        if (existingToken && !existingToken.completed && new Date() < new Date(existingToken.expiresAt)) {
+          token = existingToken.token;
+        } else {
+          // Crea nuovo token
+          token = randomUUID();
+          const expiresAt = new Date();
+          expiresAt.setDate(expiresAt.getDate() + 30);
+          
+          await storage.createGuestPreferencesToken({
+            token,
+            guestProfileId: profile.id,
+            emailSent: false,
+            completed: false,
+            expiresAt
+          });
+        }
+      } catch (error) {
+        // Se non trova token esistente, crea nuovo
+        token = randomUUID();
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 30);
+        
+        await storage.createGuestPreferencesToken({
+          token,
+          guestProfileId: profile.id,
+          emailSent: false,
+          completed: false,
+          expiresAt
+        });
+      }
+      
+      // Invia email
+      const emailSent = await sendGuestPreferencesEmail(hotel, profile, token);
+      
+      if (emailSent) {
+        await storage.updateGuestPreferencesToken(token, { emailSent: true });
+        res.json({ 
+          message: "Email re-inviata con successo",
+          email: profile.email
+        });
+      } else {
+        res.status(500).json({ message: "Errore nell'invio dell'email" });
+      }
+      
+    } catch (error) {
+      console.error('Error resending email:', error);
+      res.status(500).json({ message: "Failed to resend email" });
+    }
+  });
+
   // Generate AI attractions for hotel
   app.post("/api/hotels/:hotelId/generate-attractions", async (req, res) => {
     try {

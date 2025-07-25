@@ -142,6 +142,23 @@ export default function GuestProfiles() {
     }
   };
 
+  const handleResendEmail = async (profile: any) => {
+    try {
+      await apiRequest("POST", `/api/hotels/${MOCK_HOTEL_ID}/guest-profiles/${profile.id}/resend-email`);
+      
+      toast({ 
+        title: "Email re-inviata", 
+        description: `Email di preferenze re-inviata a ${profile.email}` 
+      });
+    } catch (error: any) {
+      toast({ 
+        title: "Errore nell'invio email", 
+        description: error.message || "Si è verificato un errore durante l'invio dell'email",
+        variant: "destructive" 
+      });
+    }
+  };
+
   const handleNewProfile = () => {
     setEditingProfile(null);
     form.reset({
@@ -393,21 +410,47 @@ export default function GuestProfiles() {
                         <h3 className="text-base font-heading font-semibold text-slate-900 truncate mb-1">
                           {profile.referenceName}
                         </h3>
-                        <p className="text-sm text-slate-600">
+                        <p className="text-sm text-slate-600 mb-2">
                           {new Date(profile.checkInDate).toLocaleDateString("it-IT")} - {new Date(profile.checkOutDate).toLocaleDateString("it-IT")}
                         </p>
+                        
+                        {/* Preferences Status */}
+                        {profile.preferencesCompleted ? (
+                          <div className="flex items-center space-x-1">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span className="text-xs text-green-700 font-medium">Preferenze completate</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-1">
+                            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                            <span className="text-xs text-orange-700 font-medium">In attesa preferenze</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     
-                    {/* View Profile Button */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full font-medium"
-                      onClick={() => handleEdit(profile)}
-                    >
-                      Vedi Profilo
-                    </Button>
+                    {/* Buttons */}
+                    <div className="space-y-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full font-medium"
+                        onClick={() => handleEdit(profile)}
+                      >
+                        Vedi Profilo
+                      </Button>
+                      
+                      {!profile.preferencesCompleted && (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          className="w-full font-medium bg-blue-600 hover:bg-blue-700"
+                          onClick={() => handleResendEmail(profile)}
+                        >
+                          Re-invia Email
+                        </Button>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               );
