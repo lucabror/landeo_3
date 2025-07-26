@@ -238,7 +238,7 @@ function AdminDashboardContent() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard Amministratore</h1>
+          <h1 className="dashboard-title text-3xl text-gray-900">Dashboard Amministratore</h1>
           <p className="text-gray-600">Gestione clienti e sistema crediti</p>
         </div>
         <div className="flex items-center gap-2">

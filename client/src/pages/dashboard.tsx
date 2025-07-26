@@ -76,7 +76,7 @@ function DashboardContent() {
       <div className="flex-1 p-8 bg-gray-50 min-h-screen">
         {/* Header */}
         <div className="mb-8">
-          <h2 className="text-3xl font-serif font-bold text-gray-900 mb-2">
+          <h2 className="dashboard-title text-3xl text-gray-900 mb-2">
             Dashboard Amministratore
           </h2>
           <p className="text-gray-600">
@@ -199,7 +199,7 @@ function DashboardContent() {
           <Card className="card-hover max-w-md">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-serif">Nuovo Profilo Ospite</CardTitle>
+                <CardTitle className="card-title-modern text-lg">Nuovo Profilo Ospite</CardTitle>
                 <Users className="h-5 w-5 text-primary" />
               </div>
             </CardHeader>
@@ -220,7 +220,7 @@ function DashboardContent() {
           {/* Active Guests */}
           <Card className="card-hover">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-serif">Ospiti Attivi</CardTitle>
+              <CardTitle className="card-title-modern text-lg">Ospiti Attivi</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -254,7 +254,7 @@ function DashboardContent() {
           <Card className="card-hover">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-serif">Esperienze Locali</CardTitle>
+                <CardTitle className="card-title-modern text-lg">Esperienze Locali</CardTitle>
                 <Button size="sm" variant="ghost">
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -292,7 +292,7 @@ function DashboardContent() {
           {/* Recent Itineraries */}
           <Card className="card-hover">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-serif">Itinerari Recenti</CardTitle>
+              <CardTitle className="card-title-modern text-lg">Itinerari Recenti</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
