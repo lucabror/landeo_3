@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
+import DiscoverMore from "@/pages/discover-more";
 import Dashboard from "@/pages/dashboard";
 import HotelSetup from "@/pages/hotel-setup";
 import GuestProfiles from "@/pages/guest-profiles";
@@ -27,6 +28,9 @@ function Router() {
     <Switch>
       {/* Landing page */}
       <Route path="/" component={Landing} />
+      
+      {/* Discover more page */}
+      <Route path="/discover-more" component={DiscoverMore} />
       
       {/* Main dashboard */}
       <Route path="/dashboard" component={Dashboard} />
