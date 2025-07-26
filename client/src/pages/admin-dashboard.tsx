@@ -12,6 +12,7 @@ import { Building, CreditCard, Euro, AlertCircle, CheckCircle, X, Settings, Sear
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { ProtectedRoute, useAuth } from "@/hooks/use-auth";
 
 interface Hotel {
   id: string;
@@ -39,13 +40,11 @@ interface CreditPurchase {
 const ADMIN_EMAIL = "itinera1prova@gmail.com";
 const ADMIN_PASSWORD = "admin2025";
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
   const [selectedHotelId, setSelectedHotelId] = useState<string>("");
   const [creditAdjustment, setCreditAdjustment] = useState({ amount: 0, description: "" });
   const [processingNotes, setProcessingNotes] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authEmail, setAuthEmail] = useState("");
-  const [authPassword, setAuthPassword] = useState("");
+  const { user, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [hotelDetailModal, setHotelDetailModal] = useState(false);
@@ -53,16 +52,14 @@ export default function AdminDashboard() {
 
   const queryClient = useQueryClient();
 
-  // Fetch all hotels - hooks must be called unconditionally
+  // Fetch all hotels
   const { data: hotels = [], isLoading: hotelsLoading } = useQuery({
     queryKey: ["/api/admin/hotels"],
-    enabled: isAuthenticated, // Only fetch when authenticated
   });
 
   // Fetch pending purchases
   const { data: pendingPurchases = [], isLoading: purchasesLoading } = useQuery({
     queryKey: ["/api/admin/pending-purchases"],
-    enabled: isAuthenticated, // Only fetch when authenticated
   });
 
   // Approve purchase mutation
@@ -246,17 +243,12 @@ export default function AdminDashboard() {
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="text-sm">
-            Super Admin: {ADMIN_EMAIL}
+            Super Admin: {user?.email}
           </Badge>
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => {
-              sessionStorage.removeItem('admin-auth');
-              setIsAuthenticated(false);
-              setAuthEmail("");
-              setAuthPassword("");
-            }}
+            onClick={logout}
           >
             Logout
           </Button>
@@ -723,5 +715,13 @@ export default function AdminDashboard() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <ProtectedRoute requiredRole="admin">
+      <AdminDashboardContent />
+    </ProtectedRoute>
   );
 }

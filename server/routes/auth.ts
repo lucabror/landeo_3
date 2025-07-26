@@ -430,4 +430,28 @@ router.get('/me', requireAuth({ userType: 'both', requireMfa: true }), async (re
   }
 });
 
+  // Logout endpoint
+  router.post('/logout', async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(200).json({ message: "Logout completato" });
+      }
+      
+      const sessionToken = authHeader.substring(7);
+      
+      // Invalidate session on server
+      await invalidateSession(sessionToken);
+      
+      // Log security event
+      await logSecurityEvent('logout', null, req.ip || 'unknown', 'successful', 'User logged out');
+      
+      res.json({ message: "Logout completato con successo" });
+    } catch (error) {
+      console.error('Logout error:', error);
+      res.status(500).json({ message: "Errore durante il logout" });
+    }
+  });
+
 export default router;
