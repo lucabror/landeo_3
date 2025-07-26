@@ -276,11 +276,19 @@ export async function sendCreditPurchaseInstructions(
         <table>
           <tr>
             <td class="label">Beneficiario:</td>
-            <td><strong>Itinera S.r.l.</strong></td>
+            <td><strong>BORRO LUCA</strong></td>
+          </tr>
+          <tr>
+            <td class="label">Banca:</td>
+            <td><strong>BANCO BPM</strong></td>
           </tr>
           <tr>
             <td class="label">IBAN:</td>
-            <td><strong>IT60 X054 2811 1010 0000 0123 456</strong></td>
+            <td><strong>IT67 X050 3401 7530 0000 0146 989</strong></td>
+          </tr>
+          <tr>
+            <td class="label">BIC/SWIFT:</td>
+            <td><strong>BAPPIT21A88</strong></td>
           </tr>
           <tr>
             <td class="label">Causale:</td>
@@ -308,19 +316,19 @@ export async function sendCreditPurchaseInstructions(
       <p>Se avete domande o necessitate di assistenza, non esitate a contattarci.</p>
       
       <p>Cordiali saluti,<br>
-      <strong>Il Team Itinera</strong></p>
+      <strong>Luca Borro - Itinera</strong></p>
     </div>
     
     <div class="footer">
       <p>Questa email è stata generata automaticamente. Per assistenza contattate il nostro supporto.</p>
-      <p>© 2025 Itinera S.r.l. - Sistema di Gestione Itinerari per Hotel</p>
+      <p>© 2025 Luca Borro - Itinera - Sistema di Gestione Itinerari per Hotel</p>
     </div>
   </div>
 </body>
 </html>`;
 
     const { data, error } = await resend.emails.send({
-      from: `Itinera - Sistema Crediti <onboarding@resend.dev>`,
+      from: `Luca Borro - Itinera <onboarding@resend.dev>`,
       to: [hotel.email],
       subject: `📋 Istruzioni Bonifico - Ordine Crediti ${packageName}`,
       html: htmlContent,

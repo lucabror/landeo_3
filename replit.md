@@ -8,6 +8,18 @@ This is a comprehensive full-stack TypeScript application for Italian hotel itin
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+- **2025-01-26**: Implemented automated email system for credit purchase instructions
+  - Added `sendCreditPurchaseInstructions` function in `server/services/email.ts`
+  - Updated credit purchase endpoint to automatically send bank transfer instructions
+  - Email includes: order details, bank information (BORRO LUCA - BANCO BPM), payment instructions
+  - Configured with real bank details: IBAN IT67 X050 3401 7530 0000 0146 989, BIC BAPPIT21A88
+- **2025-01-26**: Standardized notification system across entire application
+  - Replaced all browser `alert()` and `confirm()` with elegant toast notifications and AlertDialog components
+  - Improved UX for deletion confirmations in guest profiles, itineraries, and local experiences
+  - Consistent shadcn/ui components for professional user experience
+
 ## System Architecture
 
 The application follows a monorepo structure with clear separation between client, server, and shared code:
