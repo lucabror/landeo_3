@@ -37,6 +37,7 @@ interface CreditPurchase {
 }
 
 const ADMIN_EMAIL = "itinera1prova@gmail.com";
+const ADMIN_PASSWORD = "admin2025";
 
 export default function AdminDashboard() {
   const [selectedHotelId, setSelectedHotelId] = useState<string>("");
@@ -44,6 +45,7 @@ export default function AdminDashboard() {
   const [processingNotes, setProcessingNotes] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
 
   const queryClient = useQueryClient();
 
@@ -56,11 +58,11 @@ export default function AdminDashboard() {
   }, []);
 
   const handleAuth = () => {
-    if (authEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+    if (authEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase() && authPassword === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
       sessionStorage.setItem('admin-auth', ADMIN_EMAIL);
     } else {
-      alert('Email non autorizzata per l\'accesso amministrativo');
+      alert('Credenziali non valide. Verifica email e password.');
     }
   };
 
@@ -84,15 +86,27 @@ export default function AdminDashboard() {
                 placeholder="admin@esempio.com"
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="admin-password">Password</Label>
+              <Input
+                id="admin-password"
+                type="password"
+                placeholder="Password amministratore"
+                value={authPassword}
+                onChange={(e) => setAuthPassword(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleAuth()}
               />
             </div>
             <Button onClick={handleAuth} className="w-full">
               Accedi
             </Button>
-            <p className="text-xs text-gray-500 text-center">
-              Solo gli amministratori autorizzati possono accedere a questa area
-            </p>
+            <div className="text-xs text-gray-500 text-center space-y-1">
+              <p>Solo gli amministratori autorizzati possono accedere a questa area</p>
+              <p><strong>Email:</strong> itinera1prova@gmail.com</p>
+              <p><strong>Password:</strong> admin2025</p>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -193,6 +207,7 @@ export default function AdminDashboard() {
               sessionStorage.removeItem('admin-auth');
               setIsAuthenticated(false);
               setAuthEmail("");
+              setAuthPassword("");
             }}
           >
             Logout
