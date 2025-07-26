@@ -472,8 +472,7 @@ router.post('/reset-mfa', loginLimiter, async (req, res) => {
     }
 
     // Verify password
-    const bcrypt = require('bcryptjs');
-    const passwordValid = await bcrypt.compare(password, user.password);
+    const passwordValid = await verifyPassword(password, user.password);
     
     if (!passwordValid) {
       await logSecurityEvent(user.id, userType, 'mfa_reset_failed', ipAddress, userAgent, { 
