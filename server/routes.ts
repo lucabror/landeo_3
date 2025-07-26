@@ -17,7 +17,7 @@ import { generateQRCode } from "./services/qr";
 import { generateItineraryPDF } from "./services/pdf";
 import { enrichHotelData, isValidItalianLocation } from "./services/geocoding";
 import { findLocalAttractions, attractionToLocalExperience } from "./services/attractions";
-import { sendGuestPreferencesEmail } from "./services/email";
+import { sendGuestPreferencesEmail, sendCreditPurchaseInstructions } from "./services/email";
 import { generateGuestSpecificItinerary } from "./services/itinerary-generator";
 import { randomUUID } from "crypto";
 import QRCode from "qrcode";
@@ -1091,6 +1091,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { packageType, packagePrice, creditsAmount } = req.body;
       
+      // Get hotel information for email
+      const hotel = await storage.getHotel(req.params.hotelId);
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+      
       const purchase = await storage.createCreditPurchase({
         hotelId: req.params.hotelId,
         packageType,
@@ -1100,8 +1106,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         bankTransferConfirmed: false
       });
 
+      // Send credit purchase instructions email
+      try {
+        const emailResult = await sendCreditPurchaseInstructions(
+          hotel,
+          packageType,
+          packagePrice,
+          creditsAmount,
+          purchase.id
+        );
+
+        if (!emailResult.success) {
+          console.warn('Failed to send credit purchase email:', emailResult.error);
+          // Don't fail the entire request if email fails
+        } else {
+          console.log('Credit purchase instructions email sent successfully');
+        }
+      } catch (emailError) {
+        console.error('Error sending credit purchase email:', emailError);
+        // Don't fail the entire request if email fails
+      }
+
       res.status(201).json(purchase);
     } catch (error) {
+      console.error('Error creating credit purchase:', error);
       res.status(500).json({ message: "Failed to create credit purchase" });
     }
   });

@@ -188,3 +188,161 @@ export async function sendGuestPreferencesEmail(
     return {success: false, error: error.message || 'Email sending failed'};
   }
 }
+
+export async function sendCreditPurchaseInstructions(
+  hotel: Hotel,
+  packageType: string,
+  packagePrice: number,
+  creditsAmount: number,
+  purchaseId: string
+): Promise<{success: boolean, error?: string}> {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY non configurata. Email non inviata.');
+    return {success: false, error: 'Email service not configured'};
+  }
+
+  if (!hotel.email) {
+    return {success: false, error: 'Hotel email not found'};
+  }
+
+  try {
+    const packageNames = {
+      basic: "Pacchetto Base",
+      standard: "Pacchetto Standard", 
+      premium: "Pacchetto Premium",
+      enterprise: "Pacchetto Enterprise"
+    };
+
+    const packageName = packageNames[packageType as keyof typeof packageNames] || "Pacchetto Crediti";
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #f8f9fa; }
+    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+    .header h1 { margin: 0; font-size: 28px; font-weight: 300; }
+    .content { padding: 30px; }
+    .order-details { background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0; }
+    .bank-details { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 20px; margin: 20px 0; }
+    .bank-details h3 { color: #1976d2; margin-top: 0; }
+    .highlight { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 15px; margin: 15px 0; }
+    .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+    .btn { display: inline-block; background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin: 10px 0; }
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 8px 0; border-bottom: 1px solid #eee; }
+    .label { font-weight: bold; width: 30%; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🏦 Istruzioni per il Bonifico</h1>
+      <p>Ordine Crediti Confermato</p>
+    </div>
+    
+    <div class="content">
+      <p>Gentile <strong>${hotel.name}</strong>,</p>
+      
+      <p>Il vostro ordine crediti è stato registrato con successo! Di seguito trovate le istruzioni complete per effettuare il bonifico bancario.</p>
+      
+      <div class="order-details">
+        <h3>📋 Riepilogo Ordine</h3>
+        <table>
+          <tr>
+            <td class="label">Pacchetto:</td>
+            <td><strong>${packageName}</strong></td>
+          </tr>
+          <tr>
+            <td class="label">Crediti:</td>
+            <td><strong>${creditsAmount}</strong> crediti</td>
+          </tr>
+          <tr>
+            <td class="label">Importo:</td>
+            <td><strong>€${packagePrice}</strong></td>
+          </tr>
+          <tr>
+            <td class="label">ID Ordine:</td>
+            <td><code>${purchaseId}</code></td>
+          </tr>
+        </table>
+      </div>
+      
+      <div class="bank-details">
+        <h3>🏦 Dati per il Bonifico</h3>
+        <table>
+          <tr>
+            <td class="label">Beneficiario:</td>
+            <td><strong>Itinera S.r.l.</strong></td>
+          </tr>
+          <tr>
+            <td class="label">IBAN:</td>
+            <td><strong>IT60 X054 2811 1010 0000 0123 456</strong></td>
+          </tr>
+          <tr>
+            <td class="label">Causale:</td>
+            <td><strong>Acquisto ${creditsAmount} crediti - ${hotel.name} - ID: ${purchaseId.substring(0, 8)}</strong></td>
+          </tr>
+          <tr>
+            <td class="label">Importo:</td>
+            <td><strong>€${packagePrice}</strong></td>
+          </tr>
+        </table>
+      </div>
+      
+      <div class="highlight">
+        <strong>⚠️ Importante:</strong> Utilizzate esattamente la causale indicata sopra per garantire un'identificazione rapida del pagamento.
+      </div>
+      
+      <h3>📅 Prossimi Passi</h3>
+      <ol>
+        <li><strong>Effettuate il bonifico</strong> utilizzando i dati sopra indicati</li>
+        <li><strong>Conservate la ricevuta</strong> del bonifico per eventuali verifiche</li>
+        <li><strong>Attendete l'attivazione</strong> - i crediti saranno disponibili entro 24 ore lavorative dalla ricezione del pagamento</li>
+        <li><strong>Riceverete conferma</strong> via email quando i crediti saranno attivati</li>
+      </ol>
+      
+      <p>Se avete domande o necessitate di assistenza, non esitate a contattarci.</p>
+      
+      <p>Cordiali saluti,<br>
+      <strong>Il Team Itinera</strong></p>
+    </div>
+    
+    <div class="footer">
+      <p>Questa email è stata generata automaticamente. Per assistenza contattate il nostro supporto.</p>
+      <p>© 2025 Itinera S.r.l. - Sistema di Gestione Itinerari per Hotel</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const { data, error } = await resend.emails.send({
+      from: `Itinera - Sistema Crediti <onboarding@resend.dev>`,
+      to: [hotel.email],
+      subject: `📋 Istruzioni Bonifico - Ordine Crediti ${packageName}`,
+      html: htmlContent,
+    });
+
+    if (error) {
+      console.error('Errore Resend:', error);
+      if (error.message?.includes('You can only send testing emails')) {
+        return {success: false, error: 'Domain not verified. Please verify your domain in Resend to send emails to other recipients.'};
+      }
+      return {success: false, error: error.message || 'Email sending failed'};
+    }
+
+    if (data?.id) {
+      console.log(`Email istruzioni bonifico inviata con successo a ${hotel.email} per hotel ${hotel.name}`);
+      console.log('Email ID:', data.id);
+      return {success: true};
+    }
+
+    return {success: false, error: 'Unknown error occurred'};
+  } catch (error: any) {
+    console.error('Errore invio email istruzioni bonifico:', error);
+    return {success: false, error: error.message || 'Email sending failed'};
+  }
+}
