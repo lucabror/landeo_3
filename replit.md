@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-26**: Implementato sistema "Password Dimenticata" completo con email reset
+  - API endpoints per richiesta reset e conferma password funzionali
+  - Invio email automatico con link sicuro (token valido 1 ora) tramite Resend
+  - Form frontend con validazione elegante e interfaccia utente intuitiva
+  - Pagina dedicata reset-password con verifica token e gestione errori
+  - Integrazione completa nel sistema di routing e autenticazione esistente
+  - Supporto per hotel managers e super admin con token sicuri generati con crypto.randomBytes
 - **2025-01-26**: Risolto sistema di login Hotel Manager con correzione apiRequest()
   - Corrette tutte le mutations per usare il formato corretto di apiRequest
   - Parsing JSON delle response implementato correttamente
