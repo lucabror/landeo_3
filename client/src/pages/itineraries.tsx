@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sidebar } from "@/components/sidebar";
 import { QRModal } from "@/components/qr-modal";
 import { useToast } from "@/hooks/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Link } from "wouter";
 import { 
   Route, 
@@ -75,9 +76,7 @@ export default function Itineraries() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Sei sicuro di voler eliminare questo itinerario?")) {
-      deleteMutation.mutate(id);
-    }
+    deleteMutation.mutate(id);
   };
 
   const handleShare = (itinerary: any) => {
@@ -217,14 +216,31 @@ export default function Itineraries() {
                           Condividi
                         </Button>
                         
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleDelete(itinerary.id)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Eliminare l'itinerario?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Questa azione non può essere annullata. L'itinerario verrà eliminato definitivamente.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Annulla</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(itinerary.id)} className="bg-red-600 hover:bg-red-700">
+                                Elimina
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   </CardHeader>

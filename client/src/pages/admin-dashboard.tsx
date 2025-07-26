@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Building, CreditCard, Euro, AlertCircle, CheckCircle, X, Settings } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface Hotel {
   id: string;
@@ -44,6 +45,7 @@ export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
+  const { toast } = useToast();
 
   const queryClient = useQueryClient();
 
@@ -117,8 +119,16 @@ export default function AdminDashboard() {
     if (authEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase() && authPassword === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
       sessionStorage.setItem('admin-auth', ADMIN_EMAIL);
+      toast({
+        title: "Accesso effettuato",
+        description: "Benvenuto nell'area amministrativa!",
+      });
     } else {
-      alert('Credenziali non valide. Verifica email e password.');
+      toast({
+        title: "Credenziali non valide",
+        description: "Verifica email e password e riprova.",
+        variant: "destructive",
+      });
     }
   };
 
