@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { Shield, Lock, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
