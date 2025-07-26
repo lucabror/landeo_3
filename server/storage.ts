@@ -46,6 +46,7 @@ export interface IStorage {
   // Itineraries
   getItinerary(id: string): Promise<Itinerary | undefined>;
   getItineraryByUrl(uniqueUrl: string): Promise<Itinerary | undefined>;
+  getItineraryByUniqueUrl(uniqueUrl: string): Promise<Itinerary | undefined>;
   createItinerary(itinerary: InsertItinerary): Promise<Itinerary>;
   updateItinerary(id: string, itinerary: Partial<InsertItinerary>): Promise<Itinerary>;
   getItinerariesByHotel(hotelId: string): Promise<Itinerary[]>;
@@ -189,6 +190,10 @@ export class DatabaseStorage implements IStorage {
   async getItineraryByUrl(uniqueUrl: string): Promise<Itinerary | undefined> {
     const [itinerary] = await db.select().from(itineraries).where(eq(itineraries.uniqueUrl, uniqueUrl));
     return itinerary || undefined;
+  }
+
+  async getItineraryByUniqueUrl(uniqueUrl: string): Promise<Itinerary | undefined> {
+    return this.getItineraryByUrl(uniqueUrl);
   }
 
   async createItinerary(insertItinerary: InsertItinerary): Promise<Itinerary> {
