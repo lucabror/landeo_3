@@ -13,6 +13,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { Shield, Lock, Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 const loginSchema = z.object({
   email: z.string().email("Email non valida"),
@@ -48,6 +49,7 @@ export default function Login({ userType }: LoginProps) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { login: authLogin } = useAuth();
   
   const [step, setStep] = useState<'login' | 'setup-password' | 'mfa-setup' | 'mfa-verify' | 'forgot-password'>('login');
   const [sessionToken, setSessionToken] = useState<string>('');
@@ -113,9 +115,13 @@ export default function Login({ userType }: LoginProps) {
         return;
       }
       
-      // Login successful
-      localStorage.setItem('sessionToken', data.sessionToken);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      // Login successful - use AuthProvider login method
+      authLogin(data.sessionToken, {
+        id: data.user.id,
+        email: data.user.email,
+        role: data.user.type,
+        hotelId: data.user.id
+      });
       
       toast({
         title: "Accesso completato",
