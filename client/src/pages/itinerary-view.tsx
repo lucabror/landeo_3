@@ -112,6 +112,20 @@ export default function ItineraryView() {
     setEditingActivities(updatedActivities);
   };
 
+  const handleDownloadPDF = () => {
+    if (uniqueUrl) {
+      const downloadUrl = `/api/itinerary/${uniqueUrl}/download-pdf`;
+      window.open(downloadUrl, '_blank');
+    }
+  };
+
+  const handleDownloadQR = () => {
+    if (uniqueUrl) {
+      const downloadUrl = `/api/itinerary/${uniqueUrl}/qr-pdf`;
+      window.open(downloadUrl, '_blank');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -194,12 +208,12 @@ export default function ItineraryView() {
           {/* Manager Actions - Mobile Optimized */}
           {isManagerView && (
             <div className="flex gap-2 sm:gap-3">
-              <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={handleDownloadQR}>
                 <QrCode className="h-4 w-4 mr-1" />
                 <span className="hidden sm:inline">QR Code</span>
                 <span className="sm:hidden">QR</span>
               </Button>
-              <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={handleDownloadPDF}>
                 <Download className="h-4 w-4 mr-1" />
                 PDF
               </Button>
