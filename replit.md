@@ -10,6 +10,22 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-26**: Creata pagina "Scopri di Più" completa per convincere albergatori
+  - Aggiunta sezione ROI con metriche concrete (tempo risparmiato, incremento revenue)
+  - Sezione benefici con statistiche reali (+35% recensioni positive, +40% ritorni)
+  - Features dettagliate divise per categoria (AI, Gestione Ospiti, Branding, Distribuzione)
+  - Caso di studio Hotel Bellavista con risultati misurabili
+  - FAQ per rispondere alle obiezioni comuni degli albergatori
+  - CTA multipli per guidare verso registrazione gratuita
+- **2025-01-26**: Aggiunta sezione mockup iPhone alla landing page
+  - Mockup realistico con angolazione come da screenshot di riferimento
+  - Esempio itinerario Roma autentico con Hotel Bellavista
+  - Animazioni interattive e elementi fluttuanti per engagement
+  - Dimostra visivamente il valore per gli ospiti dell'hotel
+- **2025-01-26**: Corretti badge 2FA in tutti i profili
+  - Badge ora mostra "Disattivata" invece di "Disattiva" quando 2FA è spento
+  - Corretta icona Shield per configurazione 2FA nei profili hotel manager
+  - Terminologia italiana appropriata per stati autenticazione
 - **2025-01-26**: Disabilitato temporaneamente 2FA per hotel manager e super admin
   - Rimossi controlli MFA obbligatori dal flusso di login
   - Login diretto senza richiesta codice Google Authenticator

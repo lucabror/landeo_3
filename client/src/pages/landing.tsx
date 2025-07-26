@@ -79,9 +79,11 @@ export default function Landing() {
                     <ChevronRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
-                <Button size="lg" variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50 text-lg px-8">
-                  Guarda Demo
-                </Button>
+                <Link href="/discover-more">
+                  <Button size="lg" variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50 text-lg px-8">
+                    Scopri di Più
+                  </Button>
+                </Link>
               </div>
               <div className="flex items-center gap-6 mt-8 pt-8 border-t border-amber-200">
                 <div className="flex items-center gap-2">
