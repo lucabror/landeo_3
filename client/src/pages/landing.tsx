@@ -23,29 +23,29 @@ import {
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-orange-50 to-amber-50">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
       {/* Header */}
-      <header className="bg-stone-50/95 backdrop-blur-md border-b border-stone-200 sticky top-0 z-50">
+      <header className="bg-white/80 backdrop-blur-md border-b border-amber-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-600 to-orange-600 rounded-xl flex items-center justify-center">
                 <Hotel className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-stone-800">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent">
                   ItineraItalia
                 </h1>
-                <p className="text-xs text-orange-600">Powered by AI</p>
+                <p className="text-xs text-amber-600">Powered by AI</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/login">
-                <Button variant="outline" className="border-stone-300 text-stone-700 hover:bg-stone-100">
+                <Button variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50">
                   Accedi
                 </Button>
               </Link>
-              <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+              <Button className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700">
                 Demo Gratuita
               </Button>
             </div>
@@ -54,56 +54,94 @@ export default function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-16 lg:py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-stone-100/50 to-orange-100/30" />
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 to-orange-600/10" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center">
+            <Badge className="bg-amber-100 text-amber-800 border-amber-300 mb-6">
+              🚀 Nuova Generazione di Hospitality Management
+            </Badge>
+            <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              Trasforma l'esperienza
+              <span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent block">
+                dei tuoi ospiti
+              </span>
+            </h1>
+            <p className="text-xl text-gray-600 mb-8 leading-relaxed max-w-3xl mx-auto">
+              La prima piattaforma AI-powered per hotel italiani che genera itinerari personalizzati, 
+              gestisce profili ospiti e automatizza l'esperienza di soggiorno con tecnologia all'avanguardia.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+              <Link href="/login">
+                <Button size="lg" className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-lg px-8">
+                  Inizia Gratis
+                  <ChevronRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+              <Button size="lg" variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50 text-lg px-8">
+                Guarda Demo
+              </Button>
+            </div>
+            <div className="flex items-center justify-center gap-8 mt-8 pt-8 border-t border-amber-200">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span className="text-sm text-gray-600">Nessuna carta di credito richiesta</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span className="text-sm text-gray-600">Nessun abbonamento</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span className="text-sm text-gray-600">Made in Italy</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* iPhone Demo Section */}
+      <section className="py-20 bg-gradient-to-br from-amber-50 to-orange-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <Badge className="bg-orange-100 text-orange-800 border-orange-200 mb-6">
-                Powered by AI & Made in Italy
+              <Badge className="bg-amber-100 text-amber-800 border-amber-300 mb-6">
+                Demo Interattiva
               </Badge>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-stone-900 mb-6 leading-tight">
-                Esperienze Italiane
-                <span className="text-orange-500 block">
-                  su Misura
-                </span>
-              </h1>
-              <p className="text-lg lg:text-xl text-stone-600 mb-8 leading-relaxed">
-                La piattaforma AI che trasforma ogni soggiorno in un'esperienza indimenticabile, 
-                creando itinerari personalizzati per gli ospiti dei tuoi hotel e resort.
+              <h2 className="text-4xl font-bold text-gray-900 mb-6">
+                Vedi la magia in azione
+              </h2>
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                Ecco come l'AI genera un itinerario personalizzato per una famiglia che soggiorna in un hotel del Chianti Classico.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Link href="/login">
-                  <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 w-full sm:w-auto">
-                    Inizia la Demo Gratuita
-                    <ChevronRight className="ml-2 w-5 h-5" />
-                  </Button>
-                </Link>
-                <Button size="lg" variant="outline" className="border-stone-300 text-stone-700 hover:bg-stone-50 text-lg px-8 w-full sm:w-auto">
-                  Scopri di Più
-                </Button>
-              </div>
-              
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-4 lg:gap-8">
-                <div className="text-center lg:text-left">
-                  <div className="text-2xl lg:text-3xl font-bold text-stone-900">500+</div>
-                  <div className="text-sm text-stone-600">Hotel Partner</div>
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-white font-bold">1</div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">Profilo Ospite</h3>
+                    <p className="text-gray-600">Il manager hotel inserisce le informazioni: famiglia con bambini, 3 giorni di soggiorno.</p>
+                  </div>
                 </div>
-                <div className="text-center lg:text-left">
-                  <div className="text-2xl lg:text-3xl font-bold text-stone-900">50K+</div>
-                  <div className="text-sm text-stone-600">Itinerari Creati</div>
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">2</div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">AI Generation</h3>
+                    <p className="text-gray-600">L'intelligenza artificiale crea un itinerario personalizzato con esperienze family-friendly.</p>
+                  </div>
                 </div>
-                <div className="text-center lg:text-left">
-                  <div className="text-2xl lg:text-3xl font-bold text-stone-900">95%</div>
-                  <div className="text-sm text-stone-600">Soddisfazione Ospiti</div>
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold">3</div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">Esperienza Ospite</h3>
+                    <p className="text-gray-600">Gli ospiti ricevono l'itinerario completo via QR code o email, visualizzabile su qualsiasi dispositivo.</p>
+                  </div>
                 </div>
               </div>
             </div>
             
-            {/* iPhone Mockup */}
+            {/* iPhone Mockup at 45° */}
             <div className="relative flex justify-center lg:justify-end">
-              <div className="relative">
+              <div className="relative" style={{ transform: 'rotateY(-15deg) rotateX(5deg)' }}>
                 {/* iPhone Frame */}
                 <div className="w-72 h-[600px] bg-gray-900 rounded-[3rem] p-2 shadow-2xl">
                   <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative">
@@ -111,50 +149,50 @@ export default function Landing() {
                     <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-10"></div>
                     
                     {/* App Content */}
-                    <div className="pt-8 px-4 h-full bg-gradient-to-b from-stone-50 to-orange-50">
+                    <div className="pt-8 px-4 h-full bg-gradient-to-b from-amber-50 to-orange-50">
                       <div className="text-center mb-6">
-                        <h3 className="text-lg font-bold text-stone-900 mb-2">Vedi la magia in azione</h3>
-                        <p className="text-sm text-stone-600">Itinerario personalizzato per una famiglia</p>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">Itinerario Personalizzato</h3>
+                        <p className="text-sm text-gray-600">Famiglia con bambini - Chianti</p>
                       </div>
                       
                       {/* Guest Profile Card */}
-                      <div className="bg-white rounded-xl p-4 mb-4 shadow-sm border border-stone-100">
+                      <div className="bg-white rounded-xl p-4 mb-4 shadow-sm border border-amber-100">
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center">
                             <Users className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <div className="font-semibold text-stone-900">Profilo Ospite</div>
-                            <div className="text-xs text-stone-600">Generato dall'hotel manager</div>
+                            <div className="font-semibold text-gray-900">Profilo Ospite</div>
+                            <div className="text-xs text-gray-600">Generato dall'hotel manager</div>
                           </div>
                         </div>
                         <div className="space-y-2 text-xs">
                           <div className="flex items-center gap-2">
-                            <Users className="w-3 h-3 text-stone-500" />
-                            <span className="text-stone-700">Famiglia con bambini</span>
+                            <Users className="w-3 h-3 text-gray-500" />
+                            <span className="text-gray-700">Famiglia con bambini</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Clock className="w-3 h-3 text-stone-500" />
-                            <span className="text-stone-700">3 giorni di soggiorno</span>
+                            <Clock className="w-3 h-3 text-gray-500" />
+                            <span className="text-gray-700">3 giorni di soggiorno</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <MapPin className="w-3 h-3 text-stone-500" />
-                            <span className="text-stone-700">Hotel Villa Tuscany, Castellina</span>
+                            <MapPin className="w-3 h-3 text-gray-500" />
+                            <span className="text-gray-700">Hotel Villa Tuscany, Castellina</span>
                           </div>
                         </div>
                       </div>
                       
                       {/* Day 1 */}
-                      <div className="bg-white rounded-xl p-4 mb-3 shadow-sm border border-stone-100">
+                      <div className="bg-white rounded-xl p-4 mb-3 shadow-sm border border-amber-100">
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="w-8 h-8 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-sm">1</div>
+                          <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">1</div>
                           <div>
-                            <div className="font-semibold text-stone-900">Scoperta del Chianti</div>
-                            <div className="text-xs text-stone-600">09:00 - 18:00</div>
+                            <div className="font-semibold text-gray-900">Scoperta del Chianti</div>
+                            <div className="text-xs text-gray-600">09:00 - 18:00</div>
                           </div>
                           <Badge className="bg-yellow-100 text-yellow-800 text-xs ml-auto">Famiglia-friendly</Badge>
                         </div>
-                        <div className="space-y-1 text-xs text-stone-600">
+                        <div className="space-y-1 text-xs text-gray-600">
                           <div>• Visita guidata Castello di Brolio</div>
                           <div>• Degustazione vini per adulti</div>
                           <div>• Laboratorio ceramica per bambini</div>
@@ -162,16 +200,16 @@ export default function Landing() {
                       </div>
                       
                       {/* Day 2 */}
-                      <div className="bg-white rounded-xl p-4 shadow-sm border border-stone-100">
+                      <div className="bg-white rounded-xl p-4 shadow-sm border border-amber-100">
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="w-8 h-8 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-sm">2</div>
+                          <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">2</div>
                           <div>
-                            <div className="font-semibold text-stone-900">Avventura Naturale</div>
-                            <div className="text-xs text-stone-600">08:30 - 17:30</div>
+                            <div className="font-semibold text-gray-900">Avventura Naturale</div>
+                            <div className="text-xs text-gray-600">08:30 - 17:30</div>
                           </div>
                           <Badge className="bg-green-100 text-green-800 text-xs ml-auto">All'aria aperta</Badge>
                         </div>
-                        <div className="space-y-1 text-xs text-stone-600">
+                        <div className="space-y-1 text-xs text-gray-600">
                           <div>• Trekking nelle colline</div>
                           <div>• Picnic panoramico</div>
                           <div>• Visita fattoria didattica</div>
@@ -182,8 +220,8 @@ export default function Landing() {
                 </div>
                 
                 {/* Floating Elements */}
-                <div className="absolute -top-4 -left-4 w-16 h-16 bg-orange-500 rounded-full opacity-20 animate-pulse"></div>
-                <div className="absolute -bottom-8 -right-8 w-20 h-20 bg-yellow-400 rounded-full opacity-20 animate-pulse delay-1000"></div>
+                <div className="absolute -top-4 -left-4 w-16 h-16 bg-amber-400 rounded-full opacity-20 animate-pulse"></div>
+                <div className="absolute -bottom-8 -right-8 w-20 h-20 bg-orange-400 rounded-full opacity-20 animate-pulse delay-1000"></div>
               </div>
             </div>
           </div>
@@ -205,15 +243,15 @@ export default function Landing() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            <Card className="group hover:shadow-lg transition-all duration-300 border-stone-200 hover:border-orange-300">
-              <CardHeader className="pb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Brain className="w-6 h-6 text-white" />
                 </div>
-                <CardTitle className="text-lg lg:text-xl text-stone-900">AI Itinerari Personalizzati</CardTitle>
-                <CardDescription className="text-stone-600">
-                  Algoritmi AI avanzati che creano itinerari personalizzati basati sui profili degli ospiti.
+                <CardTitle className="text-xl">AI Itinerari Personalizzati</CardTitle>
+                <CardDescription>
+                  Intelligenza artificiale avanzata genera itinerari unici basati su preferenze ospiti e esperienze locali.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -223,9 +261,9 @@ export default function Landing() {
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Users className="w-6 h-6 text-white" />
                 </div>
-                <CardTitle className="text-lg lg:text-xl text-stone-900">Profili Ospiti</CardTitle>
-                <CardDescription className="text-stone-600">
-                  Creazione dettagliata di profili personalizzati: famiglie, coppie, business, senior travelers.
+                <CardTitle className="text-xl">Gestione Profili Ospiti</CardTitle>
+                <CardDescription>
+                  Sistema completo per raccogliere preferenze, gestire soggiorni e personalizzare ogni esperienza.
                 </CardDescription>
               </CardHeader>
             </Card>
