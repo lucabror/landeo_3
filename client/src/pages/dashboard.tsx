@@ -15,8 +15,11 @@ import {
   TrendingUp,
   Plus,
   Star,
-  Clock
+  Clock,
+  CreditCard,
+  Wallet
 } from "lucide-react";
+import CreditPurchaseDialog from "@/components/credit-purchase-dialog";
 
 // Mock hotel ID - in real app this would come from auth/context
 const MOCK_HOTEL_ID = "d2dd46f0-97d3-4121-96e3-01500370c73f";
@@ -45,6 +48,11 @@ export default function Dashboard() {
     queryKey: ["/api/hotels", MOCK_HOTEL_ID, "itineraries"],
   });
 
+  // Fetch hotel credits
+  const { data: creditInfo = { credits: 0, totalCredits: 0, creditsUsed: 0 } } = useQuery({
+    queryKey: [`/api/hotels/${MOCK_HOTEL_ID}/credits`],
+  });
+
   // Mock hotel data
   const hotel = {
     name: "Grand Hotel Villa Medici",
@@ -71,8 +79,50 @@ export default function Dashboard() {
           </p>
         </div>
 
+        {/* Credit Banner */}
+        {creditInfo.credits <= 5 && (
+          <Card className="bg-orange-50 border-orange-200 mb-8">
+            <CardContent className="flex items-center justify-between p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <CreditCard className="h-6 w-6 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-orange-900">Crediti in esaurimento</h3>
+                  <p className="text-sm text-orange-700">
+                    Hai solo {creditInfo.credits} crediti rimasti. Acquista più crediti per continuare ad aggiungere ospiti.
+                  </p>
+                </div>
+              </div>
+              <CreditPurchaseDialog hotelId={MOCK_HOTEL_ID} currentCredits={creditInfo.credits}>
+                <Button className="bg-orange-600 hover:bg-orange-700">
+                  Acquista Crediti
+                </Button>
+              </CreditPurchaseDialog>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+          <Card className="card-hover">
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center">
+                  <Wallet className="h-6 w-6 text-green-600" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Crediti Disponibili</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {creditInfo.credits}
+                  </p>
+                  {creditInfo.credits <= 5 && (
+                    <Badge variant="destructive" className="text-xs mt-1">In esaurimento!</Badge>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           <Card className="card-hover">
             <CardContent className="p-6">
               <div className="flex items-center">

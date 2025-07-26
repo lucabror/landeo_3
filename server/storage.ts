@@ -5,6 +5,9 @@ import {
   itineraries,
   pendingAttractions,
   guestPreferencesTokens,
+  creditPurchases,
+  adminUsers,
+  creditTransactions,
   type Hotel, 
   type InsertHotel,
   type GuestProfile,
@@ -16,7 +19,13 @@ import {
   type PendingAttraction,
   type InsertPendingAttraction,
   type GuestPreferencesToken,
-  type InsertGuestPreferencesToken
+  type InsertGuestPreferencesToken,
+  type CreditPurchase,
+  type InsertCreditPurchase,
+  type AdminUser,
+  type InsertAdminUser,
+  type CreditTransaction,
+  type InsertCreditTransaction
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
@@ -72,6 +81,22 @@ export interface IStorage {
     localExperiences: number;
     activeQRCodes: number;
   }>;
+
+  // Credit system methods
+  createCreditPurchase(purchase: InsertCreditPurchase): Promise<CreditPurchase>;
+  getCreditPurchasesByHotel(hotelId: string): Promise<CreditPurchase[]>;
+  getPendingCreditPurchases(): Promise<(CreditPurchase & { hotel: Hotel })[]>;
+  approveCreditPurchase(purchaseId: string, adminEmail: string, notes?: string): Promise<void>;
+  rejectCreditPurchase(purchaseId: string, adminEmail: string, notes?: string): Promise<void>;
+  adjustHotelCredits(hotelId: string, amount: number, description: string, adminEmail: string): Promise<void>;
+  useCredits(hotelId: string, amount: number, description: string, guestProfileId?: string): Promise<boolean>;
+  getHotelCredits(hotelId: string): Promise<{ credits: number; totalCredits: number; creditsUsed: number }>;
+  getCreditTransactions(hotelId: string): Promise<CreditTransaction[]>;
+
+  // Admin methods
+  getAdminUser(email: string): Promise<AdminUser | undefined>;
+  createAdminUser(admin: InsertAdminUser): Promise<AdminUser>;
+  getAllHotelsForAdmin(): Promise<(Hotel & { pendingPurchases: number })[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -360,6 +385,172 @@ export class DatabaseStorage implements IStorage {
       .where(eq(guestPreferencesTokens.token, token))
       .returning();
     return result;
+  }
+
+  // Credit system implementation
+  async createCreditPurchase(purchase: InsertCreditPurchase): Promise<CreditPurchase> {
+    const [result] = await db.insert(creditPurchases).values(purchase).returning();
+    return result;
+  }
+
+  async getCreditPurchasesByHotel(hotelId: string): Promise<CreditPurchase[]> {
+    return await db.select()
+      .from(creditPurchases)
+      .where(eq(creditPurchases.hotelId, hotelId))
+      .orderBy(desc(creditPurchases.createdAt));
+  }
+
+  async getPendingCreditPurchases(): Promise<(CreditPurchase & { hotel: Hotel })[]> {
+    const results = await db.select({
+      id: creditPurchases.id,
+      hotelId: creditPurchases.hotelId,
+      packageType: creditPurchases.packageType,
+      packagePrice: creditPurchases.packagePrice,
+      creditsAmount: creditPurchases.creditsAmount,
+      status: creditPurchases.status,
+      bankTransferConfirmed: creditPurchases.bankTransferConfirmed,
+      processedAt: creditPurchases.processedAt,
+      processedBy: creditPurchases.processedBy,
+      notes: creditPurchases.notes,
+      createdAt: creditPurchases.createdAt,
+      hotel: hotels
+    })
+    .from(creditPurchases)
+    .innerJoin(hotels, eq(creditPurchases.hotelId, hotels.id))
+    .where(eq(creditPurchases.status, "pending"))
+    .orderBy(desc(creditPurchases.createdAt));
+    
+    return results.map(result => ({
+      ...result,
+      hotel: result.hotel
+    }));
+  }
+
+  async approveCreditPurchase(purchaseId: string, adminEmail: string, notes?: string): Promise<void> {
+    const purchase = await db.select().from(creditPurchases).where(eq(creditPurchases.id, purchaseId)).limit(1);
+    if (!purchase[0]) throw new Error("Purchase not found");
+    
+    await db.update(creditPurchases)
+      .set({
+        status: "approved",
+        processedAt: new Date(),
+        processedBy: adminEmail,
+        notes: notes || ""
+      })
+      .where(eq(creditPurchases.id, purchaseId));
+
+    await db.update(hotels)
+      .set({
+        credits: sql`${hotels.credits} + ${purchase[0].creditsAmount}`,
+        totalCredits: sql`${hotels.totalCredits} + ${purchase[0].creditsAmount}`
+      })
+      .where(eq(hotels.id, purchase[0].hotelId));
+
+    await db.insert(creditTransactions).values({
+      hotelId: purchase[0].hotelId,
+      type: "purchase",
+      amount: purchase[0].creditsAmount,
+      description: `Acquisto pacchetto ${purchase[0].packageType} - ${purchase[0].creditsAmount} crediti`,
+      relatedPurchaseId: purchaseId,
+      processedBy: adminEmail
+    });
+  }
+
+  async rejectCreditPurchase(purchaseId: string, adminEmail: string, notes?: string): Promise<void> {
+    await db.update(creditPurchases)
+      .set({
+        status: "rejected",
+        processedAt: new Date(),
+        processedBy: adminEmail,
+        notes: notes || ""
+      })
+      .where(eq(creditPurchases.id, purchaseId));
+  }
+
+  async adjustHotelCredits(hotelId: string, amount: number, description: string, adminEmail: string): Promise<void> {
+    await db.update(hotels)
+      .set({
+        credits: sql`${hotels.credits} + ${amount}`,
+        totalCredits: amount > 0 ? sql`${hotels.totalCredits} + ${amount}` : hotels.totalCredits
+      })
+      .where(eq(hotels.id, hotelId));
+
+    await db.insert(creditTransactions).values({
+      hotelId,
+      type: "adjustment",
+      amount,
+      description,
+      processedBy: adminEmail
+    });
+  }
+
+  async useCredits(hotelId: string, amount: number, description: string, guestProfileId?: string): Promise<boolean> {
+    const hotel = await this.getHotel(hotelId);
+    if (!hotel || hotel.credits < amount) {
+      return false;
+    }
+
+    await db.update(hotels)
+      .set({
+        credits: sql`${hotels.credits} - ${amount}`,
+        creditsUsed: sql`${hotels.creditsUsed} + ${amount}`
+      })
+      .where(eq(hotels.id, hotelId));
+
+    await db.insert(creditTransactions).values({
+      hotelId,
+      type: "usage",
+      amount: -amount,
+      description,
+      relatedGuestProfileId: guestProfileId
+    });
+
+    return true;
+  }
+
+  async getHotelCredits(hotelId: string): Promise<{ credits: number; totalCredits: number; creditsUsed: number }> {
+    const hotel = await this.getHotel(hotelId);
+    return {
+      credits: hotel?.credits || 0,
+      totalCredits: hotel?.totalCredits || 0,
+      creditsUsed: hotel?.creditsUsed || 0
+    };
+  }
+
+  async getCreditTransactions(hotelId: string): Promise<CreditTransaction[]> {
+    return await db.select()
+      .from(creditTransactions)
+      .where(eq(creditTransactions.hotelId, hotelId))
+      .orderBy(desc(creditTransactions.createdAt));
+  }
+
+  async getAdminUser(email: string): Promise<AdminUser | undefined> {
+    const [admin] = await db.select().from(adminUsers).where(eq(adminUsers.email, email));
+    return admin || undefined;
+  }
+
+  async createAdminUser(admin: InsertAdminUser): Promise<AdminUser> {
+    const [result] = await db.insert(adminUsers).values(admin).returning();
+    return result;
+  }
+
+  async getAllHotelsForAdmin(): Promise<(Hotel & { pendingPurchases: number })[]> {
+    const results = await db.select({
+      hotel: hotels,
+      pendingPurchases: sql<number>`count(${creditPurchases.id})`
+    })
+    .from(hotels)
+    .leftJoin(creditPurchases, and(
+      eq(hotels.id, creditPurchases.hotelId),
+      eq(creditPurchases.status, "pending")
+    ))
+    .groupBy(hotels.id)
+    .orderBy(desc(hotels.createdAt));
+
+    return results.map(result => ({
+      ...result.hotel,
+      pendingPurchases: Number(result.pendingPurchases)
+    }));
   }
 }
 

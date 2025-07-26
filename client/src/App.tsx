@@ -11,6 +11,7 @@ import LocalExperiences from "@/pages/local-experiences";
 import Itineraries from "@/pages/itineraries";
 import ItineraryView from "@/pages/itinerary-view";
 import GuestPreferencesPage from "@/pages/guest-preferences";
+import AdminDashboard from "@/pages/admin-dashboard";
 
 function Router() {
   return (
@@ -37,6 +38,9 @@ function Router() {
       <Route path="/guest-preferences/:token">
         {(params) => <GuestPreferencesPage token={params.token} />}
       </Route>
+      
+      {/* Admin dashboard */}
+      <Route path="/admin" component={AdminDashboard} />
       
       {/* QR Code & PDF page redirects to itineraries for now */}
       <Route path="/qr-pdf" component={Itineraries} />

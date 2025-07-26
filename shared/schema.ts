@@ -19,6 +19,11 @@ export const hotels = pgTable("hotels", {
   latitude: text("latitude"),
   longitude: text("longitude"),
   services: jsonb("services").$type<string[]>(), // array of hotel services
+  // Credit system fields
+  credits: integer("credits").default(0),
+  creditsUsed: integer("credits_used").default(0),
+  totalCredits: integer("total_credits").default(0),
+  isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -158,6 +163,68 @@ export const guestPreferencesTokensRelations = relations(guestPreferencesTokens,
   }),
 }));
 
+// Credit purchase table
+export const creditPurchases = pgTable("credit_purchases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  hotelId: varchar("hotel_id").notNull().references(() => hotels.id, { onDelete: "cascade" }),
+  packageType: text("package_type").notNull(), // "basic", "standard", "premium", "enterprise"
+  packagePrice: integer("package_price").notNull(), // in euros
+  creditsAmount: integer("credits_amount").notNull(),
+  status: text("status").notNull().default("pending"), // "pending", "approved", "rejected"
+  bankTransferConfirmed: boolean("bank_transfer_confirmed").default(false),
+  processedAt: timestamp("processed_at"),
+  processedBy: text("processed_by"), // admin email
+  notes: text("notes"), // admin notes
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Admin users table
+export const adminUsers = pgTable("admin_users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: text("email").notNull().unique(),
+  name: text("name").notNull(),
+  role: text("role").notNull().default("superadmin"), // "superadmin", "admin"
+  isActive: boolean("is_active").default(true),
+  lastLogin: timestamp("last_login"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Credit transactions log
+export const creditTransactions = pgTable("credit_transactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  hotelId: varchar("hotel_id").notNull().references(() => hotels.id, { onDelete: "cascade" }),
+  type: text("type").notNull(), // "purchase", "usage", "adjustment", "refund"
+  amount: integer("amount").notNull(), // positive for add, negative for subtract
+  description: text("description").notNull(),
+  relatedPurchaseId: varchar("related_purchase_id").references(() => creditPurchases.id),
+  relatedGuestProfileId: varchar("related_guest_profile_id").references(() => guestProfiles.id),
+  processedBy: text("processed_by"), // admin email for manual adjustments
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Relations for new tables
+export const creditPurchasesRelations = relations(creditPurchases, ({ one }) => ({
+  hotel: one(hotels, {
+    fields: [creditPurchases.hotelId],
+    references: [hotels.id],
+  }),
+}));
+
+export const creditTransactionsRelations = relations(creditTransactions, ({ one }) => ({
+  hotel: one(hotels, {
+    fields: [creditTransactions.hotelId],
+    references: [hotels.id],
+  }),
+  relatedPurchase: one(creditPurchases, {
+    fields: [creditTransactions.relatedPurchaseId],
+    references: [creditPurchases.id],
+  }),
+  relatedGuestProfile: one(guestProfiles, {
+    fields: [creditTransactions.relatedGuestProfileId],
+    references: [guestProfiles.id],
+  }),
+}));
+
 export const localExperiencesRelations = relations(localExperiences, ({ one }) => ({
   hotel: one(hotels, {
     fields: [localExperiences.hotelId],
@@ -236,3 +303,28 @@ export type InsertPendingAttraction = z.infer<typeof insertPendingAttractionSche
 export type GuestPreferencesToken = typeof guestPreferencesTokens.$inferSelect;
 export type InsertGuestPreferencesToken = z.infer<typeof insertGuestPreferencesTokenSchema>;
 export type GuestPreferences = z.infer<typeof guestPreferencesSchema>;
+
+// Credit system schemas and types
+export const insertCreditPurchaseSchema = createInsertSchema(creditPurchases).omit({
+  id: true,
+  createdAt: true,
+  processedAt: true,
+});
+
+export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({
+  id: true,
+  createdAt: true,
+  lastLogin: true,
+});
+
+export const insertCreditTransactionSchema = createInsertSchema(creditTransactions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type CreditPurchase = typeof creditPurchases.$inferSelect;
+export type InsertCreditPurchase = z.infer<typeof insertCreditPurchaseSchema>;
+export type AdminUser = typeof adminUsers.$inferSelect;
+export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
+export type CreditTransaction = typeof creditTransactions.$inferSelect;
+export type InsertCreditTransaction = z.infer<typeof insertCreditTransactionSchema>;
