@@ -2,7 +2,7 @@ import { neonConfig, Pool } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import bcrypt from 'bcryptjs';
 import ws from 'ws';
-import { administrators } from '../shared/schema.js';
+import { administrators } from '../shared/schema.ts';
 
 // Configurazione Neon
 neonConfig.webSocketConstructor = ws;
