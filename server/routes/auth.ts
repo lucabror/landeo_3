@@ -454,4 +454,168 @@ router.get('/me', requireAuth({ userType: 'both', requireMfa: true }), async (re
     }
   });
 
+// Password reset request
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email, userType } = req.body;
+    
+    if (!email || !userType) {
+      return res.status(400).json({ error: 'Email e tipo utente richiesti' });
+    }
+    
+    let user;
+    let resetToken;
+    let resetExpires;
+    
+    if (userType === 'hotel') {
+      const [hotel] = await db.select().from(hotels).where(eq(hotels.email, email));
+      if (!hotel) {
+        // Security: don't reveal if email exists
+        return res.json({ success: true, message: 'Se l\'email esiste, riceverai le istruzioni per il reset' });
+      }
+      
+      // Generate reset token (valid for 1 hour)
+      resetToken = crypto.randomBytes(32).toString('hex');
+      resetExpires = new Date(Date.now() + 3600000); // 1 hour
+      
+      await db.update(hotels)
+        .set({ 
+          sessionToken: resetToken,
+          tokenExpiresAt: resetExpires 
+        })
+        .where(eq(hotels.id, hotel.id));
+        
+      user = hotel;
+    } else if (userType === 'admin') {
+      const [admin] = await db.select().from(administrators).where(eq(administrators.email, email));
+      if (!admin) {
+        return res.json({ success: true, message: 'Se l\'email esiste, riceverai le istruzioni per il reset' });
+      }
+      
+      resetToken = crypto.randomBytes(32).toString('hex');
+      resetExpires = new Date(Date.now() + 3600000);
+      
+      await db.update(administrators)
+        .set({ 
+          sessionToken: resetToken,
+          tokenExpiresAt: resetExpires 
+        })
+        .where(eq(administrators.id, admin.id));
+        
+      user = admin;
+    }
+    
+    // Send reset email
+    if (process.env.RESEND_API_KEY) {
+      const { Resend } = await import('resend');
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      
+      const resetUrl = `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'http://localhost:5000'}/reset-password?token=${resetToken}&type=${userType}`;
+      
+      await resend.emails.send({
+        from: 'Itinera Platform <noreply@itinera.app>',
+        to: email,
+        subject: 'Reset Password - Itinera Platform',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #2c3e50;">Reset Password Richiesto</h1>
+            <p>Hai richiesto il reset della password per il tuo account Itinera.</p>
+            <p>Clicca il link seguente per impostare una nuova password:</p>
+            <a href="${resetUrl}" style="background: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+              Reset Password
+            </a>
+            <p style="margin-top: 20px; color: #7f8c8d; font-size: 14px;">
+              Questo link è valido per 1 ora. Se non hai richiesto il reset, ignora questa email.
+            </p>
+          </div>
+        `
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Se l\'email esiste, riceverai le istruzioni per il reset entro pochi minuti' 
+    });
+    
+  } catch (error) {
+    console.error('Password reset request error:', error);
+    res.status(500).json({ error: 'Errore interno del server' });
+  }
+});
+
+// Password reset confirmation
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, password, userType } = req.body;
+    
+    if (!token || !password || !userType) {
+      return res.status(400).json({ error: 'Token, password e tipo utente richiesti' });
+    }
+    
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'La password deve essere di almeno 8 caratteri' });
+    }
+    
+    const now = new Date();
+    let user;
+    
+    if (userType === 'hotel') {
+      const [hotel] = await db.select().from(hotels)
+        .where(and(
+          eq(hotels.sessionToken, token),
+          gt(hotels.tokenExpiresAt, now)
+        ));
+        
+      if (!hotel) {
+        return res.status(400).json({ error: 'Token non valido o scaduto' });
+      }
+      
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      await db.update(hotels)
+        .set({ 
+          password: hashedPassword,
+          sessionToken: null,
+          tokenExpiresAt: null,
+          loginAttempts: 0,
+          lockedUntil: null
+        })
+        .where(eq(hotels.id, hotel.id));
+        
+      user = hotel;
+    } else if (userType === 'admin') {
+      const [admin] = await db.select().from(administrators)
+        .where(and(
+          eq(administrators.sessionToken, token),
+          gt(administrators.tokenExpiresAt, now)
+        ));
+        
+      if (!admin) {
+        return res.status(400).json({ error: 'Token non valido o scaduto' });
+      }
+      
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      await db.update(administrators)
+        .set({ 
+          password: hashedPassword,
+          sessionToken: null,
+          tokenExpiresAt: null
+        })
+        .where(eq(administrators.id, admin.id));
+        
+      user = admin;
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Password aggiornata con successo. Ora puoi accedere con la nuova password.' 
+    });
+    
+  } catch (error) {
+    console.error('Password reset error:', error);
+    res.status(500).json({ error: 'Errore interno del server' });
+  }
+});
+
 export default router;
