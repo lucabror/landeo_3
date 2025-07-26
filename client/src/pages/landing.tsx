@@ -1,446 +1,524 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Link } from "wouter";
+import { 
+  MapPin, 
+  Users, 
+  Zap, 
+  Shield, 
+  Heart, 
+  Star, 
+  ChevronRight, 
+  Hotel, 
+  Brain, 
+  FileText, 
+  QrCode,
+  Mail,
+  CheckCircle,
+  Globe,
+  Clock,
+  Award
+} from "lucide-react";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ArrowRight, MapPin, Heart, Users, Sparkles, Star, CheckCircle, Globe, Camera, Clock, Shield } from 'lucide-react';
-
-export default function LandingPage() {
-  const [isHovered, setIsHovered] = useState<string | null>(null);
-
-  const features = [
-    {
-      icon: <Sparkles className="w-6 h-6" />,
-      title: "Itinerari Personalizzati AI",
-      description: "Algoritmi avanzati creano percorsi unici basati sui gusti e preferenze di ogni ospite",
-      color: "bg-gradient-to-br from-purple-500 to-pink-500"
-    },
-    {
-      icon: <MapPin className="w-6 h-6" />,
-      title: "Esperienze Locali Autentiche",
-      description: "Scopri gemme nascoste e tradizioni locali che solo i residenti conoscono davvero",
-      color: "bg-gradient-to-br from-blue-500 to-cyan-500"
-    },
-    {
-      icon: <Heart className="w-6 h-6" />,
-      title: "Curato con Passione",
-      description: "Ogni raccomandazione è selezionata a mano da esperti locali appassionati del territorio",
-      color: "bg-gradient-to-br from-red-500 to-orange-500"
-    },
-    {
-      icon: <Users className="w-6 h-6" />,
-      title: "Per Ogni Tipo di Viaggiatore",
-      description: "Famiglie, coppie, viaggiatori solitari - percorsi su misura per ogni stile di viaggio",
-      color: "bg-gradient-to-br from-green-500 to-emerald-500"
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: "Marco & Elena",
-      location: "Milano",
-      text: "Un'esperienza incredibile! L'itinerario ci ha portato in luoghi magici che non avremmo mai scoperto da soli. Ogni giorno una nuova sorpresa.",
-      rating: 5,
-      avatar: "🇮🇹"
-    },
-    {
-      name: "Sarah Johnson",
-      location: "London",
-      text: "The personalized recommendations were spot-on! Every restaurant, every viewpoint, every hidden gem was exactly what we were looking for.",
-      rating: 5,
-      avatar: "🇬🇧"
-    },
-    {
-      name: "Familie Schmidt",
-      location: "Berlin",
-      text: "Perfekt für unsere Familie! Die Kinder waren begeistert und wir Erwachsenen haben so viel über die lokale Kultur gelernt.",
-      rating: 5,
-      avatar: "🇩🇪"
-    }
-  ];
-
-  const stats = [
-    { number: "50K+", label: "Itinerari Creati" },
-    { number: "98%", label: "Ospiti Soddisfatti" },
-    { number: "200+", label: "Città Coperte" },
-    { number: "24/7", label: "Supporto Locale" }
-  ];
-
+export default function Landing() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-md border-b border-amber-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-600 to-orange-600 rounded-xl flex items-center justify-center">
+                <Hotel className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900">ItinerAI</span>
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent">
+                  ItineraItalia
+                </h1>
+                <p className="text-xs text-amber-600">Powered by AI</p>
+              </div>
             </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">Funzionalità</a>
-              <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 transition-colors">Come Funziona</a>
-              <a href="#testimonials" className="text-gray-600 hover:text-gray-900 transition-colors">Recensioni</a>
-              <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6">
-                Inizia Ora
+            <div className="flex items-center space-x-4">
+              <Link href="/login">
+                <Button variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50">
+                  Accedi
+                </Button>
+              </Link>
+              <Button className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700">
+                Demo Gratuita
               </Button>
             </div>
           </div>
         </div>
-      </nav>
+      </header>
 
       {/* Hero Section */}
-      <section className="pt-24 pb-20 px-6 bg-gradient-to-br from-gray-50 via-white to-purple-50">
-        <div className="max-w-7xl mx-auto">
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 to-orange-600/10" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100">
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Powered by AI
-                </Badge>
-                <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                  Itinerari che
-                  <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"> Incantano</span>
-                </h1>
-                <p className="text-xl text-gray-600 leading-relaxed max-w-lg">
-                  Scopri l'Italia attraverso percorsi personalizzati che trasformano ogni viaggio in un'avventura indimenticabile, creata su misura per te.
-                </p>
-              </div>
-              
+            <div>
+              <Badge className="bg-amber-100 text-amber-800 border-amber-300 mb-6">
+                🚀 Nuova Generazione di Hospitality Management
+              </Badge>
+              <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                Trasforma l'esperienza
+                <span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent block">
+                  dei tuoi ospiti
+                </span>
+              </h1>
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                La prima piattaforma AI-powered per hotel italiani che genera itinerari personalizzati, 
+                gestisce profili ospiti e automatizza l'esperienza di soggiorno con tecnologia all'avanguardia.
+              </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  size="lg" 
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 text-lg group"
-                >
-                  Crea il Tuo Itinerario
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="border-gray-300 hover:bg-gray-50 px-8 py-4 text-lg"
-                >
-                  <Camera className="w-5 h-5 mr-2" />
-                  Vedi Demo
+                <Link href="/login">
+                  <Button size="lg" className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-lg px-8">
+                    Inizia Gratis
+                    <ChevronRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </Link>
+                <Button size="lg" variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50 text-lg px-8">
+                  Guarda Demo
                 </Button>
               </div>
-
-              <div className="flex items-center space-x-8 pt-4">
-                {stats.map((stat, index) => (
-                  <div key={index} className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">{stat.number}</div>
-                    <div className="text-sm text-gray-600">{stat.label}</div>
-                  </div>
-                ))}
+              <div className="flex items-center gap-6 mt-8 pt-8 border-t border-amber-200">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-sm text-gray-600">Setup in 5 minuti</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-sm text-gray-600">Supporto 24/7</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-sm text-gray-600">Made in Italy</span>
+                </div>
               </div>
             </div>
-
             <div className="relative">
-              <div className="relative z-10">
-                <Card className="bg-white shadow-2xl border-0 overflow-hidden">
-                  <CardContent className="p-0">
-                    <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold">Il Tuo Itinerario Perfetto</h3>
-                        <Badge className="bg-white/20 text-white">Day 1</Badge>
-                      </div>
-                      <div className="space-y-3">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                            <Clock className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <div className="font-medium">9:00 - Colazione Autentica</div>
-                            <div className="text-sm opacity-90">Caffè storico nel centro</div>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                            <MapPin className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <div className="font-medium">11:00 - Passeggiata Panoramica</div>
-                            <div className="text-sm opacity-90">Vista mozzafiato sulla città</div>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                            <Heart className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <div className="font-medium">13:00 - Pranzo Tipico</div>
-                            <div className="text-sm opacity-90">Trattoria locale nascosta</div>
-                          </div>
-                        </div>
-                      </div>
+              <div className="relative bg-white rounded-2xl shadow-2xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-500">
+                <div className="absolute -top-4 -right-4 w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center">
+                  <Brain className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Itinerario AI Generato</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-3 bg-amber-50 rounded-lg">
+                    <MapPin className="w-5 h-5 text-amber-600" />
+                    <div>
+                      <p className="font-medium">Colosseo & Fori Imperiali</p>
+                      <p className="text-sm text-gray-600">09:00 - 12:00</p>
                     </div>
-                    <div className="p-6 bg-gray-50">
-                      <div className="flex items-center justify-between text-sm text-gray-600">
-                        <span>Personalizzato per te</span>
-                        <div className="flex items-center space-x-1">
-                          {[1,2,3,4,5].map((i) => (
-                            <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          ))}
-                        </div>
-                      </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
+                    <Users className="w-5 h-5 text-orange-600" />
+                    <div>
+                      <p className="font-medium">Pranzo tipico romano</p>
+                      <p className="text-sm text-gray-600">12:30 - 14:00</p>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
+                    <Heart className="w-5 h-5 text-yellow-600" />
+                    <div>
+                      <p className="font-medium">Fontana di Trevi</p>
+                      <p className="text-sm text-gray-600">15:00 - 16:30</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              
-              {/* Floating elements */}
-              <div className="absolute -top-4 -right-4 w-20 h-20 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full opacity-20 animate-pulse"></div>
-              <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-gradient-to-br from-pink-400 to-purple-400 rounded-full opacity-10 animate-pulse delay-1000"></div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
+            <Badge className="bg-amber-100 text-amber-800 border-amber-300 mb-4">
+              🎯 Funzionalità Avanzate
+            </Badge>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Perché Scegliere ItinerAI?
+              Tutto quello che serve per il tuo hotel
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              La combinazione perfetta tra intelligenza artificiale e conoscenza locale per creare esperienze di viaggio uniche e memorabili.
+              Una suite completa di strumenti intelligenti per trasformare la gestione ospiti 
+              e offrire esperienze indimenticabili in Italia.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <Card 
-                key={index}
-                className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group"
-                onMouseEnter={() => setIsHovered(`feature-${index}`)}
-                onMouseLeave={() => setIsHovered(null)}
-              >
-                <CardContent className="p-8 text-center">
-                  <div className={`w-16 h-16 ${feature.color} rounded-2xl flex items-center justify-center text-white mx-auto mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {feature.description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Brain className="w-6 h-6 text-white" />
+                </div>
+                <CardTitle className="text-xl">AI Itinerari Personalizzati</CardTitle>
+                <CardDescription>
+                  Intelligenza artificiale avanzata genera itinerari unici basati su preferenze ospiti e esperienze locali.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <CardTitle className="text-xl">Gestione Profili Ospiti</CardTitle>
+                <CardDescription>
+                  Sistema completo per raccogliere preferenze, gestire soggiorni e personalizzare ogni esperienza.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <QrCode className="w-6 h-6 text-white" />
+                </div>
+                <CardTitle className="text-xl">QR Code & PDF</CardTitle>
+                <CardDescription>
+                  Genera automaticamente QR code e PDF eleganti per condividere itinerari con gli ospiti.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Mail className="w-6 h-6 text-white" />
+                </div>
+                <CardTitle className="text-xl">Email Automatiche</CardTitle>
+                <CardDescription>
+                  Sistema di invio email automatico per PDF itinerari e comunicazioni personalizzate agli ospiti.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Shield className="w-6 h-6 text-white" />
+                </div>
+                <CardTitle className="text-xl">Sicurezza Avanzata</CardTitle>
+                <CardDescription>
+                  Autenticazione sicura, controllo accessi e protezione dati con standard enterprise.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <Globe className="w-6 h-6 text-white" />
+                </div>
+                <CardTitle className="text-xl">Multilingua</CardTitle>
+                <CardDescription>
+                  Supporto completo per ospiti internazionali con interfaccia e contenuti multilingua.
+                </CardDescription>
+              </CardHeader>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section id="how-it-works" className="py-20 px-6 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
+      {/* Stats Section */}
+      <section className="py-20 bg-gradient-to-r from-amber-600 to-orange-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-4xl font-bold text-white mb-2">500+</div>
+              <div className="text-amber-100">Hotel Partner</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-white mb-2">50K+</div>
+              <div className="text-amber-100">Itinerari Generati</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-white mb-2">98%</div>
+              <div className="text-amber-100">Soddisfazione Ospiti</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-white mb-2">24/7</div>
+              <div className="text-amber-100">Supporto Dedicato</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Process Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
+            <Badge className="bg-amber-100 text-amber-800 border-amber-300 mb-4">
+              🔄 Come Funziona
+            </Badge>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Come Funziona
+              Semplice come 1, 2, 3
             </h2>
             <p className="text-xl text-gray-600">
-              Tre semplici passaggi per il tuo viaggio perfetto
+              Inizia in pochi minuti e trasforma subito l'esperienza dei tuoi ospiti
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-12">
-            {[
-              {
-                step: "01",
-                title: "Condividi le Tue Preferenze",
-                description: "Raccontaci i tuoi interessi, il tipo di esperienza che cerchi e le tue esigenze di viaggio.",
-                icon: <Heart className="w-6 h-6" />
-              },
-              {
-                step: "02", 
-                title: "L'AI Crea il Tuo Percorso",
-                description: "I nostri algoritmi elaborano migliaia di dati per creare un itinerario perfetto per te.",
-                icon: <Sparkles className="w-6 h-6" />
-              },
-              {
-                step: "03",
-                title: "Vivi l'Esperienza",
-                description: "Segui il tuo itinerario personalizzato e scopri luoghi straordinari in modo autentico.",
-                icon: <MapPin className="w-6 h-6" />
-              }
-            ].map((step, index) => (
-              <div key={index} className="text-center relative">
-                <div className="relative z-10">
-                  <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
-                    {step.step}
-                  </div>
-                  <div className="bg-white rounded-2xl p-8 shadow-lg">
-                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                      {step.icon}
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                      {step.title}
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
-                {index < 2 && (
-                  <div className="hidden lg:block absolute top-10 left-full w-full h-0.5 bg-gradient-to-r from-purple-300 to-pink-300 z-0"></div>
-                )}
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center group">
+              <div className="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                <Hotel className="w-10 h-10 text-white" />
               </div>
-            ))}
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">1. Setup Hotel</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Configura il profilo del tuo hotel, aggiungi le esperienze locali e personalizza il branding in pochi click.
+              </p>
+            </div>
+
+            <div className="text-center group">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                <Users className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">2. Profili Ospiti</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Raccogli le preferenze degli ospiti tramite form intuitivi e crea profili dettagliati per ogni soggiorno.
+              </p>
+            </div>
+
+            <div className="text-center group">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                <Zap className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">3. Magia AI</h3>
+              <p className="text-gray-600 leading-relaxed">
+                L'AI genera itinerari personalizzati, crea PDF eleganti e li condivide automaticamente via email e QR code.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
+            <Badge className="bg-amber-100 text-amber-800 border-amber-300 mb-4">
+              💬 Testimonianze
+            </Badge>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Cosa Dicono i Nostri Viaggiatori
+              Cosa dicono i nostri partner
             </h2>
-            <p className="text-xl text-gray-600">
-              Storie autentiche di chi ha vissuto esperienze indimenticabili
-            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardContent className="p-8">
-                  <div className="flex items-center mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    ))}
+            <Card className="border-amber-200">
+              <CardContent className="pt-6">
+                <div className="flex items-center mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                  ))}
+                </div>
+                <p className="text-gray-600 mb-6 italic">
+                  "ItineraItalia ha rivoluzionato il modo in cui gestiamo gli ospiti. Gli itinerari AI sono incredibilmente accurati e i nostri clienti sono entusiasti!"
+                </p>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold">
+                    M
                   </div>
-                  <p className="text-gray-700 mb-6 leading-relaxed italic">
-                    "{testimonial.text}"
-                  </p>
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white text-xl mr-4">
-                      {testimonial.avatar}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                      <div className="text-sm text-gray-600">{testimonial.location}</div>
-                    </div>
+                  <div className="ml-4">
+                    <p className="font-semibold">Marco Rossi</p>
+                    <p className="text-sm text-gray-600">Hotel Bellavista, Roma</p>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-amber-200">
+              <CardContent className="pt-6">
+                <div className="flex items-center mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                  ))}
+                </div>
+                <p className="text-gray-600 mb-6 italic">
+                  "Il sistema di crediti è perfetto per la nostra struttura. Paghiamo solo per quello che usiamo e il ROI è immediato."
+                </p>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                    G
+                  </div>
+                  <div className="ml-4">
+                    <p className="font-semibold">Giulia Bianchi</p>
+                    <p className="text-sm text-gray-600">Resort Mediterraneo, Amalfi</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-amber-200">
+              <CardContent className="pt-6">
+                <div className="flex items-center mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                  ))}
+                </div>
+                <p className="text-gray-600 mb-6 italic">
+                  "Setup rapido, interfaccia intuitiva e risultati straordinari. I nostri ospiti ricevono esperienze su misura."
+                </p>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center text-white font-bold">
+                    A
+                  </div>
+                  <div className="ml-4">
+                    <p className="font-semibold">Andrea Conti</p>
+                    <p className="text-sm text-gray-600">Boutique Hotel Toscana</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-20 bg-gradient-to-br from-amber-50 to-orange-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <Badge className="bg-amber-100 text-amber-800 border-amber-300 mb-4">
+              💰 Prezzi Trasparenti
+            </Badge>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Solo 1€ per ospite
+            </h2>
+            <p className="text-xl text-gray-600">
+              Sistema a crediti, registrazione gratuita, paghi solo quello che usi
+            </p>
+          </div>
+
+          <div className="max-w-2xl mx-auto">
+            <Card className="border-2 border-amber-300 shadow-xl">
+              <CardHeader className="text-center bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-t-lg">
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Award className="w-8 h-8" />
+                </div>
+                <CardTitle className="text-3xl">Piano Crediti</CardTitle>
+                <CardDescription className="text-amber-100 text-lg">
+                  Perfetto per hotel di ogni dimensione
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-8">
+                <div className="text-center mb-8">
+                  <div className="text-6xl font-bold text-gray-900 mb-2">1€</div>
+                  <div className="text-xl text-gray-600">per ospite inserito</div>
+                </div>
+                
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <span>Registrazione hotel gratuita</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <span>Itinerari AI illimitati per ospite</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <span>PDF e QR code automatici</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <span>Email automatiche</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <span>Supporto 24/7</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <span>Pagamento bonifico bancario</span>
+                  </div>
+                </div>
+
+                <Link href="/login">
+                  <Button className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-lg py-6">
+                    Inizia Gratis Ora
+                    <ChevronRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-6 bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-            Pronto per la Tua Prossima Avventura?
+      <section className="py-20 bg-gradient-to-r from-amber-600 to-orange-600">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold text-white mb-6">
+            Pronto a trasformare il tuo hotel?
           </h2>
-          <p className="text-xl text-purple-100 mb-8 leading-relaxed">
-            Unisciti a migliaia di viaggiatori che hanno già scoperto la magia di un itinerario perfettamente personalizzato.
+          <p className="text-xl text-amber-100 mb-8">
+            Unisciti a centinaia di hotel italiani che stanno già offrendo esperienze straordinarie ai loro ospiti.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button 
-              size="lg" 
-              className="bg-white text-purple-600 hover:bg-gray-50 px-8 py-4 text-lg font-semibold group"
-            >
-              Inizia la Tua Esperienza
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/login">
+              <Button size="lg" className="bg-white text-amber-600 hover:bg-gray-50 text-lg px-8">
+                Registrazione Gratuita
+                <ChevronRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 text-lg px-8">
+              Prenota Demo
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="border-white text-white hover:bg-white/10 px-8 py-4 text-lg"
-            >
-              <Globe className="w-5 h-5 mr-2" />
-              Esplora le Destinazioni
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-8 text-purple-100">
-            <div className="flex items-center">
-              <Shield className="w-5 h-5 mr-2" />
-              <span>Garanzia Soddisfazione</span>
-            </div>
-            <div className="flex items-center">
-              <CheckCircle className="w-5 h-5 mr-2" />
-              <span>Supporto 24/7</span>
-            </div>
-            <div className="flex items-center">
-              <Globe className="w-5 h-5 mr-2" />
-              <span>Copertura Mondiale</span>
-            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-12">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
-                  <MapPin className="w-5 h-5 text-white" />
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
+                  <Hotel className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold">ItinerAI</span>
+                <span className="text-xl font-bold">ItineraItalia</span>
               </div>
-              <p className="text-gray-400 leading-relaxed">
-                Creiamo esperienze di viaggio uniche attraverso l'intelligenza artificiale e la passione per l'autenticità.
+              <p className="text-gray-400 text-sm">
+                La piattaforma AI per l'hospitality italiana. Made with ❤️ in Italy.
               </p>
             </div>
-            
             <div>
               <h4 className="font-semibold mb-4">Prodotto</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Funzionalità</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Prezzi</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">API</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Integrazioni</a></li>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>Funzionalità</li>
+                <li>Prezzi</li>
+                <li>Demo</li>
+                <li>API</li>
               </ul>
             </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Azienda</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Chi Siamo</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Carriere</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contatti</a></li>
-              </ul>
-            </div>
-            
             <div>
               <h4 className="font-semibold mb-4">Supporto</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Centro Assistenza</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Documentazione</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Termini</a></li>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>Centro Assistenza</li>
+                <li>Documentazione</li>
+                <li>Contatti</li>
+                <li>Status</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Azienda</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>Chi Siamo</li>
+                <li>Privacy</li>
+                <li>Termini</li>
+                <li>Sicurezza</li>
               </ul>
             </div>
           </div>
-          
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400">
-              © 2024 ItinerAI. Tutti i diritti riservati.
-            </p>
-            <div className="flex items-center space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                Privacy Policy
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                Cookie Policy
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                Termini di Servizio
-              </a>
-            </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+            <p>&copy; 2025 ItineraItalia. Tutti i diritti riservati.</p>
           </div>
         </div>
       </footer>
