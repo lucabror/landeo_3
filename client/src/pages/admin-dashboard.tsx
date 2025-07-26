@@ -4,12 +4,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { AlertCircle, CheckCircle, XCircle, Euro, Users, Building, CreditCard, Plus, Minus } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Building, CreditCard, Euro, AlertCircle, CheckCircle, X, Settings } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
 interface Hotel {
@@ -17,11 +16,10 @@ interface Hotel {
   name: string;
   city: string;
   region: string;
+  phone: string;
   email: string;
   credits: number;
-  totalCredits: number;
-  creditsUsed: number;
-  pendingPurchases: number;
+  totalCredits?: number;
   createdAt: string;
 }
 
@@ -49,6 +47,64 @@ export default function AdminDashboard() {
 
   const queryClient = useQueryClient();
 
+  // Fetch all hotels - hooks must be called unconditionally
+  const { data: hotels = [], isLoading: hotelsLoading } = useQuery({
+    queryKey: ["/api/admin/hotels"],
+    enabled: isAuthenticated, // Only fetch when authenticated
+  });
+
+  // Fetch pending purchases
+  const { data: pendingPurchases = [], isLoading: purchasesLoading } = useQuery({
+    queryKey: ["/api/admin/pending-purchases"],
+    enabled: isAuthenticated, // Only fetch when authenticated
+  });
+
+  // Approve purchase mutation
+  const approveMutation = useMutation({
+    mutationFn: async ({ purchaseId, notes }: { purchaseId: string; notes: string }) => {
+      return apiRequest("POST", `/api/admin/purchases/${purchaseId}/approve`, {
+        adminEmail: ADMIN_EMAIL, 
+        notes 
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-purchases"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/hotels"] });
+      setProcessingNotes("");
+    },
+  });
+
+  // Reject purchase mutation
+  const rejectMutation = useMutation({
+    mutationFn: async ({ purchaseId, notes }: { purchaseId: string; notes: string }) => {
+      return apiRequest("POST", `/api/admin/purchases/${purchaseId}/reject`, {
+        adminEmail: ADMIN_EMAIL, 
+        notes 
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-purchases"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/hotels"] });
+      setProcessingNotes("");
+    },
+  });
+
+  // Manual credit adjustment mutation
+  const adjustCreditsMutation = useMutation({
+    mutationFn: async ({ hotelId, amount, description }: { hotelId: string; amount: number; description: string }) => {
+      return apiRequest("POST", `/api/admin/hotels/${hotelId}/adjust-credits`, {
+        amount,
+        description,
+        adminEmail: ADMIN_EMAIL,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/hotels"] });
+      setCreditAdjustment({ amount: 0, description: "" });
+      setSelectedHotelId("");
+    },
+  });
+
   // Check if already authenticated in sessionStorage
   React.useEffect(() => {
     const savedAuth = sessionStorage.getItem('admin-auth');
@@ -64,6 +120,16 @@ export default function AdminDashboard() {
     } else {
       alert('Credenziali non valide. Verifica email e password.');
     }
+  };
+
+  const getPackageInfo = (packageType: string) => {
+    const packages = {
+      basic: { name: "Basic (20 crediti)", color: "bg-blue-100 text-blue-800" },
+      standard: { name: "Standard (45 crediti)", color: "bg-green-100 text-green-800" },
+      premium: { name: "Premium (92 crediti)", color: "bg-purple-100 text-purple-800" },
+      enterprise: { name: "Enterprise (150 crediti)", color: "bg-orange-100 text-orange-800" },
+    };
+    return packages[packageType as keyof typeof packages] || packages.basic;
   };
 
   // Show auth form if not authenticated
@@ -112,71 +178,6 @@ export default function AdminDashboard() {
       </div>
     );
   }
-
-  // Fetch all hotels
-  const { data: hotels = [], isLoading: hotelsLoading } = useQuery({
-    queryKey: ["/api/admin/hotels"],
-  });
-
-  // Fetch pending purchases
-  const { data: pendingPurchases = [], isLoading: purchasesLoading } = useQuery({
-    queryKey: ["/api/admin/pending-purchases"],
-  });
-
-  // Approve purchase mutation
-  const approveMutation = useMutation({
-    mutationFn: async ({ purchaseId, notes }: { purchaseId: string; notes: string }) => {
-      return apiRequest(`/api/admin/purchases/${purchaseId}/approve`, {
-        method: "POST",
-        body: { adminEmail: ADMIN_EMAIL, notes },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-purchases"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/hotels"] });
-      setProcessingNotes("");
-    },
-  });
-
-  // Reject purchase mutation
-  const rejectMutation = useMutation({
-    mutationFn: async ({ purchaseId, notes }: { purchaseId: string; notes: string }) => {
-      return apiRequest(`/api/admin/purchases/${purchaseId}/reject`, {
-        method: "POST",
-        body: { adminEmail: ADMIN_EMAIL, notes },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/pending-purchases"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/hotels"] });
-      setProcessingNotes("");
-    },
-  });
-
-  // Adjust credits mutation
-  const adjustCreditsMutation = useMutation({
-    mutationFn: async ({ hotelId, amount, description }: { hotelId: string; amount: number; description: string }) => {
-      return apiRequest(`/api/admin/hotels/${hotelId}/adjust-credits`, {
-        method: "POST",
-        body: { amount, description, adminEmail: ADMIN_EMAIL },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/hotels"] });
-      setCreditAdjustment({ amount: 0, description: "" });
-      setSelectedHotelId("");
-    },
-  });
-
-  const getPackageInfo = (packageType: string) => {
-    const packages = {
-      basic: { name: "Pacchetto Base", color: "bg-blue-100 text-blue-800" },
-      standard: { name: "Pacchetto Standard", color: "bg-green-100 text-green-800" },
-      premium: { name: "Pacchetto Premium", color: "bg-purple-100 text-purple-800" },
-      enterprise: { name: "Pacchetto Enterprise", color: "bg-gold-100 text-gold-800" }
-    };
-    return packages[packageType as keyof typeof packages] || { name: packageType, color: "bg-gray-100 text-gray-800" };
-  };
 
   if (hotelsLoading || purchasesLoading) {
     return (
@@ -309,31 +310,36 @@ export default function AdminDashboard() {
                           </DialogHeader>
                           <div className="space-y-4">
                             <div>
-                              <Label htmlFor="approve-notes">Note (opzionale)</Label>
+                              <Label htmlFor="approve-notes">Note approvazione (opzionale)</Label>
                               <Textarea
                                 id="approve-notes"
+                                placeholder="Eventuali note sull'approvazione..."
                                 value={processingNotes}
                                 onChange={(e) => setProcessingNotes(e.target.value)}
-                                placeholder="Aggiungi note per il bonifico..."
                               />
                             </div>
-                            <div className="flex gap-2">
-                              <Button
-                                onClick={() => approveMutation.mutate({ purchaseId: purchase.id, notes: processingNotes })}
-                                disabled={approveMutation.isPending}
-                                className="flex-1"
-                              >
-                                {approveMutation.isPending ? "Approvando..." : "Conferma Approvazione"}
-                              </Button>
-                            </div>
                           </div>
+                          <DialogFooter>
+                            <Button
+                              onClick={() => {
+                                approveMutation.mutate({ 
+                                  purchaseId: purchase.id, 
+                                  notes: processingNotes 
+                                });
+                              }}
+                              disabled={approveMutation.isPending}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              {approveMutation.isPending ? "Elaborazione..." : "Conferma Approvazione"}
+                            </Button>
+                          </DialogFooter>
                         </DialogContent>
                       </Dialog>
 
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button size="sm" variant="outline" className="text-red-600 border-red-600">
-                            <XCircle className="h-4 w-4 mr-1" />
+                            <X className="h-4 w-4 mr-1" />
                             Rifiuta
                           </Button>
                         </DialogTrigger>
@@ -341,7 +347,7 @@ export default function AdminDashboard() {
                           <DialogHeader>
                             <DialogTitle>Rifiuta Bonifico</DialogTitle>
                             <DialogDescription>
-                              Perché stai rifiutando il bonifico di {purchase.hotel.name}?
+                              Perché vuoi rifiutare il bonifico di €{purchase.packagePrice} da {purchase.hotel.name}?
                             </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4">
@@ -349,23 +355,29 @@ export default function AdminDashboard() {
                               <Label htmlFor="reject-notes">Motivo del rifiuto *</Label>
                               <Textarea
                                 id="reject-notes"
+                                placeholder="Spiega il motivo del rifiuto..."
                                 value={processingNotes}
                                 onChange={(e) => setProcessingNotes(e.target.value)}
-                                placeholder="Specifica il motivo del rifiuto..."
                                 required
                               />
                             </div>
-                            <div className="flex gap-2">
-                              <Button
-                                onClick={() => rejectMutation.mutate({ purchaseId: purchase.id, notes: processingNotes })}
-                                disabled={rejectMutation.isPending || !processingNotes.trim()}
-                                variant="destructive"
-                                className="flex-1"
-                              >
-                                {rejectMutation.isPending ? "Rifiutando..." : "Conferma Rifiuto"}
-                              </Button>
-                            </div>
                           </div>
+                          <DialogFooter>
+                            <Button
+                              onClick={() => {
+                                if (processingNotes.trim()) {
+                                  rejectMutation.mutate({ 
+                                    purchaseId: purchase.id, 
+                                    notes: processingNotes 
+                                  });
+                                }
+                              }}
+                              disabled={rejectMutation.isPending || !processingNotes.trim()}
+                              variant="destructive"
+                            >
+                              {rejectMutation.isPending ? "Elaborazione..." : "Conferma Rifiuto"}
+                            </Button>
+                          </DialogFooter>
                         </DialogContent>
                       </Dialog>
                     </div>
@@ -377,95 +389,94 @@ export default function AdminDashboard() {
         </Card>
       )}
 
-      {/* Hotels List */}
+      {/* Hotels Overview */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Clienti Registrati
-          </CardTitle>
-          <CardDescription>
-            Elenco di tutti i manager registrati con il loro stato crediti
-          </CardDescription>
+          <CardTitle>Panoramica Clienti</CardTitle>
+          <CardDescription>Tutti gli hotel registrati e i loro crediti</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {hotels.map((hotel: Hotel) => (
-              <div key={hotel.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+              <div key={hotel.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="font-semibold text-gray-900">{hotel.name}</h3>
-                    {hotel.pendingPurchases > 0 && (
-                      <Badge variant="secondary" className="bg-orange-100 text-orange-800">
-                        <Euro className="h-3 w-3 mr-1" />
-                        {hotel.pendingPurchases} pending
-                      </Badge>
-                    )}
-                    {(hotel.credits || 0) <= 5 && (
-                      <Badge variant="destructive" className="text-xs">
-                        Crediti bassi
-                      </Badge>
-                    )}
+                    <Badge variant={hotel.credits > 0 ? "default" : "secondary"}>
+                      {hotel.credits} crediti
+                    </Badge>
                   </div>
                   <div className="text-sm text-gray-600 space-y-1">
                     <p>📍 {hotel.city}, {hotel.region}</p>
+                    <p>📞 {hotel.phone}</p>
                     <p>📧 {hotel.email}</p>
-                    <div className="flex gap-4">
-                      <span>💳 Crediti: <strong>{hotel.credits || 0}</strong></span>
-                      <span>📊 Totali: {hotel.totalCredits || 0}</span>
-                      <span>📈 Usati: {hotel.creditsUsed || 0}</span>
-                    </div>
-                    <p>📅 Registrato il {new Date(hotel.createdAt).toLocaleDateString('it-IT')}</p>
+                    <p>💳 Crediti totali acquistati: {hotel.totalCredits || 0}</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button size="sm" variant="outline">
-                        <Plus className="h-4 w-4 mr-1" />
+                        <Settings className="h-4 w-4 mr-1" />
                         Gestisci Crediti
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Gestisci Crediti - {hotel.name}</DialogTitle>
+                        <DialogTitle>Gestione Crediti - {hotel.name}</DialogTitle>
                         <DialogDescription>
-                          Aggiungi o rimuovi crediti manualmente per questo hotel
+                          Crediti attuali: {hotel.credits}
                         </DialogDescription>
                       </DialogHeader>
                       <div className="space-y-4">
                         <div>
-                          <Label htmlFor="credit-amount">Quantità (+ per aggiungere, - per rimuovere)</Label>
+                          <Label htmlFor="credit-amount">Quantità crediti (usa valori negativi per sottrarre)</Label>
                           <Input
                             id="credit-amount"
                             type="number"
-                            value={creditAdjustment.amount}
-                            onChange={(e) => setCreditAdjustment({ ...creditAdjustment, amount: Number(e.target.value) })}
-                            placeholder="es. +10 o -5"
+                            placeholder="es. 10 o -5"
+                            value={selectedHotelId === hotel.id ? creditAdjustment.amount || "" : ""}
+                            onChange={(e) => {
+                              setSelectedHotelId(hotel.id);
+                              setCreditAdjustment({
+                                ...creditAdjustment,
+                                amount: parseInt(e.target.value) || 0
+                              });
+                            }}
                           />
                         </div>
                         <div>
-                          <Label htmlFor="credit-description">Descrizione *</Label>
+                          <Label htmlFor="credit-description">Descrizione modifica</Label>
                           <Textarea
                             id="credit-description"
-                            value={creditAdjustment.description}
-                            onChange={(e) => setCreditAdjustment({ ...creditAdjustment, description: e.target.value })}
-                            placeholder="Motivo della modifica..."
-                            required
+                            placeholder="Motivo della modifica crediti..."
+                            value={selectedHotelId === hotel.id ? creditAdjustment.description : ""}
+                            onChange={(e) => {
+                              setSelectedHotelId(hotel.id);
+                              setCreditAdjustment({
+                                ...creditAdjustment,
+                                description: e.target.value
+                              });
+                            }}
                           />
                         </div>
-                        <Button
-                          onClick={() => adjustCreditsMutation.mutate({ 
-                            hotelId: hotel.id, 
-                            amount: creditAdjustment.amount, 
-                            description: creditAdjustment.description 
-                          })}
-                          disabled={adjustCreditsMutation.isPending || !creditAdjustment.description.trim() || creditAdjustment.amount === 0}
-                          className="w-full"
-                        >
-                          {adjustCreditsMutation.isPending ? "Aggiornando..." : "Conferma Modifica"}
-                        </Button>
                       </div>
+                      <DialogFooter>
+                        <Button
+                          onClick={() => {
+                            if (selectedHotelId === hotel.id && creditAdjustment.amount !== 0) {
+                              adjustCreditsMutation.mutate({
+                                hotelId: hotel.id,
+                                amount: creditAdjustment.amount,
+                                description: creditAdjustment.description
+                              });
+                            }
+                          }}
+                          disabled={adjustCreditsMutation.isPending || selectedHotelId !== hotel.id || creditAdjustment.amount === 0}
+                        >
+                          {adjustCreditsMutation.isPending ? "Elaborazione..." : "Applica Modifica"}
+                        </Button>
+                      </DialogFooter>
                     </DialogContent>
                   </Dialog>
                 </div>
