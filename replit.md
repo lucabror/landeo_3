@@ -10,6 +10,10 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-26**: Disabilitato temporaneamente 2FA per hotel manager e super admin
+  - Rimossi controlli MFA obbligatori dal flusso di login
+  - Login diretto senza richiesta codice Google Authenticator
+  - Modifiche temporanee per facilitare accesso durante sviluppo
 - **2025-01-26**: Rimosso sistema reset MFA dalla piattaforma per maggiore sicurezza
   - Eliminati endpoint `/api/auth/reset-mfa` dal server
   - Rimosse pagine e componenti frontend per reset MFA
