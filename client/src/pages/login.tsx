@@ -225,8 +225,14 @@ export default function Login({ userType }: LoginProps) {
     },
     onSuccess: async (response) => {
       const data = await response.json();
-      localStorage.setItem('sessionToken', data.sessionToken);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      // Use AuthProvider login method instead of direct localStorage
+      authLogin(data.sessionToken, {
+        id: data.user.id,
+        email: data.user.email,
+        role: data.user.type,
+        hotelId: data.user.id
+      });
       
       toast({
         title: "Accesso completato",
