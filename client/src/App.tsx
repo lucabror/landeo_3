@@ -11,6 +11,7 @@ import GuestProfiles from "@/pages/guest-profiles";
 import LocalExperiences from "@/pages/local-experiences";
 import Itineraries from "@/pages/itineraries";
 import ItineraryView from "@/pages/itinerary-view";
+import ResetPasswordPage from "@/pages/reset-password";
 import GuestPreferencesPage from "@/pages/guest-preferences";
 import AdminDashboard from "@/pages/admin-dashboard";
 import UserProfile from "@/pages/user-profile";
@@ -56,6 +57,9 @@ function Router() {
       
       {/* QR Code & PDF page redirects to itineraries for now */}
       <Route path="/qr-pdf" component={Itineraries} />
+      
+      {/* Password reset */}
+      <Route path="/reset-password" component={ResetPasswordPage} />
       
       {/* Fallback to 404 */}
       <Route component={NotFound} />

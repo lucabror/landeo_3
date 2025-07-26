@@ -31,9 +31,14 @@ const mfaVerifySchema = z.object({
   code: z.string().length(6, "Il codice deve essere di 6 cifre"),
 });
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email("Email non valida"),
+});
+
 type LoginFormData = z.infer<typeof loginSchema>;
 type SetupPasswordFormData = z.infer<typeof setupPasswordSchema>;
 type MfaVerifyFormData = z.infer<typeof mfaVerifySchema>;
+type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 interface LoginProps {
   userType: 'hotel' | 'admin';
@@ -44,7 +49,7 @@ export default function Login({ userType }: LoginProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const [step, setStep] = useState<'login' | 'setup-password' | 'mfa-setup' | 'mfa-verify'>('login');
+  const [step, setStep] = useState<'login' | 'setup-password' | 'mfa-setup' | 'mfa-verify' | 'forgot-password'>('login');
   const [sessionToken, setSessionToken] = useState<string>('');
   const [requiresSetup, setRequiresSetup] = useState(false);
   const [hotelId, setHotelId] = useState<string>('');
@@ -71,6 +76,13 @@ export default function Login({ userType }: LoginProps) {
     resolver: zodResolver(mfaVerifySchema),
     defaultValues: {
       code: "",
+    },
+  });
+
+  const forgotPasswordForm = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
     },
   });
 
@@ -230,6 +242,28 @@ export default function Login({ userType }: LoginProps) {
     },
   });
 
+  // Forgot password mutation
+  const forgotPasswordMutation = useMutation({
+    mutationFn: async (data: ForgotPasswordFormData) => {
+      return apiRequest('POST', '/api/auth/forgot-password', { ...data, userType });
+    },
+    onSuccess: async (response) => {
+      const data = await response.json();
+      toast({
+        title: "Email inviata",
+        description: data.message,
+      });
+      setStep('login');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore",
+        description: error.message || "Errore nell'invio dell'email",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onLoginSubmit = (data: LoginFormData) => {
     loginMutation.mutate(data);
   };
@@ -240,6 +274,10 @@ export default function Login({ userType }: LoginProps) {
 
   const onMfaVerifySubmit = (data: MfaVerifyFormData) => {
     verifyMfaMutation.mutate(data);
+  };
+
+  const onForgotPasswordSubmit = (data: ForgotPasswordFormData) => {
+    forgotPasswordMutation.mutate(data);
   };
 
   const handleSetupMfa = () => {
@@ -270,6 +308,7 @@ export default function Login({ userType }: LoginProps) {
         
         <CardContent>
           {step === 'login' && (
+            <>
             <Form {...loginForm}>
               <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
                 <FormField
@@ -332,6 +371,73 @@ export default function Login({ userType }: LoginProps) {
                 </Button>
               </form>
             </Form>
+            
+            <div className="mt-4 text-center">
+              <Button 
+                variant="link" 
+                className="text-sm text-primary hover:text-primary/80"
+                onClick={() => setStep('forgot-password')}
+              >
+                Password dimenticata?
+              </Button>
+            </div>
+            </>
+          )}
+
+          {/* Forgot Password Form */}
+          {step === 'forgot-password' && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Lock className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold">Password Dimenticata</h3>
+              </div>
+              
+              <Alert>
+                <AlertDescription>
+                  Inserisci la tua email per ricevere le istruzioni di reset della password.
+                </AlertDescription>
+              </Alert>
+              
+              <Form {...forgotPasswordForm}>
+                <form onSubmit={forgotPasswordForm.handleSubmit(onForgotPasswordSubmit)} className="space-y-4">
+                  <FormField
+                    control={forgotPasswordForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="email" 
+                            placeholder="la-tua-email@hotel.com"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={forgotPasswordMutation.isPending}
+                  >
+                    {forgotPasswordMutation.isPending ? "Invio in corso..." : "Invia Email di Reset"}
+                  </Button>
+                </form>
+              </Form>
+              
+              <div className="text-center">
+                <Button 
+                  variant="link" 
+                  className="text-sm text-gray-600 hover:text-gray-800"
+                  onClick={() => setStep('login')}
+                >
+                  ← Torna al login
+                </Button>
+              </div>
+            </div>
           )}
 
           {step === 'setup-password' && (
