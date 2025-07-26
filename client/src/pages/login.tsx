@@ -77,35 +77,33 @@ export default function Login({ userType }: LoginProps) {
   // Login mutation
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormData) => {
-      return apiRequest(`/api/auth/login/${userType}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, userType }),
-      });
+      return apiRequest('POST', `/api/auth/login/${userType}`, { ...data, userType });
     },
-    onSuccess: (response) => {
-      if (response.requiresSetup) {
+    onSuccess: async (response) => {
+      const data = await response.json();
+      
+      if (data.requiresSetup) {
         setRequiresSetup(true);
-        setHotelId(response.hotelId);
+        setHotelId(data.hotelId);
         setStep('setup-password');
         return;
       }
       
-      if (response.requiresMfaSetup) {
-        setSessionToken(response.sessionToken);
+      if (data.requiresMfaSetup) {
+        setSessionToken(data.sessionToken);
         setStep('mfa-setup');
         return;
       }
       
-      if (response.requiresMfa) {
-        setSessionToken(response.sessionToken);
+      if (data.requiresMfa) {
+        setSessionToken(data.sessionToken);
         setStep('mfa-verify');
         return;
       }
       
       // Login successful
-      localStorage.setItem('sessionToken', response.sessionToken);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      localStorage.setItem('sessionToken', data.sessionToken);
+      localStorage.setItem('user', JSON.stringify(data.user));
       
       toast({
         title: "Accesso completato",
@@ -130,13 +128,9 @@ export default function Login({ userType }: LoginProps) {
   // Setup password mutation
   const setupPasswordMutation = useMutation({
     mutationFn: async (data: SetupPasswordFormData) => {
-      return apiRequest('/api/auth/setup-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          hotelId,
-          password: data.password,
-        }),
+      return apiRequest('POST', '/api/auth/setup-password', {
+        hotelId,
+        password: data.password,
       });
     },
     onSuccess: () => {
@@ -159,19 +153,16 @@ export default function Login({ userType }: LoginProps) {
   // Setup MFA mutation
   const setupMfaMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest('/api/auth/setup-mfa', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionToken}`,
-        },
+      return apiRequest('POST', '/api/auth/setup-mfa', {}, {
+        'Authorization': `Bearer ${sessionToken}`,
       });
     },
-    onSuccess: (response) => {
-      setQrCodeDataUrl(response.qrCodeDataUrl);
+    onSuccess: async (response) => {
+      const data = await response.json();
+      setQrCodeDataUrl(data.qrCodeDataUrl);
       toast({
         title: "Setup MFA",
-        description: response.message,
+        description: data.message,
       });
     },
     onError: (error: any) => {
@@ -186,13 +177,8 @@ export default function Login({ userType }: LoginProps) {
   // Enable MFA mutation
   const enableMfaMutation = useMutation({
     mutationFn: async (code: string) => {
-      return apiRequest('/api/auth/enable-mfa', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionToken}`,
-        },
-        body: JSON.stringify({ code }),
+      return apiRequest('POST', '/api/auth/enable-mfa', { code }, {
+        'Authorization': `Bearer ${sessionToken}`,
       });
     },
     onSuccess: () => {
@@ -214,18 +200,15 @@ export default function Login({ userType }: LoginProps) {
   // Verify MFA mutation
   const verifyMfaMutation = useMutation({
     mutationFn: async (data: MfaVerifyFormData) => {
-      return apiRequest('/api/auth/verify-mfa', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionToken,
-          code: data.code,
-        }),
+      return apiRequest('POST', '/api/auth/verify-mfa', {
+        sessionToken,
+        code: data.code,
       });
     },
-    onSuccess: (response) => {
-      localStorage.setItem('sessionToken', response.sessionToken);
-      localStorage.setItem('user', JSON.stringify(response.user));
+    onSuccess: async (response) => {
+      const data = await response.json();
+      localStorage.setItem('sessionToken', data.sessionToken);
+      localStorage.setItem('user', JSON.stringify(data.user));
       
       toast({
         title: "Accesso completato",
