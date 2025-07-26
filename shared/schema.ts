@@ -24,6 +24,16 @@ export const hotels = pgTable("hotels", {
   creditsUsed: integer("credits_used").default(0),
   totalCredits: integer("total_credits").default(0),
   isActive: boolean("is_active").default(true),
+  // Security fields
+  password: text("password"), // Hashed password for manager login
+  mfaSecret: text("mfa_secret"), // TOTP secret for 2FA
+  mfaEnabled: boolean("mfa_enabled").default(false),
+  lastLogin: timestamp("last_login"),
+  loginAttempts: integer("login_attempts").default(0),
+  lockedUntil: timestamp("locked_until"),
+  ipWhitelist: jsonb("ip_whitelist").$type<string[]>(), // Allowed IP addresses
+  sessionToken: text("session_token"),
+  tokenExpiresAt: timestamp("token_expires_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -70,6 +80,48 @@ export const localExperiences = pgTable("local_experiences", {
   highlights: jsonb("highlights").$type<string[]>(),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+// Security tables
+export const administrators = pgTable("administrators", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: text("email").notNull().unique(),
+  password: text("password").notNull(), // Hashed password
+  role: text("role").notNull().default("superadmin"), // superadmin, admin
+  mfaSecret: text("mfa_secret"), // TOTP secret for 2FA
+  mfaEnabled: boolean("mfa_enabled").default(false),
+  lastLogin: timestamp("last_login"),
+  loginAttempts: integer("login_attempts").default(0),
+  lockedUntil: timestamp("locked_until"),
+  ipWhitelist: jsonb("ip_whitelist").$type<string[]>(), // Allowed IP addresses
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const securitySessions = pgTable("security_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  userType: text("user_type").notNull(), // 'hotel' or 'admin'
+  sessionToken: text("session_token").notNull().unique(),
+  ipAddress: text("ip_address").notNull(),
+  userAgent: text("user_agent"),
+  expiresAt: timestamp("expires_at").notNull(),
+  mfaVerified: boolean("mfa_verified").default(false),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const securityLogs = pgTable("security_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id"),
+  userType: text("user_type"), // 'hotel' or 'admin'
+  action: text("action").notNull(), // login_attempt, login_success, login_failed, mfa_failed, etc.
+  ipAddress: text("ip_address").notNull(),
+  userAgent: text("user_agent"),
+  details: jsonb("details").$type<Record<string, any>>(),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
+
 
 // Tabella per le attrazioni suggerite in attesa di approvazione
 export const pendingAttractions = pgTable("pending_attractions", {
@@ -278,6 +330,29 @@ export const insertPendingAttractionSchema = createInsertSchema(pendingAttractio
 export const insertGuestPreferencesTokenSchema = createInsertSchema(guestPreferencesTokens).omit({
   id: true,
   createdAt: true,
+});
+
+// Security types and schemas
+export type Administrator = typeof administrators.$inferSelect;
+export type InsertAdministrator = typeof administrators.$inferInsert;
+export type SecuritySession = typeof securitySessions.$inferSelect;
+export type InsertSecuritySession = typeof securitySessions.$inferInsert;
+export type SecurityLog = typeof securityLogs.$inferSelect;
+export type InsertSecurityLog = typeof securityLogs.$inferInsert;
+
+export const insertAdministratorSchema = createInsertSchema(administrators).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSecuritySessionSchema = createInsertSchema(securitySessions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSecurityLogSchema = createInsertSchema(securityLogs).omit({
+  id: true,
+  timestamp: true,
 });
 
 // Schema per le preferenze ospiti dal modulo pubblico

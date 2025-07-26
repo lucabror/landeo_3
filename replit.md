@@ -10,6 +10,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-26**: Implemented comprehensive security system with Google Authenticator 2FA
+  - Added complete authentication infrastructure with JWT tokens and secure sessions
+  - Implemented Google Authenticator (TOTP) based 2FA for both hotel managers and superadmin
+  - Added account lockout protection, IP whitelisting, and comprehensive security logging
+  - Created secure login flows with password setup for new hotel accounts
+  - Enhanced database schema with security tables for sessions, logs, and MFA management
+  - Added rate limiting and security middleware (Helmet) for maximum protection
+  - Implemented secure password hashing with bcrypt and session management
+  - Created superadmin account: itinera1prova@gmail.com / admin2025 (requires MFA setup)
 - **2025-01-26**: Completely redesigned PDF generation with elegant professional styling
   - Implemented elegant PDF design with color palette (saddle brown, goldenrod, light mint, wheat colors)
   - Added sophisticated header section with hotel branding and decorative borders
