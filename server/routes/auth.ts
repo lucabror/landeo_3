@@ -382,6 +382,60 @@ router.post('/verify-mfa', mfaLimiter, async (req, res) => {
   }
 });
 
+// Get MFA status
+router.get('/mfa-status', requireAuth({ userType: 'both' }), async (req, res) => {
+  try {
+    const { id: userId, type: userType } = (req as any).user;
+
+    const table = userType === 'hotel' ? hotels : administrators;
+    const [user] = await db
+      .select()
+      .from(table)
+      .where(eq(table.id, userId));
+
+    if (!user) {
+      return res.status(404).json({ error: 'Utente non trovato' });
+    }
+
+    res.json({
+      mfaEnabled: user.mfaEnabled || false
+    });
+  } catch (error) {
+    console.error('MFA status error:', error);
+    res.status(500).json({ error: 'Errore interno del server' });
+  }
+});
+
+// Disable MFA
+router.post('/disable-mfa', requireAuth({ userType: 'both' }), async (req, res) => {
+  try {
+    const { id: userId, type: userType } = (req as any).user;
+
+    const table = userType === 'hotel' ? hotels : administrators;
+    
+    // Disable MFA for user
+    await db
+      .update(table)
+      .set({ 
+        mfaEnabled: false,
+        mfaSecret: null 
+      })
+      .where(eq(table.id, userId));
+
+    const ipAddress = req.ip || 'unknown';
+    const userAgent = req.get('User-Agent') || 'unknown';
+    await logSecurityEvent(userId, userType, 'mfa_disabled', ipAddress, userAgent);
+
+    res.json({ 
+      success: true, 
+      message: '2FA disattivata con successo' 
+    });
+  } catch (error) {
+    console.error('Disable MFA error:', error);
+    res.status(500).json({ error: 'Errore interno del server' });
+  }
+});
+
 // Logout
 router.post('/logout', requireAuth({ userType: 'both' }), async (req, res) => {
   try {
