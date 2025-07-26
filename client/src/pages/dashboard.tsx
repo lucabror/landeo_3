@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import CreditPurchaseDialog from "@/components/credit-purchase-dialog";
 import { ProtectedRoute, useAuth } from "@/hooks/use-auth";
+import { Link } from "wouter";
 
 // Mock hotel ID - in real app this would come from auth/context
 const MOCK_HOTEL_ID = "d2dd46f0-97d3-4121-96e3-01500370c73f";
@@ -220,7 +221,14 @@ function DashboardContent() {
           {/* Active Guests */}
           <Card className="card-hover">
             <CardHeader className="pb-4">
-              <CardTitle className="card-title-modern text-lg">Ospiti Attivi</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="card-title-modern text-lg">Ospiti Attivi</CardTitle>
+                <Link href="/guest-profiles">
+                  <Button variant="ghost" size="sm" className="text-xs text-primary hover:text-primary/80">
+                    Vedi tutto
+                  </Button>
+                </Link>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -255,9 +263,16 @@ function DashboardContent() {
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="card-title-modern text-lg">Esperienze Locali</CardTitle>
-                <Button size="sm" variant="ghost">
-                  <Plus className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Link href="/local-experiences">
+                    <Button variant="ghost" size="sm" className="text-xs text-primary hover:text-primary/80">
+                      Vedi tutto
+                    </Button>
+                  </Link>
+                  <Button size="sm" variant="ghost">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -292,7 +307,14 @@ function DashboardContent() {
           {/* Recent Itineraries */}
           <Card className="card-hover">
             <CardHeader className="pb-4">
-              <CardTitle className="card-title-modern text-lg">Itinerari Recenti</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="card-title-modern text-lg">Itinerari Recenti</CardTitle>
+                <Link href="/itineraries">
+                  <Button variant="ghost" size="sm" className="text-xs text-primary hover:text-primary/80">
+                    Vedi tutto
+                  </Button>
+                </Link>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
