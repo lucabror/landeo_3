@@ -17,6 +17,7 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import UserProfile from "@/pages/user-profile";
 import HotelLogin from "@/pages/hotel-login";
 import AdminLogin from "@/pages/admin-login";
+import AdminProfile from "@/pages/admin-profile";
 
 function Router() {
   return (
@@ -55,6 +56,7 @@ function Router() {
       {/* Admin dashboard */}
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin-dashboard" component={AdminDashboard} />
+      <Route path="/admin-profile" component={AdminProfile} />
       
       {/* QR Code & PDF page redirects to itineraries for now */}
       <Route path="/qr-pdf" component={Itineraries} />

@@ -1603,6 +1603,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Auth routes
+  // Admin profile routes
+  app.get("/api/admin/profile/:adminId", async (req, res) => {
+    try {
+      const admin = await storage.getAdministrator(req.params.adminId);
+      if (!admin) {
+        return res.status(404).json({ message: "Administrator not found" });
+      }
+      
+      res.json({
+        id: admin.id,
+        email: admin.email,
+        createdAt: admin.createdAt
+      });
+    } catch (error) {
+      console.error('Get admin profile error:', error);
+      res.status(500).json({ message: "Failed to get admin profile" });
+    }
+  });
+
+  app.post("/api/admin/:adminId/update-email", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email || !email.includes('@')) {
+        return res.status(400).json({ message: "Valid email required" });
+      }
+      
+      await storage.updateAdministratorEmail(req.params.adminId, email);
+      res.json({ message: "Email updated successfully" });
+    } catch (error) {
+      console.error('Update admin email error:', error);
+      res.status(500).json({ message: "Failed to update email" });
+    }
+  });
+
+  app.post("/api/admin/:adminId/update-password", async (req, res) => {
+    try {
+      const { password } = req.body;
+      
+      if (!password || password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      }
+      
+      await storage.updateAdministratorPassword(req.params.adminId, password);
+      res.json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error('Update admin password error:', error);
+      res.status(500).json({ message: "Failed to update password" });
+    }
+  });
+
   app.use('/api/auth', authRoutes);
 
   // Admin Routes

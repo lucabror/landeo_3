@@ -96,7 +96,10 @@ export interface IStorage {
 
   // Admin methods
   getAdminUser(email: string): Promise<AdminUser | undefined>;
+  getAdministrator(id: string): Promise<AdminUser | undefined>;
   createAdminUser(admin: InsertAdminUser): Promise<AdminUser>;
+  updateAdministratorEmail(id: string, email: string): Promise<void>;
+  updateAdministratorPassword(id: string, password: string): Promise<void>;
   getAllHotelsForAdmin(): Promise<(Hotel & { pendingPurchases: number })[]>;
 }
 
@@ -554,9 +557,30 @@ export class DatabaseStorage implements IStorage {
     return admin || undefined;
   }
 
+  async getAdministrator(id: string): Promise<AdminUser | undefined> {
+    const [admin] = await db.select().from(adminUsers).where(eq(adminUsers.id, id));
+    return admin || undefined;
+  }
+
   async createAdminUser(admin: InsertAdminUser): Promise<AdminUser> {
     const [result] = await db.insert(adminUsers).values(admin).returning();
     return result;
+  }
+
+  async updateAdministratorEmail(id: string, email: string): Promise<void> {
+    await db
+      .update(adminUsers)
+      .set({ email })
+      .where(eq(adminUsers.id, id));
+  }
+
+  async updateAdministratorPassword(id: string, password: string): Promise<void> {
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await db
+      .update(adminUsers)
+      .set({ password: hashedPassword })
+      .where(eq(adminUsers.id, id));
   }
 
   async getAllHotelsForAdmin(): Promise<(Hotel & { pendingPurchases: number })[]> {
