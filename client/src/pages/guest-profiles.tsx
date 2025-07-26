@@ -29,7 +29,8 @@ import {
   Route,
   Eye,
   QrCode,
-  Mail
+  Mail,
+  CreditCard
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import CreditPurchaseDialog from "@/components/credit-purchase-dialog";
@@ -70,6 +71,11 @@ export default function GuestProfiles() {
   // Fetch hotel credits
   const { data: creditInfo = { credits: 0, totalCredits: 0, creditsUsed: 0 } } = useQuery({
     queryKey: [`/api/hotels/${MOCK_HOTEL_ID}/credits`],
+  });
+
+  // Fetch all itineraries for current guest profile
+  const { data: allItineraries = [] } = useQuery({
+    queryKey: ["/api/hotels", MOCK_HOTEL_ID, "itineraries"],
   });
 
   const form = useForm<InsertGuestProfile>({
@@ -313,16 +319,16 @@ export default function GuestProfiles() {
             </p>
           </div>
           
-          <CreditPurchaseDialog hotelId={MOCK_HOTEL_ID} currentCredits={creditInfo.credits}>
+          <CreditPurchaseDialog hotelId={MOCK_HOTEL_ID} currentCredits={(creditInfo as any).credits}>
             <Button className="bg-green-600 hover:bg-green-700">
               <CreditCard className="mr-2 h-4 w-4" />
-              Crediti: {creditInfo.credits}
+              Crediti: {(creditInfo as any).credits}
             </Button>
           </CreditPurchaseDialog>
         </div>
 
         {/* Credit Warning */}
-        {creditInfo.credits <= 5 && (
+        {(creditInfo as any).credits <= 5 && (
           <Card className="bg-orange-50 border-orange-200 mb-8">
             <CardContent className="flex items-center justify-between p-6">
               <div className="flex items-center gap-4">
@@ -332,11 +338,11 @@ export default function GuestProfiles() {
                 <div>
                   <h3 className="font-semibold text-orange-900">Crediti in esaurimento</h3>
                   <p className="text-sm text-orange-700">
-                    Hai solo {creditInfo.credits} crediti rimasti. Ogni nuovo ospite costa 1 credito.
+                    Hai solo {(creditInfo as any).credits} crediti rimasti. Ogni nuovo ospite costa 1 credito.
                   </p>
                 </div>
               </div>
-              <CreditPurchaseDialog hotelId={MOCK_HOTEL_ID} currentCredits={creditInfo.credits}>
+              <CreditPurchaseDialog hotelId={MOCK_HOTEL_ID} currentCredits={(creditInfo as any).credits}>
                 <Button className="bg-orange-600 hover:bg-orange-700">
                   Acquista Crediti
                 </Button>
@@ -508,105 +514,133 @@ export default function GuestProfiles() {
                     </div>
                   </div>
 
-                  {/* Itinerary Generation & Management */}
+                  {/* All Itineraries for this Guest */}
                   <div className="bg-purple-50 p-4 rounded-lg">
                     <h3 className="text-lg font-semibold mb-4 flex items-center">
                       <Route className="h-5 w-5 mr-2" />
-                      Itinerario Personalizzato
+                      Itinerari Generati
                     </h3>
-                    {guestItinerary && guestItinerary.length > 0 ? (
-                      <div className="space-y-4">
-                        <div className="bg-white p-4 rounded-lg border border-purple-200">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex-1">
-                              <h4 className="text-base font-medium text-gray-900 mb-1">
-                                {guestItinerary[0].title}
-                              </h4>
-                              <p className="text-sm text-gray-600 mb-2">
-                                {new Date(viewingProfile.checkInDate).toLocaleDateString('it-IT')} - {new Date(viewingProfile.checkOutDate).toLocaleDateString('it-IT')}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                Generato il {new Date(guestItinerary[0].createdAt).toLocaleDateString('it-IT')}
-                              </p>
-                            </div>
-                            <Badge variant="secondary" className="bg-purple-100 text-purple-800">
-                              {guestItinerary[0].days?.length || 1} giorni
-                            </Badge>
-                          </div>
+                    {(() => {
+                      // Filter itineraries for this guest and sort by creation date (newest first)
+                      const guestItineraries = (allItineraries as any)?.filter((itinerary: any) => 
+                        itinerary.guestProfileId === viewingProfile.id
+                      ).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [];
+                      
+                      if (guestItineraries.length > 0) {
+                        return (
+                        <div className="space-y-4">
+                          {guestItineraries.map((itinerary: any, index: number) => {
+                            const isExpired = new Date() > new Date(viewingProfile.checkOutDate);
+                            const isNewest = index === 0;
+                            
+                            return (
+                              <div key={itinerary.id} className={`bg-white p-4 rounded-lg border ${isNewest ? 'border-purple-300 shadow-sm' : 'border-gray-200'}`}>
+                                <div className="flex items-start justify-between mb-3">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <h4 className="text-base font-medium text-gray-900">
+                                        {itinerary.title}
+                                      </h4>
+                                      {isNewest && (
+                                        <Badge className="bg-green-100 text-green-800 text-xs">
+                                          Più Recente
+                                        </Badge>
+                                      )}
+                                      {isExpired && (
+                                        <Badge variant="destructive" className="bg-red-100 text-red-800 text-xs">
+                                          Itinerario Scaduto
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <p className="text-sm text-gray-600 mb-2">
+                                      {new Date(viewingProfile.checkInDate).toLocaleDateString('it-IT')} - {new Date(viewingProfile.checkOutDate).toLocaleDateString('it-IT')}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      Generato il {new Date(itinerary.createdAt).toLocaleDateString('it-IT')} alle {new Date(itinerary.createdAt).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                                    </p>
+                                  </div>
+                                  <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                                    {itinerary.days?.length || 1} giorni
+                                  </Badge>
+                                </div>
+                                
+                                <Button 
+                                  className="w-full bg-purple-600 hover:bg-purple-700 mb-3"
+                                  onClick={() => {
+                                    // Set manager flag before navigation
+                                    sessionStorage.setItem('isManager', 'true');
+                                    window.open(`/itinerary/${itinerary.uniqueUrl}?manager=true`, '_blank');
+                                  }}
+                                >
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  Vedi Itinerario
+                                </Button>
+                                
+                                <div className="flex gap-2">
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="flex-1"
+                                    disabled={isExpired}
+                                    onClick={() => {
+                                      if (isExpired) {
+                                        alert("QR Code non disponibile: il soggiorno è terminato");
+                                        return;
+                                      }
+                                      window.open(`/api/itinerary/${itinerary.uniqueUrl}/qr-pdf`, '_blank');
+                                    }}
+                                  >
+                                    <QrCode className="h-4 w-4 mr-1" />
+                                    QR Code PDF
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="flex-1"
+                                    onClick={() => handleEmailPDF(itinerary, viewingProfile)}
+                                  >
+                                    <Mail className="h-4 w-4 mr-1" />
+                                    Email PDF
+                                  </Button>
+                                </div>
+                              </div>
+                            );
+                          })}
                           
                           <Button 
-                            className="w-full bg-purple-600 hover:bg-purple-700 mb-3"
-                            onClick={() => {
-                              // Set manager flag before navigation
-                              sessionStorage.setItem('isManager', 'true');
-                              window.open(`/itinerary/${guestItinerary[0].uniqueUrl}?manager=true`, '_blank');
-                            }}
+                            size="sm" 
+                            variant="ghost" 
+                            className="w-full text-purple-600 hover:bg-purple-100"
+                            onClick={() => handleGenerateItinerary(viewingProfile)}
                           >
-                            <Eye className="h-4 w-4 mr-2" />
-                            Vedi Itinerario
+                            <Route className="h-4 w-4 mr-1" />
+                            Rigenera Itinerario
                           </Button>
-                          
-                          <div className="flex gap-2 mb-3">
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="flex-1"
-                              onClick={() => {
-                                // Check if QR code is expired
-                                const today = new Date();
-                                const checkoutDate = new Date(viewingProfile.checkOutDate);
-                                if (today > checkoutDate) {
-                                  alert("QR Code non disponibile: il soggiorno è terminato");
-                                  return;
-                                }
-                                window.open(`/api/itinerary/${guestItinerary[0].uniqueUrl}/qr-pdf`, '_blank');
-                              }}
-                            >
-                              <QrCode className="h-4 w-4 mr-1" />
-                              QR Code PDF
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="flex-1"
-                              onClick={() => handleEmailPDF(guestItinerary[0], viewingProfile)}
-                            >
-                              <Mail className="h-4 w-4 mr-1" />
-                              Email PDF
-                            </Button>
-                          </div>
                         </div>
-                        
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="w-full text-purple-600 hover:bg-purple-100"
-                          onClick={() => handleGenerateItinerary(viewingProfile)}
-                        >
-                          <Route className="h-4 w-4 mr-1" />
-                          Rigenera Itinerario
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="text-center py-4">
-                        <p className="text-sm text-gray-600 mb-3">
-                          Nessun itinerario generato per questo ospite
-                        </p>
-                        <Button 
-                          onClick={() => handleGenerateItinerary(viewingProfile)}
-                          disabled={!viewingProfile?.preferencesCompleted}
-                          className="bg-purple-600 hover:bg-purple-700"
-                        >
-                          <Route className="h-4 w-4 mr-2" />
-                          Genera Itinerario AI
-                        </Button>
-                        {!viewingProfile?.preferencesCompleted && (
-                          <p className="text-xs text-orange-600 mt-2">
-                            Le preferenze dell'ospite devono essere raccolte prima di generare l'itinerario
-                          </p>
-                        )}
-                      </div>
-                    )}
+                        );
+                      } else {
+                        return (
+                          <div className="text-center py-4">
+                            <p className="text-sm text-gray-600 mb-3">
+                              Nessun itinerario generato per questo ospite
+                            </p>
+                            <Button 
+                              onClick={() => handleGenerateItinerary(viewingProfile)}
+                              disabled={!viewingProfile?.preferencesCompleted}
+                              className="bg-purple-600 hover:bg-purple-700"
+                            >
+                              <Route className="h-4 w-4 mr-2" />
+                              Genera Itinerario AI
+                            </Button>
+                            {!viewingProfile?.preferencesCompleted && (
+                              <p className="text-xs text-orange-600 mt-2">
+                                Le preferenze dell'ospite devono essere raccolte prima di generare l'itinerario
+                              </p>
+                            )}
+                          </div>
+                        );
+                      }
+                    })()}
                   </div>
                 </div>
               ) : (
@@ -768,7 +802,7 @@ export default function GuestProfiles() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {guestProfiles?.map((profile: any) => {
+            {(guestProfiles as any)?.map((profile: any) => {
               const TypeIcon = getTypeIcon(profile.type);
               return (
                 <Card key={profile.id} className="relative hover:shadow-md transition-all duration-200 border border-slate-200 bg-white">
@@ -878,7 +912,7 @@ export default function GuestProfiles() {
               );
             })}
             
-            {(!guestProfiles || guestProfiles.length === 0) && (
+            {(!(guestProfiles as any) || (guestProfiles as any).length === 0) && (
               <div className="col-span-full text-center py-12">
                 <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-heading font-medium text-slate-900 mb-2">
