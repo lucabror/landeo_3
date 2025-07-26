@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-26**: Risolto sistema di login Hotel Manager con correzione apiRequest()
+  - Corrette tutte le mutations per usare il formato corretto di apiRequest
+  - Parsing JSON delle response implementato correttamente
+  - Headers Authorization configurati per sessioni autenticate
+  - Sistema di setup password funzionale per nuovi hotel
+  - Credenziali di test: borroluca@gmail.com / password123
 - **2025-01-26**: Implemented comprehensive security system with Google Authenticator 2FA
   - Added complete authentication infrastructure with JWT tokens and secure sessions
   - Implemented Google Authenticator (TOTP) based 2FA for both hotel managers and superadmin
