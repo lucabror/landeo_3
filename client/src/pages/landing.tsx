@@ -298,6 +298,155 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* iPhone Mockup Section */}
+      <section className="py-20 bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="order-2 lg:order-1">
+              <Badge className="bg-amber-100 text-amber-800 border-amber-300 mb-4">
+                📱 Esperienza Ospite
+              </Badge>
+              <h2 className="text-4xl font-bold text-gray-900 mb-6">
+                Cosa vedranno i tuoi ospiti
+              </h2>
+              <p className="text-xl text-gray-600 mb-8">
+                Itinerari eleganti e personalizzati accessibili tramite QR code, perfettamente ottimizzati per smartphone con design moderno e intuitivo.
+              </p>
+              
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Itinerario Giornaliero</h3>
+                    <p className="text-gray-600">Pianificazione dettagliata con orari, luoghi e descrizioni personalizzate per ogni attività.</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Tempistiche Ottimizzate</h3>
+                    <p className="text-gray-600">L'AI calcola i tempi di spostamento e suggerisce la sequenza perfetta delle attività.</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Heart className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Raccomandazioni Locali</h3>
+                    <p className="text-gray-600">Esperienze autentiche selezionate dal tuo team che riflettono la vera essenza del territorio.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
+              <div className="relative">
+                {/* iPhone mockup frame */}
+                <div className="w-80 h-[640px] bg-black rounded-[60px] p-2 shadow-2xl transform rotate-12 hover:rotate-6 transition-transform duration-500">
+                  <div className="w-full h-full bg-gradient-to-b from-blue-400 via-blue-500 to-blue-600 rounded-[52px] overflow-hidden relative">
+                    {/* iPhone notch */}
+                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-black rounded-b-2xl"></div>
+                    
+                    {/* Screen content */}
+                    <div className="p-6 pt-12 text-white">
+                      {/* Header */}
+                      <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-2">
+                          <Hotel className="w-6 h-6" />
+                          <span className="font-bold text-lg">Hotel Bellavista</span>
+                        </div>
+                        <QrCode className="w-6 h-6" />
+                      </div>
+                      
+                      {/* Guest info */}
+                      <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mb-6">
+                        <h2 className="text-xl font-bold mb-2">Il Tuo Itinerario</h2>
+                        <p className="text-blue-100 text-sm">Marco & Elena • 3 giorni a Roma</p>
+                      </div>
+                      
+                      {/* Day activities */}
+                      <div className="space-y-4">
+                        <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-8 h-8 bg-orange-400 rounded-full flex items-center justify-center">
+                              <span className="text-sm font-bold">1</span>
+                            </div>
+                            <span className="font-semibold">Giorno 1 - Centro Storico</span>
+                          </div>
+                          <div className="ml-11 space-y-2 text-sm">
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              <span>09:00 - Colosseo</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              <span>11:30 - Fori Imperiali</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              <span>13:00 - Pranzo da Checchino</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center">
+                              <span className="text-sm font-bold">2</span>
+                            </div>
+                            <span className="font-semibold">Giorno 2 - Vaticano</span>
+                          </div>
+                          <div className="ml-11 space-y-2 text-sm">
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              <span>08:30 - Musei Vaticani</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              <span>12:00 - Cappella Sistina</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-8 h-8 bg-purple-400 rounded-full flex items-center justify-center">
+                              <span className="text-sm font-bold">3</span>
+                            </div>
+                            <span className="font-semibold">Giorno 3 - Trastevere</span>
+                          </div>
+                          <div className="ml-11 space-y-2 text-sm">
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              <span>10:00 - Mercato locale</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Floating elements */}
+                <div className="absolute -top-4 -left-4 w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                  <Star className="w-8 h-8 text-white" />
+                </div>
+                <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-green-400 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                  <CheckCircle className="w-6 h-6 text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Testimonials Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
