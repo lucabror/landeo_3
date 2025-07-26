@@ -86,12 +86,7 @@ export default function MfaReset() {
             <div className="flex gap-2">
               <Link href="/login" className="flex-1">
                 <Button className="w-full">
-                  Login Hotel
-                </Button>
-              </Link>
-              <Link href="/admin-login" className="flex-1">
-                <Button variant="outline" className="w-full">
-                  Login Admin
+                  Torna al Login
                 </Button>
               </Link>
             </div>
