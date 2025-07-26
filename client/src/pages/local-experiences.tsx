@@ -43,17 +43,104 @@ import type { InsertLocalExperience } from "@shared/schema";
 const MOCK_HOTEL_ID = "d2dd46f0-97d3-4121-96e3-01500370c73f";
 
 const CATEGORIES = [
-  { value: "cultura", label: "Cultura", icon: Camera, color: "bg-primary/10 text-primary" },
-  { value: "gastronomia", label: "Gastronomia", icon: Utensils, color: "bg-secondary/10 text-secondary" },
-  { value: "natura", label: "Natura", icon: TreePine, color: "bg-success/10 text-success" },
-  { value: "relax", label: "Relax", icon: Waves, color: "bg-blue-100 text-blue-700" },
+  { value: "cultura", label: "Cultura", icon: Camera, color: "bg-blue-100 text-blue-700" },
+  { value: "gastronomia", label: "Gastronomia", icon: Utensils, color: "bg-green-100 text-green-700" },
+  { value: "natura", label: "Natura", icon: TreePine, color: "bg-emerald-100 text-emerald-700" },
+  { value: "relax", label: "Relax", icon: Waves, color: "bg-cyan-100 text-cyan-700" },
   { value: "avventura", label: "Avventura", icon: Mountain, color: "bg-orange-100 text-orange-700" },
   { value: "degustazione", label: "Degustazione", icon: Wine, color: "bg-purple-100 text-purple-700" },
+  { value: "divertimento", label: "Divertimento", icon: Music, color: "bg-pink-100 text-pink-700" },
+  { value: "shopping", label: "Shopping", icon: Building, color: "bg-gray-100 text-gray-700" },
+  { value: "famiglia", label: "Famiglia", icon: Users, color: "bg-yellow-100 text-yellow-700" },
+  { value: "storia", label: "Storia", icon: Camera, color: "bg-amber-100 text-amber-700" },
+  { value: "arte", label: "Arte", icon: Sparkles, color: "bg-indigo-100 text-indigo-700" },
+  { value: "sport", label: "Sport", icon: Mountain, color: "bg-red-100 text-red-700" },
 ];
 
 const TARGET_AUDIENCES = [
   "famiglia", "coppia", "singolo", "gruppo_lavoro", "anziani"
 ];
+
+// Funzione per auto-categorizzare le esperienze basata sul nome
+function getSmartCategory(name: string, description: string = ""): string {
+  const text = (name + " " + description).toLowerCase();
+  
+  // Divertimento
+  if (text.includes("cinecittà") || text.includes("luneur") || text.includes("rainbow") || 
+      text.includes("parco divertimenti") || text.includes("divertimento") || 
+      text.includes("luna park") || text.includes("videogiochi") || text.includes("giochi")) {
+    return "divertimento";
+  }
+  
+  // Cultura/Storia/Arte
+  if (text.includes("museo") || text.includes("galleria") || text.includes("palazzo") || 
+      text.includes("basilica") || text.includes("chiesa") || text.includes("duomo") || 
+      text.includes("cappella") || text.includes("archeologico") || text.includes("arte") ||
+      text.includes("storico") || text.includes("storia") || text.includes("cultura") ||
+      text.includes("uffizi") || text.includes("vaticano") || text.includes("colosseo") ||
+      text.includes("foro romano") || text.includes("pantheon")) {
+    if (text.includes("arte") || text.includes("galleria") || text.includes("pittura") || 
+        text.includes("scultura") || text.includes("uffizi")) {
+      return "arte";
+    }
+    if (text.includes("storia") || text.includes("storico") || text.includes("archeologico") ||
+        text.includes("antico") || text.includes("romano") || text.includes("medievale")) {
+      return "storia";
+    }
+    return "cultura";
+  }
+  
+  // Gastronomia/Degustazione
+  if (text.includes("vino") || text.includes("cantina") || text.includes("degustazione") || 
+      text.includes("enogastronomia") || text.includes("vigneto") || text.includes("chianti") ||
+      text.includes("tasting") || text.includes("wine")) {
+    return "degustazione";
+  }
+  
+  if (text.includes("cooking") || text.includes("cucina") || text.includes("chef") || 
+      text.includes("ristorante") || text.includes("food") || text.includes("gastronomia") ||
+      text.includes("trattoria") || text.includes("osteria") || text.includes("pizzeria")) {
+    return "gastronomia";
+  }
+  
+  // Natura
+  if (text.includes("parco") || text.includes("giardino") || text.includes("natura") || 
+      text.includes("villa") || text.includes("bosco") || text.includes("lago") || 
+      text.includes("montagna") || text.includes("collina") || text.includes("passeggiata") ||
+      text.includes("trekking") || text.includes("escursione")) {
+    return "natura";
+  }
+  
+  // Avventura/Sport
+  if (text.includes("rafting") || text.includes("climbing") || text.includes("adventure") || 
+      text.includes("zipline") || text.includes("canoa") || text.includes("kayak") || 
+      text.includes("bicicletta") || text.includes("bike") || text.includes("sport") ||
+      text.includes("avventura") || text.includes("outdoor")) {
+    return "avventura";
+  }
+  
+  // Relax
+  if (text.includes("spa") || text.includes("terme") || text.includes("relax") || 
+      text.includes("benessere") || text.includes("massaggio") || text.includes("wellness") ||
+      text.includes("bagno") || text.includes("piscina")) {
+    return "relax";
+  }
+  
+  // Famiglia
+  if (text.includes("famiglia") || text.includes("bambini") || text.includes("kids") || 
+      text.includes("family") || text.includes("zoo") || text.includes("acquario")) {
+    return "famiglia";
+  }
+  
+  // Shopping
+  if (text.includes("shopping") || text.includes("outlet") || text.includes("mercato") || 
+      text.includes("negozi") || text.includes("centro commerciale")) {
+    return "shopping";
+  }
+  
+  // Default: cultura
+  return "cultura";
+}
 
 export default function LocalExperiences() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -278,6 +365,53 @@ export default function LocalExperiences() {
     return CATEGORIES.find(c => c.value === category) || CATEGORIES[0];
   };
 
+  // Auto-fix categories for existing experiences
+  const autoFixCategoriesMutation = useMutation({
+    mutationFn: async () => {
+      if (!experiences || !Array.isArray(experiences)) return;
+      
+      const updates = [];
+      for (const experience of experiences) {
+        const smartCategory = getSmartCategory(experience.name, experience.description);
+        if (smartCategory !== experience.category) {
+          updates.push({
+            id: experience.id,
+            data: { category: smartCategory }
+          });
+        }
+      }
+      
+      // Process updates in parallel
+      const promises = updates.map(update => 
+        apiRequest("PUT", `/api/local-experiences/${update.id}`, update.data)
+      );
+      
+      await Promise.all(promises);
+      return updates.length;
+    },
+    onSuccess: (count) => {
+      if (count > 0) {
+        queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "local-experiences"] });
+        toast({
+          title: "Categorie aggiornate",
+          description: `${count} esperienze hanno ricevuto categorie più appropriate`,
+        });
+      } else {
+        toast({
+          title: "Tutto a posto",
+          description: "Le categorie sono già ottimali",
+        });
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore",
+        description: error.message || "Errore nell'aggiornamento delle categorie",
+        variant: "destructive",
+      });
+    },
+  });
+
   const toggleTargetAudience = (audience: string) => {
     const current = form.watch("targetAudience") || [];
     const updated = current.includes(audience) 
@@ -303,6 +437,20 @@ export default function LocalExperiences() {
           </div>
           
           <div className="flex gap-2">
+            <Button 
+              onClick={() => autoFixCategoriesMutation.mutate()}
+              disabled={autoFixCategoriesMutation.isPending}
+              variant="outline"
+              className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 hover:from-green-600 hover:to-emerald-700"
+            >
+              {autoFixCategoriesMutation.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Check className="w-4 h-4 mr-2" />
+              )}
+              Auto-Fix Categorie
+            </Button>
+            
             <Button 
               onClick={() => generateAttractionsMutation.mutate()}
               disabled={generateAttractionsMutation.isPending}
@@ -340,8 +488,18 @@ export default function LocalExperiences() {
                     <Input
                       id="name"
                       {...form.register("name")}
-                      placeholder="Scuderia Hilton"
+                      placeholder="es. Cinecittà World, Uffizi, Chianti Tour..."
                       className="mt-1"
+                      onChange={(e) => {
+                        // Auto-suggest category based on name
+                        const name = e.target.value;
+                        if (name.length > 3 && !form.watch("category")) {
+                          const suggestedCategory = getSmartCategory(name, form.watch("description") || "");
+                          form.setValue("category", suggestedCategory);
+                        }
+                        // Update the form register
+                        form.register("name").onChange(e);
+                      }}
                     />
                   </div>
                   
@@ -373,6 +531,19 @@ export default function LocalExperiences() {
                     placeholder="Descrizione dettagliata dell'esperienza..."
                     className="mt-1"
                     rows={3}
+                    onChange={(e) => {
+                      // Re-evaluate category when description changes
+                      const description = e.target.value;
+                      const name = form.watch("name") || "";
+                      if (name.length > 3 && description.length > 10) {
+                        const suggestedCategory = getSmartCategory(name, description);
+                        if (suggestedCategory !== form.watch("category")) {
+                          form.setValue("category", suggestedCategory);
+                        }
+                      }
+                      // Update the form register
+                      form.register("description").onChange(e);
+                    }}
                   />
                 </div>
                 
