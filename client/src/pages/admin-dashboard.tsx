@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Building, CreditCard, Euro, AlertCircle, CheckCircle, X, Settings, Search, Eye, Mail, Phone, MapPin, Calendar } from "lucide-react";
+import { Building, CreditCard, Euro, AlertCircle, CheckCircle, X, Settings, Search, Eye, Mail, Phone, MapPin, Calendar, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -107,6 +108,31 @@ export default function AdminDashboard() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/hotels"] });
       setCreditAdjustment({ amount: 0, description: "" });
       setSelectedHotelId("");
+    },
+  });
+
+  // Delete hotel mutation
+  const deleteHotelMutation = useMutation({
+    mutationFn: async (hotelId: string) => {
+      return apiRequest("DELETE", `/api/admin/hotels/${hotelId}`, {
+        adminEmail: ADMIN_EMAIL
+      });
+    },
+    onSuccess: (data, hotelId) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/hotels"] });
+      setHotelDetailModal(false);
+      setSelectedHotel(null);
+      toast({
+        title: "Hotel eliminato",
+        description: `L'hotel e tutti i dati correlati sono stati eliminati con successo.`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore nell'eliminazione",
+        description: error.message || "Errore durante l'eliminazione dell'hotel",
+        variant: "destructive",
+      });
     },
   });
 
@@ -645,6 +671,47 @@ export default function AdminDashboard() {
                     Chiama
                   </Button>
                 )}
+              </div>
+
+              {/* Danger Zone */}
+              <div className="border-t pt-4">
+                <h3 className="text-sm font-medium text-red-600 mb-3">Zona Pericolosa</h3>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="w-full">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Rimuovi Struttura
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Sei sicuro di voler eliminare questo hotel?</AlertDialogTitle>
+                      <AlertDialogDescription className="space-y-2">
+                        <p>Questa azione eliminerà <strong>definitivamente</strong>:</p>
+                        <ul className="list-disc ml-6 space-y-1">
+                          <li>L'hotel <strong>{selectedHotel.name}</strong></li>
+                          <li>Tutti i profili ospiti associati</li>
+                          <li>Tutti gli itinerari generati</li>
+                          <li>Tutte le esperienze locali</li>
+                          <li>Tutti i dati di fatturazione e crediti</li>
+                        </ul>
+                        <p className="text-red-600 font-medium">
+                          ⚠️ Questa operazione NON può essere annullata!
+                        </p>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Annulla</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => selectedHotel && deleteHotelMutation.mutate(selectedHotel.id)}
+                        disabled={deleteHotelMutation.isPending}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        {deleteHotelMutation.isPending ? "Eliminazione..." : "Elimina Definitivamente"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           )}

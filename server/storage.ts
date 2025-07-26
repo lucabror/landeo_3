@@ -36,6 +36,7 @@ export interface IStorage {
   createHotel(hotel: InsertHotel): Promise<Hotel>;
   updateHotel(id: string, hotel: Partial<InsertHotel>): Promise<Hotel>;
   getHotels(): Promise<Hotel[]>;
+  deleteHotel(id: string): Promise<void>;
 
   // Guest Profiles
   getGuestProfile(id: string): Promise<GuestProfile | undefined>;
@@ -122,6 +123,30 @@ export class DatabaseStorage implements IStorage {
 
   async getHotels(): Promise<Hotel[]> {
     return await db.select().from(hotels).orderBy(desc(hotels.createdAt));
+  }
+
+  async deleteHotel(id: string): Promise<void> {
+    // Delete all related data in cascade order
+    // 1. Delete all itineraries for this hotel
+    await db.delete(itineraries).where(eq(itineraries.hotelId, id));
+    
+    // 2. Delete all local experiences for this hotel
+    await db.delete(localExperiences).where(eq(localExperiences.hotelId, id));
+    
+    // 3. Delete all pending attractions for this hotel
+    await db.delete(pendingAttractions).where(eq(pendingAttractions.hotelId, id));
+    
+    // 4. Delete all guest profiles for this hotel
+    await db.delete(guestProfiles).where(eq(guestProfiles.hotelId, id));
+    
+    // 5. Delete all credit purchases for this hotel
+    await db.delete(creditPurchases).where(eq(creditPurchases.hotelId, id));
+    
+    // 6. Delete all credit transactions for this hotel
+    await db.delete(creditTransactions).where(eq(creditTransactions.hotelId, id));
+    
+    // 7. Finally delete the hotel itself
+    await db.delete(hotels).where(eq(hotels.id, id));
   }
 
   // Guest Profiles

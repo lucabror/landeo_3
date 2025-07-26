@@ -1246,6 +1246,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin endpoint to delete a hotel completely
+  app.delete("/api/admin/hotels/:hotelId", async (req, res) => {
+    try {
+      const { adminEmail } = req.body;
+      
+      // Verify admin credentials
+      if (adminEmail !== "itinera1prova@gmail.com") {
+        return res.status(401).json({ message: "Non autorizzato" });
+      }
+
+      const hotelId = req.params.hotelId;
+      
+      // Check if hotel exists
+      const hotel = await storage.getHotel(hotelId);
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel non trovato" });
+      }
+
+      // Delete the hotel and all related data
+      await storage.deleteHotel(hotelId);
+
+      res.json({ 
+        message: `Hotel "${hotel.name}" e tutti i dati correlati sono stati eliminati con successo`,
+        deletedHotel: hotel.name
+      });
+
+    } catch (error) {
+      console.error('Error deleting hotel:', error);
+      res.status(500).json({ 
+        message: "Errore durante l'eliminazione dell'hotel",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
