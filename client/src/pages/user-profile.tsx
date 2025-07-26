@@ -542,7 +542,7 @@ export default function UserProfile() {
                 disabled={setupMfaMutation.isPending}
                 className="w-full sm:w-auto"
               >
-                <QrCode className="h-4 w-4 mr-2" />
+                <Shield className="h-4 w-4 mr-2" />
                 {setupMfaMutation.isPending ? "Configurando..." : "Configura 2FA"}
               </Button>
             ) : (
