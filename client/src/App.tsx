@@ -19,6 +19,7 @@ import HotelLogin from "@/pages/hotel-login";
 import AdminLogin from "@/pages/admin-login";
 import AdminProfile from "@/pages/admin-profile";
 import MfaReset from "@/pages/mfa-reset";
+import UniversalLogin from "@/pages/universal-login";
 
 function Router() {
   return (
@@ -50,9 +51,12 @@ function Router() {
       {/* User profile */}
       <Route path="/profile" component={UserProfile} />
       
-      {/* Login pages */}
-      <Route path="/login" component={HotelLogin} />
-      <Route path="/admin-login" component={AdminLogin} />
+      {/* Universal Login */}
+      <Route path="/login" component={UniversalLogin} />
+      
+      {/* Legacy login routes (redirect to universal) */}
+      <Route path="/hotel-login" component={() => <UniversalLogin />} />
+      <Route path="/admin-login" component={() => <UniversalLogin />} />
       
       {/* Admin dashboard */}
       <Route path="/admin" component={AdminDashboard} />
