@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Building, CreditCard, Euro, AlertCircle, CheckCircle, X, Settings } from "lucide-react";
+import { Building, CreditCard, Euro, AlertCircle, CheckCircle, X, Settings, Search, Eye, Mail, Phone, MapPin, Calendar } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -45,6 +45,9 @@ export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
+  const [hotelDetailModal, setHotelDetailModal] = useState(false);
   const { toast } = useToast();
 
   const queryClient = useQueryClient();
@@ -106,6 +109,14 @@ export default function AdminDashboard() {
       setSelectedHotelId("");
     },
   });
+
+  // Filter hotels based on search query
+  const filteredHotels = (hotels as Hotel[]).filter((hotel: Hotel) =>
+    hotel.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    hotel.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    hotel.region.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    hotel.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Check if already authenticated in sessionStorage
   React.useEffect(() => {
@@ -234,7 +245,7 @@ export default function AdminDashboard() {
             <Building className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{hotels.length}</div>
+            <div className="text-2xl font-bold">{(hotels as Hotel[]).length}</div>
           </CardContent>
         </Card>
 
@@ -244,7 +255,7 @@ export default function AdminDashboard() {
             <AlertCircle className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{pendingPurchases.length}</div>
+            <div className="text-2xl font-bold text-orange-600">{(pendingPurchases as CreditPurchase[]).length}</div>
           </CardContent>
         </Card>
 
@@ -255,7 +266,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {hotels.reduce((sum: number, hotel: Hotel) => sum + (hotel.totalCredits || 0), 0)}
+              {(hotels as Hotel[]).reduce((sum: number, hotel: Hotel) => sum + (hotel.totalCredits || 0), 0)}
             </div>
           </CardContent>
         </Card>
@@ -267,7 +278,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              €{pendingPurchases.reduce((sum: number, p: CreditPurchase) => sum + p.packagePrice, 0)}
+              €{(pendingPurchases as CreditPurchase[]).reduce((sum: number, p: CreditPurchase) => sum + p.packagePrice, 0)}
             </div>
             <p className="text-xs text-muted-foreground">Da bonifici pending</p>
           </CardContent>
@@ -275,7 +286,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Pending Purchases Section */}
-      {pendingPurchases.length > 0 && (
+      {(pendingPurchases as CreditPurchase[]).length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -288,7 +299,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {pendingPurchases.map((purchase: CreditPurchase) => {
+              {(pendingPurchases as CreditPurchase[]).map((purchase: CreditPurchase) => {
                 const packageInfo = getPackageInfo(purchase.packageType);
                 return (
                   <div key={purchase.id} className="flex items-center justify-between p-4 border rounded-lg bg-orange-50">
@@ -402,12 +413,32 @@ export default function AdminDashboard() {
       {/* Hotels Overview */}
       <Card>
         <CardHeader>
-          <CardTitle>Panoramica Clienti</CardTitle>
-          <CardDescription>Tutti gli hotel registrati e i loro crediti</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Panoramica Clienti ({filteredHotels.length})</CardTitle>
+              <CardDescription>Tutti gli hotel registrati e i loro crediti</CardDescription>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Cerca hotel, città, regione, email..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 w-80"
+                />
+              </div>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {hotels.map((hotel: Hotel) => (
+            {filteredHotels.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                {searchQuery ? "Nessun hotel trovato per la ricerca." : "Nessun hotel registrato."}
+              </div>
+            ) : (
+              filteredHotels.map((hotel: Hotel) => (
               <div key={hotel.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
@@ -424,6 +455,17 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="flex gap-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedHotel(hotel);
+                      setHotelDetailModal(true);
+                    }}
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    Dettagli
+                  </Button>
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button size="sm" variant="outline">
@@ -491,10 +533,128 @@ export default function AdminDashboard() {
                   </Dialog>
                 </div>
               </div>
-            ))}
+            ))
+            )}
           </div>
         </CardContent>
       </Card>
+
+      {/* Hotel Detail Modal */}
+      <Dialog open={hotelDetailModal} onOpenChange={setHotelDetailModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Dettagli Hotel - {selectedHotel?.name}</DialogTitle>
+            <DialogDescription>
+              Informazioni complete sull'hotel e l'utente registrante
+            </DialogDescription>
+          </DialogHeader>
+          {selectedHotel && (
+            <div className="space-y-6">
+              {/* Hotel Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Building className="h-5 w-5" />
+                      Informazioni Hotel
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Building className="h-4 w-4 text-gray-500" />
+                      <span className="font-medium">Nome:</span>
+                      <span>{selectedHotel.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      <span className="font-medium">Località:</span>
+                      <span>{selectedHotel.city}, {selectedHotel.region}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-gray-500" />
+                      <span className="font-medium">Email:</span>
+                      <span>{selectedHotel.email}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-gray-500" />
+                      <span className="font-medium">Telefono:</span>
+                      <span>{selectedHotel.phone || "Non fornito"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-gray-500" />
+                      <span className="font-medium">Registrato:</span>
+                      <span>{new Date(selectedHotel.createdAt).toLocaleDateString('it-IT')}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <CreditCard className="h-5 w-5" />
+                      Sistema Crediti
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">Crediti attuali:</span>
+                      <Badge variant={selectedHotel.credits > 0 ? "default" : "secondary"} className="text-sm">
+                        {selectedHotel.credits}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">Crediti totali acquistati:</span>
+                      <Badge variant="outline" className="text-sm">
+                        {selectedHotel.totalCredits || 0}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">Crediti utilizzati:</span>
+                      <Badge variant="secondary" className="text-sm">
+                        {(selectedHotel.totalCredits || 0) - selectedHotel.credits}
+                      </Badge>
+                    </div>
+                    <div className="pt-2 border-t">
+                      <span className="text-sm text-gray-600">
+                        Tasso di utilizzo: {(selectedHotel.totalCredits || 0) > 0 
+                          ? Math.round((((selectedHotel.totalCredits || 0) - selectedHotel.credits) / (selectedHotel.totalCredits || 1)) * 100)
+                          : 0}%
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Contact Actions */}
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => window.open(`mailto:${selectedHotel.email}`, '_blank')}
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  Invia Email
+                </Button>
+                {selectedHotel.phone && (
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => window.open(`tel:${selectedHotel.phone}`, '_blank')}
+                  >
+                    <Phone className="h-4 w-4 mr-2" />
+                    Chiama
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setHotelDetailModal(false)}>
+              Chiudi
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
