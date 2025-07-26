@@ -441,77 +441,7 @@ router.post('/disable-mfa', requireAuth({ userType: 'both' }), async (req, res) 
   }
 });
 
-// Reset MFA (Emergency reset with password verification)
-router.post('/reset-mfa', loginLimiter, async (req, res) => {
-  try {
-    const validation = z.object({
-      email: z.string().email(),
-      password: z.string().min(1),
-      userType: z.enum(['hotel', 'admin'])
-    }).safeParse(req.body);
 
-    if (!validation.success) {
-      return res.status(400).json({ 
-        error: 'Dati non validi', 
-        details: validation.error.errors 
-      });
-    }
-
-    const { email, password, userType } = validation.data;
-    const ipAddress = req.ip || 'unknown';
-    const userAgent = req.get('User-Agent') || 'unknown';
-
-    // Verify user credentials
-    const table = userType === 'hotel' ? hotels : administrators;
-    const [user] = await db
-      .select()
-      .from(table)
-      .where(eq(table.email, email));
-
-    if (!user) {
-      await logSecurityEvent('unknown', userType, 'mfa_reset_failed', ipAddress, userAgent, { 
-        error: 'User not found', 
-        email 
-      });
-      return res.status(401).json({ error: 'Credenziali non valide' });
-    }
-
-    // Verify password
-    const passwordValid = await verifyPassword(password, user.password);
-    
-    if (!passwordValid) {
-      await logSecurityEvent(user.id, userType, 'mfa_reset_failed', ipAddress, userAgent, { 
-        error: 'Invalid password' 
-      });
-      return res.status(401).json({ error: 'Credenziali non valide' });
-    }
-
-    // Check if MFA is enabled
-    if (!user.mfaEnabled) {
-      return res.status(400).json({ error: 'MFA non è attualmente attivo per questo account' });
-    }
-
-    // Reset MFA
-    await db
-      .update(table)
-      .set({ 
-        mfaEnabled: false,
-        mfaSecret: null 
-      })
-      .where(eq(table.id, user.id));
-
-    await logSecurityEvent(user.id, userType, 'mfa_reset_success', ipAddress, userAgent);
-
-    res.json({
-      success: true,
-      message: 'MFA resettato con successo. Ora puoi configurare nuovamente Google Authenticator.'
-    });
-
-  } catch (error) {
-    console.error('MFA reset error:', error);
-    res.status(500).json({ error: 'Errore interno del server' });
-  }
-});
 
 // Logout
 router.post('/logout', requireAuth({ userType: 'both' }), async (req, res) => {

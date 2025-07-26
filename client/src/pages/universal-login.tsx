@@ -434,16 +434,7 @@ export default function UniversalLogin() {
                 </form>
               </Form>
 
-              <div className="text-center mt-4 pt-4 border-t border-gray-200">
-                <p className="text-sm text-gray-600 mb-2">
-                  Hai perso l'accesso al tuo Google Authenticator?
-                </p>
-                <Link href="/mfa-reset">
-                  <Button variant="link" className="text-sm">
-                    Reset MFA
-                  </Button>
-                </Link>
-              </div>
+
             </div>
           )}
 
