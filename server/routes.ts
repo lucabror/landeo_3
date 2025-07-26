@@ -1049,6 +1049,150 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Credit System Routes
+  
+  // Get hotel credit info
+  app.get("/api/hotels/:hotelId/credits", async (req, res) => {
+    try {
+      const credits = await storage.getHotelCredits(req.params.hotelId);
+      res.json(credits);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch credits" });
+    }
+  });
+
+  // Purchase credits
+  app.post("/api/hotels/:hotelId/purchase-credits", async (req, res) => {
+    try {
+      const { packageType, packagePrice, creditsAmount } = req.body;
+      
+      const purchase = await storage.createCreditPurchase({
+        hotelId: req.params.hotelId,
+        packageType,
+        packagePrice,
+        creditsAmount,
+        status: "pending",
+        bankTransferConfirmed: false
+      });
+
+      res.status(201).json(purchase);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create credit purchase" });
+    }
+  });
+
+  // Get hotel credit purchases
+  app.get("/api/hotels/:hotelId/credit-purchases", async (req, res) => {
+    try {
+      const purchases = await storage.getCreditPurchasesByHotel(req.params.hotelId);
+      res.json(purchases);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch credit purchases" });
+    }
+  });
+
+  // Admin Routes
+
+  // Admin authentication
+  app.get("/api/admin/auth/:email", async (req, res) => {
+    try {
+      const admin = await storage.getAdminUser(req.params.email);
+      if (!admin) {
+        return res.status(404).json({ message: "Admin not found" });
+      }
+      res.json(admin);
+    } catch (error) {
+      res.status(500).json({ message: "Authentication failed" });
+    }
+  });
+
+  // Get all hotels for admin
+  app.get("/api/admin/hotels", async (req, res) => {
+    try {
+      const hotels = await storage.getAllHotelsForAdmin();
+      res.json(hotels);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch hotels" });
+    }
+  });
+
+  // Get pending credit purchases
+  app.get("/api/admin/pending-purchases", async (req, res) => {
+    try {
+      const purchases = await storage.getPendingCreditPurchases();
+      res.json(purchases);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch pending purchases" });
+    }
+  });
+
+  // Approve credit purchase
+  app.post("/api/admin/purchases/:purchaseId/approve", async (req, res) => {
+    try {
+      const { adminEmail, notes } = req.body;
+      await storage.approveCreditPurchase(req.params.purchaseId, adminEmail, notes);
+      res.json({ message: "Purchase approved successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to approve purchase" });
+    }
+  });
+
+  // Reject credit purchase
+  app.post("/api/admin/purchases/:purchaseId/reject", async (req, res) => {
+    try {
+      const { adminEmail, notes } = req.body;
+      await storage.rejectCreditPurchase(req.params.purchaseId, adminEmail, notes);
+      res.json({ message: "Purchase rejected successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to reject purchase" });
+    }
+  });
+
+  // Manually adjust hotel credits
+  app.post("/api/admin/hotels/:hotelId/adjust-credits", async (req, res) => {
+    try {
+      const { amount, description, adminEmail } = req.body;
+      await storage.adjustHotelCredits(req.params.hotelId, amount, description, adminEmail);
+      res.json({ message: "Credits adjusted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to adjust credits" });
+    }
+  });
+
+  // Modify guest profile creation to use credits
+  app.post("/api/guest-profiles", async (req, res) => {
+    try {
+      const validatedData = insertGuestProfileSchema.parse(req.body);
+      
+      // Check if hotel has enough credits
+      const credits = await storage.getHotelCredits(validatedData.hotelId);
+      if (credits.credits < 1) {
+        return res.status(402).json({ 
+          message: "Crediti insufficienti. Acquista più crediti per inserire nuovi ospiti.",
+          code: "INSUFFICIENT_CREDITS" 
+        });
+      }
+
+      // Create guest profile
+      const profile = await storage.createGuestProfile(validatedData);
+
+      // Use 1 credit
+      await storage.useCredits(
+        validatedData.hotelId, 
+        1, 
+        `Inserimento ospite: ${profile.referenceName}`, 
+        profile.id
+      );
+
+      res.status(201).json(profile);
+    } catch (error) {
+      res.status(400).json({ 
+        message: "Invalid guest profile data", 
+        error: error instanceof Error ? error.message : String(error) 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

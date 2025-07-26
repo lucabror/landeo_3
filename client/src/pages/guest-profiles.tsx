@@ -32,6 +32,7 @@ import {
   Mail
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import CreditPurchaseDialog from "@/components/credit-purchase-dialog";
 import { insertGuestProfileSchema } from "@shared/schema";
 import type { InsertGuestProfile } from "@shared/schema";
 
@@ -64,6 +65,11 @@ export default function GuestProfiles() {
   const { data: guestItinerary } = useQuery({
     queryKey: ["/api/guest-profiles", viewingProfile?.id, "itinerary"],
     enabled: !!viewingProfile?.id,
+  });
+
+  // Fetch hotel credits
+  const { data: creditInfo = { credits: 0, totalCredits: 0, creditsUsed: 0 } } = useQuery({
+    queryKey: [`/api/hotels/${MOCK_HOTEL_ID}/credits`],
   });
 
   const form = useForm<InsertGuestProfile>({
@@ -307,6 +313,39 @@ export default function GuestProfiles() {
             </p>
           </div>
           
+          <CreditPurchaseDialog hotelId={MOCK_HOTEL_ID} currentCredits={creditInfo.credits}>
+            <Button className="bg-green-600 hover:bg-green-700">
+              <CreditCard className="mr-2 h-4 w-4" />
+              Crediti: {creditInfo.credits}
+            </Button>
+          </CreditPurchaseDialog>
+        </div>
+
+        {/* Credit Warning */}
+        {creditInfo.credits <= 5 && (
+          <Card className="bg-orange-50 border-orange-200 mb-8">
+            <CardContent className="flex items-center justify-between p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <CreditCard className="h-6 w-6 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-orange-900">Crediti in esaurimento</h3>
+                  <p className="text-sm text-orange-700">
+                    Hai solo {creditInfo.credits} crediti rimasti. Ogni nuovo ospite costa 1 credito.
+                  </p>
+                </div>
+              </div>
+              <CreditPurchaseDialog hotelId={MOCK_HOTEL_ID} currentCredits={creditInfo.credits}>
+                <Button className="bg-orange-600 hover:bg-orange-700">
+                  Acquista Crediti
+                </Button>
+              </CreditPurchaseDialog>
+            </CardContent>
+          </Card>
+        )}
+
+        <div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={handleNewProfile} className="bg-primary hover:bg-primary/90">
