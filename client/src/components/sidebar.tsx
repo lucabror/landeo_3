@@ -6,7 +6,8 @@ import {
   Users, 
   MapPin, 
   Route, 
-  QrCode 
+  QrCode,
+  User
 } from "lucide-react";
 
 const navigation = [
@@ -14,6 +15,7 @@ const navigation = [
   { name: "Dati Hotel", href: "/hotel-setup", icon: Hotel },
   { name: "Profili Ospiti", href: "/guest-profiles", icon: Users },
   { name: "Esperienze Locali", href: "/local-experiences", icon: MapPin },
+  { name: "Profilo Utente", href: "/profile", icon: User },
 ];
 
 export function Sidebar() {

@@ -12,6 +12,7 @@ import Itineraries from "@/pages/itineraries";
 import ItineraryView from "@/pages/itinerary-view";
 import GuestPreferencesPage from "@/pages/guest-preferences";
 import AdminDashboard from "@/pages/admin-dashboard";
+import UserProfile from "@/pages/user-profile";
 
 function Router() {
   return (
@@ -38,6 +39,9 @@ function Router() {
       <Route path="/guest-preferences/:token">
         {(params) => <GuestPreferencesPage token={params.token} />}
       </Route>
+      
+      {/* User profile */}
+      <Route path="/profile" component={UserProfile} />
       
       {/* Admin dashboard */}
       <Route path="/admin" component={AdminDashboard} />

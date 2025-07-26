@@ -156,6 +156,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update hotel profile (email/password)
+  app.put("/api/hotels/:id/profile", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const hotelId = req.params.id;
+
+      const hotel = await storage.getHotel(hotelId);
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      // Prepare update data
+      const updateData: any = {};
+      if (email) {
+        updateData.email = email;
+      }
+      if (password) {
+        updateData.password = password;
+      }
+
+      const updatedHotel = await storage.updateHotel(hotelId, updateData);
+      res.json(updatedHotel);
+    } catch (error) {
+      console.error("Error updating hotel profile:", error);
+      res.status(500).json({ message: "Error updating profile" });
+    }
+  });
+
   // Guest Profiles
   app.get("/api/hotels/:hotelId/guest-profiles", async (req, res) => {
     try {
