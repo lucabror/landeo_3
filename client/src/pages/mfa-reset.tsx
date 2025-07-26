@@ -74,13 +74,16 @@ export default function MfaReset() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <h4 className="font-medium text-green-900 mb-2">Prossimi Passi:</h4>
+              <h4 className="font-medium text-green-900 mb-2">⚠️ Azione Immediata Richiesta:</h4>
               <ul className="text-sm text-green-800 space-y-1">
                 <li>1. Effettua il login normale (senza 2FA)</li>
-                <li>2. Vai nelle impostazioni del tuo profilo</li>
-                <li>3. Riconfigura Google Authenticator</li>
-                <li>4. Scansiona il nuovo QR code</li>
+                <li>2. <strong>SUBITO</strong> vai nelle impostazioni del profilo</li>
+                <li>3. Riconfigura Google Authenticator <strong>entro 10 minuti</strong></li>
+                <li>4. Scansiona il nuovo QR code per sicurezza</li>
               </ul>
+              <div className="mt-3 p-2 bg-yellow-100 border border-yellow-300 rounded text-xs text-yellow-800">
+                <strong>Nota Sicurezza:</strong> Il tuo account è temporaneamente vulnerabile. Riconfigura il 2FA immediatamente.
+              </div>
             </div>
             
             <div className="flex gap-2">
@@ -112,8 +115,9 @@ export default function MfaReset() {
           <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-amber-800">
-              <p className="font-medium mb-1">Procedura di Sicurezza</p>
-              <p>Inserisci le tue credenziali per disattivare temporaneamente il 2FA. Dovrai riconfigurarlo dopo il login.</p>
+              <p className="font-medium mb-1">Procedura di Sicurezza Avanzata</p>
+              <p className="mb-2">Questa funzione richiede la verifica della tua identità con email e password correnti.</p>
+              <p className="font-medium">⚠️ Usa solo se hai perso definitivamente l'accesso a Google Authenticator</p>
             </div>
           </div>
 
