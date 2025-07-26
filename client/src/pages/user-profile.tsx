@@ -98,7 +98,7 @@ export default function UserProfile() {
     },
     onSuccess: (data) => {
       setMfaSecret(data.secret);
-      setQrCodeUrl(data.qrCode);
+      setQrCodeUrl(data.qrCodeDataUrl);
       setShowMfaSetup(true);
       toast({
         title: "2FA Setup Iniziato",
@@ -116,8 +116,8 @@ export default function UserProfile() {
 
   // Verify MFA mutation
   const verifyMfaMutation = useMutation({
-    mutationFn: async (token: string) => {
-      const response = await apiRequest("POST", `/api/auth/verify-mfa`, { token });
+    mutationFn: async (code: string) => {
+      const response = await apiRequest("POST", `/api/auth/enable-mfa`, { code });
       return response.json();
     },
     onSuccess: () => {
