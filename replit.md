@@ -10,6 +10,10 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-26**: Rimosso sistema reset MFA dalla piattaforma per maggiore sicurezza
+  - Eliminati endpoint `/api/auth/reset-mfa` dal server
+  - Rimosse pagine e componenti frontend per reset MFA
+  - Il 2FA Google Authenticator ora richiede assistenza amministratore per reset
 - **2025-01-26**: Login unificato implementato con riconoscimento automatico utenti
   - Creata pagina `/login` unica che determina tipo utente (hotel/admin) dall'email
   - Rimosse pagine separate `/hotel-login` e `/admin-login` (redirect al login unificato)

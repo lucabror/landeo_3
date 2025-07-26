@@ -408,15 +408,10 @@ export default function AdminProfile() {
               
               {mfaEnabled && (
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                  <h4 className="font-medium text-amber-900 mb-2">Hai perso l'accesso a Google Authenticator?</h4>
-                  <p className="text-sm text-amber-800 mb-3">
-                    Se hai cancellato l'app o cambiato telefono, puoi resettare il 2FA usando le tue credenziali.
+                  <h4 className="font-medium text-amber-900 mb-2">Perso l'accesso a Google Authenticator?</h4>
+                  <p className="text-sm text-amber-800">
+                    Per motivi di sicurezza, il reset del 2FA richiede assistenza amministratore. Contatta il supporto tecnico.
                   </p>
-                  <Link href="/mfa-reset">
-                    <Button size="sm" variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-100">
-                      Reset MFA di Emergenza
-                    </Button>
-                  </Link>
                 </div>
               )}
             </div>
