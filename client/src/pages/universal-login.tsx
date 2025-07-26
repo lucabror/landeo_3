@@ -158,8 +158,9 @@ export default function UniversalLogin() {
     },
     onSuccess: (data) => {
       login(data.user, data.sessionToken);
+      // Force page reload to ensure proper authentication state
       const redirectPath = userType === 'admin' ? '/admin-dashboard' : '/dashboard';
-      setLocation(redirectPath);
+      window.location.href = redirectPath;
       toast({
         title: "Accesso completato",
         description: `Benvenuto/a, ${data.user.name || data.user.email}!`,
@@ -436,11 +437,14 @@ export default function UniversalLogin() {
 
               <div className="text-center mt-4 pt-4 border-t border-gray-200">
                 <p className="text-sm text-gray-600 mb-2">
-                  Hai perso l'accesso al tuo Google Authenticator?
+                  Problemi con Google Authenticator?
+                </p>
+                <p className="text-xs text-gray-500 mb-2">
+                  Il reset MFA richiede verifica email e password
                 </p>
                 <Link href="/mfa-reset">
                   <Button variant="link" className="text-sm">
-                    Reset MFA
+                    Reset MFA di Emergenza
                   </Button>
                 </Link>
               </div>
