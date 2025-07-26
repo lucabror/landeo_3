@@ -54,6 +54,7 @@ export default function GuestProfiles() {
   const [isEditingInView, setIsEditingInView] = useState(false);
   const [editingProfile, setEditingProfile] = useState<any>(null);
   const [viewingProfile, setViewingProfile] = useState<any>(null);
+  const [isGeneratingItinerary, setIsGeneratingItinerary] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -223,15 +224,22 @@ export default function GuestProfiles() {
 
   const handleGenerateItinerary = async (profile: any) => {
     try {
+      setIsGeneratingItinerary(true);
+      
       toast({
         title: "Generazione in corso",
-        description: "Sto generando l'itinerario personalizzato...",
+        description: "Sto generando l'itinerario personalizzato... Questo processo può richiedere alcuni minuti.",
+        duration: 5000,
       });
 
       await apiRequest("POST", `/api/guest-profiles/${profile.id}/generate-itinerary`);
       
-      // Refresh profile data
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "guest-profiles"] });
+      // Refresh all related data to immediately show the new itinerary
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "guest-profiles"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "itineraries"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/guest-profiles", profile.id, "itinerary"] }),
+      ]);
       
       toast({
         title: "Itinerario generato",
@@ -243,6 +251,8 @@ export default function GuestProfiles() {
         description: error.message || "Si è verificato un errore durante la generazione dell'itinerario",
         variant: "destructive"
       });
+    } finally {
+      setIsGeneratingItinerary(false);
     }
   };
 
@@ -613,16 +623,30 @@ export default function GuestProfiles() {
                               variant="ghost" 
                               className="w-full text-purple-600 hover:bg-purple-100"
                               onClick={() => handleGenerateItinerary(viewingProfile)}
-                              disabled={creditInfo.credits <= 0}
+                              disabled={creditInfo.credits <= 0 || isGeneratingItinerary}
                             >
-                              <Route className="h-4 w-4 mr-1" />
-                              Rigenera Itinerario
+                              {isGeneratingItinerary ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                  Generando...
+                                </>
+                              ) : (
+                                <>
+                                  <Route className="h-4 w-4 mr-1" />
+                                  Rigenera Itinerario
+                                </>
+                              )}
                             </Button>
-                            {creditInfo.credits <= 0 && (
+                            {creditInfo.credits <= 0 && !isGeneratingItinerary && (
                               <p className="text-xs text-center text-orange-600">
                                 <a href="/admin-dashboard" className="underline hover:text-orange-800">
                                   Acquista Crediti
                                 </a> per Generare l'Itinerario
+                              </p>
+                            )}
+                            {isGeneratingItinerary && (
+                              <p className="text-xs text-center text-blue-600">
+                                La generazione può richiedere alcuni minuti...
                               </p>
                             )}
                           </div>
@@ -636,22 +660,36 @@ export default function GuestProfiles() {
                             </p>
                             <Button 
                               onClick={() => handleGenerateItinerary(viewingProfile)}
-                              disabled={!viewingProfile?.preferencesCompleted || creditInfo.credits <= 0}
+                              disabled={!viewingProfile?.preferencesCompleted || creditInfo.credits <= 0 || isGeneratingItinerary}
                               className="bg-purple-600 hover:bg-purple-700"
                             >
-                              <Route className="h-4 w-4 mr-2" />
-                              Genera Itinerario AI
+                              {isGeneratingItinerary ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Generando Itinerario...
+                                </>
+                              ) : (
+                                <>
+                                  <Route className="h-4 w-4 mr-2" />
+                                  Genera Itinerario AI
+                                </>
+                              )}
                             </Button>
-                            {!viewingProfile?.preferencesCompleted && (
+                            {!viewingProfile?.preferencesCompleted && !isGeneratingItinerary && (
                               <p className="text-xs text-orange-600 mt-2">
                                 Le preferenze dell'ospite devono essere raccolte prima di generare l'itinerario
                               </p>
                             )}
-                            {viewingProfile?.preferencesCompleted && creditInfo.credits <= 0 && (
+                            {viewingProfile?.preferencesCompleted && creditInfo.credits <= 0 && !isGeneratingItinerary && (
                               <p className="text-xs text-orange-600 mt-2">
                                 <a href="/admin-dashboard" className="underline hover:text-orange-800">
                                   Acquista Crediti
                                 </a> per Generare l'Itinerario
+                              </p>
+                            )}
+                            {isGeneratingItinerary && (
+                              <p className="text-xs text-blue-600 mt-2">
+                                La generazione dell'itinerario può richiedere alcuni minuti. Attendere prego...
                               </p>
                             )}
                           </div>
