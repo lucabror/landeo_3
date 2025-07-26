@@ -361,7 +361,7 @@ export default function GuestProfiles() {
         <div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={handleNewProfile} className="bg-primary hover:bg-primary/90">
+              <Button onClick={handleNewProfile} className="bg-primary hover:bg-primary/90 mt-[20px] mb-[20px]">
                 <Plus className="mr-2 h-4 w-4" />
                 Nuovo Profilo
               </Button>

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import NotFound from "@/pages/not-found";
+import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import HotelSetup from "@/pages/hotel-setup";
 import GuestProfiles from "@/pages/guest-profiles";
@@ -24,8 +25,10 @@ import UniversalLogin from "@/pages/universal-login";
 function Router() {
   return (
     <Switch>
+      {/* Landing page */}
+      <Route path="/" component={Landing} />
+      
       {/* Main dashboard */}
-      <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
       
       {/* Hotel management */}
