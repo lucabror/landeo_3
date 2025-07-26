@@ -662,7 +662,7 @@ export default function GuestProfiles() {
                             <Button 
                               onClick={() => handleGenerateItinerary(viewingProfile)}
                               disabled={!viewingProfile?.preferencesCompleted || creditInfo.credits <= 0 || isGeneratingItinerary}
-                              className="bg-purple-600 hover:bg-purple-700"
+                              className="bg-purple-600 hover:bg-purple-700 mt-[20px] mb-[20px]"
                             >
                               {isGeneratingItinerary ? (
                                 <>
