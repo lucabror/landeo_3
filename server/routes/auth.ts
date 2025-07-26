@@ -507,44 +507,60 @@ router.post('/forgot-password', async (req, res) => {
       user = admin;
     }
     
-    console.log('🔄 Procedendo con invio email. Token generato:', resetToken);
-    console.log('🔧 RESEND_API_KEY presente:', !!process.env.RESEND_API_KEY);
-    
-    // Send reset email
+    // Send reset email during development
     if (process.env.RESEND_API_KEY) {
       try {
-        console.log('📧 Tentativo invio email reset password a:', email);
         const { Resend } = await import('resend');
         const resend = new Resend(process.env.RESEND_API_KEY);
         
         const resetUrl = `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'http://localhost:5000'}/reset-password?token=${resetToken}&type=${userType}`;
-        console.log('🔗 URL di reset generato:', resetUrl);
         
-        const emailResult = await resend.emails.send({
-          from: 'Itinera Platform <onboarding@resend.dev>',
+        await resend.emails.send({
+          from: 'delivered@resend.dev',
           to: email,
-          subject: 'Reset Password - Itinera Platform',
+          subject: 'Reset Password - Itinera Platform (Development)',
           html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h1 style="color: #2c3e50;">Reset Password Richiesto</h1>
-              <p>Hai richiesto il reset della password per il tuo account Itinera.</p>
-              <p>Clicca il link seguente per impostare una nuova password:</p>
-              <a href="${resetUrl}" style="background: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
-                Reset Password
-              </a>
-              <p style="margin-top: 20px; color: #7f8c8d; font-size: 14px;">
-                Questo link è valido per 1 ora. Se non hai richiesto il reset, ignora questa email.
-              </p>
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #8B4513, #DAA520); padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 24px;">🏨 Itinera Platform</h1>
+                <p style="color: #F5F5DC; margin: 5px 0 0 0;">Reset Password Richiesto</p>
+              </div>
+              
+              <div style="background: white; padding: 30px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px;">
+                <p style="font-size: 16px; color: #2c3e50; margin-bottom: 20px;">
+                  Hai richiesto il reset della password per il tuo account Itinera.
+                </p>
+                
+                <p style="font-size: 16px; color: #2c3e50; margin-bottom: 25px;">
+                  Clicca il pulsante seguente per impostare una nuova password:
+                </p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${resetUrl}" style="background: linear-gradient(135deg, #8B4513, #DAA520); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    🔑 Reset Password
+                  </a>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #DAA520; margin-top: 25px;">
+                  <p style="margin: 0; color: #7f8c8d; font-size: 14px;">
+                    <strong>⏰ Questo link è valido per 1 ora.</strong><br>
+                    Se non hai richiesto il reset, puoi ignorare questa email in sicurezza.
+                  </p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                  <p style="color: #95a5a6; font-size: 12px; margin: 0;">
+                    Ambiente di sviluppo - Futuro dominio: ItineraItalia.it
+                  </p>
+                </div>
+              </div>
             </div>
           `
         });
-        console.log('✅ Email inviata con successo:', emailResult);
+        
       } catch (emailError) {
-        console.error('❌ Errore invio email:', emailError);
-        // Non bloccare il processo anche se l'email fallisce
+        console.error('Errore invio email reset:', emailError);
       }
-    } else {
-      console.log('⚠️ RESEND_API_KEY non configurata, email non inviata');
     }
     
     res.json({ 
