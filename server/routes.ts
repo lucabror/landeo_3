@@ -272,11 +272,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const localExperiences = await storage.getLocalExperiencesByHotel(guestProfile.hotelId);
 
-      // Delete existing itinerary for this guest if exists
-      const existingItineraries = await storage.getItinerariesByGuestProfile(guestProfile.id);
-      for (const itinerary of existingItineraries) {
-        await storage.deleteItinerary(itinerary.id);
-      }
+      // Keep existing itineraries but create new one (for chronological view)
+      // No longer delete existing itineraries to maintain history
 
       // Generate new itinerary using AI
       const itinerary = await generateGuestSpecificItinerary(hotel, guestProfile, localExperiences);

@@ -607,15 +607,25 @@ export default function GuestProfiles() {
                             );
                           })}
                           
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className="w-full text-purple-600 hover:bg-purple-100"
-                            onClick={() => handleGenerateItinerary(viewingProfile)}
-                          >
-                            <Route className="h-4 w-4 mr-1" />
-                            Rigenera Itinerario
-                          </Button>
+                          <div className="space-y-2">
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="w-full text-purple-600 hover:bg-purple-100"
+                              onClick={() => handleGenerateItinerary(viewingProfile)}
+                              disabled={creditInfo.credits <= 0}
+                            >
+                              <Route className="h-4 w-4 mr-1" />
+                              Rigenera Itinerario
+                            </Button>
+                            {creditInfo.credits <= 0 && (
+                              <p className="text-xs text-center text-orange-600">
+                                <a href="/admin-dashboard" className="underline hover:text-orange-800">
+                                  Acquista Crediti
+                                </a> per Generare l'Itinerario
+                              </p>
+                            )}
+                          </div>
                         </div>
                         );
                       } else {
@@ -626,7 +636,7 @@ export default function GuestProfiles() {
                             </p>
                             <Button 
                               onClick={() => handleGenerateItinerary(viewingProfile)}
-                              disabled={!viewingProfile?.preferencesCompleted}
+                              disabled={!viewingProfile?.preferencesCompleted || creditInfo.credits <= 0}
                               className="bg-purple-600 hover:bg-purple-700"
                             >
                               <Route className="h-4 w-4 mr-2" />
@@ -635,6 +645,13 @@ export default function GuestProfiles() {
                             {!viewingProfile?.preferencesCompleted && (
                               <p className="text-xs text-orange-600 mt-2">
                                 Le preferenze dell'ospite devono essere raccolte prima di generare l'itinerario
+                              </p>
+                            )}
+                            {viewingProfile?.preferencesCompleted && creditInfo.credits <= 0 && (
+                              <p className="text-xs text-orange-600 mt-2">
+                                <a href="/admin-dashboard" className="underline hover:text-orange-800">
+                                  Acquista Crediti
+                                </a> per Generare l'Itinerario
                               </p>
                             )}
                           </div>
