@@ -442,9 +442,7 @@ router.post('/disable-mfa', requireAuth({ userType: 'both' }), async (req, res) 
 });
 
 // Reset MFA (Emergency reset with password verification)
-// More restrictive rate limiting for MFA reset
-const mfaResetLimiter = createRateLimiter(60 * 60 * 1000, 3); // 3 attempts per hour
-router.post('/reset-mfa', mfaResetLimiter, async (req, res) => {
+router.post('/reset-mfa', loginLimiter, async (req, res) => {
   try {
     const validation = z.object({
       email: z.string().email(),
@@ -493,13 +491,6 @@ router.post('/reset-mfa', mfaResetLimiter, async (req, res) => {
       return res.status(400).json({ error: 'MFA non è attualmente attivo per questo account' });
     }
 
-    // Additional security check: require different IP or notify about security event
-    await logSecurityEvent(user.id, userType, 'mfa_reset_initiated', ipAddress, userAgent, {
-      warning: 'SECURITY_CRITICAL',
-      action: 'MFA_EMERGENCY_RESET',
-      user_email: email
-    });
-
     // Reset MFA
     await db
       .update(table)
@@ -509,14 +500,11 @@ router.post('/reset-mfa', mfaResetLimiter, async (req, res) => {
       })
       .where(eq(table.id, user.id));
 
-    await logSecurityEvent(user.id, userType, 'mfa_reset_success', ipAddress, userAgent, {
-      severity: 'HIGH',
-      action_completed: 'MFA_DISABLED_EMERGENCY'
-    });
+    await logSecurityEvent(user.id, userType, 'mfa_reset_success', ipAddress, userAgent);
 
     res.json({
       success: true,
-      message: 'MFA resettato con successo. Effettua il login e riconfigura immediatamente Google Authenticator per sicurezza.'
+      message: 'MFA resettato con successo. Ora puoi configurare nuovamente Google Authenticator.'
     });
 
   } catch (error) {
