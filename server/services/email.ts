@@ -189,6 +189,120 @@ export async function sendGuestPreferencesEmail(
   }
 }
 
+export async function sendItineraryPDF(
+  hotel: Hotel,
+  guestProfile: any,
+  itinerary: any,
+  pdfBuffer: Buffer,
+  recipientEmail: string,
+  recipientName: string
+): Promise<{success: boolean, error?: string}> {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY non configurata. Email non inviata.');
+    return {success: false, error: 'RESEND_API_KEY non configurata'};
+  }
+
+  try {
+    const checkinDate = guestProfile?.checkInDate ? new Date(guestProfile.checkInDate).toLocaleDateString('it-IT') : 'N/A';
+    const checkoutDate = guestProfile?.checkOutDate ? new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT') : 'N/A';
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Il tuo Itinerario Personalizzato - ${hotel.name}</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8f9fa; }
+    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+    .content { padding: 30px; }
+    .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 12px; }
+    .highlight { background-color: #e8f4fd; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0; border-radius: 4px; }
+    .itinerary-details { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    .logo { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">${hotel.name}</div>
+      <h1>🗺️ Il tuo Itinerario Personalizzato</h1>
+      <p>Pronti per un soggiorno indimenticabile</p>
+    </div>
+    
+    <div class="content">
+      <p>Caro/a <strong>${recipientName}</strong>,</p>
+      
+      <p>Siamo entusiasti di condividere con te il tuo <strong>itinerario personalizzato</strong> per il soggiorno presso ${hotel.name}!</p>
+      
+      <div class="itinerary-details">
+        <h3>📋 Dettagli del Soggiorno</h3>
+        <ul>
+          <li><strong>Periodo:</strong> ${checkinDate} - ${checkoutDate}</li>
+          <li><strong>Itinerario:</strong> ${itinerary.title}</li>
+          <li><strong>Persone:</strong> ${guestProfile?.numberOfPeople || 'N/A'}</li>
+        </ul>
+      </div>
+      
+      <div class="highlight">
+        <h3>📱 Come Utilizzare il Tuo Itinerario</h3>
+        <p>L'itinerario completo è allegato in formato PDF. Puoi:</p>
+        <ul>
+          <li>🖨️ <strong>Stamparlo</strong> per averlo sempre con te</li>
+          <li>📱 <strong>Salvarlo sul telefono</strong> per accesso offline</li>
+          <li>🔗 <strong>Condividerlo</strong> con i tuoi compagni di viaggio</li>
+        </ul>
+      </div>
+      
+      <p>Se hai domande o necessiti di modifiche all'itinerario, non esitare a contattarci. Il nostro team è sempre a disposizione per rendere il tuo soggiorno perfetto!</p>
+      
+      <p>Buon viaggio!<br>
+      <strong>Team ${hotel.name}</strong></p>
+    </div>
+    
+    <div class="footer">
+      <p>${hotel.city}, ${hotel.region}<br>
+      📧 ${hotel.email} | 📞 ${hotel.phone}</p>
+      <p>Questo itinerario è stato generato automaticamente in base alle tue preferenze</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const { data, error } = await resend.emails.send({
+      from: `${hotel.name} <onboarding@resend.dev>`,
+      to: [recipientEmail],
+      subject: `🗺️ Il tuo Itinerario Personalizzato - ${hotel.name}`,
+      html: htmlContent,
+      attachments: [{
+        filename: `Itinerario_${itinerary.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+        content: pdfBuffer,
+      }],
+    });
+
+    if (error) {
+      console.error('Errore Resend invio itinerario PDF:', error);
+      if (error.message?.includes('You can only send testing emails')) {
+        return {success: false, error: 'Domain not verified. Please verify your domain in Resend to send emails to other recipients.'};
+      }
+      return {success: false, error: error.message || 'Email sending failed'};
+    }
+
+    if (data?.id) {
+      console.log(`Itinerario PDF inviato con successo a ${recipientEmail}`);
+      console.log('Email ID:', data.id);
+      return {success: true};
+    }
+
+    return {success: false, error: 'Unknown error occurred'};
+  } catch (error: any) {
+    console.error('Errore invio itinerario PDF:', error);
+    return {success: false, error: error.message || 'Email sending failed'};
+  }
+}
+
 export async function sendCreditPurchaseInstructions(
   hotel: Hotel,
   packageType: string,
