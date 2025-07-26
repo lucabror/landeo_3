@@ -260,12 +260,10 @@ export default function GuestProfiles() {
       const email = profile.email || prompt("Inserisci l'email dell'ospite:");
       if (!email) return;
 
-      const response = await apiRequest("POST", `/api/itinerary/${itinerary.uniqueUrl}/email-pdf`, {
+      const result = await apiRequest("POST", `/api/itinerary/${itinerary.uniqueUrl}/email-pdf`, {
         recipientEmail: email,
         recipientName: profile.referenceName
       });
-      
-      const result = await response.json();
 
       toast({
         title: "Email inviata",

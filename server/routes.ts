@@ -17,7 +17,7 @@ import { generateQRCode } from "./services/qr";
 import { generateItineraryPDF } from "./services/pdf";
 import { enrichHotelData, isValidItalianLocation } from "./services/geocoding";
 import { findLocalAttractions, attractionToLocalExperience } from "./services/attractions";
-import { sendGuestPreferencesEmail, sendCreditPurchaseInstructions } from "./services/email";
+import { sendGuestPreferencesEmail, sendCreditPurchaseInstructions, sendItineraryPDF } from "./services/email";
 import { generateGuestSpecificItinerary } from "./services/itinerary-generator";
 import { randomUUID } from "crypto";
 import QRCode from "qrcode";
@@ -581,35 +581,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const pdfBuffer = Buffer.concat(chunks);
 
-      // Send email with PDF attachment
-      const resend = new Resend(process.env.RESEND_API_KEY);
+      // Send email with PDF attachment using email service
+      const emailResult = await sendItineraryPDF(
+        hotel!,
+        guestProfile,
+        itinerary,
+        pdfBuffer,
+        recipientEmail,
+        recipientName || guestProfile?.referenceName || 'Ospite'
+      );
 
-      const emailResult = await resend.emails.send({
-        from: process.env.SENDGRID_FROM_EMAIL || 'noreply@hotel.com',
-        to: recipientEmail,
-        subject: `Il tuo itinerario personalizzato - ${hotel?.name}`,
-        html: `
-          <h2>Ciao ${recipientName || guestProfile?.referenceName}!</h2>
-          <p>Trova in allegato il tuo itinerario personalizzato per il soggiorno presso <strong>${hotel?.name}</strong>.</p>
-          <p><strong>Periodo del soggiorno:</strong> ${guestProfile?.checkInDate ? new Date(guestProfile.checkInDate).toLocaleDateString('it-IT') : 'N/A'} - ${guestProfile?.checkOutDate ? new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT') : 'N/A'}</p>
-          <p>Puoi anche visualizzare il tuo itinerario online visitando: <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/itinerary/${itinerary.uniqueUrl}">il tuo itinerario</a></p>
-          <p>Buon soggiorno!</p>
-          <br>
-          <p><em>Lo staff di ${hotel?.name}</em></p>
-        `,
-        attachments: [
-          {
-            filename: `Itinerario-${recipientName || guestProfile?.referenceName}.pdf`,
-            content: pdfBuffer,
-          },
-        ],
-      });
-
-      res.json({ 
-        success: true, 
-        message: "Email inviata con successo",
-        emailId: emailResult.data?.id 
-      });
+      if (emailResult.success) {
+        res.json({ 
+          success: true, 
+          message: "Email inviata con successo",
+        });
+      } else {
+        console.error('Email sending failed:', emailResult.error);
+        res.status(500).json({ 
+          message: "Errore nell'invio email", 
+          error: emailResult.error 
+        });
+      }
     } catch (error) {
       console.error('Error sending email PDF:', error);
       res.status(500).json({ message: "Failed to send email" });
