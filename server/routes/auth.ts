@@ -33,8 +33,7 @@ const mfaLimiter = createRateLimiter(5 * 60 * 1000, 10); // 10 attempts per 5 mi
 // Validation schemas
 const loginSchema = z.object({
   email: z.string().email('Email non valida'),
-  password: z.string().min(8, 'La password deve essere di almeno 8 caratteri'),
-  userType: z.enum(['hotel', 'admin']),
+  password: z.string().min(1, 'Password richiesta'),
 });
 
 const mfaVerifySchema = z.object({
@@ -50,7 +49,10 @@ const setupPasswordSchema = z.object({
 // Hotel manager login
 router.post('/login/hotel', loginLimiter, async (req, res) => {
   try {
-    const validation = loginSchema.safeParse(req.body);
+    const validation = z.object({
+      email: z.string().email('Email non valida'),
+      password: z.string().min(1, 'Password richiesta'),
+    }).safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({ 
         error: 'Dati non validi', 
@@ -135,7 +137,10 @@ router.post('/login/hotel', loginLimiter, async (req, res) => {
 // Admin login
 router.post('/login/admin', loginLimiter, async (req, res) => {
   try {
-    const validation = loginSchema.safeParse(req.body);
+    const validation = z.object({
+      email: z.string().email('Email non valida'),
+      password: z.string().min(1, 'Password richiesta'),
+    }).safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({ 
         error: 'Dati non validi', 
