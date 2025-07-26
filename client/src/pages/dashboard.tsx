@@ -208,10 +208,12 @@ function DashboardContent() {
               <p className="text-gray-600 mb-4">
                 Crea un nuovo profilo per personalizzare l'esperienza degli ospiti
               </p>
-              <Button className="w-full bg-primary hover:bg-primary/90">
-                <Plus className="mr-2 h-4 w-4" />
-                Crea Profilo
-              </Button>
+              <Link href="/guest-profiles" className="w-full">
+                <Button className="w-full bg-primary hover:bg-primary/90">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Crea Profilo
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </div>
