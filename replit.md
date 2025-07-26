@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-26**: Sistema di autenticazione completo ora funzionante
+  - Risolti problemi di routing: aggiunta route /dashboard per redirect corretto
+  - AuthProvider integrato nel sistema di login per gestione stato utente
+  - ProtectedRoute ottimizzato per accesso dashboard senza problemi
+  - Login hotel ora reindirizza correttamente alla dashboard dopo autenticazione
+  - Email reset password funzionante con Resend (sender: delivered@resend.dev)
 - **2025-01-26**: Implementato sistema "Password Dimenticata" completo con email reset
   - API endpoints per richiesta reset e conferma password funzionali
   - Invio email automatico con link sicuro (token valido 1 ora) tramite Resend
