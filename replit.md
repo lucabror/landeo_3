@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-26**: Login unificato implementato con riconoscimento automatico utenti
+  - Creata pagina `/login` unica che determina tipo utente (hotel/admin) dall'email
+  - Rimosse pagine separate `/hotel-login` e `/admin-login` (redirect al login unificato)
+  - Interfaccia intelligente con icone dinamiche e gestione 2FA integrata
+  - Sistema MFA reset completo per recupero Google Authenticator
+  - Correzioni validation endpoint per supportare nuovo sistema login
 - **2025-01-26**: Sistema di autenticazione completo ora funzionante
   - Risolti problemi di routing: aggiunta route /dashboard per redirect corretto
   - AuthProvider integrato nel sistema di login per gestione stato utente
