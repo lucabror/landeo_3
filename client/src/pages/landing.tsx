@@ -591,7 +591,7 @@ export default function Landing() {
                 </div>
 
                 <Link href="/login">
-                  <Button className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-lg py-6">
+                  <Button className="w-full bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900 text-lg py-6">
                     Inizia Gratis Ora
                     <ChevronRight className="ml-2 w-5 h-5" />
                   </Button>
@@ -603,7 +603,7 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-amber-600 to-orange-600">
+      <section className="py-20 bg-gradient-to-r from-amber-700 to-amber-800">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">
             Pronto a trasformare il tuo hotel?
@@ -613,12 +613,12 @@ export default function Landing() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/login">
-              <Button size="lg" className="bg-white text-amber-600 hover:bg-gray-50 text-lg px-8">
+              <Button size="lg" className="bg-white text-amber-700 hover:bg-gray-50 text-lg px-8">
                 Registrazione Gratuita
                 <ChevronRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 text-lg px-8">
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-amber-700 text-lg px-8 bg-transparent">
               Prenota Demo
             </Button>
           </div>
@@ -631,7 +631,7 @@ export default function Landing() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-amber-600 to-amber-700 rounded-lg flex items-center justify-center">
                   <Hotel className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-bold">ItineraItalia</span>
