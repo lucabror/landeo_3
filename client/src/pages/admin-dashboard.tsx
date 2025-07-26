@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Building, CreditCard, Euro, AlertCircle, CheckCircle, X, Settings, Search, Eye, Mail, Phone, MapPin, Calendar, Trash2 } from "lucide-react";
+import { Building, CreditCard, Euro, AlertCircle, CheckCircle, X, Settings, Search, Eye, Mail, Phone, MapPin, Calendar, Trash2, User, LogOut } from "lucide-react";
+import { Link } from "wouter";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -245,11 +246,18 @@ function AdminDashboardContent() {
           <Badge variant="secondary" className="text-sm">
             Super Admin: {user?.email}
           </Badge>
+          <Link href="/admin-profile">
+            <Button variant="outline" size="sm">
+              <User className="mr-2 h-4 w-4" />
+              Profilo
+            </Button>
+          </Link>
           <Button 
             variant="outline" 
             size="sm"
             onClick={logout}
           >
+            <LogOut className="mr-2 h-4 w-4" />
             Logout
           </Button>
         </div>
