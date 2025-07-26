@@ -4,6 +4,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { storage } from "./storage";
+import authRoutes from "./routes/auth";
 import { 
   insertHotelSchema, 
   insertGuestProfileSchema, 
@@ -1600,6 +1601,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch credit purchases" });
     }
   });
+
+  // Auth routes
+  app.use('/api/auth', authRoutes);
 
   // Admin Routes
 

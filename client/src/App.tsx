@@ -13,6 +13,8 @@ import ItineraryView from "@/pages/itinerary-view";
 import GuestPreferencesPage from "@/pages/guest-preferences";
 import AdminDashboard from "@/pages/admin-dashboard";
 import UserProfile from "@/pages/user-profile";
+import HotelLogin from "@/pages/hotel-login";
+import AdminLogin from "@/pages/admin-login";
 
 function Router() {
   return (
@@ -42,6 +44,10 @@ function Router() {
       
       {/* User profile */}
       <Route path="/profile" component={UserProfile} />
+      
+      {/* Login pages */}
+      <Route path="/login" component={HotelLogin} />
+      <Route path="/admin-login" component={AdminLogin} />
       
       {/* Admin dashboard */}
       <Route path="/admin" component={AdminDashboard} />
