@@ -23,6 +23,7 @@ function Router() {
     <Switch>
       {/* Main dashboard */}
       <Route path="/" component={Dashboard} />
+      <Route path="/dashboard" component={Dashboard} />
       
       {/* Hotel management */}
       <Route path="/hotel-setup" component={HotelSetup} />
