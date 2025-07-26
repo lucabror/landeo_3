@@ -1,9 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { body, validationResult } from 'express-validator';
+import { randomBytes } from 'crypto';
+import bcrypt from 'bcryptjs';
 import { db } from '../db';
 import { hotels, administrators } from '@shared/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, gt } from 'drizzle-orm';
 import {
   hashPassword,
   verifyPassword,
@@ -475,7 +477,7 @@ router.post('/forgot-password', async (req, res) => {
       }
       
       // Generate reset token (valid for 1 hour)
-      resetToken = crypto.randomBytes(32).toString('hex');
+      resetToken = randomBytes(32).toString('hex');
       resetExpires = new Date(Date.now() + 3600000); // 1 hour
       
       await db.update(hotels)
@@ -492,7 +494,7 @@ router.post('/forgot-password', async (req, res) => {
         return res.json({ success: true, message: 'Se l\'email esiste, riceverai le istruzioni per il reset' });
       }
       
-      resetToken = crypto.randomBytes(32).toString('hex');
+      resetToken = randomBytes(32).toString('hex');
       resetExpires = new Date(Date.now() + 3600000);
       
       await db.update(administrators)
