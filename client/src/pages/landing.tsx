@@ -23,29 +23,29 @@ import {
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-orange-50 to-amber-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-amber-200 sticky top-0 z-50">
+      <header className="bg-stone-50/95 backdrop-blur-md border-b border-stone-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-600 to-orange-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
                 <Hotel className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold text-stone-800">
                   ItineraItalia
                 </h1>
-                <p className="text-xs text-amber-600">Powered by AI</p>
+                <p className="text-xs text-orange-600">Powered by AI</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/login">
-                <Button variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50">
+                <Button variant="outline" className="border-stone-300 text-stone-700 hover:bg-stone-100">
                   Accedi
                 </Button>
               </Link>
-              <Button className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700">
+              <Button className="bg-orange-500 hover:bg-orange-600 text-white">
                 Demo Gratuita
               </Button>
             </div>
@@ -54,79 +54,136 @@ export default function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 to-orange-600/10" />
+      <section className="relative py-16 lg:py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-stone-100/50 to-orange-100/30" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <Badge className="bg-amber-100 text-amber-800 border-amber-300 mb-6">
-                🚀 Nuova Generazione di Hospitality Management
+              <Badge className="bg-orange-100 text-orange-800 border-orange-200 mb-6">
+                Powered by AI & Made in Italy
               </Badge>
-              <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                Trasforma l'esperienza
-                <span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent block">
-                  dei tuoi ospiti
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-stone-900 mb-6 leading-tight">
+                Esperienze Italiane
+                <span className="text-orange-500 block">
+                  su Misura
                 </span>
               </h1>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                La prima piattaforma AI-powered per hotel italiani che genera itinerari personalizzati, 
-                gestisce profili ospiti e automatizza l'esperienza di soggiorno con tecnologia all'avanguardia.
+              <p className="text-lg lg:text-xl text-stone-600 mb-8 leading-relaxed">
+                La piattaforma AI che trasforma ogni soggiorno in un'esperienza indimenticabile, 
+                creando itinerari personalizzati per gli ospiti dei tuoi hotel e resort.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Link href="/login">
-                  <Button size="lg" className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-lg px-8">
-                    Inizia Gratis
+                  <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 w-full sm:w-auto">
+                    Inizia la Demo Gratuita
                     <ChevronRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
-                <Button size="lg" variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50 text-lg px-8">
-                  Guarda Demo
+                <Button size="lg" variant="outline" className="border-stone-300 text-stone-700 hover:bg-stone-50 text-lg px-8 w-full sm:w-auto">
+                  Scopri di Più
                 </Button>
               </div>
-              <div className="flex items-center gap-6 mt-8 pt-8 border-t border-amber-200">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-sm text-gray-600">Setup in 5 minuti</span>
+              
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-4 lg:gap-8">
+                <div className="text-center lg:text-left">
+                  <div className="text-2xl lg:text-3xl font-bold text-stone-900">500+</div>
+                  <div className="text-sm text-stone-600">Hotel Partner</div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-sm text-gray-600">Supporto 24/7</span>
+                <div className="text-center lg:text-left">
+                  <div className="text-2xl lg:text-3xl font-bold text-stone-900">50K+</div>
+                  <div className="text-sm text-stone-600">Itinerari Creati</div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="text-sm text-gray-600">Made in Italy</span>
+                <div className="text-center lg:text-left">
+                  <div className="text-2xl lg:text-3xl font-bold text-stone-900">95%</div>
+                  <div className="text-sm text-stone-600">Soddisfazione Ospiti</div>
                 </div>
               </div>
             </div>
-            <div className="relative">
-              <div className="relative bg-white rounded-2xl shadow-2xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-500">
-                <div className="absolute -top-4 -right-4 w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center">
-                  <Brain className="w-10 h-10 text-white" />
+            
+            {/* iPhone Mockup */}
+            <div className="relative flex justify-center lg:justify-end">
+              <div className="relative">
+                {/* iPhone Frame */}
+                <div className="w-72 h-[600px] bg-gray-900 rounded-[3rem] p-2 shadow-2xl">
+                  <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative">
+                    {/* iPhone Notch */}
+                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-10"></div>
+                    
+                    {/* App Content */}
+                    <div className="pt-8 px-4 h-full bg-gradient-to-b from-stone-50 to-orange-50">
+                      <div className="text-center mb-6">
+                        <h3 className="text-lg font-bold text-stone-900 mb-2">Vedi la magia in azione</h3>
+                        <p className="text-sm text-stone-600">Itinerario personalizzato per una famiglia</p>
+                      </div>
+                      
+                      {/* Guest Profile Card */}
+                      <div className="bg-white rounded-xl p-4 mb-4 shadow-sm border border-stone-100">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                            <Users className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <div className="font-semibold text-stone-900">Profilo Ospite</div>
+                            <div className="text-xs text-stone-600">Generato dall'hotel manager</div>
+                          </div>
+                        </div>
+                        <div className="space-y-2 text-xs">
+                          <div className="flex items-center gap-2">
+                            <Users className="w-3 h-3 text-stone-500" />
+                            <span className="text-stone-700">Famiglia con bambini</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-3 h-3 text-stone-500" />
+                            <span className="text-stone-700">3 giorni di soggiorno</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <MapPin className="w-3 h-3 text-stone-500" />
+                            <span className="text-stone-700">Hotel Villa Tuscany, Castellina</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Day 1 */}
+                      <div className="bg-white rounded-xl p-4 mb-3 shadow-sm border border-stone-100">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-sm">1</div>
+                          <div>
+                            <div className="font-semibold text-stone-900">Scoperta del Chianti</div>
+                            <div className="text-xs text-stone-600">09:00 - 18:00</div>
+                          </div>
+                          <Badge className="bg-yellow-100 text-yellow-800 text-xs ml-auto">Famiglia-friendly</Badge>
+                        </div>
+                        <div className="space-y-1 text-xs text-stone-600">
+                          <div>• Visita guidata Castello di Brolio</div>
+                          <div>• Degustazione vini per adulti</div>
+                          <div>• Laboratorio ceramica per bambini</div>
+                        </div>
+                      </div>
+                      
+                      {/* Day 2 */}
+                      <div className="bg-white rounded-xl p-4 shadow-sm border border-stone-100">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-sm">2</div>
+                          <div>
+                            <div className="font-semibold text-stone-900">Avventura Naturale</div>
+                            <div className="text-xs text-stone-600">08:30 - 17:30</div>
+                          </div>
+                          <Badge className="bg-green-100 text-green-800 text-xs ml-auto">All'aria aperta</Badge>
+                        </div>
+                        <div className="space-y-1 text-xs text-stone-600">
+                          <div>• Trekking nelle colline</div>
+                          <div>• Picnic panoramico</div>
+                          <div>• Visita fattoria didattica</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Itinerario AI Generato</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-3 bg-amber-50 rounded-lg">
-                    <MapPin className="w-5 h-5 text-amber-600" />
-                    <div>
-                      <p className="font-medium">Colosseo & Fori Imperiali</p>
-                      <p className="text-sm text-gray-600">09:00 - 12:00</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
-                    <Users className="w-5 h-5 text-orange-600" />
-                    <div>
-                      <p className="font-medium">Pranzo tipico romano</p>
-                      <p className="text-sm text-gray-600">12:30 - 14:00</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
-                    <Heart className="w-5 h-5 text-yellow-600" />
-                    <div>
-                      <p className="font-medium">Fontana di Trevi</p>
-                      <p className="text-sm text-gray-600">15:00 - 16:30</p>
-                    </div>
-                  </div>
-                </div>
+                
+                {/* Floating Elements */}
+                <div className="absolute -top-4 -left-4 w-16 h-16 bg-orange-500 rounded-full opacity-20 animate-pulse"></div>
+                <div className="absolute -bottom-8 -right-8 w-20 h-20 bg-yellow-400 rounded-full opacity-20 animate-pulse delay-1000"></div>
               </div>
             </div>
           </div>
@@ -134,90 +191,89 @@ export default function Landing() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
+      <section className="py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Badge className="bg-amber-100 text-amber-800 border-amber-300 mb-4">
-              🎯 Funzionalità Avanzate
+          <div className="text-center mb-12 lg:mb-16">
+            <Badge className="bg-orange-100 text-orange-800 border-orange-200 mb-4">
+              Funzionalità Complete
             </Badge>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Tutto quello che serve per il tuo hotel
+            <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-4">
+              Tutto quello che serve per l'ospitalità perfetta
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Una suite completa di strumenti intelligenti per trasformare la gestione ospiti 
-              e offrire esperienze indimenticabili in Italia.
+            <p className="text-lg lg:text-xl text-stone-600 max-w-3xl mx-auto">
+              Una piattaforma completa che integra AI, design elegante e funzionalità avanzate per trasformare ogni soggiorno in un'esperienza indimenticabile.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
-              <CardHeader>
-                <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            <Card className="group hover:shadow-lg transition-all duration-300 border-stone-200 hover:border-orange-300">
+              <CardHeader className="pb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Brain className="w-6 h-6 text-white" />
                 </div>
-                <CardTitle className="text-xl">AI Itinerari Personalizzati</CardTitle>
-                <CardDescription>
-                  Intelligenza artificiale avanzata genera itinerari unici basati su preferenze ospiti e esperienze locali.
+                <CardTitle className="text-lg lg:text-xl text-stone-900">AI Itinerari Personalizzati</CardTitle>
+                <CardDescription className="text-stone-600">
+                  Algoritmi AI avanzati che creano itinerari personalizzati basati sui profili degli ospiti.
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
-              <CardHeader>
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <Card className="group hover:shadow-lg transition-all duration-300 border-stone-200 hover:border-orange-300">
+              <CardHeader className="pb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Users className="w-6 h-6 text-white" />
                 </div>
-                <CardTitle className="text-xl">Gestione Profili Ospiti</CardTitle>
-                <CardDescription>
-                  Sistema completo per raccogliere preferenze, gestire soggiorni e personalizzare ogni esperienza.
+                <CardTitle className="text-lg lg:text-xl text-stone-900">Profili Ospiti</CardTitle>
+                <CardDescription className="text-stone-600">
+                  Creazione dettagliata di profili personalizzati: famiglie, coppie, business, senior travelers.
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
-              <CardHeader>
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <Card className="group hover:shadow-lg transition-all duration-300 border-stone-200 hover:border-orange-300">
+              <CardHeader className="pb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <MapPin className="w-6 h-6 text-white" />
+                </div>
+                <CardTitle className="text-lg lg:text-xl text-stone-900">Esperienze Locali</CardTitle>
+                <CardDescription className="text-stone-600">
+                  Database completo delle attività e attrazioni nei dintorni dell'hotel con partnership.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="group hover:shadow-lg transition-all duration-300 border-stone-200 hover:border-orange-300">
+              <CardHeader className="pb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <QrCode className="w-6 h-6 text-white" />
                 </div>
-                <CardTitle className="text-xl">QR Code & PDF</CardTitle>
-                <CardDescription>
-                  Genera automaticamente QR code e PDF eleganti per condividere itinerari con gli ospiti.
+                <CardTitle className="text-lg lg:text-xl text-stone-900">QR Code & PDF</CardTitle>
+                <CardDescription className="text-stone-600">
+                  Tagliandini eleganti con QR code e PDF completi per un'esperienza premium.
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
-              <CardHeader>
-                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <Card className="group hover:shadow-lg transition-all duration-300 border-stone-200 hover:border-orange-300">
+              <CardHeader className="pb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Mail className="w-6 h-6 text-white" />
                 </div>
-                <CardTitle className="text-xl">Email Automatiche</CardTitle>
-                <CardDescription>
-                  Sistema di invio email automatico per PDF itinerari e comunicazioni personalizzate agli ospiti.
+                <CardTitle className="text-lg lg:text-xl text-stone-900">Email Automatiche</CardTitle>
+                <CardDescription className="text-stone-600">
+                  Sistema di invio email automatico per PDF itinerari e comunicazioni personalizzate.
                 </CardDescription>
               </CardHeader>
             </Card>
 
-            <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
-              <CardHeader>
-                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <Card className="group hover:shadow-lg transition-all duration-300 border-stone-200 hover:border-orange-300">
+              <CardHeader className="pb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Shield className="w-6 h-6 text-white" />
                 </div>
-                <CardTitle className="text-xl">Sicurezza Avanzata</CardTitle>
-                <CardDescription>
-                  Autenticazione sicura, controllo accessi e protezione dati con standard enterprise.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
-              <CardHeader>
-                <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Globe className="w-6 h-6 text-white" />
-                </div>
-                <CardTitle className="text-xl">Multilingua</CardTitle>
-                <CardDescription>
-                  Supporto completo per ospiti internazionali con interfaccia e contenuti multilingua.
+                <CardTitle className="text-lg lg:text-xl text-stone-900">Dashboard Completa</CardTitle>
+                <CardDescription className="text-stone-600">
+                  Dashboard completa per la gestione dei dati dell'hotel, localizzazione e servizi offerti.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -225,25 +281,62 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-amber-600 to-orange-600">
+      {/* Demo Section */}
+      <section className="py-16 lg:py-20 bg-stone-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-4xl font-bold text-white mb-2">500+</div>
-              <div className="text-amber-100">Hotel Partner</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-white mb-2">50K+</div>
-              <div className="text-amber-100">Itinerari Generati</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-white mb-2">98%</div>
-              <div className="text-amber-100">Soddisfazione Ospiti</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-white mb-2">24/7</div>
-              <div className="text-amber-100">Supporto Dedicato</div>
+          <div className="text-center mb-12">
+            <Badge className="bg-orange-100 text-orange-800 border-orange-200 mb-4">
+              Demo Interattiva
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-4">
+              Vedi la magia in azione
+            </h2>
+            <p className="text-lg lg:text-xl text-stone-600 max-w-3xl mx-auto">
+              Ecco come l'AI genera un itinerario personalizzato per una famiglia che soggiorna in un hotel del Chianti Classico.
+            </p>
+          </div>
+          
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-2xl shadow-xl p-6 lg:p-8">
+              <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+                {/* Step 1 */}
+                <div className="text-center lg:text-left">
+                  <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto lg:mx-0 mb-4">1</div>
+                  <h3 className="font-semibold text-stone-900 mb-2">Profilo Ospite</h3>
+                  <p className="text-sm text-stone-600 mb-4">Generato dall'hotel manager</p>
+                  <div className="space-y-2 text-sm text-stone-600">
+                    <div>👨‍👩‍👧‍👦 Famiglia con bambini</div>
+                    <div>📅 3 giorni di soggiorno</div>
+                    <div>🏨 Hotel Villa Tuscany, Castellina</div>
+                  </div>
+                </div>
+                
+                {/* Step 2 */}
+                <div className="text-center lg:text-left">
+                  <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto lg:mx-0 mb-4">2</div>
+                  <h3 className="font-semibold text-stone-900 mb-2">Scoperta del Chianti</h3>
+                  <p className="text-sm text-stone-600 mb-4">09:00 - 18:00</p>
+                  <Badge className="bg-yellow-100 text-yellow-800 text-xs mb-3">Esperienza famiglia-friendly</Badge>
+                  <div className="space-y-1 text-sm text-stone-600">
+                    <div>• Visita guidata Castello di Brolio</div>
+                    <div>• Degustazione vini per adulti</div>
+                    <div>• Laboratorio ceramica per bambini</div>
+                  </div>
+                </div>
+                
+                {/* Step 3 */}
+                <div className="text-center lg:text-left">
+                  <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto lg:mx-0 mb-4">3</div>
+                  <h3 className="font-semibold text-stone-900 mb-2">Avventura Naturale</h3>
+                  <p className="text-sm text-stone-600 mb-4">08:30 - 17:30</p>
+                  <Badge className="bg-green-100 text-green-800 text-xs mb-3">Attività all'aria aperta</Badge>
+                  <div className="space-y-1 text-sm text-stone-600">
+                    <div>• Trekking dolce nelle colline</div>
+                    <div>• Picnic panoramico</div>
+                    <div>• Visita fattoria didattica</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -396,51 +489,51 @@ export default function Landing() {
           </div>
 
           <div className="max-w-2xl mx-auto">
-            <Card className="border-2 border-amber-300 shadow-xl">
-              <CardHeader className="text-center bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-t-lg">
+            <Card className="border-2 border-orange-300 shadow-xl">
+              <CardHeader className="text-center bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-t-lg">
                 <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Award className="w-8 h-8" />
                 </div>
-                <CardTitle className="text-3xl">Piano Crediti</CardTitle>
-                <CardDescription className="text-amber-100 text-lg">
+                <CardTitle className="text-2xl lg:text-3xl">Piano Crediti</CardTitle>
+                <CardDescription className="text-orange-100 text-base lg:text-lg">
                   Perfetto per hotel di ogni dimensione
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-8">
+              <CardContent className="p-6 lg:p-8">
                 <div className="text-center mb-8">
-                  <div className="text-6xl font-bold text-gray-900 mb-2">1€</div>
-                  <div className="text-xl text-gray-600">per ospite inserito</div>
+                  <div className="text-5xl lg:text-6xl font-bold text-stone-900 mb-2">1€</div>
+                  <div className="text-lg lg:text-xl text-stone-600">per ospite inserito</div>
                 </div>
                 
                 <div className="space-y-4 mb-8">
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span>Registrazione hotel gratuita</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-stone-700">Registrazione hotel gratuita</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span>Itinerari AI illimitati per ospite</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-stone-700">Itinerari AI illimitati per ospite</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span>PDF e QR code automatici</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-stone-700">PDF e QR code automatici</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span>Email automatiche</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-stone-700">Email automatiche</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span>Supporto 24/7</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-stone-700">Supporto 24/7</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span>Pagamento bonifico bancario</span>
+                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                    <span className="text-stone-700">Pagamento bonifico bancario</span>
                   </div>
                 </div>
 
                 <Link href="/login">
-                  <Button className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-lg py-6">
+                  <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white text-lg py-6">
                     Inizia Gratis Ora
                     <ChevronRight className="ml-2 w-5 h-5" />
                   </Button>
@@ -452,72 +545,69 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-amber-600 to-orange-600">
+      <section className="py-16 lg:py-20 bg-gradient-to-r from-orange-500 to-orange-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">
-            Pronto a trasformare il tuo hotel?
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+            Pronto a creare esperienze uniche?
           </h2>
-          <p className="text-xl text-amber-100 mb-8">
-            Unisciti a centinaia di hotel italiani che stanno già offrendo esperienze straordinarie ai loro ospiti.
+          <p className="text-lg lg:text-xl text-orange-100 mb-8">
+            Inizia oggi stesso con la demo gratuita e scopri come l'AI può trasformare l'esperienza dei tuoi ospiti.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/login">
-              <Button size="lg" className="bg-white text-amber-600 hover:bg-gray-50 text-lg px-8">
-                Registrazione Gratuita
+              <Button size="lg" className="bg-white text-orange-600 hover:bg-stone-50 text-lg px-8">
+                Inizia la Demo Gratuita
                 <ChevronRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 text-lg px-8">
-              Prenota Demo
-            </Button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-stone-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="sm:col-span-2 lg:col-span-1">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
                   <Hotel className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-bold">ItineraItalia</span>
               </div>
-              <p className="text-gray-400 text-sm">
+              <p className="text-stone-400 text-sm">
                 La piattaforma AI per l'hospitality italiana. Made with ❤️ in Italy.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Prodotto</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>Funzionalità</li>
-                <li>Prezzi</li>
-                <li>Demo</li>
-                <li>API</li>
+              <h4 className="font-semibold mb-4 text-white">Prodotto</h4>
+              <ul className="space-y-2 text-sm text-stone-400">
+                <li className="hover:text-orange-400 cursor-pointer transition-colors">Funzionalità</li>
+                <li className="hover:text-orange-400 cursor-pointer transition-colors">Prezzi</li>
+                <li className="hover:text-orange-400 cursor-pointer transition-colors">Demo</li>
+                <li className="hover:text-orange-400 cursor-pointer transition-colors">API</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Supporto</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>Centro Assistenza</li>
-                <li>Documentazione</li>
-                <li>Contatti</li>
-                <li>Status</li>
+              <h4 className="font-semibold mb-4 text-white">Supporto</h4>
+              <ul className="space-y-2 text-sm text-stone-400">
+                <li className="hover:text-orange-400 cursor-pointer transition-colors">Centro Assistenza</li>
+                <li className="hover:text-orange-400 cursor-pointer transition-colors">Documentazione</li>
+                <li className="hover:text-orange-400 cursor-pointer transition-colors">Contatti</li>
+                <li className="hover:text-orange-400 cursor-pointer transition-colors">Status</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Azienda</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>Chi Siamo</li>
-                <li>Privacy</li>
-                <li>Termini</li>
-                <li>Sicurezza</li>
+              <h4 className="font-semibold mb-4 text-white">Azienda</h4>
+              <ul className="space-y-2 text-sm text-stone-400">
+                <li className="hover:text-orange-400 cursor-pointer transition-colors">Chi Siamo</li>
+                <li className="hover:text-orange-400 cursor-pointer transition-colors">Privacy</li>
+                <li className="hover:text-orange-400 cursor-pointer transition-colors">Termini</li>
+                <li className="hover:text-orange-400 cursor-pointer transition-colors">Sicurezza</li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+          <div className="border-t border-stone-800 mt-8 pt-8 text-center text-sm text-stone-400">
             <p>&copy; 2025 ItineraItalia. Tutti i diritti riservati.</p>
           </div>
         </div>
