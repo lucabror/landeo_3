@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Key, LogOut, Edit, Shield, Save, X } from "lucide-react";
+import { User, Mail, Key, LogOut, Edit, Shield, Save, X, Smartphone, QrCode } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 
 interface Hotel {
   id: string;
@@ -32,18 +33,36 @@ export default function UserProfile() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showMfaSetup, setShowMfaSetup] = useState(false);
+  const [mfaSecret, setMfaSecret] = useState("");
+  const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const [mfaToken, setMfaToken] = useState("");
+  const [mfaEnabled, setMfaEnabled] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
-  // Get hotel ID from localStorage (assuming it's stored during login)
-  // For demo purposes, using the mock hotel ID
-  const hotelId = localStorage.getItem('hotelId') || "d2dd46f0-97d3-4121-96e3-01500370c73f";
+  // Use hotelId from AuthProvider if available, fallback to localStorage
+  const hotelId = user?.hotelId || localStorage.getItem('hotelId') || "d2dd46f0-97d3-4121-96e3-01500370c73f";
 
   // Fetch hotel profile
   const { data: hotel, isLoading } = useQuery<Hotel>({
     queryKey: [`/api/hotels/${hotelId}`],
     enabled: !!hotelId,
   });
+
+  // Fetch MFA status
+  const { data: mfaStatus } = useQuery({
+    queryKey: [`/api/auth/mfa-status`],
+    enabled: !!hotelId,
+  });
+
+  // Update MFA enabled state when data loads
+  useEffect(() => {
+    if (mfaStatus?.mfaEnabled !== undefined) {
+      setMfaEnabled(mfaStatus.mfaEnabled);
+    }
+  }, [mfaStatus]);
 
   // Update email mutation
   const updateEmailMutation = useMutation({
@@ -65,6 +84,73 @@ export default function UserProfile() {
       toast({
         title: "Errore",
         description: "Impossibile aggiornare l'email. Riprova.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Setup MFA mutation
+  const setupMfaMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", `/api/auth/setup-mfa`, {});
+    },
+    onSuccess: (data) => {
+      setMfaSecret(data.secret);
+      setQrCodeUrl(data.qrCode);
+      setShowMfaSetup(true);
+      toast({
+        title: "2FA Setup Iniziato",
+        description: "Scansiona il QR code con Google Authenticator.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Errore",
+        description: "Impossibile configurare la 2FA. Riprova.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Verify MFA mutation
+  const verifyMfaMutation = useMutation({
+    mutationFn: async (token: string) => {
+      return apiRequest("POST", `/api/auth/verify-mfa`, { token });
+    },
+    onSuccess: () => {
+      setMfaEnabled(true);
+      setShowMfaSetup(false);
+      setMfaToken("");
+      toast({
+        title: "2FA Attivata",
+        description: "Google Authenticator è ora attivo per il tuo account.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Codice Errato",
+        description: "Il codice inserito non è valido. Riprova.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Disable MFA mutation
+  const disableMfaMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", `/api/auth/disable-mfa`, {});
+    },
+    onSuccess: () => {
+      setMfaEnabled(false);
+      toast({
+        title: "2FA Disattivata",
+        description: "Google Authenticator è stato disattivato.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Errore",
+        description: "Impossibile disattivare la 2FA. Riprova.",
         variant: "destructive",
       });
     },
@@ -405,21 +491,136 @@ export default function UserProfile() {
         </CardContent>
       </Card>
 
-      {/* Security Notice */}
+      {/* Security Section */}
       <Card>
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <Shield className="h-5 w-5 text-blue-500 mt-0.5" />
-            <div>
-              <h4 className="font-medium text-gray-900 mb-1">Sicurezza Account</h4>
-              <p className="text-sm text-gray-600">
-                Ti consigliamo di utilizzare una password sicura e di cambiarla periodicamente. 
-                Non condividere le tue credenziali con altre persone.
-              </p>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Sicurezza Account
+          </CardTitle>
+          <CardDescription>
+            Proteggi il tuo account con l'autenticazione a due fattori
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* 2FA Section */}
+          <div className="border rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Smartphone className="h-4 w-4 text-gray-500" />
+                <Label className="font-medium">Autenticazione a Due Fattori (2FA)</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                {mfaEnabled ? (
+                  <Badge variant="default" className="bg-green-100 text-green-800">
+                    Attiva
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary">
+                    Disattiva
+                  </Badge>
+                )}
+              </div>
             </div>
+            
+            <p className="text-sm text-gray-600 mb-4">
+              Aggiungi un livello extra di sicurezza utilizzando Google Authenticator per generare codici di verifica.
+            </p>
+
+            {!mfaEnabled ? (
+              <Button 
+                onClick={() => setupMfaMutation.mutate()}
+                disabled={setupMfaMutation.isPending}
+                className="w-full sm:w-auto"
+              >
+                <QrCode className="h-4 w-4 mr-2" />
+                {setupMfaMutation.isPending ? "Configurando..." : "Configura 2FA"}
+              </Button>
+            ) : (
+              <Button 
+                variant="destructive" 
+                onClick={() => disableMfaMutation.mutate()}
+                disabled={disableMfaMutation.isPending}
+                className="w-full sm:w-auto"
+              >
+                <X className="h-4 w-4 mr-2" />
+                {disableMfaMutation.isPending ? "Disattivando..." : "Disattiva 2FA"}
+              </Button>
+            )}
+          </div>
+
+          {/* Security Tips */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-medium text-blue-900 mb-2">Consigli per la Sicurezza</h4>
+            <ul className="text-sm text-blue-800 space-y-1">
+              <li>• Utilizza una password sicura e cambiala periodicamente</li>
+              <li>• Non condividere le tue credenziali con altre persone</li>
+              <li>• Attiva la 2FA per una protezione extra</li>
+              <li>• Controlla regolarmente l'attività del tuo account</li>
+            </ul>
           </div>
         </CardContent>
       </Card>
+
+      {/* MFA Setup Dialog */}
+      <Dialog open={showMfaSetup} onOpenChange={setShowMfaSetup}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Configura Google Authenticator</DialogTitle>
+            <DialogDescription>
+              Segui questi passaggi per attivare l'autenticazione a due fattori
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {qrCodeUrl && (
+              <div className="text-center">
+                <img 
+                  src={qrCodeUrl} 
+                  alt="QR Code per 2FA" 
+                  className="mx-auto border rounded-lg p-2 bg-white"
+                />
+              </div>
+            )}
+            
+            <div className="text-sm text-gray-600 space-y-2">
+              <p><strong>Passaggio 1:</strong> Installa Google Authenticator sul tuo telefono</p>
+              <p><strong>Passaggio 2:</strong> Scansiona il QR code sopra</p>
+              <p><strong>Passaggio 3:</strong> Inserisci il codice a 6 cifre generato dall'app</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="mfa-token">Codice di Verifica</Label>
+              <Input
+                id="mfa-token"
+                type="text"
+                placeholder="123456"
+                value={mfaToken}
+                onChange={(e) => setMfaToken(e.target.value)}
+                maxLength={6}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowMfaSetup(false);
+                setMfaToken("");
+              }}
+            >
+              Annulla
+            </Button>
+            <Button 
+              onClick={() => verifyMfaMutation.mutate(mfaToken)}
+              disabled={verifyMfaMutation.isPending || mfaToken.length !== 6}
+            >
+              {verifyMfaMutation.isPending ? "Verificando..." : "Verifica e Attiva"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
