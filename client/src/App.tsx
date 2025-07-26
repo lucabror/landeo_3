@@ -18,6 +18,7 @@ import UserProfile from "@/pages/user-profile";
 import HotelLogin from "@/pages/hotel-login";
 import AdminLogin from "@/pages/admin-login";
 import AdminProfile from "@/pages/admin-profile";
+import MfaReset from "@/pages/mfa-reset";
 
 function Router() {
   return (
@@ -63,6 +64,9 @@ function Router() {
       
       {/* Password reset */}
       <Route path="/reset-password" component={ResetPasswordPage} />
+      
+      {/* MFA reset */}
+      <Route path="/mfa-reset" component={MfaReset} />
       
       {/* Fallback to 404 */}
       <Route component={NotFound} />

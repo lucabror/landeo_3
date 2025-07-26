@@ -396,13 +396,29 @@ export default function AdminProfile() {
             </div>
 
             {/* MFA Info */}
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="font-medium text-blue-900 mb-2">Perché usare l'autenticazione a due fattori?</h4>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Protezione aggiuntiva per il tuo account amministratore</li>
-                <li>• Sicurezza contro accessi non autorizzati</li>
-                <li>• Conformità alle migliori pratiche di sicurezza</li>
-              </ul>
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="font-medium text-blue-900 mb-2">Perché usare l'autenticazione a due fattori?</h4>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>• Protezione aggiuntiva per il tuo account amministratore</li>
+                  <li>• Sicurezza contro accessi non autorizzati</li>
+                  <li>• Conformità alle migliori pratiche di sicurezza</li>
+                </ul>
+              </div>
+              
+              {mfaEnabled && (
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <h4 className="font-medium text-amber-900 mb-2">Hai perso l'accesso a Google Authenticator?</h4>
+                  <p className="text-sm text-amber-800 mb-3">
+                    Se hai cancellato l'app o cambiato telefono, puoi resettare il 2FA usando le tue credenziali.
+                  </p>
+                  <Link href="/mfa-reset">
+                    <Button size="sm" variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-100">
+                      Reset MFA di Emergenza
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
