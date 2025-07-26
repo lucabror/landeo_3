@@ -507,31 +507,44 @@ router.post('/forgot-password', async (req, res) => {
       user = admin;
     }
     
+    console.log('🔄 Procedendo con invio email. Token generato:', resetToken);
+    console.log('🔧 RESEND_API_KEY presente:', !!process.env.RESEND_API_KEY);
+    
     // Send reset email
     if (process.env.RESEND_API_KEY) {
-      const { Resend } = await import('resend');
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      
-      const resetUrl = `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'http://localhost:5000'}/reset-password?token=${resetToken}&type=${userType}`;
-      
-      await resend.emails.send({
-        from: 'Itinera Platform <noreply@itinera.app>',
-        to: email,
-        subject: 'Reset Password - Itinera Platform',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #2c3e50;">Reset Password Richiesto</h1>
-            <p>Hai richiesto il reset della password per il tuo account Itinera.</p>
-            <p>Clicca il link seguente per impostare una nuova password:</p>
-            <a href="${resetUrl}" style="background: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
-              Reset Password
-            </a>
-            <p style="margin-top: 20px; color: #7f8c8d; font-size: 14px;">
-              Questo link è valido per 1 ora. Se non hai richiesto il reset, ignora questa email.
-            </p>
-          </div>
-        `
-      });
+      try {
+        console.log('📧 Tentativo invio email reset password a:', email);
+        const { Resend } = await import('resend');
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        
+        const resetUrl = `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'http://localhost:5000'}/reset-password?token=${resetToken}&type=${userType}`;
+        console.log('🔗 URL di reset generato:', resetUrl);
+        
+        const emailResult = await resend.emails.send({
+          from: 'Itinera Platform <onboarding@resend.dev>',
+          to: email,
+          subject: 'Reset Password - Itinera Platform',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h1 style="color: #2c3e50;">Reset Password Richiesto</h1>
+              <p>Hai richiesto il reset della password per il tuo account Itinera.</p>
+              <p>Clicca il link seguente per impostare una nuova password:</p>
+              <a href="${resetUrl}" style="background: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                Reset Password
+              </a>
+              <p style="margin-top: 20px; color: #7f8c8d; font-size: 14px;">
+                Questo link è valido per 1 ora. Se non hai richiesto il reset, ignora questa email.
+              </p>
+            </div>
+          `
+        });
+        console.log('✅ Email inviata con successo:', emailResult);
+      } catch (emailError) {
+        console.error('❌ Errore invio email:', emailError);
+        // Non bloccare il processo anche se l'email fallisce
+      }
+    } else {
+      console.log('⚠️ RESEND_API_KEY non configurata, email non inviata');
     }
     
     res.json({ 
