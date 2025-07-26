@@ -1,5 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 import { 
   LayoutDashboard, 
   Hotel, 
@@ -7,7 +9,8 @@ import {
   MapPin, 
   Route, 
   QrCode,
-  User
+  User,
+  LogOut
 } from "lucide-react";
 
 const navigation = [
@@ -20,10 +23,11 @@ const navigation = [
 
 export function Sidebar() {
   const [location] = useLocation();
+  const { user, logout } = useAuth();
 
   return (
-    <div className="w-64 bg-white shadow-sm h-screen sticky top-0 border-r border-gray-200">
-      <div className="p-6">
+    <div className="w-64 bg-white shadow-sm h-screen sticky top-0 border-r border-gray-200 flex flex-col">
+      <div className="p-6 flex-1">
         <div className="space-y-1">
           {navigation.map((item) => {
             const isActive = location === item.href || 
@@ -46,6 +50,25 @@ export function Sidebar() {
             );
           })}
         </div>
+      </div>
+      
+      {/* User info and logout button */}
+      <div className="p-6 border-t border-gray-200">
+        <div className="text-xs text-gray-500 mb-2">
+          Connesso come
+        </div>
+        <div className="text-sm font-medium text-gray-900 mb-3 truncate">
+          {user?.email}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={logout}
+          className="w-full"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          Logout
+        </Button>
       </div>
     </div>
   );

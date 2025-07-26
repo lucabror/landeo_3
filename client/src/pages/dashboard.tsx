@@ -20,43 +20,48 @@ import {
   Wallet
 } from "lucide-react";
 import CreditPurchaseDialog from "@/components/credit-purchase-dialog";
+import { ProtectedRoute, useAuth } from "@/hooks/use-auth";
 
 // Mock hotel ID - in real app this would come from auth/context
 const MOCK_HOTEL_ID = "d2dd46f0-97d3-4121-96e3-01500370c73f";
 
-export default function Dashboard() {
+function DashboardContent() {
   const [selectedItinerary, setSelectedItinerary] = useState<any>(null);
   const [qrModalOpen, setQrModalOpen] = useState(false);
+  const { user } = useAuth();
+
+  // Use the user's hotel ID from authentication
+  const hotelId = user?.hotelId || MOCK_HOTEL_ID;
 
   // Fetch hotel stats
   const { data: stats } = useQuery({
-    queryKey: ["/api/hotels", MOCK_HOTEL_ID, "stats"],
+    queryKey: ["/api/hotels", hotelId, "stats"],
   });
 
   // Fetch guest profiles
   const { data: guestProfiles } = useQuery({
-    queryKey: ["/api/hotels", MOCK_HOTEL_ID, "guest-profiles"],
+    queryKey: ["/api/hotels", hotelId, "guest-profiles"],
   });
 
   // Fetch local experiences
   const { data: localExperiences } = useQuery({
-    queryKey: ["/api/hotels", MOCK_HOTEL_ID, "local-experiences"],
+    queryKey: ["/api/hotels", hotelId, "local-experiences"],
   });
 
   // Fetch recent itineraries
   const { data: itineraries } = useQuery({
-    queryKey: ["/api/hotels", MOCK_HOTEL_ID, "itineraries"],
+    queryKey: ["/api/hotels", hotelId, "itineraries"],
   });
 
   // Fetch hotel credits
   const { data: creditInfo = { credits: 0, totalCredits: 0, creditsUsed: 0 } } = useQuery({
-    queryKey: [`/api/hotels/${MOCK_HOTEL_ID}/credits`],
+    queryKey: [`/api/hotels/${hotelId}/credits`],
   });
 
-  // Mock hotel data
+  // Mock hotel data - in real app this would come from API
   const hotel = {
     name: "Grand Hotel Villa Medici",
-    id: MOCK_HOTEL_ID
+    id: hotelId
   };
 
   const handleShowQR = (itinerary: any) => {
@@ -349,5 +354,13 @@ export default function Dashboard() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <ProtectedRoute requiredRole="hotel">
+      <DashboardContent />
+    </ProtectedRoute>
   );
 }
