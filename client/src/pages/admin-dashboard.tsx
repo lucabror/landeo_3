@@ -1,4 +1,5 @@
 import { useState } from "react";
+import React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,8 +42,62 @@ export default function AdminDashboard() {
   const [selectedHotelId, setSelectedHotelId] = useState<string>("");
   const [creditAdjustment, setCreditAdjustment] = useState({ amount: 0, description: "" });
   const [processingNotes, setProcessingNotes] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authEmail, setAuthEmail] = useState("");
 
   const queryClient = useQueryClient();
+
+  // Check if already authenticated in sessionStorage
+  React.useEffect(() => {
+    const savedAuth = sessionStorage.getItem('admin-auth');
+    if (savedAuth === ADMIN_EMAIL) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const handleAuth = () => {
+    if (authEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('admin-auth', ADMIN_EMAIL);
+    } else {
+      alert('Email non autorizzata per l\'accesso amministrativo');
+    }
+  };
+
+  // Show auth form if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center">Accesso Area Admin</CardTitle>
+            <CardDescription className="text-center">
+              Inserisci la tua email amministrativa per accedere
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="admin-email">Email Amministratore</Label>
+              <Input
+                id="admin-email"
+                type="email"
+                placeholder="admin@esempio.com"
+                value={authEmail}
+                onChange={(e) => setAuthEmail(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAuth()}
+              />
+            </div>
+            <Button onClick={handleAuth} className="w-full">
+              Accedi
+            </Button>
+            <p className="text-xs text-gray-500 text-center">
+              Solo gli amministratori autorizzati possono accedere a questa area
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Fetch all hotels
   const { data: hotels = [], isLoading: hotelsLoading } = useQuery({
@@ -127,9 +182,22 @@ export default function AdminDashboard() {
           <h1 className="text-3xl font-bold text-gray-900">Dashboard Amministratore</h1>
           <p className="text-gray-600">Gestione clienti e sistema crediti</p>
         </div>
-        <Badge variant="secondary" className="text-sm">
-          Super Admin: {ADMIN_EMAIL}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="text-sm">
+            Super Admin: {ADMIN_EMAIL}
+          </Badge>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              sessionStorage.removeItem('admin-auth');
+              setIsAuthenticated(false);
+              setAuthEmail("");
+            }}
+          >
+            Logout
+          </Button>
+        </div>
       </div>
 
       {/* Stats Overview */}
