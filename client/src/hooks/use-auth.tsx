@@ -6,7 +6,8 @@ import { apiRequest } from '@/lib/queryClient';
 interface User {
   id: string;
   email: string;
-  role: 'hotel' | 'admin';
+  name?: string;
+  type: 'hotel' | 'admin';  // Changed from 'role' to 'type' to match API response
   hotelId?: string;
 }
 
@@ -14,7 +15,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (sessionToken: string, userData: User) => void;
+  login: (userData: User, sessionToken: string) => void;
   logout: () => Promise<void>;
 }
 
@@ -47,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = (sessionToken: string, userData: User) => {
+  const login = (userData: User, sessionToken: string) => {
     localStorage.setItem('sessionToken', sessionToken);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
@@ -72,9 +73,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       sessionStorage.removeItem('admin-auth'); // Legacy cleanup
       setUser(null);
       
-      // Redirect based on user role
-      if (user?.role === 'admin') {
-        setLocation('/admin-login');
+      // Redirect based on user type
+      if (user?.type === 'admin') {
+        setLocation('/login');
       } else {
         setLocation('/login');
       }
@@ -114,18 +115,10 @@ export function ProtectedRoute({
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      if (requiredRole === 'admin') {
-        setLocation('/admin-login');
-      } else {
-        setLocation('/login');
-      }
-    } else if (isAuthenticated && requiredRole && user?.role !== requiredRole) {
-      // Redirect to appropriate login if role doesn't match
-      if (requiredRole === 'admin') {
-        setLocation('/admin-login');
-      } else {
-        setLocation('/login');
-      }
+      setLocation('/login');
+    } else if (isAuthenticated && requiredRole && user?.type !== requiredRole) {
+      // Redirect to login if role doesn't match
+      setLocation('/login');
     }
   }, [isAuthenticated, isLoading, user, requiredRole, setLocation]);
 
@@ -137,7 +130,7 @@ export function ProtectedRoute({
     );
   }
 
-  if (!isAuthenticated || (requiredRole && user?.role !== requiredRole)) {
+  if (!isAuthenticated || (requiredRole && user?.type !== requiredRole)) {
     return null;
   }
 
