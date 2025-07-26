@@ -122,17 +122,17 @@ export default function DiscoverMore() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-amber-25 to-warmgray-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-amber-200 sticky top-0 z-50">
+      <header className="bg-white/80 backdrop-blur-md border-b border-stone-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-600 to-orange-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-700 to-amber-800 rounded-xl flex items-center justify-center">
                 <Hotel className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-amber-800 bg-clip-text text-transparent">
                   ItineraItalia
                 </h1>
                 <p className="text-sm text-gray-600">AI per l'Ospitalità Italiana</p>
@@ -146,7 +146,7 @@ export default function DiscoverMore() {
                 </Button>
               </Link>
               <Link href="/login">
-                <Button className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700">
+                <Button className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900">
                   Accedi
                 </Button>
               </Link>
@@ -163,7 +163,7 @@ export default function DiscoverMore() {
           </Badge>
           <h1 className="text-5xl font-bold text-gray-900 mb-6">
             Perché gli Hotel di Successo
-            <span className="block bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-amber-700 to-amber-800 bg-clip-text text-transparent">
               Scelgono ItineraItalia
             </span>
           </h1>

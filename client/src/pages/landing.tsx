@@ -23,20 +23,20 @@ import {
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-amber-25 to-warmgray-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-amber-200 sticky top-0 z-50">
+      <header className="bg-white/80 backdrop-blur-md border-b border-stone-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-600 to-orange-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-700 to-amber-800 rounded-xl flex items-center justify-center">
                 <Hotel className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-amber-800 bg-clip-text text-transparent">
                   ItineraItalia
                 </h1>
-                <p className="text-xs text-amber-600">Powered by AI</p>
+                <p className="text-xs text-amber-700">Powered by AI</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -45,7 +45,7 @@ export default function Landing() {
                   Accedi
                 </Button>
               </Link>
-              <Button className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700">
+              <Button className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900">
                 Demo Gratuita
               </Button>
             </div>
@@ -55,7 +55,7 @@ export default function Landing() {
 
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 to-orange-600/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-stone-600/5 to-amber-600/10" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -64,7 +64,7 @@ export default function Landing() {
               </Badge>
               <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
                 Trasforma l'esperienza
-                <span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent block">
+                <span className="bg-gradient-to-r from-amber-700 to-amber-800 bg-clip-text text-transparent block">
                   dei tuoi ospiti
                 </span>
               </h1>
@@ -74,18 +74,18 @@ export default function Landing() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/login">
-                  <Button size="lg" className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-lg px-8">
+                  <Button size="lg" className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900 text-lg px-8">
                     Inizia Gratis
                     <ChevronRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
                 <Link href="/discover-more">
-                  <Button size="lg" variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50 text-lg px-8">
+                  <Button size="lg" variant="outline" className="border-stone-300 text-amber-800 hover:bg-stone-50 text-lg px-8">
                     Scopri di Più
                   </Button>
                 </Link>
               </div>
-              <div className="flex items-center gap-6 mt-8 pt-8 border-t border-amber-200">
+              <div className="flex items-center gap-6 mt-8 pt-8 border-t border-stone-200">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-green-600" />
                   <span className="text-sm text-gray-600">Setup in 5 minuti</span>
@@ -102,27 +102,27 @@ export default function Landing() {
             </div>
             <div className="relative">
               <div className="relative bg-white rounded-2xl shadow-2xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-500">
-                <div className="absolute -top-4 -right-4 w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center">
+                <div className="absolute -top-4 -right-4 w-20 h-20 bg-gradient-to-br from-amber-600 to-amber-700 rounded-full flex items-center justify-center">
                   <Brain className="w-10 h-10 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">Itinerario AI Generato</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-3 bg-amber-50 rounded-lg">
-                    <MapPin className="w-5 h-5 text-amber-600" />
+                  <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-lg">
+                    <MapPin className="w-5 h-5 text-amber-700" />
                     <div>
                       <p className="font-medium">Colosseo & Fori Imperiali</p>
                       <p className="text-sm text-gray-600">09:00 - 12:00</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
-                    <Users className="w-5 h-5 text-orange-600" />
+                  <div className="flex items-center gap-3 p-3 bg-amber-50 rounded-lg">
+                    <Users className="w-5 h-5 text-amber-700" />
                     <div>
                       <p className="font-medium">Pranzo tipico romano</p>
                       <p className="text-sm text-gray-600">12:30 - 14:00</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
-                    <Heart className="w-5 h-5 text-yellow-600" />
+                  <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-lg">
+                    <Heart className="w-5 h-5 text-amber-700" />
                     <div>
                       <p className="font-medium">Fontana di Trevi</p>
                       <p className="text-sm text-gray-600">15:00 - 16:30</p>
@@ -154,7 +154,7 @@ export default function Landing() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
               <CardHeader>
-                <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 bg-gradient-to-br from-amber-600 to-amber-700 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Brain className="w-6 h-6 text-white" />
                 </div>
                 <CardTitle className="text-xl">AI Itinerari Personalizzati</CardTitle>
@@ -214,7 +214,7 @@ export default function Landing() {
 
             <Card className="group hover:shadow-xl transition-all duration-300 border-amber-200 hover:border-amber-300">
               <CardHeader>
-                <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 bg-gradient-to-br from-amber-600 to-amber-700 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Globe className="w-6 h-6 text-white" />
                 </div>
                 <CardTitle className="text-xl">Multilingua</CardTitle>
@@ -228,7 +228,7 @@ export default function Landing() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-amber-600 to-orange-600">
+      <section className="py-20 bg-gradient-to-r from-amber-700 to-amber-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
@@ -252,7 +252,7 @@ export default function Landing() {
       </section>
 
       {/* Process Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-stone-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge className="bg-amber-100 text-amber-800 border-amber-300 mb-4">
@@ -268,7 +268,7 @@ export default function Landing() {
 
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center group">
-              <div className="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-20 h-20 bg-gradient-to-br from-amber-600 to-amber-700 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                 <Hotel className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">1. Setup Hotel</h3>
@@ -288,7 +288,7 @@ export default function Landing() {
             </div>
 
             <div className="text-center group">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-20 h-20 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                 <Zap className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">3. Magia AI</h3>
@@ -532,7 +532,7 @@ export default function Landing() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 bg-gradient-to-br from-amber-50 to-orange-50">
+      <section className="py-20 bg-gradient-to-br from-stone-50 to-amber-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge className="bg-amber-100 text-amber-800 border-amber-300 mb-4">

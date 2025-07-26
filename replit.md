@@ -10,6 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-26**: Aggiornata palette colori landing page con tonalità pastello più eleganti
+  - Sostituiti colori amber-600/orange-600 con amber-700/amber-800 per maggiore raffinatezza
+  - Modificati sfondi da amber-50/orange-50 a stone-50/amber-50 per atmosfera luxury
+  - Eliminati colori troppo accesi e festosi in favore di toni eleganti e sobri
+  - Palette allineata con standard di lusso per hotel italiani di alta gamma
 - **2025-01-26**: Creata pagina "Scopri di Più" completa per convincere albergatori
   - Aggiunta sezione ROI con metriche concrete (tempo risparmiato, incremento revenue)
   - Sezione benefici con statistiche reali (+35% recensioni positive, +40% ritorni)
