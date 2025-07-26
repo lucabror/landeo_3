@@ -381,7 +381,7 @@ export default function AdminProfile() {
                   <>
                     <Badge variant="secondary" className="bg-gray-100 text-gray-800">
                       <X className="mr-1 h-3 w-3" />
-                      Inattivo
+                      Disattivata
                     </Badge>
                     <Button 
                       size="sm"

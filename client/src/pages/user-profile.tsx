@@ -526,7 +526,7 @@ export default function UserProfile() {
                   </Badge>
                 ) : (
                   <Badge variant="secondary">
-                    Disattiva
+                    Disattivata
                   </Badge>
                 )}
               </div>
