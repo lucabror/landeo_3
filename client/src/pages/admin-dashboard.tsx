@@ -45,7 +45,7 @@ function AdminDashboardContent() {
   const [selectedHotelId, setSelectedHotelId] = useState<string>("");
   const [creditAdjustment, setCreditAdjustment] = useState({ amount: 0, description: "" });
   const [processingNotes, setProcessingNotes] = useState("");
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [hotelDetailModal, setHotelDetailModal] = useState(false);
@@ -142,30 +142,7 @@ function AdminDashboardContent() {
     hotel.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Check if already authenticated in sessionStorage
-  React.useEffect(() => {
-    const savedAuth = sessionStorage.getItem('admin-auth');
-    if (savedAuth === ADMIN_EMAIL) {
-      setIsAuthenticated(true);
-    }
-  }, []);
 
-  const handleAuth = () => {
-    if (authEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase() && authPassword === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('admin-auth', ADMIN_EMAIL);
-      toast({
-        title: "Accesso effettuato",
-        description: "Benvenuto nell'area amministrativa!",
-      });
-    } else {
-      toast({
-        title: "Credenziali non valide",
-        description: "Verifica email e password e riprova.",
-        variant: "destructive",
-      });
-    }
-  };
 
   const getPackageInfo = (packageType: string) => {
     const packages = {
@@ -176,6 +153,32 @@ function AdminDashboardContent() {
     };
     return packages[packageType as keyof typeof packages] || packages.basic;
   };
+
+  // Check if user is admin
+  if (!user || user.type !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center">Accesso Negato</CardTitle>
+            <CardDescription className="text-center">
+              Area riservata agli amministratori
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-gray-600 mb-4">
+              Effettua il login come Super Admin per accedere a questa area.
+            </p>
+            <Link href="/admin-login">
+              <Button className="w-full">
+                Vai al Login Admin
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Show auth form if not authenticated
   if (!isAuthenticated) {
