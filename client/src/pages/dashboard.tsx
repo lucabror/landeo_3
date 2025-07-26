@@ -382,9 +382,15 @@ function DashboardContent() {
 }
 
 export default function Dashboard() {
-  return (
-    <ProtectedRoute requiredRole="hotel">
-      <DashboardContent />
-    </ProtectedRoute>
-  );
+  const { user, isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Caricamento...</div>;
+  }
+  
+  if (!isAuthenticated) {
+    return <div className="min-h-screen flex items-center justify-center">Non autenticato</div>;
+  }
+  
+  return <DashboardContent />;
 }
