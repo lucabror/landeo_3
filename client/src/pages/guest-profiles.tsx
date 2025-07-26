@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Sidebar } from "@/components/sidebar";
 import { useToast } from "@/hooks/use-toast";
@@ -200,9 +201,7 @@ export default function GuestProfiles() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Sei sicuro di voler eliminare questo profilo ospite?")) {
-      deleteMutation.mutate(id);
-    }
+    deleteMutation.mutate(id);
   };
 
   const handleResendEmail = async (profile: any) => {
@@ -594,7 +593,11 @@ export default function GuestProfiles() {
                                     disabled={isExpired}
                                     onClick={() => {
                                       if (isExpired) {
-                                        alert("QR Code non disponibile: il soggiorno è terminato");
+                                        toast({
+                                          title: "QR Code non disponibile",
+                                          description: "Il soggiorno è terminato e il QR code non è più accessibile.",
+                                          variant: "destructive",
+                                        });
                                         return;
                                       }
                                       window.open(`/api/itinerary/${itinerary.uniqueUrl}/qr-pdf`, '_blank');
@@ -872,14 +875,31 @@ export default function GuestProfiles() {
                       >
                         <Edit className="h-3 w-3" />
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDelete(profile.id)}
-                        className="h-6 w-6 p-0 rounded-full hover:bg-red-100 hover:text-red-600"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 w-6 p-0 rounded-full hover:bg-red-100 hover:text-red-600"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Eliminare il profilo ospite?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Questa azione non può essere annullata. Il profilo ospite e tutti i dati associati verranno eliminati definitivamente.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Annulla</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(profile.id)} className="bg-red-600 hover:bg-red-700">
+                              Elimina
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                     
                     {/* Main Content */}
