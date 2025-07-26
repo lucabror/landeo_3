@@ -67,9 +67,10 @@ export default function UserProfile() {
   // Update email mutation
   const updateEmailMutation = useMutation({
     mutationFn: async (email: string) => {
-      return apiRequest("PUT", `/api/hotels/${hotelId}/profile`, {
+      const response = await apiRequest("PUT", `/api/hotels/${hotelId}/profile`, {
         email
       });
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/hotels/${hotelId}`] });
@@ -92,7 +93,8 @@ export default function UserProfile() {
   // Setup MFA mutation
   const setupMfaMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest("POST", `/api/auth/setup-mfa`, {});
+      const response = await apiRequest("POST", `/api/auth/setup-mfa`, {});
+      return response.json();
     },
     onSuccess: (data) => {
       setMfaSecret(data.secret);
@@ -115,7 +117,8 @@ export default function UserProfile() {
   // Verify MFA mutation
   const verifyMfaMutation = useMutation({
     mutationFn: async (token: string) => {
-      return apiRequest("POST", `/api/auth/verify-mfa`, { token });
+      const response = await apiRequest("POST", `/api/auth/verify-mfa`, { token });
+      return response.json();
     },
     onSuccess: () => {
       setMfaEnabled(true);
@@ -138,7 +141,8 @@ export default function UserProfile() {
   // Disable MFA mutation
   const disableMfaMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest("POST", `/api/auth/disable-mfa`, {});
+      const response = await apiRequest("POST", `/api/auth/disable-mfa`, {});
+      return response.json();
     },
     onSuccess: () => {
       setMfaEnabled(false);
@@ -159,9 +163,10 @@ export default function UserProfile() {
   // Update password mutation
   const updatePasswordMutation = useMutation({
     mutationFn: async (password: string) => {
-      return apiRequest("PUT", `/api/hotels/${hotelId}/profile`, {
+      const response = await apiRequest("PUT", `/api/hotels/${hotelId}/profile`, {
         password
       });
+      return response.json();
     },
     onSuccess: () => {
       setEditingPassword(false);
