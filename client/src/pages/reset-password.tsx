@@ -60,7 +60,7 @@ export default function ResetPasswordPage() {
       });
       // Redirect to login after 3 seconds
       setTimeout(() => {
-        setLocation(userType === 'admin' ? '/admin-login' : '/hotel-login');
+        setLocation(userType === 'admin' ? '/admin-login' : '/login');
       }, 3000);
     },
     onError: (error: any) => {
@@ -111,7 +111,7 @@ export default function ResetPasswordPage() {
           </CardHeader>
           <CardContent>
             <Button 
-              onClick={() => setLocation(userType === 'admin' ? '/admin-login' : '/hotel-login')} 
+              onClick={() => setLocation(userType === 'admin' ? '/admin-login' : '/login')} 
               className="w-full"
             >
               Vai al Login
