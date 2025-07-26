@@ -488,6 +488,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate full itinerary PDF for download
+  app.get("/api/itinerary/:uniqueUrl/download-pdf", async (req, res) => {
+    try {
+      const itinerary = await storage.getItineraryByUniqueUrl(req.params.uniqueUrl);
+      if (!itinerary) {
+        return res.status(404).json({ message: "Itinerary not found" });
+      }
+
+      const hotel = await storage.getHotel(itinerary.hotelId);
+      const guestProfile = await storage.getGuestProfile(itinerary.guestProfileId);
+
+      // Generate PDF with full itinerary
+      const doc = new PDFDocument();
+      
+      // Set headers for PDF download
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="Itinerario-${itinerary.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf"`);
+      
+      doc.pipe(res);
+
+      // Header
+      doc.fontSize(20).text(itinerary.title, 50, 50);
+      doc.fontSize(12).text(`${hotel?.name} - ${hotel?.city}, ${hotel?.region}`, 50, 80);
+      
+      // Guest info
+      doc.fontSize(14).text(`Ospite: ${guestProfile?.referenceName}`, 50, 120);
+      doc.text(`Periodo: ${guestProfile?.checkInDate ? new Date(guestProfile.checkInDate).toLocaleDateString('it-IT') : 'N/A'} - ${guestProfile?.checkOutDate ? new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT') : 'N/A'}`, 50, 140);
+      doc.text(`Persone: ${guestProfile?.numberOfPeople}`, 50, 160);
+
+      // Description
+      if (itinerary.description) {
+        doc.text(`\nDescrizione: ${itinerary.description}`, 50, 190);
+      }
+
+      let yPosition = 220;
+      
+      // Days
+      if (itinerary.days && Array.isArray(itinerary.days)) {
+        itinerary.days.forEach((day: any) => {
+          if (yPosition > 700) {
+            doc.addPage();
+            yPosition = 50;
+          }
+          
+          doc.fontSize(16).text(`Giorno ${day.day} - ${new Date(day.date).toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`, 50, yPosition);
+          yPosition += 25;
+          
+          if (day.activities && Array.isArray(day.activities)) {
+            day.activities.forEach((activity: any) => {
+              if (yPosition > 700) {
+                doc.addPage();
+                yPosition = 50;
+              }
+              
+              doc.fontSize(12).text(`${activity.time} - ${activity.activity}`, 60, yPosition);
+              yPosition += 15;
+              
+              if (activity.location) {
+                doc.fontSize(10).text(`Posizione: ${activity.location}`, 70, yPosition);
+                yPosition += 12;
+              }
+              
+              if (activity.description) {
+                doc.fontSize(10).text(activity.description, 70, yPosition);
+                yPosition += 12;
+              }
+              
+              if (activity.duration) {
+                doc.fontSize(9).text(`Durata: ${activity.duration}`, 70, yPosition);
+                yPosition += 10;
+              }
+              
+              if (activity.notes) {
+                doc.fontSize(9).text(`Note: ${activity.notes}`, 70, yPosition);
+                yPosition += 10;
+              }
+              
+              yPosition += 5;
+            });
+          }
+          
+          yPosition += 15;
+        });
+      }
+
+      // Footer
+      doc.fontSize(10).text('Generato automaticamente dal sistema di gestione itinerari', 50, yPosition + 20);
+      doc.text(`Data di generazione: ${new Date().toLocaleDateString('it-IT')}`, 50, yPosition + 35);
+
+      doc.end();
+    } catch (error) {
+      console.error('Error generating itinerary PDF:', error);
+      res.status(500).json({ message: "Failed to generate itinerary PDF" });
+    }
+  });
+
   // Generate and send itinerary PDF via email
   app.post("/api/itinerary/:uniqueUrl/email-pdf", async (req, res) => {
     try {
