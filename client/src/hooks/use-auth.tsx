@@ -59,13 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (sessionToken) {
         // Call logout endpoint to invalidate session on server
-        await apiRequest('/api/auth/logout', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${sessionToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        await apiRequest('POST', '/api/auth/logout', {});
       }
     } catch (error) {
       console.error('Error during logout:', error);

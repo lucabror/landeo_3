@@ -40,7 +40,7 @@ export default function UserProfile() {
   const [mfaEnabled, setMfaEnabled] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user, logout: authLogout } = useAuth();
 
   // Use hotelId from AuthProvider if available, fallback to localStorage
   const hotelId = user?.hotelId || localStorage.getItem('hotelId') || "d2dd46f0-97d3-4121-96e3-01500370c73f";
@@ -218,13 +218,17 @@ export default function UserProfile() {
     updatePasswordMutation.mutate(newPassword);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('hotelId');
-    setLocation('/');
-    toast({
-      title: "Logout effettuato",
-      description: "Sei stato disconnesso con successo.",
-    });
+  const handleLogout = async () => {
+    try {
+      await authLogout();
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast({
+        title: "Errore durante il logout",
+        description: "Si è verificato un errore, ma sei stato disconnesso localmente.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!hotelId) {
