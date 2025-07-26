@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle, CreditCard, Banknote, Star, Crown } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface CreditPackage {
   type: string;
@@ -68,6 +69,7 @@ interface CreditPurchaseDialogProps {
 export default function CreditPurchaseDialog({ hotelId, currentCredits, children }: CreditPurchaseDialogProps) {
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
 
   const queryClient = useQueryClient();
 
@@ -85,11 +87,19 @@ export default function CreditPurchaseDialog({ hotelId, currentCredits, children
       queryClient.invalidateQueries({ queryKey: [`/api/hotels/${hotelId}/credit-purchases`] });
       setIsOpen(false);
       setSelectedPackage(null);
-      // Show success message - in a real app, you might want to show a toast or redirect to a success page
-      alert("Ordine crediti confermato! Riceverai le istruzioni per il bonifico via email. I crediti saranno attivati dopo la verifica del pagamento.");
+      toast({
+        title: "Ordine Confermato!",
+        description: "Il tuo ordine crediti è stato registrato. I crediti saranno attivati dopo la verifica del bonifico da parte dell'amministratore.",
+        duration: 6000,
+      });
     },
     onError: (error) => {
       console.error("Purchase failed:", error);
+      toast({
+        title: "Errore nell'ordine",
+        description: "Si è verificato un errore durante la creazione dell'ordine. Riprova più tardi.",
+        variant: "destructive",
+      });
     },
   });
 
