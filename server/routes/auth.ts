@@ -102,17 +102,7 @@ router.post('/login/hotel', loginLimiter, async (req, res) => {
     // Create session
     const sessionToken = await createSecuritySession(hotel.id, 'hotel', ipAddress, userAgent);
     
-    // Check if MFA is enabled
-    if (hotel.mfaEnabled) {
-      await logSecurityEvent(hotel.id, 'hotel', 'login_success_mfa_required', ipAddress, userAgent);
-      return res.json({
-        success: true,
-        requiresMfa: true,
-        sessionToken,
-        message: 'Inserisci il codice di Google Authenticator'
-      });
-    }
-
+    // MFA temporarily disabled - skip MFA check
     // Login successful without MFA
     await resetLoginAttempts(hotel.id, 'hotel');
     await markSessionMfaVerified(sessionToken);
@@ -181,23 +171,20 @@ router.post('/login/admin', loginLimiter, async (req, res) => {
     // Create session
     const sessionToken = await createSecuritySession(admin.id, 'admin', ipAddress, userAgent);
     
-    // Check if MFA is enabled (required for admins)
-    if (!admin.mfaEnabled) {
-      await logSecurityEvent(admin.id, 'admin', 'login_mfa_not_setup', ipAddress, userAgent);
-      return res.json({
-        success: true,
-        requiresMfaSetup: true,
-        sessionToken,
-        message: 'Devi configurare Google Authenticator per accedere'
-      });
-    }
+    // MFA temporarily disabled - skip MFA check for admin
+    await resetLoginAttempts(admin.id, 'admin');
+    await markSessionMfaVerified(sessionToken);
+    await logSecurityEvent(admin.id, 'admin', 'login_success', ipAddress, userAgent);
 
-    await logSecurityEvent(admin.id, 'admin', 'login_success_mfa_required', ipAddress, userAgent);
     res.json({
       success: true,
-      requiresMfa: true,
       sessionToken,
-      message: 'Inserisci il codice di Google Authenticator'
+      user: {
+        id: admin.id,
+        email: admin.email,
+        name: admin.name,
+        type: 'admin'
+      }
     });
   } catch (error) {
     console.error('Admin login error:', error);
