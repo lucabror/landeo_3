@@ -73,20 +73,23 @@ export default function CreditPurchaseDialog({ hotelId, currentCredits, children
 
   const purchaseMutation = useMutation({
     mutationFn: async (packageData: CreditPackage) => {
-      return apiRequest(`/api/hotels/${hotelId}/purchase-credits`, {
-        method: "POST",
-        body: {
-          packageType: packageData.type,
-          packagePrice: packageData.price,
-          creditsAmount: packageData.credits
-        },
+      return apiRequest("POST", `/api/hotels/${hotelId}/purchase-credits`, {
+        packageType: packageData.type,
+        packagePrice: packageData.price,
+        creditsAmount: packageData.credits
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Purchase success:", data);
       queryClient.invalidateQueries({ queryKey: [`/api/hotels/${hotelId}/credits`] });
       queryClient.invalidateQueries({ queryKey: [`/api/hotels/${hotelId}/credit-purchases`] });
       setIsOpen(false);
       setSelectedPackage(null);
+      // Show success message - in a real app, you might want to show a toast or redirect to a success page
+      alert("Ordine crediti confermato! Riceverai le istruzioni per il bonifico via email. I crediti saranno attivati dopo la verifica del pagamento.");
+    },
+    onError: (error) => {
+      console.error("Purchase failed:", error);
     },
   });
 
