@@ -389,7 +389,9 @@ export default function Dashboard() {
   }
   
   if (!isAuthenticated) {
-    return <div className="min-h-screen flex items-center justify-center">Non autenticato</div>;
+    // Redirect to login instead of showing "Non autenticato"
+    window.location.href = '/login';
+    return <div className="min-h-screen flex items-center justify-center">Reindirizzamento...</div>;
   }
   
   return <DashboardContent />;
