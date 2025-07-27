@@ -103,14 +103,9 @@ function DashboardContent() {
             <AlertCircle className="h-5 w-5 text-amber-600" />
             <AlertDescription className="flex items-center justify-between w-full">
               <div>
-                <strong className="text-amber-800">Configura il tuo Hotel</strong>
+                <strong className="text-amber-800">Completa la Configurazione del Tuo Hotel</strong>
                 <p className="text-amber-700 mt-1">
-                  Completa la configurazione del tuo hotel per iniziare a creare itinerari personalizzati per i tuoi ospiti.
-                  {setupStatus.missingFields.length > 0 && (
-                    <span className="block mt-1 text-sm">
-                      Campi mancanti: {setupStatus.missingFields.join(', ')}
-                    </span>
-                  )}
+                  Per creare itinerari personalizzati e offrire un'esperienza unica ai tuoi ospiti, completa tutti i dati del tuo hotel inclusi i servizi offerti.
                 </p>
               </div>
               <Link href="/hotel-setup">
