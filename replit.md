@@ -10,6 +10,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-27**: Aggiornati tutti i testi della landing page per migliorare conversione
+  - "Inizia Gratis" → "Inizia Gratis 5 itinerari gratuiti" per evidenziare valore immediato
+  - "Demo Gratuita" → "Demo Gratuita (genera 5 itinerari gratuiti)" per chiarezza offerta
+  - Descrizione principale ottimizzata: focalizzata su "Hotel Italiani" e AI per ospiti
+  - Sottotitolo migliorato: "trasformare il soggiorno degli ospiti in esperienze indimenticabili"
+  - AI feature description: aggiunto "entro 50km dalla sede della tua struttura" per specificità
+  - Rimossa sezione "500+ Hotel Partner" dalle statistiche (grid md:grid-cols-3 invece di 4)
+  - "Semplice come 1, 2, 3" → "Semplicissimo da usare." per maggiore impatto
+  - Mockup iPhone: "I tuoi ospiti vedranno Itinerari eleganti..." per focalizzazione utente
+  - Rimossa completamente sezione testimonial "Cosa dicono i nostri partner"
+  - "Solo 1€ per ospite" → "Solo 1€ per ogni itinerario generato!" per chiarezza pricing
+  - CTA finale: "Inizia Gratis Ora" → "Prova Gratis Ora per 5 itinerari gratuiti"
 - **2025-01-27**: Risolto sistema 2FA persistente per hotel manager e super admin
   - Rimossa disabilitazione temporanea MFA dalle route di login (linee 119-123 hotel, 192-195 admin)
   - Ripristinato controllo mfaEnabled nel database per determinare richiesta MFA

@@ -47,7 +47,7 @@ export default function Landing() {
               </Link>
               <Link href="/hotel-register">
                 <Button className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900">
-                  Demo Gratuita
+                  Demo Gratuita (genera 5 itinerari gratuiti)
                 </Button>
               </Link>
             </div>
@@ -71,13 +71,12 @@ export default function Landing() {
                 </span>
               </h1>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                La prima piattaforma AI-powered per hotel italiani che genera itinerari personalizzati, 
-                gestisce profili ospiti e automatizza l'esperienza di soggiorno con tecnologia all'avanguardia.
+                La prima piattaforma per Hotel Italiani che genera itinerari personalizzati per gli ospiti tramite l'AI e automatizza l'esperienza di soggiorno con tecnologia all'avanguardia.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/hotel-register">
                   <Button size="lg" className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900 text-lg px-8">
-                    Inizia Gratis
+                    Inizia Gratis 5 itinerari gratuiti
                     <ChevronRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
@@ -148,8 +147,7 @@ export default function Landing() {
               Tutto quello che serve per il tuo hotel
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Una suite completa di strumenti intelligenti per trasformare la gestione ospiti 
-              e offrire esperienze indimenticabili in Italia.
+              Una suite completa di strumenti intelligenti per trasformare il soggiorno degli ospiti in esperienze indimenticabili in Italia.
             </p>
           </div>
 
@@ -161,7 +159,7 @@ export default function Landing() {
                 </div>
                 <CardTitle className="text-xl">AI Itinerari Personalizzati</CardTitle>
                 <CardDescription>
-                  Intelligenza artificiale avanzata genera itinerari unici basati su preferenze ospiti e esperienze locali.
+                  L'Intelligenza artificiale avanzata genera itinerari unici basati sulle preferenze degli ospiti e sulle realtà locali entro 50km dalla sede della tua struttura.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -232,11 +230,7 @@ export default function Landing() {
       {/* Stats Section */}
       <section className="py-20 bg-gradient-to-r from-amber-700 to-amber-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-4xl font-bold text-white mb-2">500+</div>
-              <div className="text-amber-100">Hotel Partner</div>
-            </div>
+          <div className="grid md:grid-cols-3 gap-8 text-center">
             <div>
               <div className="text-4xl font-bold text-white mb-2">50K+</div>
               <div className="text-amber-100">Itinerari Generati</div>
@@ -261,7 +255,7 @@ export default function Landing() {
               🔄 Come Funziona
             </Badge>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Semplice come 1, 2, 3
+              Semplicissimo da usare.
             </h2>
             <p className="text-xl text-gray-600">
               Inizia in pochi minuti e trasforma subito l'esperienza dei tuoi ospiti
@@ -314,7 +308,7 @@ export default function Landing() {
                 Cosa vedranno i tuoi ospiti
               </h2>
               <p className="text-xl text-gray-600 mb-8">
-                Itinerari eleganti e personalizzati accessibili tramite QR code, perfettamente ottimizzati per smartphone con design moderno e intuitivo.
+                I tuoi ospiti vedranno Itinerari eleganti e personalizzati accessibili tramite QR code, perfettamente ottimizzati per smartphone con design moderno e intuitivo.
               </p>
               
               <div className="space-y-6">
@@ -451,87 +445,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Badge className="bg-amber-100 text-amber-800 border-amber-300 mb-4">
-              💬 Testimonianze
-            </Badge>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Cosa dicono i nostri partner
-            </h2>
-          </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="border-amber-200">
-              <CardContent className="pt-6">
-                <div className="flex items-center mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-gray-600 mb-6 italic">
-                  "ItineraItalia ha rivoluzionato il modo in cui gestiamo gli ospiti. Gli itinerari AI sono incredibilmente accurati e i nostri clienti sono entusiasti!"
-                </p>
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold">
-                    M
-                  </div>
-                  <div className="ml-4">
-                    <p className="font-semibold">Marco Rossi</p>
-                    <p className="text-sm text-gray-600">Hotel Bellavista, Roma</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-amber-200">
-              <CardContent className="pt-6">
-                <div className="flex items-center mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-gray-600 mb-6 italic">
-                  "Il sistema di crediti è perfetto per la nostra struttura. Paghiamo solo per quello che usiamo e il ROI è immediato."
-                </p>
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                    G
-                  </div>
-                  <div className="ml-4">
-                    <p className="font-semibold">Giulia Bianchi</p>
-                    <p className="text-sm text-gray-600">Resort Mediterraneo, Amalfi</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-amber-200">
-              <CardContent className="pt-6">
-                <div className="flex items-center mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-gray-600 mb-6 italic">
-                  "Setup rapido, interfaccia intuitiva e risultati straordinari. I nostri ospiti ricevono esperienze su misura."
-                </p>
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center text-white font-bold">
-                    A
-                  </div>
-                  <div className="ml-4">
-                    <p className="font-semibold">Andrea Conti</p>
-                    <p className="text-sm text-gray-600">Boutique Hotel Toscana</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
 
       {/* Pricing Section */}
       <section className="py-20 bg-gradient-to-br from-stone-50 to-amber-50">
@@ -541,7 +455,7 @@ export default function Landing() {
               💰 Prezzi Trasparenti
             </Badge>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Solo 1€ per ospite
+              Solo 1€ per ogni itinerario generato!
             </h2>
             <p className="text-xl text-gray-600">
               Sistema a crediti, registrazione gratuita, paghi solo quello che usi
@@ -594,7 +508,7 @@ export default function Landing() {
 
                 <Link href="/hotel-register">
                   <Button className="w-full bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900 text-lg py-6">
-                    Inizia Gratis Ora
+                    Prova Gratis Ora per 5 itinerari gratuiti
                     <ChevronRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
