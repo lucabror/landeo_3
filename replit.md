@@ -10,6 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-26**: Aggiunto pulsante registrazione hotel nella pagina login
+  - Nuovo pulsante "Registra il Tuo Hotel" nella pagina di accesso
+  - Link diretto a /hotel-setup per nuovi albergatori 
+  - Sezione separata con design elegante e icona Building2
+  - Migliora conversione utenti non ancora registrati
 - **2025-01-26**: Corretti link di registrazione per indirizzare alla pagina hotel-setup
   - Tutti i pulsanti "Demo Gratuita", "Inizia Gratis", "Registrazione Gratuita" ora portano a /hotel-setup
   - Migliorato flusso utente per conversion diretta degli albergatori
