@@ -129,7 +129,7 @@ export default function Login({ userType }: LoginProps) {
         description: "Benvenuto nella piattaforma Itinera",
       });
       
-      if (userType === 'admin') {
+      if (data.user.type === 'admin') {
         setLocation('/admin-dashboard');
       } else {
         setLocation('/dashboard');
