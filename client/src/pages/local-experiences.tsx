@@ -78,7 +78,7 @@ function getMatchBadge(matchType: 'high' | 'medium' | 'low') {
       };
     case 'low':
       return {
-        text: "• Standard",
+        text: "Matching Standard",
         className: "bg-gray-100 text-gray-600 border-gray-200"
       };
   }

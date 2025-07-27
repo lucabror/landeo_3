@@ -192,6 +192,14 @@ Preferred communication style: Simple, everyday language.
   - Attività organizzate come piatti del menu con descrizioni e orari evidenziati
   - Footer minimal con linea separatrice e branding ItineraItalia discreto
   - Colori: verde oliva, oro elegante, crema, beige chiaro per atmosfera luxury
+- **2025-01-27**: Risolto problema crediti non scalati immediatamente dopo generazione itinerario
+  - Aggiunte invalidazioni cache immediate per query crediti e statistiche hotel
+  - Implementato auto-refresh ogni 3 secondi per aggiornamento crediti in tempo reale
+  - Creato hook useCredits personalizzato per gestione migliore stato crediti
+  - Sistema ora aggiorna dashboard e profili ospiti istantaneamente dopo generazione
+- **2025-01-27**: Migliorato testo badge matching nelle esperienze locali
+  - Cambiato "• Standard" in "Matching Standard" per maggiore chiarezza
+  - Badge ora più consistente con terminologia di matching del sistema
 
 ## System Architecture
 
