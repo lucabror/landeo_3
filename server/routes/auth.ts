@@ -4,7 +4,7 @@ import { body, validationResult } from 'express-validator';
 import { randomBytes } from 'crypto';
 import bcrypt from 'bcryptjs';
 import { db } from '../db';
-import { hotels, administrators } from '@shared/schema';
+import { hotels, adminUsers } from '@shared/schema';
 import { eq, and, gt } from 'drizzle-orm';
 import {
   hashPassword,
@@ -145,8 +145,8 @@ router.post('/login/admin', loginLimiter, async (req, res) => {
     // Find admin by email
     const [admin] = await db
       .select()
-      .from(administrators)
-      .where(eq(administrators.email, email));
+      .from(adminUsers)
+      .where(eq(adminUsers.email, email));
 
     if (!admin) {
       await logSecurityEvent(null, 'admin', 'login_failed_user_not_found', ipAddress, userAgent, { email });
@@ -160,7 +160,11 @@ router.post('/login/admin', loginLimiter, async (req, res) => {
       return res.status(423).json({ error: 'Account temporaneamente bloccato per troppi tentativi' });
     }
 
-    // Verify password
+    // Verify password - check if admin has password set
+    if (!admin.password) {
+      return res.status(401).json({ error: 'Account non configurato. Contatta l\'amministratore di sistema.' });
+    }
+    
     const passwordValid = await verifyPassword(password, admin.password);
     if (!passwordValid) {
       await incrementLoginAttempts(admin.id, 'admin');
@@ -675,13 +679,11 @@ router.post('/reset-password', async (req, res) => {
       
       const hashedPassword = await bcrypt.hash(password, 10);
       
-      await db.update(administrators)
+      await db.update(adminUsers)
         .set({ 
-          password: hashedPassword,
-          sessionToken: null,
-          tokenExpiresAt: null
+          password: hashedPassword
         })
-        .where(eq(administrators.id, admin.id));
+        .where(eq(adminUsers.id, admin.id));
         
       user = admin;
     }

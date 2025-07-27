@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import speakeasy from 'speakeasy';
 import qrcode from 'qrcode';
 import { db } from '../db';
-import { hotels, administrators, securitySessions, securityLogs } from '@shared/schema';
+import { hotels, adminUsers, securitySessions, securityLogs } from '@shared/schema';
 import { eq, and, lt, gt } from 'drizzle-orm';
 import type { Request, Response, NextFunction } from 'express';
 
@@ -129,7 +129,7 @@ export async function markSessionMfaVerified(sessionToken: string): Promise<void
 
 // Account lockout management
 export async function checkAccountLockout(userId: string, userType: 'hotel' | 'admin'): Promise<boolean> {
-  const table = userType === 'hotel' ? hotels : administrators;
+  const table = userType === 'hotel' ? hotels : adminUsers;
   
   const [user] = await db
     .select()
@@ -146,7 +146,7 @@ export async function checkAccountLockout(userId: string, userType: 'hotel' | 'a
 }
 
 export async function incrementLoginAttempts(userId: string, userType: 'hotel' | 'admin'): Promise<void> {
-  const table = userType === 'hotel' ? hotels : administrators;
+  const table = userType === 'hotel' ? hotels : adminUsers;
   
   const [user] = await db
     .select()
@@ -170,7 +170,7 @@ export async function incrementLoginAttempts(userId: string, userType: 'hotel' |
 }
 
 export async function resetLoginAttempts(userId: string, userType: 'hotel' | 'admin'): Promise<void> {
-  const table = userType === 'hotel' ? hotels : administrators;
+  const table = userType === 'hotel' ? hotels : adminUsers;
   
   await db
     .update(table)
@@ -198,7 +198,7 @@ export async function setupGoogleAuthenticator(
   const qrCodeDataUrl = await qrcode.toDataURL(secret.otpauth_url || '');
 
   // Store the secret in database
-  const table = userType === 'hotel' ? hotels : administrators;
+  const table = userType === 'hotel' ? hotels : adminUsers;
   await db
     .update(table)
     .set({ mfaSecret: secret.base32 })
@@ -215,7 +215,7 @@ export async function enableGoogleAuthenticator(
   userType: 'hotel' | 'admin',
   verificationCode: string
 ): Promise<{ success: boolean; error?: string }> {
-  const table = userType === 'hotel' ? hotels : administrators;
+  const table = userType === 'hotel' ? hotels : adminUsers;
   
   const [user] = await db
     .select()
@@ -254,7 +254,7 @@ export async function verifyGoogleAuthenticatorCode(
   userType: 'hotel' | 'admin',
   code: string
 ): Promise<{ success: boolean; error?: string }> {
-  const table = userType === 'hotel' ? hotels : administrators;
+  const table = userType === 'hotel' ? hotels : adminUsers;
   
   const [user] = await db
     .select()
@@ -286,7 +286,7 @@ export async function validateIpWhitelist(
   userType: 'hotel' | 'admin',
   ipAddress: string
 ): Promise<boolean> {
-  const table = userType === 'hotel' ? hotels : administrators;
+  const table = userType === 'hotel' ? hotels : adminUsers;
   
   const [user] = await db
     .select()

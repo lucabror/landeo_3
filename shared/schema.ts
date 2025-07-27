@@ -269,9 +269,15 @@ export const adminUsers = pgTable("admin_users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
+  password: text("password"), // Hashed password for admin login
   role: text("role").notNull().default("superadmin"), // "superadmin", "admin"
   isActive: boolean("is_active").default(true),
   lastLogin: timestamp("last_login"),
+  loginAttempts: integer("login_attempts").default(0),
+  lockedUntil: timestamp("locked_until"),
+  mfaSecret: text("mfa_secret"), // TOTP secret for 2FA
+  mfaEnabled: boolean("mfa_enabled").default(false),
+  ipWhitelist: jsonb("ip_whitelist").$type<string[]>(), // Allowed IP addresses
   createdAt: timestamp("created_at").defaultNow(),
 });
 
