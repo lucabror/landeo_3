@@ -74,12 +74,12 @@ export default function HotelSetup() {
 
   // Update form when hotel data is loaded
   useEffect(() => {
-    if (hotel) {
+    if (hotel && typeof hotel === 'object') {
       form.reset(hotel);
-      if (hotel.logoUrl) {
-        setLogoPreview(hotel.logoUrl);
+      if ('logoUrl' in hotel && hotel.logoUrl) {
+        setLogoPreview(hotel.logoUrl as string);
       }
-      if (hotel.services) {
+      if ('services' in hotel && Array.isArray(hotel.services)) {
         setSelectedServices(hotel.services);
       } else {
         setSelectedServices([]);
@@ -135,9 +135,16 @@ export default function HotelSetup() {
   const mutation = useMutation({
     mutationFn: async (data: InsertHotel) => {
       const method = hotel ? "PUT" : "POST";
-      const url = hotel ? `/api/hotels/${hotel.id}` : "/api/hotels";
+      const url = hotel && typeof hotel === 'object' && 'id' in hotel 
+        ? `/api/hotels/${hotel.id}` 
+        : "/api/hotels";
       // Include selected services in the data
       const dataWithServices = { ...data, services: selectedServices };
+      
+      console.log("Mutation - Method:", method);
+      console.log("Mutation - URL:", url);
+      console.log("Mutation - Data:", dataWithServices);
+      
       const res = await apiRequest(method, url, dataWithServices);
       return res.json();
     },
@@ -146,7 +153,10 @@ export default function HotelSetup() {
         title: "Successo",
         description: hotel ? "Dati hotel aggiornati con successo!" : "Hotel creato con successo!",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels"] });
+      // Invalidate the specific hotel query and dashboard queries
+      queryClient.invalidateQueries({ queryKey: [`/api/hotels/${hotelId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/hotels/${hotelId}/setup-status`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "stats"] });
       setIsEditing(false); // Torna alla modalità read-only dopo il salvataggio
     },
     onError: (error: any) => {
@@ -255,6 +265,9 @@ export default function HotelSetup() {
   };
 
   const onSubmit = (data: InsertHotel) => {
+    console.log("Form submitted with data:", data);
+    console.log("Selected services:", selectedServices);
+    console.log("Hotel exists:", !!hotel);
     mutation.mutate(data);
   };
 
@@ -312,7 +325,9 @@ export default function HotelSetup() {
                     onClick={() => {
                       setIsEditing(false);
                       form.reset(hotel);
-                      if (hotel.services) setSelectedServices(hotel.services);
+                      if (hotel && typeof hotel === 'object' && 'services' in hotel && Array.isArray(hotel.services)) {
+                        setSelectedServices(hotel.services);
+                      }
                     }}
                   >
                     Annulla
