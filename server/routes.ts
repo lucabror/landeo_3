@@ -23,6 +23,7 @@ import { enrichHotelData, isValidItalianLocation } from "./services/geocoding";
 import { findLocalAttractions, attractionToLocalExperience } from "./services/attractions";
 import { sendGuestPreferencesEmail, sendCreditPurchaseInstructions, sendItineraryPDF } from "./services/email";
 import { generateGuestSpecificItinerary } from "./services/itinerary-generator";
+import { calculateExperienceMatches } from "./services/preference-matcher";
 import { randomUUID } from "crypto";
 import QRCode from "qrcode";
 import PDFDocument from "pdfkit";
@@ -1429,6 +1430,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(experiences);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch local experiences" });
+    }
+  });
+
+  // Get local experiences with preference matching for specific guest
+  app.get("/api/hotels/:hotelId/local-experiences/matches/:guestId", async (req, res) => {
+    try {
+      const experiences = await storage.getAllLocalExperiencesByHotel(req.params.hotelId);
+      const guestProfile = await storage.getGuestProfile(req.params.guestId);
+      
+      if (!guestProfile) {
+        return res.status(404).json({ message: "Guest profile not found" });
+      }
+      
+      const matches = calculateExperienceMatches(guestProfile, experiences);
+      res.json({
+        guestProfile: {
+          id: guestProfile.id,
+          referenceName: guestProfile.referenceName,  
+          preferences: guestProfile.preferences || [],
+          type: guestProfile.type
+        },
+        matches
+      });
+    } catch (error) {
+      console.error('Error calculating experience matches:', error);
+      res.status(500).json({ message: "Failed to calculate experience matches" });
     }
   });
 
