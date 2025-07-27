@@ -74,7 +74,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Logo upload error:', error);
       res.status(500).json({ 
-        message: error.message || "Errore durante il caricamento del logo" 
+        message: (error as Error).message || "Errore durante il caricamento del logo" 
       });
     }
   });
@@ -405,8 +405,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const updatedItinerary = await storage.updateItinerary(itinerary.id, {
-        ...itinerary,
-        days: updatedDays
+        days: updatedDays,
+        aiResponse: itinerary.aiResponse as any
       });
 
       res.json(updatedItinerary);
@@ -1151,7 +1151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const attractionsResult = await findLocalAttractions(
         hotel.city, 
         hotel.region, 
-        { latitude: hotel.latitude, longitude: hotel.longitude }
+        { latitude: hotel.latitude || '', longitude: hotel.longitude || '' }
       );
 
       // Salva le attrazioni come "pending" per l'approvazione
@@ -1188,7 +1188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error generating attractions:', error);
       res.status(500).json({ 
-        message: "Errore nella generazione delle attrazioni: " + error.message 
+        message: "Errore nella generazione delle attrazioni: " + (error as Error).message 
       });
     }
   });
@@ -1507,8 +1507,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Aggiorna il profilo ospite con le preferenze
       await storage.updateGuestProfile(tokenData.guestProfileId, {
         preferences: allPreferences,
-        specialRequests: specialRequests.trim() || undefined,
-        preferencesCompleted: true
+        specialRequests: specialRequests.trim() || undefined
       });
       
       // Marca il token come completato
