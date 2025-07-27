@@ -33,10 +33,7 @@ export default function EmailVerification({ token }: EmailVerificationProps) {
         description: "Ora puoi accedere per configurare il tuo hotel.",
       });
       
-      // Reindirizza alla pagina di login dopo 2 secondi per completare l'accesso
-      setTimeout(() => {
-        setLocation('/login');
-      }, 2000);
+      // Rimuovo redirect automatico per evitare loop - l'utente può cliccare manualmente
     },
     onError: (error: any) => {
       setVerificationStatus('error');
@@ -95,18 +92,18 @@ export default function EmailVerification({ token }: EmailVerificationProps) {
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-800">
                   La tua email è stata verificata con successo! 
-                  Sarai reindirizzato alla pagina di configurazione del hotel.
+                  Ora puoi accedere per configurare il tuo hotel.
                 </AlertDescription>
               </Alert>
               
               <div className="text-center">
                 <p className="text-sm text-gray-600 mb-4">
-                  Reindirizzamento automatico in corso...
+                  Clicca il pulsante per accedere alla piattaforma
                 </p>
-                <Link href="/hotel-setup">
+                <Link href="/login">
                   <Button className="w-full bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900">
                     <Hotel className="mr-2 h-4 w-4" />
-                    Configura il Tuo Hotel
+                    Accedi alla Piattaforma
                   </Button>
                 </Link>
               </div>
