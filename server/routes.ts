@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs";
 import { storage } from "./storage";
 import authRoutes from "./routes/auth";
+import hotelRegistrationRoutes from "./routes/hotel-registration";
 import { 
   insertHotelSchema, 
   insertGuestProfileSchema, 
@@ -1655,6 +1656,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.use('/api/auth', authRoutes);
+  app.use('/api/auth', hotelRegistrationRoutes);
+
+  // Email verification redirect route (browser access)
+  app.get('/verify-email/:token', async (req, res) => {
+    try {
+      // Redirect to frontend with token
+      res.redirect(`/verify-email/${req.params.token}`);
+    } catch (error) {
+      console.error('Verification redirect error:', error);
+      res.redirect('/hotel-register?error=verification_failed');
+    }
+  });
 
   // Admin Routes
 

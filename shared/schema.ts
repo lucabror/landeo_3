@@ -81,6 +81,29 @@ export const localExperiences = pgTable("local_experiences", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// User management tables
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  role: text("role").notNull().default("hotel_manager"), // hotel_manager, admin
+  isEmailVerified: boolean("is_email_verified").default(false),
+  emailVerifiedAt: timestamp("email_verified_at"),
+  isActive: boolean("is_active").default(false),
+  mfaSecret: text("mfa_secret"),
+  mfaEnabled: boolean("mfa_enabled").default(false),
+  lastLogin: timestamp("last_login"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const emailVerifications = pgTable("email_verifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Security tables
 export const administrators = pgTable("administrators", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -185,6 +208,17 @@ export const guestPreferencesTokens = pgTable("guest_preferences_tokens", {
 });
 
 // Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  emailVerifications: many(emailVerifications),
+}));
+
+export const emailVerificationsRelations = relations(emailVerifications, ({ one }) => ({
+  user: one(users, {
+    fields: [emailVerifications.userId],
+    references: [users.id],
+  }),
+}));
+
 export const hotelsRelations = relations(hotels, ({ many }) => ({
   guestProfiles: many(guestProfiles),
   localExperiences: many(localExperiences),
@@ -332,6 +366,18 @@ export const insertGuestPreferencesTokenSchema = createInsertSchema(guestPrefere
   createdAt: true,
 });
 
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  emailVerifiedAt: true,
+  lastLogin: true,
+});
+
+export const insertEmailVerificationSchema = createInsertSchema(emailVerifications).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Security types and schemas
 export type Administrator = typeof administrators.$inferSelect;
 export type InsertAdministrator = typeof administrators.$inferInsert;
@@ -378,6 +424,10 @@ export type InsertPendingAttraction = z.infer<typeof insertPendingAttractionSche
 export type GuestPreferencesToken = typeof guestPreferencesTokens.$inferSelect;
 export type InsertGuestPreferencesToken = z.infer<typeof insertGuestPreferencesTokenSchema>;
 export type GuestPreferences = z.infer<typeof guestPreferencesSchema>;
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type EmailVerification = typeof emailVerifications.$inferSelect;
+export type InsertEmailVerification = z.infer<typeof insertEmailVerificationSchema>;
 
 // Credit system schemas and types
 export const insertCreditPurchaseSchema = createInsertSchema(creditPurchases).omit({

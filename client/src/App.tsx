@@ -20,6 +20,8 @@ import UserProfile from "@/pages/user-profile";
 import HotelLogin from "@/pages/hotel-login";
 import AdminLogin from "@/pages/admin-login";
 import AdminProfile from "@/pages/admin-profile";
+import HotelRegister from "@/pages/hotel-register";
+import EmailVerification from "@/pages/email-verification";
 
 import UniversalLogin from "@/pages/universal-login";
 
@@ -60,6 +62,14 @@ function Router() {
       
       {/* Universal Login */}
       <Route path="/login" component={UniversalLogin} />
+      
+      {/* Hotel Registration */}
+      <Route path="/hotel-register" component={HotelRegister} />
+      
+      {/* Email Verification */}
+      <Route path="/verify-email/:token">
+        {(params) => <EmailVerification token={params.token} />}
+      </Route>
       
       {/* Legacy login routes (redirect to universal) */}
       <Route path="/hotel-login" component={() => <UniversalLogin />} />
