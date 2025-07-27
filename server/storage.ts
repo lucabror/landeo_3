@@ -133,6 +133,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteHotel(id: string): Promise<void> {
+    // First get the hotel to find the associated email
+    const [hotel] = await db.select().from(hotels).where(eq(hotels.id, id));
+    if (!hotel) {
+      throw new Error("Hotel not found");
+    }
+
     // Delete all related data in cascade order
     // 1. Delete all itineraries for this hotel
     await db.delete(itineraries).where(eq(itineraries.hotelId, id));
@@ -146,25 +152,37 @@ export class DatabaseStorage implements IStorage {
     // 4. Delete all guest profiles for this hotel
     await db.delete(guestProfiles).where(eq(guestProfiles.hotelId, id));
     
-    // 5. Delete security sessions for the hotel manager
+    // 5. Delete security sessions for the hotel manager (by hotel ID)
     await db.delete(securitySessions).where(eq(securitySessions.userId, id));
     
-    // 6. Delete security logs for the hotel manager
+    // 6. Delete security logs for the hotel manager (by hotel ID)
     await db.delete(securityLogs).where(eq(securityLogs.userId, id));
     
-    // 7. Delete email verifications for the hotel manager
-    await db.delete(emailVerifications).where(eq(emailVerifications.userId, id));
+    // 7. Delete email verifications for the hotel manager (by email)
+    // Find the user with the same email as the hotel
+    const userWithEmail = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, hotel.email))
+      .limit(1);
     
-    // 8. Delete the hotel manager account associated with this hotel
-    await db.delete(users).where(eq(users.id, id));
+    if (userWithEmail.length > 0) {
+      const userId = userWithEmail[0].id;
+      
+      // Delete email verifications for this user
+      await db.delete(emailVerifications).where(eq(emailVerifications.userId, userId));
+      
+      // Delete the hotel manager account from users table
+      await db.delete(users).where(eq(users.id, userId));
+    }
     
-    // 9. First get all credit purchases for this hotel
+    // 8. First get all credit purchases for this hotel
     const hotelCreditPurchases = await db
       .select({ id: creditPurchases.id })
       .from(creditPurchases)
       .where(eq(creditPurchases.hotelId, id));
     
-    // 10. Delete credit transactions that reference these purchases
+    // 9. Delete credit transactions that reference these purchases
     if (hotelCreditPurchases.length > 0) {
       const purchaseIds = hotelCreditPurchases.map(p => p.id);
       for (const purchaseId of purchaseIds) {
@@ -172,13 +190,13 @@ export class DatabaseStorage implements IStorage {
       }
     }
     
-    // 11. Delete remaining credit transactions for this hotel
+    // 10. Delete remaining credit transactions for this hotel
     await db.delete(creditTransactions).where(eq(creditTransactions.hotelId, id));
     
-    // 12. Delete all credit purchases for this hotel (after all transactions are deleted)
+    // 11. Delete all credit purchases for this hotel (after all transactions are deleted)
     await db.delete(creditPurchases).where(eq(creditPurchases.hotelId, id));
     
-    // 13. Finally delete the hotel itself
+    // 12. Finally delete the hotel itself
     await db.delete(hotels).where(eq(hotels.id, id));
   }
 
