@@ -328,6 +328,22 @@ export default function UniversalLogin() {
                   >
                     Password dimenticata?
                   </Button>
+                  
+                  <div className="border-t pt-4 mt-4">
+                    <p className="text-sm text-gray-600 mb-3">
+                      Non hai ancora registrato il tuo hotel?
+                    </p>
+                    <Link href="/hotel-setup">
+                      <Button 
+                        type="button"
+                        variant="outline" 
+                        className="w-full border-amber-300 text-amber-700 hover:bg-amber-50"
+                      >
+                        <Building2 className="mr-2 h-4 w-4" />
+                        Registra il Tuo Hotel
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </form>
             </Form>
