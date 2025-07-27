@@ -62,9 +62,10 @@ function DashboardContent() {
     queryKey: ["/api/hotels", hotelId, "itineraries"],
   });
 
-  // Fetch hotel credits
+  // Fetch hotel credits with auto-refresh
   const { data: creditInfo = { credits: 0, totalCredits: 0, creditsUsed: 0 } } = useQuery({
-    queryKey: [`/api/hotels/${hotelId}/credits`],
+    queryKey: ["/api/hotels", hotelId, "credits"],
+    refetchInterval: 3000, // Auto-refresh every 3 seconds
   });
 
   // Fetch hotel setup status
