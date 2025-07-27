@@ -119,6 +119,13 @@ Preferred communication style: Simple, everyday language.
   - Login system searches hotels table while registration used users table (now unified)
   - Reduced rate limiting window from 15 minutes to 3 minutes for better UX
   - Hotel registration flow now: register → verify email → auto-create hotel record → login works
+- **2025-01-27**: Added persistent hotel setup invitation system
+  - New endpoint `/api/hotels/:id/setup-status` checks if hotel configuration is complete
+  - Dashboard shows prominent setup banner until all required fields are filled
+  - Required fields: name, address, city, region, postalCode, phone
+  - Banner displays missing fields and direct link to hotel-setup page
+  - Success banner shown when configuration is complete
+  - Setup invitation persists across all login sessions until completion
 
 ## System Architecture
 

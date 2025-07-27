@@ -138,6 +138,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Check if hotel configuration is complete
+  app.get("/api/hotels/:id/setup-status", async (req, res) => {
+    try {
+      const hotel = await storage.getHotel(req.params.id);
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      // Check if all required fields are filled
+      const requiredFields = ['name', 'address', 'city', 'region', 'postalCode', 'phone'];
+      const missingFields = requiredFields.filter(field => !hotel[field] || hotel[field].trim() === '');
+      
+      const isComplete = missingFields.length === 0;
+      
+      res.json({
+        isComplete,
+        missingFields,
+        hotel: {
+          name: hotel.name,
+          address: hotel.address,
+          city: hotel.city,
+          region: hotel.region,
+          postalCode: hotel.postalCode,
+          phone: hotel.phone,
+          description: hotel.description,
+          website: hotel.website
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to check hotel setup status" });
+    }
+  });
+
   app.post("/api/hotels", async (req, res) => {
     try {
       const validatedData = insertHotelSchema.parse(req.body);
