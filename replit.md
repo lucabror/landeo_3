@@ -153,6 +153,12 @@ Preferred communication style: Simple, everyday language.
   - Aggiornati tutti gli endpoint per usare hotelId corretto dall'authentication context
   - Aggiunto controllo enabled: !!hotelId nelle query per sicurezza
   - Funzione "Genera con AI" ora funziona correttamente per tutti gli hotel autenticati
+- **2025-01-27**: Implementato sistema di setup a fasi progressive
+  - Modificato endpoint setup-status per includere controllo esperienze locali generate
+  - Banner "Configurazione Completata" ora scompare dopo il primo login completato
+  - Nuovo banner "Genera le Tue Esperienze Locali" appare fino a generazione esperienze
+  - Sistema di onboarding progressivo: Setup Hotel → Genera Esperienze → Uso completo
+  - Banner con link diretto alla pagina esperienze locali e icona Sparkles
 
 ## System Architecture
 
