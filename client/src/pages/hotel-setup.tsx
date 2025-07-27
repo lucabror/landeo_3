@@ -290,11 +290,14 @@ export default function HotelSetup() {
     console.log("🚀 Form validation errors:", form.formState.errors);
     console.log("🚀 Form is valid:", form.formState.isValid);
     
-    if (!form.formState.isValid) {
-      console.error("🚨 Form has validation errors - submission blocked");
+    // Check if there are actual errors instead of relying on isValid
+    const hasErrors = Object.keys(form.formState.errors).length > 0;
+    if (hasErrors) {
+      console.error("🚨 Form has validation errors - submission blocked:", form.formState.errors);
       return;
     }
     
+    console.log("✅ Form validation passed - proceeding with mutation");
     mutation.mutate(data);
   };
 

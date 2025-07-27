@@ -1,0 +1,35 @@
+🔥 SAVE BUTTON CLICKED!
+Console.js:61 🔥 Is editing: true
+Console.js:61 🔥 Mutation pending: false
+Console.js:61 🔥 Form state: {defaultValues: {…}, …}
+Console.js:61 🚀 Form submitted with data: {name: 'benito al bosco', address: 'Via Morice', city: 'Velletri', region: 'Lazio', postalCode: '00049', …}
+Console.js:61 🚀 Selected services: []
+Console.js:61 🚀 Hotel exists: true
+Console.js:61 🚀 Form validation errors: {}
+Console.js:61 🚀 Form is valid: false
+Console.js:61 🚨 Form has validation errors - submission blocked
+Mt.forEach.n.<computed> @ Console.js:61
+onSubmit @ hotel-setup.tsx:294
+(anonymous) @ chunk-4BFJKWC4.js?v=9eba924c:1465
+await in (anonymous)
+callCallback2 @ chunk-RPCDYKBN.js?v=9eba924c:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=9eba924c:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=9eba924c:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=9eba924c:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=9eba924c:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=9eba924c:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=9eba924c:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=9eba924c:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=9eba924c:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=9eba924c:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=9eba924c:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=9eba924c:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=9eba924c:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=9eba924c:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=9eba924c:5449Understand this error
+Console.js:61 Hotel setup - User: {id: '1dd65632-0fc5-4239-9d6d-40199e76773f', email: 'borroluca@gmail.com', name: 'Hotel di borroluca', type: 'hotel', hotelId: '1dd65632-0fc5-4239-9d6d-40199e76773f'}
+Console.js:61 Hotel setup - Hotel ID: 1dd65632-0fc5-4239-9d6d-40199e76773f
+Console.js:61 Hotel setup - Hotel data: {id: '1dd65632-0fc5-4239-9d6d-40199e76773f', name: 'Hotel di borroluca', address: '', city: '', region: '', …}
+Console.js:61 Hotel setup - User: {id: '1dd65632-0fc5-4239-9d6d-40199e76773f', email: 'borroluca@gmail.com', name: 'Hotel di borroluca', type: 'hotel', hotelId: '1dd65632-0fc5-4239-9d6d-40199e76773f'}
+Console.js:61 Hotel setup - Hotel ID: 1dd65632-0fc5-4239-9d6d-40199e76773f
+Console.js:61 Hotel setup - Hotel data: {id: '1dd65632-0fc5-4239-9d6d-40199e76773f', name: 'Hotel di borroluca', address: '', city: '', region: '', …}
