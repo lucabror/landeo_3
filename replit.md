@@ -10,6 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-26**: Corretti link di registrazione per indirizzare alla pagina hotel-setup
+  - Tutti i pulsanti "Demo Gratuita", "Inizia Gratis", "Registrazione Gratuita" ora portano a /hotel-setup
+  - Migliorato flusso utente per conversion diretta degli albergatori
+  - Eliminata confusione tra login generale e registrazione hotel
+  - Ottimizzato percorso di onboarding per nuovi clienti
 - **2025-01-26**: Aggiornata palette colori landing page con tonalità pastello più eleganti
   - Sostituiti colori amber-600/orange-600 con amber-700/amber-800 per maggiore raffinatezza
   - Modificati sfondi da amber-50/orange-50 a stone-50/amber-50 per atmosfera luxury

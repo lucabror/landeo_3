@@ -145,9 +145,9 @@ export default function DiscoverMore() {
                   Torna alla Home
                 </Button>
               </Link>
-              <Link href="/login">
+              <Link href="/hotel-setup">
                 <Button className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900">
-                  Accedi
+                  Registrati Ora
                 </Button>
               </Link>
             </div>
@@ -443,7 +443,7 @@ export default function DiscoverMore() {
       </section>
 
       {/* CTA Final */}
-      <section className="py-20 bg-gradient-to-r from-amber-600 to-orange-600">
+      <section className="py-20 bg-gradient-to-r from-amber-700 to-amber-800">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">
             Pronto a Trasformare l'Esperienza dei Tuoi Ospiti?
@@ -452,7 +452,7 @@ export default function DiscoverMore() {
             Unisciti a oltre 500 hotel che hanno già scelto ItineraItalia per distinguersi dalla concorrenza
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/login">
+            <Link href="/hotel-setup">
               <Button size="lg" className="bg-white text-amber-600 hover:bg-gray-100 px-8 py-4 text-lg">
                 Inizia Subito - Gratis
                 <ChevronRight className="ml-2 w-5 h-5" />
