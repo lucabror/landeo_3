@@ -30,12 +30,12 @@ export default function EmailVerification({ token }: EmailVerificationProps) {
       setVerificationStatus('success');
       toast({
         title: "Email verificata con successo",
-        description: "Ora puoi completare la registrazione del tuo hotel.",
+        description: "Ora puoi accedere per configurare il tuo hotel.",
       });
       
-      // Reindirizza alla pagina di setup hotel dopo 2 secondi
+      // Reindirizza alla pagina di login dopo 2 secondi per completare l'accesso
       setTimeout(() => {
-        setLocation('/hotel-setup');
+        setLocation('/login');
       }, 2000);
     },
     onError: (error: any) => {
