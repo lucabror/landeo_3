@@ -438,17 +438,12 @@ function DashboardContent() {
 }
 
 export default function Dashboard() {
-  const { user, isAuthenticated, isLoading } = useAuth();
-  
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Caricamento...</div>;
-  }
-  
-  if (!isAuthenticated) {
-    // Redirect to login instead of showing "Non autenticato"
-    window.location.href = '/login';
-    return <div className="min-h-screen flex items-center justify-center">Reindirizzamento...</div>;
-  }
-  
-  return <DashboardContent />;
+  return (
+    <ProtectedRoute requiredRole="hotel">
+      <div className="min-h-screen bg-gray-50">
+        <Sidebar />
+        <DashboardContent />
+      </div>
+    </ProtectedRoute>
+  );
 }
