@@ -114,10 +114,19 @@ export function ProtectedRoute({
   const [, setLocation] = useLocation();
 
   useEffect(() => {
+    console.log('ProtectedRoute check:', { 
+      isLoading, 
+      isAuthenticated, 
+      userType: user?.type, 
+      requiredRole,
+      shouldRedirect: (!isLoading && !isAuthenticated) || (isAuthenticated && requiredRole && user?.type !== requiredRole)
+    });
+    
     if (!isLoading && !isAuthenticated) {
+      console.log('Redirecting to login: not authenticated');
       setLocation('/login');
     } else if (isAuthenticated && requiredRole && user?.type !== requiredRole) {
-      // Redirect to login if role doesn't match
+      console.log('Redirecting to login: role mismatch', { userType: user?.type, requiredRole });
       setLocation('/login');
     }
   }, [isAuthenticated, isLoading, user, requiredRole, setLocation]);
