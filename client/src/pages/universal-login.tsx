@@ -97,13 +97,22 @@ export default function UniversalLogin() {
         setTempSessionToken(data.sessionToken);
         setUserType(variables.userType);
       } else {
+        // Login successful - set user state and redirect
         login(data.user, data.sessionToken);
-        const redirectPath = variables.userType === 'admin' ? '/admin-dashboard' : '/dashboard';
-        setLocation(redirectPath);
+        
         toast({
           title: "Login effettuato",
           description: `Benvenuto/a, ${data.user.name || data.user.email}!`,
         });
+        
+        // Redirect based on user type
+        const redirectPath = variables.userType === 'admin' ? '/admin-dashboard' : '/dashboard';
+        console.log('Redirecting to:', redirectPath, 'for user type:', variables.userType);
+        
+        // Use setTimeout to ensure state is updated before redirect
+        setTimeout(() => {
+          setLocation(redirectPath);
+        }, 100);
       }
     },
     onError: (error: any) => {
