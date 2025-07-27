@@ -65,13 +65,20 @@ router.post('/login/hotel', loginLimiter, async (req, res) => {
     const userAgent = req.get('User-Agent') || 'unknown';
 
     // Find hotel by email
+    console.log("Looking for hotel with email:", email);
     const [hotel] = await db
       .select()
       .from(hotels)
       .where(eq(hotels.email, email));
 
+    console.log("Hotel found:", hotel ? "Yes" : "No");
+    if (hotel) {
+      console.log("Hotel password hash:", hotel.password);
+    }
+
     if (!hotel) {
       await logSecurityEvent(null, 'hotel', 'login_failed_user_not_found', ipAddress, userAgent, { email });
+      console.log("Hotel not found for email:", email);
       return res.status(401).json({ error: 'Credenziali non valide' });
     }
 
@@ -92,10 +99,17 @@ router.post('/login/hotel', loginLimiter, async (req, res) => {
     }
 
     // Verify password
+    console.log("Verifying password for hotel:", hotel.email);
+    console.log("Input password:", password);
+    console.log("Stored hash:", hotel.password);
+    
     const passwordValid = await verifyPassword(password, hotel.password);
+    console.log("Password valid:", passwordValid);
+    
     if (!passwordValid) {
       await incrementLoginAttempts(hotel.id, 'hotel');
       await logSecurityEvent(hotel.id, 'hotel', 'login_failed_wrong_password', ipAddress, userAgent);
+      console.log("Password verification failed for hotel:", hotel.email);
       return res.status(401).json({ error: 'Credenziali non valide' });
     }
 
