@@ -241,7 +241,7 @@ export default function Login({ userType }: LoginProps) {
         description: "Autenticazione a due fattori verificata",
       });
       
-      if (userType === 'admin') {
+      if (data.user.type === 'admin') {
         setLocation('/admin-dashboard');
       } else {
         setLocation('/dashboard');
