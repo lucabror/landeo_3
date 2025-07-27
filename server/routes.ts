@@ -1545,7 +1545,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Aggiorna il profilo ospite con le preferenze
       await storage.updateGuestProfile(tokenData.guestProfileId, {
         preferences: allPreferences,
-        specialRequests: specialRequests.trim() || undefined
+        specialRequests: specialRequests.trim() || undefined,
+        preferencesCompleted: true
       });
       
       // Marca il token come completato
