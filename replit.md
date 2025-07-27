@@ -139,6 +139,11 @@ Preferred communication style: Simple, everyday language.
   - Aggiunto design responsive con gradienti sottili e ombre delicate
   - Struttura email completamente rivisitata con sezioni ben definite e stile luxury hotel
   - Sistema di icone e layout benefici più elegante e leggibile
+- **2025-01-27**: Risolto bug pulsante "Genera Itinerario" sempre disabilitato
+  - Aggiunto aggiornamento campo preferencesCompleted=true quando ospite completa preferenze
+  - Endpoint /api/guest-preferences/:token ora salva correttamente il flag di completamento
+  - Pulsante itinerario ora si attiva automaticamente dopo raccolta preferenze (se crediti > 0)
+  - Messaggio di errore mostrato solo quando preferenze non sono state effettivamente raccolte
 
 ## System Architecture
 
