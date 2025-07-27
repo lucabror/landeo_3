@@ -42,14 +42,15 @@ export default function HotelRegister() {
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
-      const response = await apiRequest("/api/auth/register-hotel", {
-        method: "POST",
-        body: JSON.stringify({
+      const response = await apiRequest(
+        "POST",
+        "/api/auth/register-hotel",
+        {
           email: data.email,
           password: data.password,
-        }),
-      });
-      return response;
+        }
+      );
+      return response.json();
     },
     onSuccess: (data) => {
       setUserEmail(form.getValues("email"));
