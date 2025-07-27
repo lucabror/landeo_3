@@ -132,6 +132,13 @@ Preferred communication style: Simple, everyday language.
   - Fixed form reset logic to use only valid form fields, preventing validation conflicts
   - Hotel data saving now works correctly with proper Zod validation
   - Form submission proceeds when no actual validation errors exist (not relying on isValid flag)
+- **2025-01-27**: Completamente ridisegnata email "Personalizza il tuo soggiorno" per coerenza con homepage
+  - Applicata palette colori sobria e pastello della homepage (stone-50, amber-25, warmgray-50)
+  - Utilizzati colori amber-700/800 invece dei precedenti blu/viola per coerenza con brand
+  - Migliorata tipografia con font system moderni e spaziature eleganti
+  - Aggiunto design responsive con gradienti sottili e ombre delicate
+  - Struttura email completamente rivisitata con sezioni ben definite e stile luxury hotel
+  - Sistema di icone e layout benefici più elegante e leggibile
 
 ## System Architecture
 
