@@ -290,7 +290,7 @@ router.post('/setup-mfa', requireAuth({ userType: 'both' }), async (req, res) =>
     const userAgent = req.get('User-Agent') || 'unknown';
 
     // Get user email
-    const table = userType === 'hotel' ? hotels : administrators;
+    const table = userType === 'hotel' ? hotels : adminUsers;
     const [user] = await db
       .select()
       .from(table)
@@ -391,7 +391,7 @@ router.post('/verify-mfa', mfaLimiter, async (req, res) => {
     await resetLoginAttempts(session.userId, session.userType);
     
     // Get user info
-    const table = session.userType === 'hotel' ? hotels : administrators;
+    const table = session.userType === 'hotel' ? hotels : adminUsers;
     const [user] = await db
       .select()
       .from(table)
@@ -421,7 +421,7 @@ router.get('/mfa-status', requireAuth({ userType: 'both' }), async (req, res) =>
   try {
     const { id: userId, type: userType } = (req as any).user;
 
-    const table = userType === 'hotel' ? hotels : administrators;
+    const table = userType === 'hotel' ? hotels : adminUsers;
     const [user] = await db
       .select()
       .from(table)
@@ -445,7 +445,7 @@ router.post('/disable-mfa', requireAuth({ userType: 'both' }), async (req, res) 
   try {
     const { id: userId, type: userType } = (req as any).user;
 
-    const table = userType === 'hotel' ? hotels : administrators;
+    const table = userType === 'hotel' ? hotels : adminUsers;
     
     // Disable MFA for user
     await db
@@ -499,7 +499,7 @@ router.get('/me', requireAuth({ userType: 'both', requireMfa: true }), async (re
   try {
     const { id: userId, type: userType } = (req as any).user;
 
-    const table = userType === 'hotel' ? hotels : administrators;
+    const table = userType === 'hotel' ? hotels : adminUsers;
     const [user] = await db
       .select()
       .from(table)
@@ -579,7 +579,7 @@ router.post('/forgot-password', async (req, res) => {
         
       user = hotel;
     } else if (userType === 'admin') {
-      const [admin] = await db.select().from(administrators).where(eq(administrators.email, email));
+      const [admin] = await db.select().from(adminUsers).where(eq(adminUsers.email, email));
       if (!admin) {
         return res.json({ success: true, message: 'Se l\'email esiste, riceverai le istruzioni per il reset' });
       }
@@ -587,12 +587,12 @@ router.post('/forgot-password', async (req, res) => {
       resetToken = randomBytes(32).toString('hex');
       resetExpires = new Date(Date.now() + 3600000);
       
-      await db.update(administrators)
+      await db.update(adminUsers)
         .set({ 
           sessionToken: resetToken,
           tokenExpiresAt: resetExpires 
         })
-        .where(eq(administrators.id, admin.id));
+        .where(eq(adminUsers.id, admin.id));
         
       user = admin;
     }
@@ -708,10 +708,10 @@ router.post('/reset-password', async (req, res) => {
         
       user = hotel;
     } else if (userType === 'admin') {
-      const [admin] = await db.select().from(administrators)
+      const [admin] = await db.select().from(adminUsers)
         .where(and(
-          eq(administrators.sessionToken, token),
-          gt(administrators.tokenExpiresAt, now)
+          eq(adminUsers.sessionToken, token),
+          gt(adminUsers.tokenExpiresAt, now)
         ));
         
       if (!admin) {
