@@ -29,49 +29,83 @@ export async function generateItineraryPDF(
       const stream = createWriteStream(filePath);
       doc.pipe(stream);
 
-      // Define colors (matching the design)
-      const primaryColor = '#2C5530';
-      const secondaryColor = '#D4AF37';
-      const accentColor = '#8B4513';
+      // Define colors (matching the elegant landing page design)
+      const colors = {
+        primary: '#B45309',      // Amber-700 (elegant warm tone)
+        secondary: '#92400E',    // Amber-800 (deeper warm tone)  
+        accent: '#F3F4F6',       // Stone-100 (very light background)
+        lightAccent: '#FAFAF9',  // Stone-50 (almost white)
+        textDark: '#1F2937',     // Gray-800 (elegant dark text)
+        textLight: '#6B7280',    // Gray-500 (subtle text)
+        border: '#E5E7EB',       // Gray-200 (light borders)
+        gold: '#FBBF24'          // Amber-400 (soft gold accents)
+      };
 
-      // Header with hotel branding
-      doc.rect(0, 0, doc.page.width, 120).fill(primaryColor);
+      // Elegant header with subtle gradient effect
+      doc.rect(0, 0, doc.page.width, 100).fill(colors.lightAccent);
+      doc.rect(0, 0, doc.page.width, 6).fill(colors.primary);
       
+      // Hotel name with elegant styling
       doc.font('Helvetica-Bold')
-         .fontSize(24)
-         .fillColor('white')
-         .text(hotel.name, 50, 30, { width: doc.page.width - 100 });
+         .fontSize(22)
+         .fillColor(colors.primary)
+         .text(hotel.name, 50, 25, { width: doc.page.width - 100 });
 
-      doc.font('Helvetica')
-         .fontSize(12)
-         .text(hotel.address, 50, 60)
-         .text(`${hotel.city}, ${hotel.region}`, 50, 75)
-         .text(hotel.phone, 50, 90);
-
-      // Itinerary title
-      doc.font('Helvetica-Bold')
-         .fontSize(18)
-         .fillColor(primaryColor)
-         .text(itinerary.title, 50, 150);
-
-      // Guest information
+      // Hotel details with lighter styling
       doc.font('Helvetica')
          .fontSize(10)
-         .fillColor('black')
-         .text(`Ospiti: ${guestProfile.referenceName} (${guestProfile.numberOfPeople} persone)`, 50, 180)
-         .text(`Tipo: ${guestProfile.type}`, 50, 195)
-         .text(`Check-in: ${new Date(guestProfile.checkInDate).toLocaleDateString('it-IT')}`, 50, 210)
-         .text(`Check-out: ${new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT')}`, 50, 225);
+         .fillColor(colors.textLight)
+         .text(hotel.address, 50, 50)
+         .text(`${hotel.city}, ${hotel.region}`, 50, 65)
+         .text(hotel.phone, 50, 80);
 
-      // Description
+      // Itinerary title with elegant styling
+      doc.font('Helvetica-Bold')
+         .fontSize(20)
+         .fillColor(colors.textDark)
+         .text(itinerary.title, 50, 125);
+      
+      // Decorative line under title
+      doc.rect(50, 150, 200, 2).fill(colors.gold);
+
+      // Guest information with elegant card-like design
+      doc.rect(50, 165, doc.page.width - 100, 70).fill(colors.accent);
+      doc.rect(50, 165, doc.page.width - 100, 70).stroke(colors.border);
+      
+      doc.font('Helvetica-Bold')
+         .fontSize(11)
+         .fillColor(colors.textDark)
+         .text('INFORMAZIONI OSPITE', 65, 175);
+      
+      doc.font('Helvetica')
+         .fontSize(10)
+         .fillColor(colors.textLight)
+         .text(`Ospiti: ${guestProfile.referenceName} (${guestProfile.numberOfPeople} persone)`, 65, 190)
+         .text(`Tipo: ${guestProfile.type}`, 65, 205)
+         .text(`Check-in: ${new Date(guestProfile.checkInDate).toLocaleDateString('it-IT')}`, 65, 220)
+         .text(`Check-out: ${new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT')}`, 280, 220);
+
+      let yPosition = 250;
+
+      // Description with elegant styling
       if (itinerary.description) {
-        doc.font('Helvetica')
+        doc.rect(50, yPosition, doc.page.width - 100, 50).fill(colors.lightAccent);
+        doc.rect(50, yPosition, doc.page.width - 100, 50).stroke(colors.border);
+        
+        doc.font('Helvetica-Bold')
            .fontSize(11)
-           .fillColor('#333')
-           .text(itinerary.description, 50, 250, { width: doc.page.width - 100 });
+           .fillColor(colors.textDark)
+           .text('DESCRIZIONE', 65, yPosition + 10);
+        
+        doc.font('Helvetica')
+           .fontSize(10)
+           .fillColor(colors.textLight)
+           .text(itinerary.description, 65, yPosition + 25, { width: doc.page.width - 130 });
+        
+        yPosition += 65;
+      } else {
+        yPosition += 15;
       }
-
-      let yPosition = 290;
 
       // Itinerary days
       if (itinerary.days && Array.isArray(itinerary.days)) {
@@ -82,19 +116,26 @@ export async function generateItineraryPDF(
             yPosition = 50;
           }
 
-          // Day header
-          doc.rect(50, yPosition, doc.page.width - 100, 30).fill(secondaryColor);
+          // Day header with elegant styling
+          doc.rect(50, yPosition, doc.page.width - 100, 35).fill(colors.primary);
+          doc.rect(50, yPosition + 35, doc.page.width - 100, 3).fill(colors.gold);
+          
           doc.font('Helvetica-Bold')
              .fontSize(14)
              .fillColor('white')
-             .text(`Giorno ${day.day} - ${new Date(day.date).toLocaleDateString('it-IT', { 
+             .text(`Giorno ${day.day}`, 65, yPosition + 8);
+          
+          doc.font('Helvetica')
+             .fontSize(11)
+             .fillColor('white')
+             .text(new Date(day.date).toLocaleDateString('it-IT', { 
                weekday: 'long', 
                year: 'numeric', 
                month: 'long', 
                day: 'numeric' 
-             })}`, 60, yPosition + 8);
+             }), 65, yPosition + 22);
 
-          yPosition += 45;
+          yPosition += 50;
 
           // Activities
           if (day.activities && Array.isArray(day.activities)) {
@@ -105,55 +146,38 @@ export async function generateItineraryPDF(
                 yPosition = 50;
               }
 
-              // Time
+              // Activity card with elegant design
+              doc.rect(60, yPosition, doc.page.width - 120, 50).fill(colors.lightAccent);
+              doc.rect(60, yPosition, doc.page.width - 120, 50).stroke(colors.border);
+              
+              // Time badge
+              doc.rect(70, yPosition + 8, 60, 16).fill(colors.gold);
               doc.font('Helvetica-Bold')
-                 .fontSize(12)
-                 .fillColor(accentColor)
-                 .text(activity.time, 60, yPosition);
+                 .fontSize(9)
+                 .fillColor('white')
+                 .text(activity.time, 75, yPosition + 12);
 
               // Activity name
               doc.font('Helvetica-Bold')
                  .fontSize(11)
-                 .fillColor('black')
-                 .text(activity.activity, 120, yPosition, { width: 350 });
+                 .fillColor(colors.textDark)
+                 .text(activity.activity, 140, yPosition + 10, { width: doc.page.width - 200 });
 
-              yPosition += 15;
-
-              // Location
+              // Location with subtle icon
               doc.font('Helvetica')
-                 .fontSize(10)
-                 .fillColor('#666')
-                 .text(`📍 ${activity.location}`, 120, yPosition);
-
-              yPosition += 15;
+                 .fontSize(9)
+                 .fillColor(colors.textLight)
+                 .text(`📍 ${activity.location}`, 140, yPosition + 25);
 
               // Description
               if (activity.description) {
                 doc.font('Helvetica')
-                   .fontSize(10)
-                   .fillColor('#333')
-                   .text(activity.description, 120, yPosition, { width: 350 });
-                yPosition += 15;
-              }
-
-              // Duration and notes
-              if (activity.duration || activity.notes) {
-                doc.font('Helvetica')
                    .fontSize(9)
-                   .fillColor('#999');
-                
-                if (activity.duration) {
-                  doc.text(`⏱ Durata: ${activity.duration}`, 120, yPosition);
-                  yPosition += 12;
-                }
-                
-                if (activity.notes) {
-                  doc.text(`📝 ${activity.notes}`, 120, yPosition);
-                  yPosition += 12;
-                }
+                   .fillColor(colors.textLight)
+                   .text(activity.description, 140, yPosition + 37, { width: doc.page.width - 200 });
               }
 
-              yPosition += 10; // Space between activities
+              yPosition += 60; // Fixed spacing for activity cards
             }
           }
 
@@ -161,12 +185,24 @@ export async function generateItineraryPDF(
         }
       }
 
-      // Footer
+      // Elegant footer
+      const footerY = doc.page.height - 50;
+      doc.rect(0, footerY, doc.page.width, 50).fill(colors.lightAccent);
+      doc.rect(0, footerY, doc.page.width, 2).fill(colors.gold);
+      
       doc.font('Helvetica')
+         .fontSize(9)
+         .fillColor(colors.textLight)
+         .text(`Generato da ${hotel.name}`, 50, footerY + 15);
+      
+      doc.text(new Date().toLocaleDateString('it-IT'), 
+               doc.page.width - 100, footerY + 15);
+      
+      doc.font('Helvetica-Bold')
          .fontSize(8)
-         .fillColor('#666')
-         .text(`Generato da ${hotel.name} - ${new Date().toLocaleDateString('it-IT')}`, 
-               50, doc.page.height - 30, { align: 'center', width: doc.page.width - 100 });
+         .fillColor(colors.primary)
+         .text('ItineraItalia - Powered by AI', 
+               50, footerY + 30, { align: 'center', width: doc.page.width - 100 });
 
       // Finalize the PDF
       doc.end();

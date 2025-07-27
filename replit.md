@@ -164,6 +164,14 @@ Preferred communication style: Simple, everyday language.
   - Endpoint /api/guest-preferences/:token ora usa query Drizzle diretta per aggiornamento
   - Campo preferencesCompleted correttamente impostato a true quando ospite completa preferenze
   - Pulsante "Genera Itinerario" ora si attiva automaticamente dopo raccolta preferenze
+- **2025-01-27**: Ridisegnata completamente la grafica PDF degli itinerari con palette elegante
+  - Aggiornata palette colori per allinearsi alla landing page: amber-700/800, stone-50/100, gray-500/800
+  - Sostituiti i colori marronii scuri con tonalità più raffinate e pastello
+  - Header più elegante con design sottile e linee decorative dorate
+  - Card informazioni ospite con alternanza colori e bordi sottili
+  - Attività con design card-based, badge temporali dorati, testo più leggero
+  - Footer ridisegnato con brand "ItineraItalia - Powered by AI"
+  - Grafica coerente tra PDF download e PDF email per esperienza unificata
 
 ## System Architecture
 

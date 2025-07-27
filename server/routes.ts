@@ -845,46 +845,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await new Promise<void>((resolve) => {
         doc.on('end', resolve);
         
-        // Color palette - elegant and soft tones
+        // Color palette - elegant tones matching landing page
         const colors = {
-          primary: '#8B4513',      // Saddle brown
-          secondary: '#DAA520',    // Goldenrod
-          accent: '#9ACD32',       // Yellow green
-          lightGold: '#F5DEB3',    // Wheat
-          lightBrown: '#F4A460',   // Sandy brown
-          lightGreen: '#E0F2E7',   // Light mint
-          darkText: '#2C2C2C',     // Dark gray
-          lightText: '#666666',    // Medium gray
-          background: '#FAFAFA'    // Off-white
+          primary: '#B45309',      // Amber-700 (elegant warm tone)
+          secondary: '#92400E',    // Amber-800 (deeper warm tone)  
+          accent: '#F3F4F6',       // Stone-100 (very light background)
+          lightAccent: '#FAFAF9',  // Stone-50 (almost white)
+          textDark: '#1F2937',     // Gray-800 (elegant dark text)
+          textLight: '#6B7280',    // Gray-500 (subtle text)
+          border: '#E5E7EB',       // Gray-200 (light borders)
+          gold: '#FBBF24'          // Amber-400 (soft gold accents)
         };
 
         let yPos = 60;
 
-        // Header section with elegant styling
-        doc.rect(0, 0, doc.page.width, 120).fill(colors.primary);
+        // Elegant header with subtle design
+        doc.rect(0, 0, doc.page.width, 100).fill(colors.lightAccent);
+        doc.rect(0, 0, doc.page.width, 4).fill(colors.primary);
         
         // Hotel name and title
-        doc.fillColor('white')
-           .fontSize(28)
+        doc.fillColor(colors.primary)
+           .fontSize(24)
            .font('Helvetica-Bold')
-           .text(hotel?.name || 'Hotel', 60, 30, { width: doc.page.width - 120, align: 'center' });
+           .text(hotel?.name || 'Hotel', 60, 25, { width: doc.page.width - 120, align: 'center' });
         
-        doc.fontSize(16)
+        doc.fontSize(12)
            .font('Helvetica')
-           .text(`${hotel?.city || ''}, ${hotel?.region || ''}`, 60, 65, { width: doc.page.width - 120, align: 'center' });
+           .fillColor(colors.textLight)
+           .text(`${hotel?.city || ''}, ${hotel?.region || ''}`, 60, 50, { width: doc.page.width - 120, align: 'center' });
         
-        yPos = 150;
+        yPos = 125;
 
-        // Itinerary title with decorative border
-        doc.rect(40, yPos - 10, doc.page.width - 80, 50)
-           .fill(colors.lightGold)
-           .stroke(colors.secondary)
-           .lineWidth(2);
+        // Itinerary title with elegant styling
+        doc.rect(40, yPos - 5, doc.page.width - 80, 40)
+           .fill(colors.accent)
+           .stroke(colors.border)
+           .lineWidth(1);
         
-        doc.fillColor(colors.darkText)
-           .fontSize(22)
+        doc.fillColor(colors.textDark)
+           .fontSize(18)
            .font('Helvetica-Bold')
-           .text(itinerary.title, 60, yPos + 8, { width: doc.page.width - 120, align: 'center' });
+           .text(itinerary.title, 60, yPos + 10, { width: doc.page.width - 120, align: 'center' });
+        
+        // Decorative line under title
+        doc.rect(60, yPos + 30, doc.page.width - 120, 2).fill(colors.gold);
         
         yPos += 80;
 
@@ -904,19 +908,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const boxY = yPos + (index * (boxHeight + boxSpacing));
           
           // Alternate colors for visual appeal
-          const bgColor = index % 2 === 0 ? colors.lightGreen : colors.lightGold;
+          const bgColor = index % 2 === 0 ? colors.accent : colors.lightAccent;
           
           doc.rect(40, boxY, doc.page.width - 80, boxHeight)
              .fill(bgColor)
-             .stroke(colors.secondary)
+             .stroke(colors.border)
              .lineWidth(1);
           
-          doc.fillColor(colors.darkText)
-             .fontSize(12)
+          doc.fillColor(colors.textDark)
+             .fontSize(11)
              .font('Helvetica-Bold')
              .text(info.label + ':', 60, boxY + 6);
           
           doc.font('Helvetica')
+             .fillColor(colors.textLight)
              .text(info.value, 150, boxY + 6);
         });
         
@@ -930,9 +935,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           
           doc.rect(40, yPos - 5, doc.page.width - 80, 2)
-             .fill(colors.secondary);
+             .fill(colors.gold);
           
-          doc.fillColor(colors.darkText)
+          doc.fillColor(colors.textDark)
              .fontSize(16)
              .font('Helvetica-Bold')
              .text('Descrizione', 40, yPos + 10);
@@ -940,11 +945,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           yPos += 35;
           
           doc.rect(40, yPos - 10, doc.page.width - 80, 60)
-             .fill(colors.background)
-             .stroke(colors.lightBrown)
+             .fill(colors.lightAccent)
+             .stroke(colors.border)
              .lineWidth(1);
           
-          doc.fillColor(colors.lightText)
+          doc.fillColor(colors.textLight)
              .fontSize(11)
              .font('Helvetica')
              .text(itinerary.description, 55, yPos, { width: doc.page.width - 110, align: 'justify' });
@@ -964,8 +969,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             doc.rect(40, yPos, doc.page.width - 80, 35)
                .fill(colors.primary);
             
-            doc.rect(40, yPos + 35, doc.page.width - 80, 5)
-               .fill(colors.secondary);
+            doc.rect(40, yPos + 35, doc.page.width - 80, 3)
+               .fill(colors.gold);
             
             const dayText = `Giorno ${day.day}`;
             const dateText = new Date(day.date).toLocaleDateString('it-IT', { 
