@@ -36,7 +36,10 @@ function DashboardContent() {
   const { user } = useAuth();
 
   // Use the user's hotel ID from authentication
-  const hotelId = user?.hotelId || MOCK_HOTEL_ID;
+  const hotelId = user?.hotelId || user?.id || MOCK_HOTEL_ID;
+  
+  console.log("Current user:", user);
+  console.log("Using hotel ID:", hotelId);
 
   // Fetch hotel stats
   const { data: stats } = useQuery({

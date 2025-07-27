@@ -129,7 +129,8 @@ router.post('/login/hotel', loginLimiter, async (req, res) => {
         id: hotel.id,
         email: hotel.email,
         name: hotel.name,
-        type: 'hotel'
+        type: 'hotel',
+        hotelId: hotel.id
       }
     });
   } catch (error) {
