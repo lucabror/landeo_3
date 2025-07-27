@@ -49,24 +49,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = (userData: User, sessionToken: string) => {
-    // Clear any existing data first
-    localStorage.removeItem('sessionToken');
-    localStorage.removeItem('user');
-    localStorage.removeItem('hotelId'); // Legacy cleanup
-    sessionStorage.removeItem('admin-auth'); // Legacy cleanup
+    // Complete cleanup of all storage
+    localStorage.clear();
+    sessionStorage.clear();
     
-    // Force clear current state before setting new one
+    // Force clear current state
     setUser(null);
     
     // Set new auth data
     localStorage.setItem('sessionToken', sessionToken);
     localStorage.setItem('user', JSON.stringify(userData));
-    
-    // Use setTimeout to ensure state update happens after cleanup
-    setTimeout(() => {
-      setUser(userData);
-      console.log('Login completed with user:', userData);
-    }, 100);
+    setUser(userData);
   };
 
   const logout = async () => {
@@ -129,19 +122,9 @@ export function ProtectedRoute({
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    console.log('ProtectedRoute check:', { 
-      isLoading, 
-      isAuthenticated, 
-      userType: user?.type, 
-      requiredRole,
-      shouldRedirect: (!isLoading && !isAuthenticated) || (isAuthenticated && requiredRole && user?.type !== requiredRole)
-    });
-    
     if (!isLoading && !isAuthenticated) {
-      console.log('Redirecting to login: not authenticated');
       setLocation('/login');
     } else if (isAuthenticated && requiredRole && user?.type !== requiredRole) {
-      console.log('Redirecting to login: role mismatch', { userType: user?.type, requiredRole });
       setLocation('/login');
     }
   }, [isAuthenticated, isLoading, user, requiredRole, setLocation]);
