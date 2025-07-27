@@ -19,11 +19,12 @@ export default function EmailVerification({ token }: EmailVerificationProps) {
 
   const verifyMutation = useMutation({
     mutationFn: async (verificationToken: string) => {
-      const response = await apiRequest(`/api/auth/verify-email`, {
-        method: "POST",
-        body: JSON.stringify({ token: verificationToken }),
-      });
-      return response;
+      const response = await apiRequest(
+        "POST",
+        "/api/auth/verify-email",
+        { token: verificationToken }
+      );
+      return response.json();
     },
     onSuccess: (data) => {
       setVerificationStatus('success');
