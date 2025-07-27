@@ -39,9 +39,7 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { insertLocalExperienceSchema } from "@shared/schema";
 import type { InsertLocalExperience } from "@shared/schema";
-
-// Mock hotel ID - in real app this would come from auth/context
-const MOCK_HOTEL_ID = "d2dd46f0-97d3-4121-96e3-01500370c73f";
+import { useAuth } from "@/hooks/use-auth";
 
 const CATEGORIES = [
   { value: "cultura", label: "Cultura", icon: Camera, color: "bg-blue-100 text-blue-700" },
@@ -148,21 +146,26 @@ export default function LocalExperiences() {
   const [editingExperience, setEditingExperience] = useState<any>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  
+  const hotelId = user?.hotelId;
 
   // Fetch local experiences
   const { data: experiences, isLoading } = useQuery({
-    queryKey: ["/api/hotels", MOCK_HOTEL_ID, "local-experiences"],
+    queryKey: ["/api/hotels", hotelId, "local-experiences"],
+    enabled: !!hotelId,
   });
 
   // Fetch pending attractions
   const { data: pendingAttractions, isLoading: isLoadingPending } = useQuery({
-    queryKey: ["/api/hotels", MOCK_HOTEL_ID, "pending-attractions"],
+    queryKey: ["/api/hotels", hotelId, "pending-attractions"],
+    enabled: !!hotelId,
   });
 
   const form = useForm<InsertLocalExperience>({
     resolver: zodResolver(insertLocalExperienceSchema),
     defaultValues: {
-      hotelId: MOCK_HOTEL_ID,
+      hotelId: hotelId || "",
       name: "",
       category: "",
       description: "",
@@ -193,7 +196,7 @@ export default function LocalExperiences() {
         title: "Successo",
         description: editingExperience ? "Esperienza aggiornata con successo!" : "Esperienza creata con successo!",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "local-experiences"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "local-experiences"] });
       setIsDialogOpen(false);
       setEditingExperience(null);
       form.reset();
@@ -217,7 +220,7 @@ export default function LocalExperiences() {
         title: "Successo",
         description: "Esperienza eliminata con successo!",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "local-experiences"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "local-experiences"] });
     },
     onError: (error: any) => {
       toast({
@@ -239,7 +242,7 @@ export default function LocalExperiences() {
         title: "Successo",
         description: "Esperienza aggiornata con successo!",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "local-experiences"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "local-experiences"] });
     },
     onError: (error: any) => {
       toast({
@@ -252,9 +255,9 @@ export default function LocalExperiences() {
 
   // Generate AI attractions mutation
   const generateAttractionsMutation = useMutation({
-    mutationFn: () => apiRequest("POST", `/api/hotels/${MOCK_HOTEL_ID}/generate-attractions`),
+    mutationFn: () => apiRequest("POST", `/api/hotels/${hotelId}/generate-attractions`),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "pending-attractions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "pending-attractions"] });
       toast({
         title: "Attrazioni generate",
         description: data.message,
@@ -271,10 +274,10 @@ export default function LocalExperiences() {
 
   // Approve attraction mutation
   const approveAttractionMutation = useMutation({
-    mutationFn: (attractionId: string) => apiRequest("POST", `/api/hotels/${MOCK_HOTEL_ID}/pending-attractions/${attractionId}/approve`),
+    mutationFn: (attractionId: string) => apiRequest("POST", `/api/hotels/${hotelId}/pending-attractions/${attractionId}/approve`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "pending-attractions"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "local-experiences"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "pending-attractions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "local-experiences"] });
       toast({
         title: "Attrazione approvata",
         description: "L'attrazione è stata aggiunta alle esperienze locali",
@@ -291,9 +294,9 @@ export default function LocalExperiences() {
 
   // Reject attraction mutation
   const rejectAttractionMutation = useMutation({
-    mutationFn: (attractionId: string) => apiRequest("POST", `/api/hotels/${MOCK_HOTEL_ID}/pending-attractions/${attractionId}/reject`),
+    mutationFn: (attractionId: string) => apiRequest("POST", `/api/hotels/${hotelId}/pending-attractions/${attractionId}/reject`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "pending-attractions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "pending-attractions"] });
       toast({
         title: "Attrazione rifiutata",
         description: "L'attrazione è stata rimossa dall'elenco",
@@ -341,7 +344,7 @@ export default function LocalExperiences() {
   const handleNewExperience = () => {
     setEditingExperience(null);
     form.reset({
-      hotelId: MOCK_HOTEL_ID,
+      hotelId: hotelId || "",
       name: "",
       category: "",
       description: "",
@@ -390,7 +393,7 @@ export default function LocalExperiences() {
     },
     onSuccess: (count) => {
       if (count > 0) {
-        queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "local-experiences"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "local-experiences"] });
         toast({
           title: "Categorie aggiornate",
           description: `${count} esperienze hanno ricevuto categorie più appropriate`,

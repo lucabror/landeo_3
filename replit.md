@@ -148,6 +148,11 @@ Preferred communication style: Simple, everyday language.
   - Aggiunto !important per forzare colore bianco del testo in tutti gli stati (link, visited, hover)
   - Rimosso text-decoration per mantenere design pulito del pulsante
   - Migliorata compatibilità con client email che sovrascrivono stili dei link
+- **2025-01-27**: Risolto errore 404 "Genera con AI" in Esperienze Locali
+  - Rimosso hardcoded MOCK_HOTEL_ID e sostituito con hotel ID dell'utente autenticato
+  - Aggiornati tutti gli endpoint per usare hotelId corretto dall'authentication context
+  - Aggiunto controllo enabled: !!hotelId nelle query per sicurezza
+  - Funzione "Genera con AI" ora funziona correttamente per tutti gli hotel autenticati
 
 ## System Architecture
 
