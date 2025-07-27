@@ -179,6 +179,19 @@ Preferred communication style: Simple, everyday language.
   - Corretto anche endpoint /api/itineraries/generate con stessa logica di controllo crediti
   - Sistema monetizzazione ora funziona correttamente per limitare generazioni itinerari
   - Log dettagliati per monitoraggio uso crediti per hotel
+- **2025-01-27**: Implementato sistema intelligente di matching preferenze ospiti-esperienze locali
+  - Creato servizio preference-matcher.ts per calcolo automatico affinità
+  - Nuovo endpoint API /api/hotels/:hotelId/local-experiences/matches/:guestId per match personalizzati
+  - Integrato selettore ospiti nella pagina Esperienze Locali con badge colorati
+  - Badge visivi per livelli match: "Preferenza Top", "Buon Match", "Standard"
+  - Evidenziazione preferenze specifiche che matchano con ogni esperienza locale
+- **2025-01-27**: Ridisegnata grafica PDF itinerari con stile elegante ristorante di lusso
+  - Ispirata al design del menu Sorrento: palette beige/oro/grigio minimalista
+  - Header verde scuro con decorazioni dorate e banner centrale hotel
+  - Layout a due colonne come menu ristorante con sezioni "ospite" e "soggiorno"
+  - Attività organizzate come piatti del menu con descrizioni e orari evidenziati
+  - Footer minimal con linea separatrice e branding ItineraItalia discreto
+  - Colori: verde oliva, oro elegante, crema, beige chiaro per atmosfera luxury
 
 ## System Architecture
 

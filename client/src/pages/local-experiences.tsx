@@ -168,7 +168,7 @@ function getSmartCategory(name: string, description: string = ""): string {
 export default function LocalExperiences() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingExperience, setEditingExperience] = useState<any>(null);
-  const [selectedGuestId, setSelectedGuestId] = useState<string>("");
+  const [selectedGuestId, setSelectedGuestId] = useState<string>("none");
   const [showMatches, setShowMatches] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -191,7 +191,7 @@ export default function LocalExperiences() {
   // Fetch experience matches for selected guest
   const { data: matchData, isLoading: isLoadingMatches } = useQuery({
     queryKey: ["/api/hotels", hotelId, "local-experiences", "matches", selectedGuestId],
-    enabled: !!hotelId && !!selectedGuestId,
+    enabled: !!hotelId && !!selectedGuestId && selectedGuestId !== "none",
   });
 
   // Fetch pending attractions
@@ -805,7 +805,7 @@ export default function LocalExperiences() {
                       <SelectValue placeholder="Seleziona un ospite per vedere i match delle preferenze" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Nessun filtro</SelectItem>
+                      <SelectItem value="none">Nessun filtro</SelectItem>
                       {guestProfiles.map((guest) => (
                         <SelectItem key={guest.id} value={guest.id}>
                           <div className="flex items-center">
@@ -818,7 +818,7 @@ export default function LocalExperiences() {
                   </Select>
                 </div>
                 
-                {selectedGuestId && matchData && (
+                {selectedGuestId && selectedGuestId !== "none" && matchData && (
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                     <div className="text-sm text-gray-600">
                       <strong>Preferenze:</strong> {matchData.guestProfile.preferences.join(", ") || "Nessuna"}
@@ -827,7 +827,7 @@ export default function LocalExperiences() {
                 )}
               </div>
               
-              {selectedGuestId && isLoadingMatches && (
+              {selectedGuestId && selectedGuestId !== "none" && isLoadingMatches && (
                 <div className="mt-4 flex items-center justify-center py-4">
                   <Loader2 className="h-6 w-6 animate-spin mr-2" />
                   <span className="text-sm text-gray-600">Calcolando match...</span>
@@ -847,11 +847,11 @@ export default function LocalExperiences() {
             {/* Local Experiences Grid */}
             {experiences && experiences.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {(selectedGuestId && matchData ? matchData.matches : experiences.map(exp => ({ experience: exp, matchType: 'low' as const, matchingPreferences: [] }))).map((match) => {
+                {(selectedGuestId && selectedGuestId !== "none" && matchData ? matchData.matches : experiences.map(exp => ({ experience: exp, matchType: 'low' as const, matchingPreferences: [] }))).map((match) => {
                   const experience = match.experience;
                   const categoryConfig = getCategoryConfig(experience.category);
                   const IconComponent = categoryConfig.icon;
-                  const matchBadge = selectedGuestId ? getMatchBadge(match.matchType) : null;
+                  const matchBadge = selectedGuestId && selectedGuestId !== "none" ? getMatchBadge(match.matchType) : null;
                   
                   return (
                     <Card key={experience.id} className="group hover:shadow-lg transition-shadow bg-white border border-gray-200">
@@ -919,7 +919,7 @@ export default function LocalExperiences() {
                           {experience.description}
                         </p>
                         
-                        {selectedGuestId && match.matchingPreferences && match.matchingPreferences.length > 0 && (
+                        {selectedGuestId && selectedGuestId !== "none" && match.matchingPreferences && match.matchingPreferences.length > 0 && (
                           <div className="mb-3 p-2 bg-green-50 border border-green-200 rounded-lg">
                             <div className="flex items-center text-xs text-green-800">
                               <Heart className="h-3 w-3 mr-1" />
