@@ -76,8 +76,10 @@ export async function sendGuestPreferencesEmail(
     const language = guestProfile.emailLanguage || 'it';
     const template = EMAIL_TEMPLATES[language as keyof typeof EMAIL_TEMPLATES];
     
-    const baseUrl = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000';
-    const preferencesUrl = `https://${baseUrl}/guest-preferences/${preferencesToken}`;
+    const baseUrl = process.env.REPLIT_DOMAINS 
+      ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` 
+      : 'http://localhost:5000';
+    const preferencesUrl = `${baseUrl}/guest-preferences/${preferencesToken}`;
     
     const checkinDate = new Date(guestProfile.checkInDate).toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US');
     const checkoutDate = new Date(guestProfile.checkOutDate).toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US');
