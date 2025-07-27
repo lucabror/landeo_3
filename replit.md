@@ -170,8 +170,15 @@ Preferred communication style: Simple, everyday language.
   - Header più elegante con design sottile e linee decorative dorate
   - Card informazioni ospite con alternanza colori e bordi sottili
   - Attività con design card-based, badge temporali dorati, testo più leggero
-  - Footer ridisegnato con brand "ItineraItalia - Powered by AI"
+  - Footer ridisegnato con brand "ItineraItalia - Powered by AI"  
   - Grafica coerente tra PDF download e PDF email per esperienza unificata
+- **2025-01-27**: Risolto bug critico sistema crediti: ora scalati correttamente a ogni generazione itinerario
+  - Identificato problema: endpoint /api/guest-profiles/:id/generate-itinerary non scalava crediti
+  - Aggiunto controllo crediti prima della generazione AI con messaggio errore se insufficienti
+  - Implementato scalamento automatico: -1 credito + aggiornamento credits_used dopo generazione
+  - Corretto anche endpoint /api/itineraries/generate con stessa logica di controllo crediti
+  - Sistema monetizzazione ora funziona correttamente per limitare generazioni itinerari
+  - Log dettagliati per monitoraggio uso crediti per hotel
 
 ## System Architecture
 

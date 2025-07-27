@@ -345,6 +345,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Hotel not found" });
       }
 
+      // CHECK CREDITS BEFORE GENERATION
+      if (hotel.credits <= 0) {
+        return res.status(402).json({ 
+          message: "Credits insufficient", 
+          details: "L'hotel non ha crediti sufficienti per generare un itinerario. Acquista crediti per continuare.",
+          creditsAvailable: hotel.credits 
+        });
+      }
+
       const localExperiences = await storage.getLocalExperiencesByHotel(guestProfile.hotelId);
 
       // Keep existing itineraries but create new one (for chronological view)
@@ -353,7 +362,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate new itinerary using AI
       const itinerary = await generateGuestSpecificItinerary(hotel, guestProfile, localExperiences);
       
-      res.json(itinerary);
+      // DEDUCT 1 CREDIT FROM HOTEL AFTER SUCCESSFUL GENERATION
+      const updatedCredits = hotel.credits - 1;
+      const updatedCreditsUsed = (hotel.creditsUsed || 0) + 1;
+      
+      await storage.updateHotel(hotel.id, { 
+        credits: updatedCredits,
+        creditsUsed: updatedCreditsUsed
+      });
+
+      console.log(`🎯 CREDITO SCALATO: Hotel ${hotel.name} - Crediti rimanenti: ${updatedCredits} (utilizzati: ${updatedCreditsUsed})`);
+      
+      res.json({
+        ...itinerary,
+        creditInfo: {
+          creditsDeducted: 1,
+          creditsRemaining: updatedCredits,
+          creditsUsed: updatedCreditsUsed
+        }
+      });
     } catch (error) {
       console.error('Error generating itinerary:', error);
       res.status(500).json({ message: "Failed to generate itinerary", error: error instanceof Error ? error.message : String(error) });
@@ -1493,6 +1520,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Guest profile or hotel not found" });
       }
 
+      // CHECK CREDITS BEFORE GENERATION
+      if (hotel.credits <= 0) {
+        return res.status(402).json({ 
+          message: "Credits insufficient", 
+          details: "L'hotel non ha crediti sufficienti per generare un itinerario. Acquista crediti per continuare.",
+          creditsAvailable: hotel.credits 
+        });
+      }
+
       // Generate AI itinerary
       const aiResponse = await generateItinerary(guestProfile, hotel, experiences, days);
       
@@ -1520,7 +1556,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update itinerary with QR code URL
       const updatedItinerary = await storage.updateItinerary(itinerary.id, { qrCodeUrl });
       
-      res.status(201).json(updatedItinerary);
+      // DEDUCT 1 CREDIT FROM HOTEL AFTER SUCCESSFUL GENERATION
+      const updatedCredits = hotel.credits - 1;
+      const updatedCreditsUsed = (hotel.creditsUsed || 0) + 1;
+      
+      await storage.updateHotel(hotel.id, { 
+        credits: updatedCredits,
+        creditsUsed: updatedCreditsUsed
+      });
+
+      console.log(`💳 CREDITO SCALATO: Hotel ${hotel.name} - Crediti rimanenti: ${updatedCredits} (utilizzati: ${updatedCreditsUsed})`);
+      
+      res.status(201).json({
+        ...updatedItinerary,
+        creditInfo: {
+          creditsDeducted: 1,
+          creditsRemaining: updatedCredits,
+          creditsUsed: updatedCreditsUsed
+        }
+      });
     } catch (error) {
       console.error("Error generating itinerary:", error);
       res.status(500).json({ message: "Failed to generate itinerary", error: error instanceof Error ? error.message : String(error) });
