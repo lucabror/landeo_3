@@ -223,7 +223,10 @@ router.post("/verify-email", async (req, res) => {
       .where(eq(users.id, userId));
 
     // Crea record hotel con la password dell'utente
-    await db.insert(hotels).values({
+    console.log("Creating hotel record for user:", user.email);
+    console.log("User password hash:", user.passwordHash);
+    
+    const [hotelRecord] = await db.insert(hotels).values({
       email: user.email,
       password: user.passwordHash,
       name: `Hotel di ${user.email.split('@')[0]}`,
@@ -239,7 +242,9 @@ router.post("/verify-email", async (req, res) => {
       creditsUsed: 0,
       totalCredits: 5,
       isActive: true,
-    });
+    }).returning();
+    
+    console.log("Hotel record created:", hotelRecord);
 
     // Rimuovi il token usato
     await db
