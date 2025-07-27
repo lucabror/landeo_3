@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-27**: Risolto sistema 2FA persistente per hotel manager e super admin
+  - Rimossa disabilitazione temporanea MFA dalle route di login (linee 119-123 hotel, 192-195 admin)
+  - Ripristinato controllo mfaEnabled nel database per determinare richiesta MFA
+  - Login ora controlla correttamente hotel.mfaEnabled e admin.mfaEnabled per attivare flusso 2FA
+  - Sistema ritorna requiresMfa: true quando utente ha 2FA attivo, triggering verifica Google Authenticator
+  - Frontend già gestiva correttamente il flusso MFA con step 'mfa-verify'
+  - Verificato: hotel "villa degli angeli" ha mfa_enabled=true, admin ha mfa_enabled=false
 - **2025-01-26**: Implementato sistema completo di registrazione hotel
   - Creata pagina `/hotel-register` per registrazione iniziale (email + password)
   - Pagina `/verify-email/:token` per conferma identità tramite link email
