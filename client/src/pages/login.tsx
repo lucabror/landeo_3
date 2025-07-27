@@ -115,9 +115,9 @@ export default function Login({ userType }: LoginProps) {
         return;
       }
       
-      // Complete cleanup before new login
-      localStorage.clear();
-      sessionStorage.clear();
+      // Selective cleanup - only auth data
+      localStorage.removeItem('sessionToken');
+      localStorage.removeItem('user');
       
       // Login successful - use AuthProvider login method
       authLogin({
@@ -232,9 +232,9 @@ export default function Login({ userType }: LoginProps) {
     onSuccess: async (response) => {
       const data = await response.json();
       
-      // Complete cleanup before new login
-      localStorage.clear();
-      sessionStorage.clear();
+      // Selective cleanup - only auth data
+      localStorage.removeItem('sessionToken');
+      localStorage.removeItem('user');
       
       // Use AuthProvider login method with correct parameter order
       authLogin({

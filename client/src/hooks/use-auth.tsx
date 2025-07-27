@@ -49,12 +49,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = (userData: User, sessionToken: string) => {
-    // Complete cleanup of all storage
-    localStorage.clear();
-    sessionStorage.clear();
-    
-    // Force clear current state
-    setUser(null);
+    // Selective cleanup - only auth-related data
+    localStorage.removeItem('sessionToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('hotelId');
+    sessionStorage.removeItem('admin-auth');
     
     // Set new auth data
     localStorage.setItem('sessionToken', sessionToken);
@@ -74,11 +73,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Error during logout:', error);
       // Continue with local logout even if server logout fails
     } finally {
-      // Clear local storage and state
-      localStorage.removeItem('sessionToken');
-      localStorage.removeItem('user');
-      localStorage.removeItem('hotelId'); // Legacy cleanup
-      sessionStorage.removeItem('admin-auth'); // Legacy cleanup
+      // Complete cleanup during logout
+      localStorage.clear();
+      sessionStorage.clear();
       setUser(null);
       
       // Redirect based on user type
