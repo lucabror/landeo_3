@@ -144,6 +144,10 @@ Preferred communication style: Simple, everyday language.
   - Endpoint /api/guest-preferences/:token ora salva correttamente il flag di completamento
   - Pulsante itinerario ora si attiva automaticamente dopo raccolta preferenze (se crediti > 0)
   - Messaggio di errore mostrato solo quando preferenze non sono state effettivamente raccolte
+- **2025-01-27**: Corretto colore testo pulsante "Compila le Tue Preferenze" nell'email
+  - Aggiunto !important per forzare colore bianco del testo in tutti gli stati (link, visited, hover)
+  - Rimosso text-decoration per mantenere design pulito del pulsante
+  - Migliorata compatibilità con client email che sovrascrivono stili dei link
 
 ## System Architecture
 

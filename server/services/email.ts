@@ -132,9 +132,9 @@ export async function sendGuestPreferencesEmail(
     .button { 
       display: inline-block; 
       background: linear-gradient(135deg, #b45309 0%, #92400e 100%); 
-      color: white; 
+      color: white !important; 
       padding: 16px 32px; 
-      text-decoration: none; 
+      text-decoration: none !important; 
       border-radius: 12px; 
       font-weight: 600; 
       margin: 24px 0;
@@ -143,9 +143,19 @@ export async function sendGuestPreferencesEmail(
       transition: all 0.2s ease;
     }
     .button:hover {
-      background: linear-gradient(135deg, #92400e 0%, #78350f 100%);
+      background: linear-gradient(135deg, #92400e 0%, #78350f 100%) !important;
+      color: white !important;
       transform: translateY(-1px);
       box-shadow: 0 6px 16px rgba(180, 83, 9, 0.4);
+      text-decoration: none !important;
+    }
+    .button:visited {
+      color: white !important;
+      text-decoration: none !important;
+    }
+    .button:link {
+      color: white !important;
+      text-decoration: none !important;
     }
     .footer { 
       background: linear-gradient(to right, #fafaf9, #fffbeb); 
