@@ -45,9 +45,11 @@ export default function Landing() {
                   Accedi
                 </Button>
               </Link>
-              <Button className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900">
-                Demo Gratuita
-              </Button>
+              <Link href="/hotel-setup">
+                <Button className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900">
+                  Demo Gratuita
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -73,7 +75,7 @@ export default function Landing() {
                 gestisce profili ospiti e automatizza l'esperienza di soggiorno con tecnologia all'avanguardia.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/login">
+                <Link href="/hotel-setup">
                   <Button size="lg" className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900 text-lg px-8">
                     Inizia Gratis
                     <ChevronRight className="ml-2 w-5 h-5" />
@@ -590,7 +592,7 @@ export default function Landing() {
                   </div>
                 </div>
 
-                <Link href="/login">
+                <Link href="/hotel-setup">
                   <Button className="w-full bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900 text-lg py-6">
                     Inizia Gratis Ora
                     <ChevronRight className="ml-2 w-5 h-5" />
@@ -612,7 +614,7 @@ export default function Landing() {
             Unisciti a centinaia di hotel italiani che stanno già offrendo esperienze straordinarie ai loro ospiti.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/login">
+            <Link href="/hotel-setup">
               <Button size="lg" className="bg-white text-amber-700 hover:bg-gray-50 text-lg px-8">
                 Registrazione Gratuita
                 <ChevronRight className="ml-2 w-5 h-5" />
