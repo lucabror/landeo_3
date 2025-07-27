@@ -22,6 +22,7 @@ import AdminLogin from "@/pages/admin-login";
 import AdminProfile from "@/pages/admin-profile";
 import HotelRegister from "@/pages/hotel-register";
 import EmailVerification from "@/pages/email-verification";
+import RegistrationConfirmed from "@/pages/registration-confirmed";
 
 import UniversalLogin from "@/pages/universal-login";
 
@@ -69,6 +70,11 @@ function Router() {
       {/* Email Verification */}
       <Route path="/verify-email/:token">
         {(params) => <EmailVerification token={params.token} />}
+      </Route>
+      
+      {/* Registration Confirmed */}
+      <Route path="/registration-confirmed/:token">
+        {(params) => <RegistrationConfirmed token={params.token} />}
       </Route>
       
       {/* Legacy login routes (redirect to universal) */}
