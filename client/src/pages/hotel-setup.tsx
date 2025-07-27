@@ -265,9 +265,17 @@ export default function HotelSetup() {
   };
 
   const onSubmit = (data: InsertHotel) => {
-    console.log("Form submitted with data:", data);
-    console.log("Selected services:", selectedServices);
-    console.log("Hotel exists:", !!hotel);
+    console.log("🚀 Form submitted with data:", data);
+    console.log("🚀 Selected services:", selectedServices);
+    console.log("🚀 Hotel exists:", !!hotel);
+    console.log("🚀 Form validation errors:", form.formState.errors);
+    console.log("🚀 Form is valid:", form.formState.isValid);
+    
+    if (!form.formState.isValid) {
+      console.error("🚨 Form has validation errors - submission blocked");
+      return;
+    }
+    
     mutation.mutate(data);
   };
 
@@ -337,6 +345,12 @@ export default function HotelSetup() {
                     form="hotel-form"
                     disabled={mutation.isPending}
                     className="flex items-center gap-2"
+                    onClick={() => {
+                      console.log("🔥 SAVE BUTTON CLICKED!");
+                      console.log("🔥 Is editing:", isEditing);
+                      console.log("🔥 Mutation pending:", mutation.isPending);
+                      console.log("🔥 Form state:", form.formState);
+                    }}
                   >
                     {mutation.isPending ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
