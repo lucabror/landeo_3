@@ -55,12 +55,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('hotelId'); // Legacy cleanup
     sessionStorage.removeItem('admin-auth'); // Legacy cleanup
     
+    // Force clear current state before setting new one
+    setUser(null);
+    
     // Set new auth data
     localStorage.setItem('sessionToken', sessionToken);
     localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
     
-    console.log('Login completed with user:', userData);
+    // Use setTimeout to ensure state update happens after cleanup
+    setTimeout(() => {
+      setUser(userData);
+      console.log('Login completed with user:', userData);
+    }, 100);
   };
 
   const logout = async () => {

@@ -133,10 +133,11 @@ export default function Login({ userType }: LoginProps) {
         description: "Benvenuto nella piattaforma Itinera",
       });
       
+      // Force page refresh to ensure clean auth state
       if (data.user.type === 'admin') {
-        setLocation('/admin-dashboard');
+        window.location.href = '/admin-dashboard';
       } else {
-        setLocation('/dashboard');
+        window.location.href = '/dashboard';
       }
     },
     onError: (error: any) => {
@@ -249,10 +250,11 @@ export default function Login({ userType }: LoginProps) {
         description: "Autenticazione a due fattori verificata",
       });
       
+      // Force page refresh to ensure clean auth state
       if (data.user.type === 'admin') {
-        setLocation('/admin-dashboard');
+        window.location.href = '/admin-dashboard';
       } else {
-        setLocation('/dashboard');
+        window.location.href = '/dashboard';
       }
     },
     onError: (error: any) => {
