@@ -3,7 +3,7 @@ import bcryptjs from "bcryptjs";
 import crypto from "crypto";
 import { z } from "zod";
 import { db } from "../db";
-import { users, emailVerifications } from "@shared/schema";
+import { users, emailVerifications, hotels } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { Resend } from 'resend';
 
@@ -198,6 +198,20 @@ router.post("/verify-email", async (req, res) => {
       });
     }
 
+    // Ottieni i dati utente
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Utente non trovato",
+      });
+    }
+
     // Attiva l'utente
     await db
       .update(users)
@@ -207,6 +221,25 @@ router.post("/verify-email", async (req, res) => {
         emailVerifiedAt: new Date(),
       })
       .where(eq(users.id, userId));
+
+    // Crea record hotel con la password dell'utente
+    await db.insert(hotels).values({
+      email: user.email,
+      password: user.passwordHash,
+      name: `Hotel di ${user.email.split('@')[0]}`,
+      address: "",
+      city: "",
+      region: "",
+      postalCode: "",
+      phone: "",
+      website: "",
+      description: "",
+      services: [],
+      credits: 5,
+      creditsUsed: 0,
+      totalCredits: 5,
+      isActive: true,
+    });
 
     // Rimuovi il token usato
     await db
