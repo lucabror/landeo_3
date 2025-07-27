@@ -113,6 +113,12 @@ Preferred communication style: Simple, everyday language.
   - Fixed password hash generation and database storage for admin accounts
   - Added MFA security fields (mfaSecret, mfaEnabled, ipWhitelist) to adminUsers schema
   - Super-admin credentials now working: itinera1prova@gmail.com / password123
+- **2025-01-27**: Fixed hotel manager login system after email verification
+  - Resolved critical issue where users table and hotels table were disconnected
+  - During email verification, system now creates hotel record with user's password hash
+  - Login system searches hotels table while registration used users table (now unified)
+  - Reduced rate limiting window from 15 minutes to 3 minutes for better UX
+  - Hotel registration flow now: register → verify email → auto-create hotel record → login works
 
 ## System Architecture
 
