@@ -159,6 +159,11 @@ Preferred communication style: Simple, everyday language.
   - Nuovo banner "Genera le Tue Esperienze Locali" appare fino a generazione esperienze
   - Sistema di onboarding progressivo: Setup Hotel → Genera Esperienze → Uso completo
   - Banner con link diretto alla pagina esperienze locali e icona Sparkles
+- **2025-01-27**: Risolto bug preferencesCompleted non aggiornato nel profilo ospite
+  - Identificato problema: campo preferencesCompleted escluso da insertGuestProfileSchema
+  - Endpoint /api/guest-preferences/:token ora usa query Drizzle diretta per aggiornamento
+  - Campo preferencesCompleted correttamente impostato a true quando ospite completa preferenze
+  - Pulsante "Genera Itinerario" ora si attiva automaticamente dopo raccolta preferenze
 
 ## System Architecture
 

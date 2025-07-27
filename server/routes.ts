@@ -12,8 +12,10 @@ import {
   insertLocalExperienceSchema,
   insertItinerarySchema,
   insertPendingAttractionSchema,
-  guestPreferencesSchema
+  guestPreferencesSchema,
+  guestProfiles
 } from "@shared/schema";
+import { eq } from "drizzle-orm";
 import { generateItinerary } from "./services/openai";
 import { generateQRCode } from "./services/qr";
 import { generateItineraryPDF } from "./services/pdf";
@@ -1547,12 +1549,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         specialRequests += `Esigenze di mobilità: ${validatedPreferences.mobilityNeeds.join(", ")}. `;
       }
       
-      // Aggiorna il profilo ospite con le preferenze
-      await storage.updateGuestProfile(tokenData.guestProfileId, {
-        preferences: allPreferences,
-        specialRequests: specialRequests.trim() || undefined,
-        preferencesCompleted: true
-      });
+      // Aggiorna il profilo ospite con le preferenze usando query diretta
+      await storage.db.update(guestProfiles)
+        .set({
+          preferences: allPreferences,
+          specialRequests: specialRequests.trim() || undefined,
+          preferencesCompleted: true
+        })
+        .where(eq(guestProfiles.id, tokenData.guestProfileId));
       
       // Marca il token come completato
       await storage.updateGuestPreferencesToken(req.params.token, { completed: true });
