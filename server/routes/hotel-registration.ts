@@ -66,10 +66,10 @@ router.post("/register-hotel", async (req, res) => {
       expiresAt,
     });
 
-    // Invia email di verifica
+    // Invia email di verifica - URL deve puntare al frontend
     const baseUrl = process.env.NODE_ENV === 'production' 
       ? `https://${process.env.REPLIT_DOMAINS}` 
-      : 'http://localhost:5000';
+      : 'http://localhost:5000'; // In development, frontend e backend sono sulla stessa porta
     
     const verificationUrl = `${baseUrl}/verify-email/${verificationToken}`;
 
