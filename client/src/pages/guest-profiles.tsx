@@ -37,9 +37,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import CreditPurchaseDialog from "@/components/credit-purchase-dialog";
 import { insertGuestProfileSchema } from "@shared/schema";
 import type { InsertGuestProfile } from "@shared/schema";
-
-// Mock hotel ID - in real app this would come from auth/context
-const MOCK_HOTEL_ID = "d2dd46f0-97d3-4121-96e3-01500370c73f";
+import { useAuth } from "@/hooks/use-auth";
 
 const GUEST_TYPES = [
   { value: "famiglia", label: "Famiglia", icon: Users },
@@ -58,10 +56,18 @@ export default function GuestProfiles() {
   const [isGeneratingItinerary, setIsGeneratingItinerary] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  
+  // Get hotel ID from authenticated user
+  const hotelId = user?.hotelId;
+  
+  if (!hotelId) {
+    return <div>Errore: ID hotel non trovato</div>;
+  }
 
   // Fetch guest profiles with itineraries
   const { data: guestProfiles, isLoading } = useQuery({
-    queryKey: ["/api/hotels", MOCK_HOTEL_ID, "guest-profiles"],
+    queryKey: ["/api/hotels", hotelId, "guest-profiles"],
   });
 
   // Fetch guest-specific itinerary when viewing profile
@@ -72,18 +78,18 @@ export default function GuestProfiles() {
 
   // Fetch hotel credits
   const { data: creditInfo = { credits: 0, totalCredits: 0, creditsUsed: 0 } } = useQuery({
-    queryKey: [`/api/hotels/${MOCK_HOTEL_ID}/credits`],
+    queryKey: [`/api/hotels/${hotelId}/credits`],
   });
 
   // Fetch all itineraries for current guest profile
   const { data: allItineraries = [] } = useQuery({
-    queryKey: ["/api/hotels", MOCK_HOTEL_ID, "itineraries"],
+    queryKey: ["/api/hotels", hotelId, "itineraries"],
   });
 
   const form = useForm<InsertGuestProfile>({
     resolver: zodResolver(insertGuestProfileSchema),
     defaultValues: {
-      hotelId: MOCK_HOTEL_ID,
+      hotelId: hotelId,
       type: "",
       numberOfPeople: 1,
       referenceName: "",
@@ -114,7 +120,7 @@ export default function GuestProfiles() {
         title: "Successo",
         description: isEditing ? "Profilo aggiornato con successo!" : "Profilo creato con successo!",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "guest-profiles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "guest-profiles"] });
       setIsDialogOpen(false);
       setEditingProfile(null);
       setViewingProfile(null);
@@ -141,7 +147,7 @@ export default function GuestProfiles() {
         title: "Successo",
         description: "Profilo eliminato con successo!",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "guest-profiles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "guest-profiles"] });
     },
     onError: (error: any) => {
       toast({
@@ -206,7 +212,7 @@ export default function GuestProfiles() {
 
   const handleResendEmail = async (profile: any) => {
     try {
-      await apiRequest("POST", `/api/hotels/${MOCK_HOTEL_ID}/guest-profiles/${profile.id}/resend-email`);
+      await apiRequest("POST", `/api/hotels/${hotelId}/guest-profiles/${profile.id}/resend-email`);
       
       toast({ 
         title: "Email re-inviata", 
@@ -235,8 +241,8 @@ export default function GuestProfiles() {
       
       // Refresh all related data to immediately show the new itinerary
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "guest-profiles"] }),
-        queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "itineraries"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "guest-profiles"] }),
+        queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "itineraries"] }),
         queryClient.invalidateQueries({ queryKey: ["/api/guest-profiles", profile.id, "itinerary"] }),
       ]);
       
@@ -284,7 +290,7 @@ export default function GuestProfiles() {
     setIsViewMode(false);
     setIsEditingInView(false);
     form.reset({
-      hotelId: MOCK_HOTEL_ID,
+      hotelId: hotelId,
       type: "",
       numberOfPeople: 1,
       referenceName: "",
@@ -326,7 +332,7 @@ export default function GuestProfiles() {
             </p>
           </div>
           
-          <CreditPurchaseDialog hotelId={MOCK_HOTEL_ID} currentCredits={(creditInfo as any).credits}>
+          <CreditPurchaseDialog hotelId={hotelId} currentCredits={(creditInfo as any).credits}>
             <Button className="bg-green-600 hover:bg-green-700">
               <CreditCard className="mr-2 h-4 w-4" />
               Crediti: {(creditInfo as any).credits}
@@ -349,7 +355,7 @@ export default function GuestProfiles() {
                   </p>
                 </div>
               </div>
-              <CreditPurchaseDialog hotelId={MOCK_HOTEL_ID} currentCredits={(creditInfo as any).credits}>
+              <CreditPurchaseDialog hotelId={hotelId} currentCredits={(creditInfo as any).credits}>
                 <Button className="bg-orange-600 hover:bg-orange-700">
                   Acquista Crediti
                 </Button>
