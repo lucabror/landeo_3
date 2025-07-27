@@ -29,180 +29,251 @@ export async function generateItineraryPDF(
       const stream = createWriteStream(filePath);
       doc.pipe(stream);
 
-      // Define colors (matching the elegant landing page design)
+      // Define colors (inspired by the elegant restaurant menu design)
       const colors = {
-        primary: '#B45309',      // Amber-700 (elegant warm tone)
-        secondary: '#92400E',    // Amber-800 (deeper warm tone)  
-        accent: '#F3F4F6',       // Stone-100 (very light background)
-        lightAccent: '#FAFAF9',  // Stone-50 (almost white)
-        textDark: '#1F2937',     // Gray-800 (elegant dark text)
-        textLight: '#6B7280',    // Gray-500 (subtle text)
-        border: '#E5E7EB',       // Gray-200 (light borders)
-        gold: '#FBBF24'          // Amber-400 (soft gold accents)
+        darkGreen: '#4A5D23',     // Deep olive green from header
+        goldAccent: '#B8860B',    // Elegant gold for accents
+        creamBg: '#F5F5DC',       // Warm cream/beige background
+        lightBeige: '#F9F7F4',    // Very light beige sections
+        textDark: '#2C2C2C',      // Almost black for main text
+        textMedium: '#5A5A5A',    // Medium gray for secondary text
+        textLight: '#8A8A8A',     // Light gray for subtle text
+        borderLight: '#E8E6E1',   // Very light border color
+        white: '#FFFFFF'          // Pure white for contrast
       };
 
-      // Elegant header with subtle gradient effect
-      doc.rect(0, 0, doc.page.width, 100).fill(colors.lightAccent);
-      doc.rect(0, 0, doc.page.width, 6).fill(colors.primary);
+      // Create elegant header inspired by the restaurant menu design
+      // Background pattern area (top section with decorative elements)
+      doc.rect(0, 0, doc.page.width, 120).fill(colors.darkGreen);
       
-      // Hotel name with elegant styling
+      // Add subtle decorative elements (simple lines to mimic the leaf pattern)
+      doc.strokeColor(colors.goldAccent).lineWidth(1);
+      for (let i = 0; i < 8; i++) {
+        const x = 60 + (i * 60);
+        const y = 15 + (i % 2) * 10;
+        // Simple curved lines as decoration
+        doc.moveTo(x, y).lineTo(x + 25, y + 8).lineTo(x + 15, y + 20).stroke();
+      }
+      
+      // Hotel name in elegant style (centered golden banner)
+      const bannerWidth = 300;
+      const bannerX = (doc.page.width - bannerWidth) / 2;
+      doc.rect(bannerX, 45, bannerWidth, 50).fill(colors.goldAccent);
+      
       doc.font('Helvetica-Bold')
-         .fontSize(22)
-         .fillColor(colors.primary)
-         .text(hotel.name, 50, 25, { width: doc.page.width - 100 });
-
-      // Hotel details with lighter styling
+         .fontSize(28)
+         .fillColor(colors.white)
+         .text(hotel.name.toUpperCase(), 0, 65, { 
+           width: doc.page.width, 
+           align: 'center'
+         });
+         
+      // Small subtitle under hotel name
       doc.font('Helvetica')
-         .fontSize(10)
-         .fillColor(colors.textLight)
-         .text(hotel.address, 50, 50)
-         .text(`${hotel.city}, ${hotel.region}`, 50, 65)
-         .text(hotel.phone, 50, 80);
-
-      // Itinerary title with elegant styling
-      doc.font('Helvetica-Bold')
-         .fontSize(20)
-         .fillColor(colors.textDark)
-         .text(itinerary.title, 50, 125);
-      
-      // Decorative line under title
-      doc.rect(50, 150, 200, 2).fill(colors.gold);
-
-      // Guest information with elegant card-like design
-      doc.rect(50, 165, doc.page.width - 100, 70).fill(colors.accent);
-      doc.rect(50, 165, doc.page.width - 100, 70).stroke(colors.border);
-      
-      doc.font('Helvetica-Bold')
          .fontSize(11)
-         .fillColor(colors.textDark)
-         .text('INFORMAZIONI OSPITE', 65, 175);
+         .fillColor(colors.white)
+         .text('ITINERARIO PERSONALIZZATO', 0, 90, { 
+           width: doc.page.width, 
+           align: 'center'
+         });
+
+      // Main content area starts with cream background
+      doc.rect(0, 120, doc.page.width, doc.page.height - 120).fill(colors.creamBg);
       
+      // Guest information section (two columns like the menu)
+      const leftColumnX = 60;
+      const rightColumnX = 320;
+      const startY = 150;
+      
+      // Left column - Guest details
+      doc.font('Helvetica-Bold')
+         .fontSize(18)
+         .fillColor(colors.goldAccent)
+         .text('ospite', leftColumnX, startY);
+         
+      doc.font('Helvetica-Bold')
+         .fontSize(14)
+         .fillColor(colors.textDark)
+         .text(guestProfile.referenceName, leftColumnX, startY + 25);
+         
       doc.font('Helvetica')
          .fontSize(10)
-         .fillColor(colors.textLight)
-         .text(`Ospiti: ${guestProfile.referenceName} (${guestProfile.numberOfPeople} persone)`, 65, 190)
-         .text(`Tipo: ${guestProfile.type}`, 65, 205)
-         .text(`Check-in: ${new Date(guestProfile.checkInDate).toLocaleDateString('it-IT')}`, 65, 220)
-         .text(`Check-out: ${new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT')}`, 280, 220);
-
-      let yPosition = 250;
-
-      // Description with elegant styling
-      if (itinerary.description) {
-        doc.rect(50, yPosition, doc.page.width - 100, 50).fill(colors.lightAccent);
-        doc.rect(50, yPosition, doc.page.width - 100, 50).stroke(colors.border);
-        
-        doc.font('Helvetica-Bold')
-           .fontSize(11)
-           .fillColor(colors.textDark)
-           .text('DESCRIZIONE', 65, yPosition + 10);
+         .fillColor(colors.textMedium)
+         .text(`Tipo di soggiorno: ${guestProfile.type}`, leftColumnX, startY + 45);
+         
+      if (guestProfile.numberOfGuests) {
+        doc.text(`Numero ospiti: ${guestProfile.numberOfGuests}`, leftColumnX, startY + 60);
+      }
+      
+      // Right column - Stay details  
+      doc.font('Helvetica-Bold')
+         .fontSize(18)
+         .fillColor(colors.goldAccent)
+         .text('soggiorno', rightColumnX, startY);
+         
+      if (guestProfile.checkInDate && guestProfile.checkOutDate) {
+        const checkIn = new Date(guestProfile.checkInDate).toLocaleDateString('it-IT');
+        const checkOut = new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT');
         
         doc.font('Helvetica')
            .fontSize(10)
-           .fillColor(colors.textLight)
-           .text(itinerary.description, 65, yPosition + 25, { width: doc.page.width - 130 });
-        
-        yPosition += 65;
-      } else {
-        yPosition += 15;
+           .fillColor(colors.textMedium)
+           .text(`Check-in: ${checkIn}`, rightColumnX, startY + 25)
+           .text(`Check-out: ${checkOut}`, rightColumnX, startY + 40);
       }
+      
+      // Add thin separator line like in the menu
+      doc.strokeColor(colors.borderLight).lineWidth(0.5)
+         .moveTo(60, startY + 90).lineTo(doc.page.width - 60, startY + 90).stroke();
+      
+      let yPosition = startY + 120;
 
-      // Itinerary days
+      // Title of the itinerary (center aligned like menu sections)
+      doc.font('Helvetica-Bold')
+         .fontSize(24)
+         .fillColor(colors.goldAccent)
+         .text(itinerary.title || 'il tuo itinerario', 0, yPosition, { 
+           width: doc.page.width, 
+           align: 'center'
+         });
+      
+      yPosition += 50;
+
+      // Itinerary days (styled like menu sections)
       if (itinerary.days && Array.isArray(itinerary.days)) {
-        for (const day of itinerary.days) {
+        for (let dayIndex = 0; dayIndex < itinerary.days.length; dayIndex++) {
+          const day = itinerary.days[dayIndex];
+          
           // Check if we need a new page
-          if (yPosition > doc.page.height - 150) {
+          if (yPosition > doc.page.height - 200) {
             doc.addPage();
-            yPosition = 50;
+            // Add cream background to new page
+            doc.rect(0, 0, doc.page.width, doc.page.height).fill(colors.creamBg);
+            yPosition = 60;
           }
 
-          // Day header with elegant styling
-          doc.rect(50, yPosition, doc.page.width - 100, 35).fill(colors.primary);
-          doc.rect(50, yPosition + 35, doc.page.width - 100, 3).fill(colors.gold);
-          
+          // Day title (like "antipasti", "le specialità dello chef" in the menu)
           doc.font('Helvetica-Bold')
-             .fontSize(14)
-             .fillColor('white')
-             .text(`Giorno ${day.day}`, 65, yPosition + 8);
+             .fontSize(22)
+             .fillColor(colors.goldAccent)
+             .text(`giorno ${dayIndex + 1}`, leftColumnX, yPosition);
           
-          doc.font('Helvetica')
-             .fontSize(11)
-             .fillColor('white')
-             .text(new Date(day.date).toLocaleDateString('it-IT', { 
-               weekday: 'long', 
-               year: 'numeric', 
-               month: 'long', 
-               day: 'numeric' 
-             }), 65, yPosition + 22);
+          // Day description/date in smaller text
+          if (day.date) {
+            doc.font('Helvetica')
+               .fontSize(10)
+               .fillColor(colors.textMedium)
+               .text(new Date(day.date).toLocaleDateString('it-IT', { 
+                 weekday: 'long', 
+                 day: 'numeric',
+                 month: 'long'
+               }), leftColumnX, yPosition + 25);
+          }
 
-          yPosition += 50;
+          yPosition += 55;
 
-          // Activities
+          // Activities (styled like menu items with two columns)
           if (day.activities && Array.isArray(day.activities)) {
-            for (const activity of day.activities) {
+            let currentColumn = 'left';
+            let columnY = yPosition;
+            
+            for (let actIndex = 0; actIndex < day.activities.length; actIndex++) {
+              const activity = day.activities[actIndex];
+              
               // Check if we need a new page
-              if (yPosition > doc.page.height - 100) {
+              if (columnY > doc.page.height - 120) {
                 doc.addPage();
-                yPosition = 50;
+                // Add cream background to new page
+                doc.rect(0, 0, doc.page.width, doc.page.height).fill(colors.creamBg);
+                columnY = 60;
+                currentColumn = 'left';
               }
 
-              // Activity card with elegant design
-              doc.rect(60, yPosition, doc.page.width - 120, 50).fill(colors.lightAccent);
-              doc.rect(60, yPosition, doc.page.width - 120, 50).stroke(colors.border);
-              
-              // Time badge
-              doc.rect(70, yPosition + 8, 60, 16).fill(colors.gold);
-              doc.font('Helvetica-Bold')
-                 .fontSize(9)
-                 .fillColor('white')
-                 .text(activity.time, 75, yPosition + 12);
+              const columnX = currentColumn === 'left' ? leftColumnX : rightColumnX;
+              const columnWidth = 220;
 
-              // Activity name
+              // Activity name (bold like menu items)
               doc.font('Helvetica-Bold')
-                 .fontSize(11)
+                 .fontSize(13)
                  .fillColor(colors.textDark)
-                 .text(activity.activity, 140, yPosition + 10, { width: doc.page.width - 200 });
+                 .text(activity.activity, columnX, columnY);
 
-              // Location with subtle icon
-              doc.font('Helvetica')
-                 .fontSize(9)
-                 .fillColor(colors.textLight)
-                 .text(`📍 ${activity.location}`, 140, yPosition + 25);
-
-              // Description
+              // Activity description (smaller italic-like text)
+              let descriptionY = columnY + 18;
               if (activity.description) {
                 doc.font('Helvetica')
                    .fontSize(9)
-                   .fillColor(colors.textLight)
-                   .text(activity.description, 140, yPosition + 37, { width: doc.page.width - 200 });
+                   .fillColor(colors.textMedium)
+                   .text(activity.description, columnX, descriptionY, { width: columnWidth - 20 });
+                descriptionY += 25;
               }
 
-              yPosition += 60; // Fixed spacing for activity cards
+              // Time and location details (like ingredients/price in menu)
+              if (activity.time) {
+                doc.font('Helvetica')
+                   .fontSize(9)
+                   .fillColor(colors.textLight)
+                   .text(`Orario: ${activity.time}`, columnX, descriptionY);
+                descriptionY += 12;
+              }
+
+              if (activity.location) {
+                doc.font('Helvetica')
+                   .fontSize(9)
+                   .fillColor(colors.textLight)
+                   .text(`Dove: ${activity.location}`, columnX, descriptionY);
+                descriptionY += 12;
+              }
+
+              // Price/number like in menu (right aligned)
+              if (activity.time) {
+                doc.font('Helvetica')
+                   .fontSize(10)
+                   .fillColor(colors.goldAccent)
+                   .text(activity.time, columnX + columnWidth - 40, columnY);
+              }
+
+              // Switch column or move to next row
+              if (currentColumn === 'left') {
+                currentColumn = 'right';
+              } else {
+                currentColumn = 'left';
+                columnY = Math.max(columnY + 80, descriptionY + 15);
+              }
             }
+            
+            // Adjust yPosition for next section
+            yPosition = columnY + (currentColumn === 'right' ? 80 : 40);
           }
 
           yPosition += 20; // Space between days
         }
       }
 
-      // Elegant footer
-      const footerY = doc.page.height - 50;
-      doc.rect(0, footerY, doc.page.width, 50).fill(colors.lightAccent);
-      doc.rect(0, footerY, doc.page.width, 2).fill(colors.gold);
+      // Elegant footer (minimal like the menu)
+      const footerY = doc.page.height - 40;
       
+      // Thin line separator
+      doc.strokeColor(colors.borderLight).lineWidth(0.5)
+         .moveTo(60, footerY).lineTo(doc.page.width - 60, footerY).stroke();
+      
+      // Hotel name and generation info
       doc.font('Helvetica')
-         .fontSize(9)
-         .fillColor(colors.textLight)
-         .text(`Generato da ${hotel.name}`, 50, footerY + 15);
-      
-      doc.text(new Date().toLocaleDateString('it-IT'), 
-               doc.page.width - 100, footerY + 15);
-      
-      doc.font('Helvetica-Bold')
          .fontSize(8)
-         .fillColor(colors.primary)
-         .text('ItineraItalia - Powered by AI', 
-               50, footerY + 30, { align: 'center', width: doc.page.width - 100 });
+         .fillColor(colors.textLight)
+         .text(`${hotel.name} - ${hotel.city}`, 60, footerY + 10);
+      
+      doc.text(`Generato il ${new Date().toLocaleDateString('it-IT')}`, 
+               doc.page.width - 150, footerY + 10);
+      
+      // Centered branding
+      doc.font('Helvetica')
+         .fontSize(8)
+         .fillColor(colors.goldAccent)
+         .text('ItineraItalia - Itinerari Personalizzati con AI', 0, footerY + 22, { 
+           align: 'center', 
+           width: doc.page.width 
+         });
 
       // Finalize the PDF
       doc.end();
