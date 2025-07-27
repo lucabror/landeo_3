@@ -150,6 +150,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const requiredFields = ['name', 'address', 'city', 'region', 'postalCode', 'phone'];
       const missingFields = requiredFields.filter(field => !hotel[field] || hotel[field].trim() === '');
       
+      // Check if services are selected
+      if (!hotel.services || !Array.isArray(hotel.services) || hotel.services.length === 0) {
+        missingFields.push('services');
+      }
+      
       const isComplete = missingFields.length === 0;
       
       res.json({

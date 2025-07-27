@@ -370,6 +370,18 @@ export const insertHotelSchema = createInsertSchema(hotels).omit({
   services: z.array(z.string()).optional().default([]),
 });
 
+// Hotel setup schema with all required fields for complete configuration
+export const hotelSetupSchema = insertHotelSchema.extend({
+  name: z.string().min(1, "Nome hotel richiesto"),
+  address: z.string().min(1, "Indirizzo richiesto"),
+  city: z.string().min(1, "Città richiesta"),
+  region: z.string().min(1, "Regione richiesta"),
+  postalCode: z.string().min(1, "CAP richiesto"),
+  phone: z.string().min(1, "Telefono richiesto"),
+  email: z.string().email("Email non valida"),
+  services: z.array(z.string()).min(1, "Seleziona almeno un servizio offerto dall'hotel"),
+});
+
 export const insertGuestProfileSchema = createInsertSchema(guestProfiles).omit({
   id: true,
   createdAt: true,
@@ -448,6 +460,7 @@ export const guestPreferencesSchema = z.object({
 // Types
 export type Hotel = typeof hotels.$inferSelect;
 export type InsertHotel = z.infer<typeof insertHotelSchema>;
+export type HotelSetup = z.infer<typeof hotelSetupSchema>;
 export type GuestProfile = typeof guestProfiles.$inferSelect;
 export type InsertGuestProfile = z.infer<typeof insertGuestProfileSchema>;
 export type LocalExperience = typeof localExperiences.$inferSelect;

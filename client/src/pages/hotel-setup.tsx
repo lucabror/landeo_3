@@ -12,8 +12,8 @@ import { Sidebar } from "@/components/sidebar";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, Hotel, Search, MapPin, CheckCircle, AlertCircle, Upload, X, Image, Edit, Eye } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import { insertHotelSchema } from "@shared/schema";
-import type { InsertHotel } from "@shared/schema";
+import { hotelSetupSchema } from "@shared/schema";
+import type { HotelSetup } from "@shared/schema";
 
 import { useAuth } from "@/hooks/use-auth";
 
@@ -53,8 +53,8 @@ export default function HotelSetup() {
   console.log("Hotel setup - Hotel ID:", hotelId);
   console.log("Hotel setup - Hotel data:", hotel);
 
-  const form = useForm<InsertHotel>({
-    resolver: zodResolver(insertHotelSchema),
+  const form = useForm<HotelSetup>({
+    resolver: zodResolver(hotelSetupSchema),
     defaultValues: {
       name: "",
       address: "",
@@ -152,7 +152,7 @@ export default function HotelSetup() {
   });
 
   const mutation = useMutation({
-    mutationFn: async (data: InsertHotel) => {
+    mutationFn: async (data: HotelSetup) => {
       const method = hotel ? "PUT" : "POST";
       const url = hotel && typeof hotel === 'object' && 'id' in hotel 
         ? `/api/hotels/${hotel.id}` 
@@ -283,7 +283,7 @@ export default function HotelSetup() {
     }
   };
 
-  const onSubmit = (data: InsertHotel) => {
+  const onSubmit = (data: HotelSetup) => {
     console.log("🚀 Form submitted with data:", data);
     console.log("🚀 Selected services:", selectedServices);
     console.log("🚀 Hotel exists:", !!hotel);
@@ -332,9 +332,14 @@ export default function HotelSetup() {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Hotel className="mr-3 h-6 w-6 text-primary" />
-                <CardTitle className="text-xl font-serif">
-                  {hotel ? "Dati Hotel" : "Nuovo Hotel"}
-                </CardTitle>
+                <div>
+                  <CardTitle className="text-xl font-serif">
+                    {hotel ? "Dati Hotel" : "Configurazione Hotel"}
+                  </CardTitle>
+                  <p className="text-sm text-gray-600 mt-1">
+                    I campi contrassegnati con <span className="text-red-500">*</span> sono obbligatori per completare la configurazione
+                  </p>
+                </div>
               </div>
               {hotel && !isEditing && (
                 <Button
@@ -408,13 +413,15 @@ export default function HotelSetup() {
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="name">Nome Hotel *</Label>
+                  <Label htmlFor="name" className="flex items-center">
+                    Nome Hotel <span className="text-red-500 ml-1">*</span>
+                  </Label>
                   <div className="flex gap-2 mt-1">
                     <Input
                       id="name"
                       {...form.register("name")}
                       placeholder="Grand Hotel Villa Medici"
-                      className="flex-1"
+                      className={`flex-1 ${form.formState.errors.name ? 'border-red-500' : ''}`}
                       disabled={!isEditing}
                     />
                     {isEditing && (
@@ -457,13 +464,15 @@ export default function HotelSetup() {
                 </div>
 
                 <div>
-                  <Label htmlFor="email">Email *</Label>
+                  <Label htmlFor="email" className="flex items-center">
+                    Email <span className="text-red-500 ml-1">*</span>
+                  </Label>
                   <Input
                     id="email"
                     type="email"
                     {...form.register("email")}
                     placeholder="info@grandhotel.it"
-                    className="mt-1"
+                    className={`mt-1 ${form.formState.errors.email ? 'border-red-500' : ''}`}
                     disabled={!isEditing}
                   />
                   {form.formState.errors.email && (
@@ -566,12 +575,14 @@ export default function HotelSetup() {
               {/* Contact Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="phone">Telefono *</Label>
+                  <Label htmlFor="phone" className="flex items-center">
+                    Telefono <span className="text-red-500 ml-1">*</span>
+                  </Label>
                   <Input
                     id="phone"
                     {...form.register("phone")}
                     placeholder="+39 055 123456"
-                    className="mt-1"
+                    className={`mt-1 ${form.formState.errors.phone ? 'border-red-500' : ''}`}
                     disabled={!isEditing}
                   />
                   {form.formState.errors.phone && (
@@ -744,7 +755,14 @@ export default function HotelSetup() {
 
               {/* Hotel Services */}
               <div>
-                <Label className="text-base font-medium mb-4 block">Servizi Hotel</Label>
+                <Label className="text-base font-medium mb-2 flex items-center">
+                  Servizi Hotel <span className="text-red-500 ml-1">*</span>
+                </Label>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-600">
+                    Seleziona i servizi offerti dal tuo hotel per personalizzare al meglio le esperienze dei tuoi ospiti.
+                  </p>
+                </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                   {HOTEL_SERVICES.map((service) => (
                     <div key={service} className="flex items-center space-x-2">
@@ -773,6 +791,13 @@ export default function HotelSetup() {
                   <div className="mt-3 p-3 bg-blue-50 rounded-lg">
                     <p className="text-sm text-blue-700">
                       <strong>Servizi selezionati:</strong> {selectedServices.join(", ")}
+                    </p>
+                  </div>
+                )}
+                {selectedServices.length === 0 && isEditing && (
+                  <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p className="text-sm text-amber-700">
+                      <strong>Seleziona almeno un servizio</strong> per completare la configurazione dell'hotel.
                     </p>
                   </div>
                 )}

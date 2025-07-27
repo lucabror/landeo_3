@@ -80,6 +80,9 @@ export default function GuestProfiles() {
   const { data: creditInfo = { credits: 0, totalCredits: 0, creditsUsed: 0 } } = useQuery({
     queryKey: [`/api/hotels/${hotelId}/credits`],
   });
+  
+  // Type assertion for creditInfo to avoid TypeScript errors
+  const credits = (creditInfo as any).credits || 0;
 
   // Fetch all itineraries for current guest profile
   const { data: allItineraries = [] } = useQuery({
@@ -332,16 +335,16 @@ export default function GuestProfiles() {
             </p>
           </div>
           
-          <CreditPurchaseDialog hotelId={hotelId} currentCredits={(creditInfo as any).credits}>
+          <CreditPurchaseDialog hotelId={hotelId} currentCredits={credits}>
             <Button className="bg-green-600 hover:bg-green-700">
               <CreditCard className="mr-2 h-4 w-4" />
-              Crediti: {(creditInfo as any).credits}
+              Crediti: {credits}
             </Button>
           </CreditPurchaseDialog>
         </div>
 
         {/* Credit Warning */}
-        {(creditInfo as any).credits <= 5 && (
+        {credits <= 5 && (
           <Card className="bg-orange-50 border-orange-200 mb-8">
             <CardContent className="flex items-center justify-between p-6">
               <div className="flex items-center gap-4">
@@ -351,11 +354,11 @@ export default function GuestProfiles() {
                 <div>
                   <h3 className="font-semibold text-orange-900">Crediti in esaurimento</h3>
                   <p className="text-sm text-orange-700">
-                    Hai solo {(creditInfo as any).credits} crediti rimasti. Ogni nuovo ospite costa 1 credito.
+                    Hai solo {credits} crediti rimasti. Ogni nuovo ospite costa 1 credito.
                   </p>
                 </div>
               </div>
-              <CreditPurchaseDialog hotelId={hotelId} currentCredits={(creditInfo as any).credits}>
+              <CreditPurchaseDialog hotelId={hotelId} currentCredits={credits}>
                 <Button className="bg-orange-600 hover:bg-orange-700">
                   Acquista Crediti
                 </Button>
