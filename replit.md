@@ -107,6 +107,12 @@ Preferred communication style: Simple, everyday language.
   - Replaced all browser `alert()` and `confirm()` with elegant toast notifications and AlertDialog components
   - Improved UX for deletion confirmations in guest profiles, itineraries, and local experiences
   - Consistent shadcn/ui components for professional user experience
+- **2025-01-27**: Fixed critical super-admin authentication system
+  - Resolved 401 login errors by unifying database schema to use single 'adminUsers' table
+  - Updated all service references from 'administrators' to 'adminUsers' for consistency
+  - Fixed password hash generation and database storage for admin accounts
+  - Added MFA security fields (mfaSecret, mfaEnabled, ipWhitelist) to adminUsers schema
+  - Super-admin credentials now working: itinera1prova@gmail.com / password123
 
 ## System Architecture
 

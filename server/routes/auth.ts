@@ -147,7 +147,6 @@ router.post('/login/admin', loginLimiter, async (req, res) => {
       .select()
       .from(adminUsers)
       .where(eq(adminUsers.email, email));
-
     if (!admin) {
       await logSecurityEvent(null, 'admin', 'login_failed_user_not_found', ipAddress, userAgent, { email });
       return res.status(401).json({ error: 'Credenziali non valide' });
