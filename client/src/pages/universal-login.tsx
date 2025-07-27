@@ -333,7 +333,7 @@ export default function UniversalLogin() {
                     <p className="text-sm text-gray-600 mb-3">
                       Non hai ancora registrato il tuo hotel?
                     </p>
-                    <Link href="/hotel-setup">
+                    <Link href="/hotel-register">
                       <Button 
                         type="button"
                         variant="outline" 

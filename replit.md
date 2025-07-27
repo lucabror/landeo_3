@@ -10,9 +10,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-26**: Implementato sistema completo di registrazione hotel
+  - Creata pagina `/hotel-register` per registrazione iniziale (email + password)
+  - Pagina `/verify-email/:token` per conferma identità tramite link email
+  - Tabelle database `users` e `emailVerifications` per gestione registrazioni
+  - Sistema email automatico con Resend per invio link di verifica
+  - Reindirizzamento a `/hotel-setup` dopo conferma email completata
+  - Aggiornati tutti i link da "Demo Gratuita"/"Inizia Gratis" verso nuovo flusso
 - **2025-01-26**: Aggiunto pulsante registrazione hotel nella pagina login
   - Nuovo pulsante "Registra il Tuo Hotel" nella pagina di accesso
-  - Link diretto a /hotel-setup per nuovi albergatori 
+  - Link diretto a /hotel-register per nuovi albergatori 
   - Sezione separata con design elegante e icona Building2
   - Migliora conversione utenti non ancora registrati
 - **2025-01-26**: Corretti link di registrazione per indirizzare alla pagina hotel-setup
