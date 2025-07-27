@@ -339,6 +339,35 @@ export const itinerariesRelations = relations(itineraries, ({ one }) => ({
 export const insertHotelSchema = createInsertSchema(hotels).omit({
   id: true,
   createdAt: true,
+  // Omit security/system fields that shouldn't be in forms
+  password: true,
+  mfaSecret: true,
+  mfaEnabled: true,
+  lastLogin: true,
+  loginAttempts: true,
+  lockedUntil: true,
+  sessionToken: true,
+  tokenExpiresAt: true,
+  credits: true,
+  creditsUsed: true,
+  totalCredits: true,
+  isActive: true,
+  ipWhitelist: true,
+}).extend({
+  // Make required fields optional for form editing
+  name: z.string().min(1, "Nome hotel richiesto"),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  region: z.string().optional(),
+  postalCode: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().email("Email non valida"),
+  website: z.string().optional(),
+  description: z.string().optional(),
+  logoUrl: z.string().optional(),
+  latitude: z.string().optional(),
+  longitude: z.string().optional(),
+  services: z.array(z.string()).optional().default([]),
 });
 
 export const insertGuestProfileSchema = createInsertSchema(guestProfiles).omit({
