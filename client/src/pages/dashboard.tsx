@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Sidebar } from "@/components/sidebar";
 import { QRModal } from "@/components/qr-modal";
 import { useState } from "react";
@@ -17,7 +18,10 @@ import {
   Star,
   Clock,
   CreditCard,
-  Wallet
+  Wallet,
+  Settings,
+  AlertCircle,
+  CheckCircle
 } from "lucide-react";
 import CreditPurchaseDialog from "@/components/credit-purchase-dialog";
 import { ProtectedRoute, useAuth } from "@/hooks/use-auth";
@@ -59,6 +63,11 @@ function DashboardContent() {
     queryKey: [`/api/hotels/${hotelId}/credits`],
   });
 
+  // Fetch hotel setup status
+  const { data: setupStatus } = useQuery({
+    queryKey: [`/api/hotels/${hotelId}/setup-status`],
+  });
+
   // Mock hotel data - in real app this would come from API
   const hotel = {
     name: "Grand Hotel Villa Medici",
@@ -84,6 +93,42 @@ function DashboardContent() {
             Gestisci le esperienze turistiche personalizzate per i tuoi ospiti
           </p>
         </div>
+
+        {/* Hotel Setup Status Banner */}
+        {setupStatus && !setupStatus.isComplete && (
+          <Alert className="mb-6 border-amber-200 bg-amber-50">
+            <AlertCircle className="h-5 w-5 text-amber-600" />
+            <AlertDescription className="flex items-center justify-between w-full">
+              <div>
+                <strong className="text-amber-800">Configura il tuo Hotel</strong>
+                <p className="text-amber-700 mt-1">
+                  Completa la configurazione del tuo hotel per iniziare a creare itinerari personalizzati per i tuoi ospiti.
+                  {setupStatus.missingFields.length > 0 && (
+                    <span className="block mt-1 text-sm">
+                      Campi mancanti: {setupStatus.missingFields.join(', ')}
+                    </span>
+                  )}
+                </p>
+              </div>
+              <Link href="/hotel-setup">
+                <Button className="bg-amber-600 hover:bg-amber-700 text-white">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Configura Ora
+                </Button>
+              </Link>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Hotel Setup Complete Banner */}
+        {setupStatus && setupStatus.isComplete && (
+          <Alert className="mb-6 border-green-200 bg-green-50">
+            <CheckCircle className="h-5 w-5 text-green-600" />
+            <AlertDescription className="text-green-800">
+              <strong>Configurazione Completata!</strong> Il tuo hotel "{setupStatus.hotel.name}" è configurato e pronto per creare esperienze uniche per i tuoi ospiti.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Credit Banner */}
         {creditInfo.credits <= 5 && (
