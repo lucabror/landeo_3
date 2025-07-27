@@ -49,9 +49,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = (userData: User, sessionToken: string) => {
+    // Clear any existing data first
+    localStorage.removeItem('sessionToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('hotelId'); // Legacy cleanup
+    sessionStorage.removeItem('admin-auth'); // Legacy cleanup
+    
+    // Set new auth data
     localStorage.setItem('sessionToken', sessionToken);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
+    
+    console.log('Login completed with user:', userData);
   };
 
   const logout = async () => {

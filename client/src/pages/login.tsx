@@ -115,6 +115,10 @@ export default function Login({ userType }: LoginProps) {
         return;
       }
       
+      // Clear any previous auth data before new login
+      localStorage.removeItem('sessionToken');
+      localStorage.removeItem('user');
+      
       // Login successful - use AuthProvider login method
       authLogin({
         id: data.user.id,
@@ -226,6 +230,10 @@ export default function Login({ userType }: LoginProps) {
     },
     onSuccess: async (response) => {
       const data = await response.json();
+      
+      // Clear any previous auth data before new login
+      localStorage.removeItem('sessionToken');
+      localStorage.removeItem('user');
       
       // Use AuthProvider login method with correct parameter order
       authLogin({
@@ -386,7 +394,7 @@ export default function Login({ userType }: LoginProps) {
               </form>
             </Form>
             
-            <div className="mt-4 text-center">
+            <div className="mt-4 text-center space-y-2">
               <Button 
                 variant="link" 
                 className="text-sm text-primary hover:text-primary/80"
@@ -394,6 +402,21 @@ export default function Login({ userType }: LoginProps) {
               >
                 Password dimenticata?
               </Button>
+              
+              <div>
+                <Button 
+                  variant="link" 
+                  className="text-xs text-gray-500 hover:text-gray-700"
+                  onClick={() => {
+                    // Clear all auth data and refresh
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.reload();
+                  }}
+                >
+                  Problemi di accesso? Pulisci cache
+                </Button>
+              </div>
             </div>
             </>
           )}
