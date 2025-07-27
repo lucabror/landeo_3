@@ -73,11 +73,12 @@ router.post("/register-hotel", async (req, res) => {
     
     const verificationUrl = `${baseUrl}/verify-email/${verificationToken}`;
 
-    await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: email,
-      subject: 'Conferma il tuo account ItineraItalia',
-      html: `
+    try {
+      const emailResult = await resend.emails.send({
+        from: 'onboarding@resend.dev',
+        to: email,
+        subject: 'Conferma il tuo account ItineraItalia',
+        html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #92400e, #a16207); padding: 20px; text-align: center;">
             <h1 style="color: white; margin: 0;">ItineraItalia</h1>
@@ -121,11 +122,30 @@ router.post("/register-hotel", async (req, res) => {
           </div>
         </div>
       `,
-    });
+      });
+
+      console.log("Email di verifica inviata con successo:", {
+        id: emailResult.data?.id,
+        to: email,
+        from: 'onboarding@resend.dev'
+      });
+
+    } catch (emailError) {
+      console.error("Errore invio email:", emailError);
+      
+      // Log il link di verifica per debug in caso di errore email
+      console.log("LINK DI VERIFICA (per debug):", verificationUrl);
+      
+      // Non bloccare la registrazione se l'email fallisce
+      // L'utente può comunque usare il link dai log
+    }
 
     res.json({
       success: true,
       message: "Registrazione completata. Controlla la tua email per confermare l'account.",
+      ...(process.env.NODE_ENV === 'development' && {
+        debugVerificationUrl: verificationUrl
+      })
     });
 
   } catch (error) {
@@ -214,5 +234,36 @@ router.post("/verify-email", async (req, res) => {
     });
   }
 });
+
+// Debug endpoint - solo in development
+if (process.env.NODE_ENV === 'development') {
+  router.get("/debug/pending-verifications", async (req, res) => {
+    try {
+      const pendingVerifications = await db
+        .select({
+          id: emailVerifications.id,
+          userId: emailVerifications.userId,
+          token: emailVerifications.token,
+          expiresAt: emailVerifications.expiresAt,
+          userEmail: users.email,
+        })
+        .from(emailVerifications)
+        .leftJoin(users, eq(emailVerifications.userId, users.id))
+        .where(eq(users.isEmailVerified, false));
+
+      res.json({
+        success: true,
+        pendingVerifications: pendingVerifications.map(v => ({
+          userEmail: v.userEmail,
+          verificationUrl: `http://localhost:5000/verify-email/${v.token}`,
+          expiresAt: v.expiresAt,
+        }))
+      });
+    } catch (error) {
+      console.error("Errore debug verifications:", error);
+      res.status(500).json({ success: false, error: "Errore interno" });
+    }
+  });
+}
 
 export default router;

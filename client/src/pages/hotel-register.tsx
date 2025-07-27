@@ -59,6 +59,16 @@ export default function HotelRegister() {
         title: "Registrazione completata",
         description: "Controlla la tua email per confermare l'account.",
       });
+      
+      // Mostra link di debug in modalità sviluppo
+      if (data.debugVerificationUrl) {
+        console.log("Link di verifica (DEBUG):", data.debugVerificationUrl);
+        toast({
+          title: "Debug - Link di verifica",
+          description: `Link: ${data.debugVerificationUrl}`,
+          variant: "default",
+        });
+      }
     },
     onError: (error: any) => {
       toast({
