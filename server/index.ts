@@ -35,7 +35,7 @@ const limiter = rateLimit({
 });
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 3 * 60 * 1000, // 3 minutes
   max: 10, // limit each IP to 10 auth attempts per windowMs
   message: 'Troppi tentativi di accesso, riprova più tardi.',
   standardHeaders: true,
