@@ -76,9 +76,10 @@ export default function GuestProfiles() {
     enabled: !!viewingProfile?.id,
   });
 
-  // Fetch hotel credits
+  // Fetch hotel credits with auto-refresh
   const { data: creditInfo = { credits: 0, totalCredits: 0, creditsUsed: 0 } } = useQuery({
-    queryKey: [`/api/hotels/${hotelId}/credits`],
+    queryKey: ["/api/hotels", hotelId, "credits"],
+    refetchInterval: 3000, // Auto-refresh every 3 seconds
   });
   
   // Type assertion for creditInfo to avoid TypeScript errors
@@ -240,7 +241,12 @@ export default function GuestProfiles() {
         duration: 5000,
       });
 
-      await apiRequest("POST", `/api/guest-profiles/${profile.id}/generate-itinerary`);
+      const response = await apiRequest("POST", `/api/guest-profiles/${profile.id}/generate-itinerary`);
+      
+      // Immediatamente dopo la generazione, invalida le cache per aggiornare i crediti
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "credits"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/guest-profiles", profile.id, "itinerary"] });
       
       // Refresh all related data to immediately show the new itinerary
       await Promise.all([
