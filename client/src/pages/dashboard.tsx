@@ -21,7 +21,8 @@ import {
   Wallet,
   Settings,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Sparkles
 } from "lucide-react";
 import CreditPurchaseDialog from "@/components/credit-purchase-dialog";
 import { ProtectedRoute, useAuth } from "@/hooks/use-auth";
@@ -118,12 +119,23 @@ function DashboardContent() {
           </Alert>
         )}
 
-        {/* Hotel Setup Complete Banner */}
-        {setupStatus && setupStatus.isComplete && (
-          <Alert className="mb-6 border-green-200 bg-green-50">
-            <CheckCircle className="h-5 w-5 text-green-600" />
-            <AlertDescription className="text-green-800">
-              <strong>Configurazione Completata!</strong> Il tuo hotel "{setupStatus.hotel.name}" è configurato e pronto per creare esperienze uniche per i tuoi ospiti.
+        {/* Local Experiences Setup Banner */}
+        {setupStatus && setupStatus.isComplete && !setupStatus.hasLocalExperiences && (
+          <Alert className="mb-6 border-blue-200 bg-blue-50">
+            <MapPin className="h-5 w-5 text-blue-600" />
+            <AlertDescription className="flex items-center justify-between w-full">
+              <div>
+                <strong className="text-blue-800">Genera le Tue Esperienze Locali</strong>
+                <p className="text-blue-700 mt-1">
+                  Ora che il tuo hotel è configurato, crea un catalogo di esperienze locali per offrire itinerari personalizzati ai tuoi ospiti. Usa l'AI per generare suggerimenti automatici.
+                </p>
+              </div>
+              <Link href="/local-experiences">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Genera Esperienze
+                </Button>
+              </Link>
             </AlertDescription>
           </Alert>
         )}

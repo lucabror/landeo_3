@@ -157,9 +157,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const isComplete = missingFields.length === 0;
       
+      // Check if local experiences exist (for next phase setup)
+      const localExperiences = await storage.getLocalExperiencesByHotel(req.params.id);
+      const hasLocalExperiences = localExperiences && localExperiences.length > 0;
+      
       res.json({
         isComplete,
         missingFields,
+        hasLocalExperiences,
         hotel: {
           name: hotel.name,
           address: hotel.address,
