@@ -10,6 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-27**: Risolto bug reindirizzamento dopo login con 2FA
+  - Corretto ordine parametri nella chiamata authLogin: (userData, sessionToken) invece di (sessionToken, userData)
+  - Aggiunto campo hotelId nella risposta dell'endpoint /api/auth/verify-mfa per hotel managers
+  - Include campo name nella struttura userData per compatibilità completa con AuthProvider
+  - Login con Google Authenticator ora reindirizza correttamente alla dashboard hotel
 - **2025-01-27**: Aggiornati tutti i testi della landing page per migliorare conversione
   - "Inizia Gratis" → "Inizia Gratis 5 itinerari gratuiti" per evidenziare valore immediato
   - "Demo Gratuita" → "Demo Gratuita (genera 5 itinerari gratuiti)" per chiarezza offerta

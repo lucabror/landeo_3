@@ -406,7 +406,8 @@ router.post('/verify-mfa', mfaLimiter, async (req, res) => {
         id: user!.id,
         email: user!.email,
         name: session.userType === 'hotel' ? (user as any).name : user!.email,
-        type: session.userType
+        type: session.userType,
+        hotelId: session.userType === 'hotel' ? user!.id : undefined
       }
     });
   } catch (error) {
