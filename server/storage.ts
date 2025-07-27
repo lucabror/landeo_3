@@ -142,13 +142,27 @@ export class DatabaseStorage implements IStorage {
     // 4. Delete all guest profiles for this hotel
     await db.delete(guestProfiles).where(eq(guestProfiles.hotelId, id));
     
-    // 5. Delete all credit purchases for this hotel
-    await db.delete(creditPurchases).where(eq(creditPurchases.hotelId, id));
+    // 5. First get all credit purchases for this hotel
+    const hotelCreditPurchases = await db
+      .select({ id: creditPurchases.id })
+      .from(creditPurchases)
+      .where(eq(creditPurchases.hotelId, id));
     
-    // 6. Delete all credit transactions for this hotel
+    // 6. Delete credit transactions that reference these purchases
+    if (hotelCreditPurchases.length > 0) {
+      const purchaseIds = hotelCreditPurchases.map(p => p.id);
+      for (const purchaseId of purchaseIds) {
+        await db.delete(creditTransactions).where(eq(creditTransactions.relatedPurchaseId, purchaseId));
+      }
+    }
+    
+    // 7. Delete remaining credit transactions for this hotel
     await db.delete(creditTransactions).where(eq(creditTransactions.hotelId, id));
     
-    // 7. Finally delete the hotel itself
+    // 8. Delete all credit purchases for this hotel (after all transactions are deleted)
+    await db.delete(creditPurchases).where(eq(creditPurchases.hotelId, id));
+    
+    // 9. Finally delete the hotel itself
     await db.delete(hotels).where(eq(hotels.id, id));
   }
 
