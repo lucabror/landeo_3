@@ -142,13 +142,25 @@ export class DatabaseStorage implements IStorage {
     // 4. Delete all guest profiles for this hotel
     await db.delete(guestProfiles).where(eq(guestProfiles.hotelId, id));
     
-    // 5. First get all credit purchases for this hotel
+    // 5. Delete security sessions for the hotel manager
+    await db.delete(securitySessions).where(eq(securitySessions.userId, id));
+    
+    // 6. Delete security logs for the hotel manager
+    await db.delete(securityLogs).where(eq(securityLogs.userId, id));
+    
+    // 7. Delete email verifications for the hotel manager
+    await db.delete(emailVerifications).where(eq(emailVerifications.userId, id));
+    
+    // 8. Delete the hotel manager account associated with this hotel
+    await db.delete(users).where(eq(users.id, id));
+    
+    // 9. First get all credit purchases for this hotel
     const hotelCreditPurchases = await db
       .select({ id: creditPurchases.id })
       .from(creditPurchases)
       .where(eq(creditPurchases.hotelId, id));
     
-    // 6. Delete credit transactions that reference these purchases
+    // 10. Delete credit transactions that reference these purchases
     if (hotelCreditPurchases.length > 0) {
       const purchaseIds = hotelCreditPurchases.map(p => p.id);
       for (const purchaseId of purchaseIds) {
@@ -156,13 +168,13 @@ export class DatabaseStorage implements IStorage {
       }
     }
     
-    // 7. Delete remaining credit transactions for this hotel
+    // 11. Delete remaining credit transactions for this hotel
     await db.delete(creditTransactions).where(eq(creditTransactions.hotelId, id));
     
-    // 8. Delete all credit purchases for this hotel (after all transactions are deleted)
+    // 12. Delete all credit purchases for this hotel (after all transactions are deleted)
     await db.delete(creditPurchases).where(eq(creditPurchases.hotelId, id));
     
-    // 9. Finally delete the hotel itself
+    // 13. Finally delete the hotel itself
     await db.delete(hotels).where(eq(hotels.id, id));
   }
 
