@@ -116,12 +116,13 @@ export default function Login({ userType }: LoginProps) {
       }
       
       // Login successful - use AuthProvider login method
-      authLogin(data.sessionToken, {
+      authLogin({
         id: data.user.id,
         email: data.user.email,
-        role: data.user.type,
+        name: data.user.name,
+        type: data.user.type,
         hotelId: data.user.id
-      });
+      }, data.sessionToken);
       
       toast({
         title: "Accesso completato",
