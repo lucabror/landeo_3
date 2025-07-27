@@ -75,7 +75,26 @@ export default function HotelSetup() {
   // Update form when hotel data is loaded
   useEffect(() => {
     if (hotel && typeof hotel === 'object') {
-      form.reset(hotel);
+      // Extract only the fields that belong to the form schema
+      const formData = {
+        name: hotel.name || '',
+        address: hotel.address || '',
+        city: hotel.city || '',
+        region: hotel.region || '',
+        postalCode: hotel.postalCode || '',
+        phone: hotel.phone || '',
+        email: hotel.email || '',
+        website: hotel.website || '',
+        description: hotel.description || '',
+        logoUrl: hotel.logoUrl || '',
+        latitude: hotel.latitude || '',
+        longitude: hotel.longitude || '',
+        services: Array.isArray(hotel.services) ? hotel.services : [],
+      };
+      
+      console.log("🔧 Resetting form with clean data:", formData);
+      form.reset(formData);
+      
       if ('logoUrl' in hotel && hotel.logoUrl) {
         setLogoPreview(hotel.logoUrl as string);
       }
@@ -332,9 +351,27 @@ export default function HotelSetup() {
                     variant="outline"
                     onClick={() => {
                       setIsEditing(false);
-                      form.reset(hotel);
-                      if (hotel && typeof hotel === 'object' && 'services' in hotel && Array.isArray(hotel.services)) {
-                        setSelectedServices(hotel.services);
+                      // Reset with clean form data
+                      if (hotel && typeof hotel === 'object') {
+                        const formData = {
+                          name: hotel.name || '',
+                          address: hotel.address || '',
+                          city: hotel.city || '',
+                          region: hotel.region || '',
+                          postalCode: hotel.postalCode || '',
+                          phone: hotel.phone || '',
+                          email: hotel.email || '',
+                          website: hotel.website || '',
+                          description: hotel.description || '',
+                          logoUrl: hotel.logoUrl || '',
+                          latitude: hotel.latitude || '',
+                          longitude: hotel.longitude || '',
+                          services: Array.isArray(hotel.services) ? hotel.services : [],
+                        };
+                        form.reset(formData);
+                        if (Array.isArray(hotel.services)) {
+                          setSelectedServices(hotel.services);
+                        }
                       }
                     }}
                   >
