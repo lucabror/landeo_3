@@ -34,7 +34,10 @@ import {
   X,
   Users,
   Building,
-  Music
+  Music,
+  Target,
+  Heart,
+  User
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { insertLocalExperienceSchema } from "@shared/schema";
@@ -59,6 +62,27 @@ const CATEGORIES = [
 const TARGET_AUDIENCES = [
   "famiglia", "coppia", "singolo", "gruppo_lavoro", "anziani"
 ];
+
+// Funzione per ottenere il badge di match
+function getMatchBadge(matchType: 'high' | 'medium' | 'low') {
+  switch (matchType) {
+    case 'high':
+      return {
+        text: "🎯 Preferenza Top",
+        className: "bg-green-100 text-green-800 border-green-200"
+      };
+    case 'medium':
+      return {
+        text: "✨ Buon Match", 
+        className: "bg-amber-100 text-amber-800 border-amber-200"
+      };
+    case 'low':
+      return {
+        text: "• Standard",
+        className: "bg-gray-100 text-gray-600 border-gray-200"
+      };
+  }
+}
 
 // Funzione per auto-categorizzare le esperienze basata sul nome
 function getSmartCategory(name: string, description: string = ""): string {
@@ -144,6 +168,8 @@ function getSmartCategory(name: string, description: string = ""): string {
 export default function LocalExperiences() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingExperience, setEditingExperience] = useState<any>(null);
+  const [selectedGuestId, setSelectedGuestId] = useState<string>("");
+  const [showMatches, setShowMatches] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -154,6 +180,18 @@ export default function LocalExperiences() {
   const { data: experiences, isLoading } = useQuery({
     queryKey: ["/api/hotels", hotelId, "local-experiences"],
     enabled: !!hotelId,
+  });
+
+  // Fetch guest profiles for matching
+  const { data: guestProfiles } = useQuery({
+    queryKey: ["/api/hotels", hotelId, "guest-profiles"],
+    enabled: !!hotelId,
+  });
+
+  // Fetch experience matches for selected guest
+  const { data: matchData, isLoading: isLoadingMatches } = useQuery({
+    queryKey: ["/api/hotels", hotelId, "local-experiences", "matches", selectedGuestId],
+    enabled: !!hotelId && !!selectedGuestId,
   });
 
   // Fetch pending attractions
@@ -749,6 +787,56 @@ export default function LocalExperiences() {
           </div>
         )}
 
+        {/* Guest Preference Matching */}
+        {guestProfiles && guestProfiles.length > 0 && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Target className="h-5 w-5 mr-2 text-purple-600" />
+                Matching Preferenze Ospiti
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                <div className="flex-1">
+                  <Label htmlFor="guest-select">Seleziona Ospite per Matching</Label>
+                  <Select value={selectedGuestId} onValueChange={setSelectedGuestId}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Seleziona un ospite per vedere i match delle preferenze" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Nessun filtro</SelectItem>
+                      {guestProfiles.map((guest) => (
+                        <SelectItem key={guest.id} value={guest.id}>
+                          <div className="flex items-center">
+                            <User className="h-4 w-4 mr-2" />
+                            {guest.referenceName} ({guest.type})
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {selectedGuestId && matchData && (
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                    <div className="text-sm text-gray-600">
+                      <strong>Preferenze:</strong> {matchData.guestProfile.preferences.join(", ") || "Nessuna"}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {selectedGuestId && isLoadingMatches && (
+                <div className="mt-4 flex items-center justify-center py-4">
+                  <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                  <span className="text-sm text-gray-600">Calcolando match...</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
         {/* Loading state */}
         {isLoading || isLoadingPending ? (
           <div className="flex items-center justify-center py-8">
@@ -759,9 +847,11 @@ export default function LocalExperiences() {
             {/* Local Experiences Grid */}
             {experiences && experiences.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {experiences.map((experience) => {
+                {(selectedGuestId && matchData ? matchData.matches : experiences.map(exp => ({ experience: exp, matchType: 'low' as const, matchingPreferences: [] }))).map((match) => {
+                  const experience = match.experience;
                   const categoryConfig = getCategoryConfig(experience.category);
                   const IconComponent = categoryConfig.icon;
+                  const matchBadge = selectedGuestId ? getMatchBadge(match.matchType) : null;
                   
                   return (
                     <Card key={experience.id} className="group hover:shadow-lg transition-shadow bg-white border border-gray-200">
@@ -774,6 +864,11 @@ export default function LocalExperiences() {
                             <Badge variant="secondary" className="text-xs">
                               {categoryConfig.label}
                             </Badge>
+                            {matchBadge && (
+                              <Badge className={`text-xs border ${matchBadge.className}`}>
+                                {matchBadge.text}
+                              </Badge>
+                            )}
                           </div>
                           
                           <div className="flex gap-1">
@@ -823,6 +918,16 @@ export default function LocalExperiences() {
                         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                           {experience.description}
                         </p>
+                        
+                        {selectedGuestId && match.matchingPreferences && match.matchingPreferences.length > 0 && (
+                          <div className="mb-3 p-2 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-center text-xs text-green-800">
+                              <Heart className="h-3 w-3 mr-1" />
+                              <span className="font-medium">Match: </span>
+                              <span className="ml-1">{match.matchingPreferences.join(", ")}</span>
+                            </div>
+                          </div>
+                        )}
                         
                         <div className="space-y-2 text-xs text-gray-500">
                           <div className="flex items-center">
