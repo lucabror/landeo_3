@@ -15,8 +15,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { insertHotelSchema } from "@shared/schema";
 import type { InsertHotel } from "@shared/schema";
 
-// Mock hotel ID - in real app this would come from auth/context
-const MOCK_HOTEL_ID = "d2dd46f0-97d3-4121-96e3-01500370c73f";
+import { useAuth } from "@/hooks/use-auth";
 
 // Available hotel services
 const HOTEL_SERVICES = [
@@ -32,6 +31,7 @@ const HOTEL_SERVICES = [
 export default function HotelSetup() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchStatus, setSearchStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -40,10 +40,18 @@ export default function HotelSetup() {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Use the user's hotel ID from authentication
+  const hotelId = user?.hotelId || user?.id;
+
   // Fetch existing hotel data
   const { data: hotel, isLoading } = useQuery({
-    queryKey: ["/api/hotels", MOCK_HOTEL_ID],
+    queryKey: [`/api/hotels/${hotelId}`],
+    enabled: !!hotelId,
   });
+
+  console.log("Hotel setup - User:", user);
+  console.log("Hotel setup - Hotel ID:", hotelId);
+  console.log("Hotel setup - Hotel data:", hotel);
 
   const form = useForm<InsertHotel>({
     resolver: zodResolver(insertHotelSchema),
