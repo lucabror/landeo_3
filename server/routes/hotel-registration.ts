@@ -67,9 +67,9 @@ router.post("/register-hotel", async (req, res) => {
     });
 
     // Invia email di verifica - URL deve puntare al frontend
-    const baseUrl = process.env.NODE_ENV === 'production' 
+    const baseUrl = process.env.REPLIT_DOMAINS 
       ? `https://${process.env.REPLIT_DOMAINS}` 
-      : 'http://localhost:5000'; // In development, frontend e backend sono sulla stessa porta
+      : 'http://localhost:5000';
     
     const verificationUrl = `${baseUrl}/verify-email/${verificationToken}`;
 
@@ -251,11 +251,15 @@ if (process.env.NODE_ENV === 'development') {
         .leftJoin(users, eq(emailVerifications.userId, users.id))
         .where(eq(users.isEmailVerified, false));
 
+      const baseUrl = process.env.REPLIT_DOMAINS 
+        ? `https://${process.env.REPLIT_DOMAINS}` 
+        : 'http://localhost:5000';
+      
       res.json({
         success: true,
         pendingVerifications: pendingVerifications.map(v => ({
           userEmail: v.userEmail,
-          verificationUrl: `http://localhost:5000/verify-email/${v.token}`,
+          verificationUrl: `${baseUrl}/verify-email/${v.token}`,
           expiresAt: v.expiresAt,
         }))
       });

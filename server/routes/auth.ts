@@ -564,7 +564,10 @@ router.post('/forgot-password', async (req, res) => {
         const { Resend } = await import('resend');
         const resend = new Resend(process.env.RESEND_API_KEY);
         
-        const resetUrl = `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'http://localhost:5000'}/reset-password?token=${resetToken}&type=${userType}`;
+        const baseUrl = process.env.REPLIT_DOMAINS 
+          ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` 
+          : 'http://localhost:5000';
+        const resetUrl = `${baseUrl}/reset-password?token=${resetToken}&type=${userType}`;
         
         await resend.emails.send({
           from: 'delivered@resend.dev',
