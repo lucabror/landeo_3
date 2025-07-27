@@ -1256,11 +1256,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Attrazione non trovata" });
       }
 
+      // Mappa la categoria dell'attrazione pending a una categoria standardizzata
+      function mapToStandardCategory(category: string, attractionType: string, name: string, description: string): string {
+        const text = (category + " " + attractionType + " " + name + " " + description).toLowerCase();
+        
+        // Divertimento
+        if (text.includes("parco divertimenti") || text.includes("luna park") || 
+            text.includes("videogiochi") || text.includes("giochi")) {
+          return "divertimento";
+        }
+        
+        // Gastronomia/Degustazione (priorità alta per ristoranti)
+        if (text.includes("restaurant") || text.includes("ristorante") || text.includes("cucina") || 
+            text.includes("trattoria") || text.includes("osteria") || text.includes("pizzeria") ||
+            text.includes("food") || text.includes("gastronomia") || text.includes("cucina tradizionale")) {
+          return "gastronomia";
+        }
+        
+        if (text.includes("vino") || text.includes("cantina") || text.includes("degustazione") || 
+            text.includes("enogastronomia") || text.includes("vigneto") || text.includes("chianti") ||
+            text.includes("tasting") || text.includes("wine")) {
+          return "degustazione";
+        }
+        
+        // Cultura/Storia/Arte
+        if (text.includes("museo") || text.includes("galleria") || text.includes("palazzo") || 
+            text.includes("monument") || text.includes("chiesa") || text.includes("cattedrale") ||
+            text.includes("basilica") || text.includes("archeologico") || text.includes("storico") ||
+            text.includes("residenza storica") || text.includes("villa storica") || 
+            text.includes("arte") || text.includes("cultural")) {
+          
+          if (text.includes("storia") || text.includes("storico") || text.includes("archeologico") ||
+              text.includes("antico") || text.includes("romano") || text.includes("medievale") ||
+              text.includes("residenza storica")) {
+            return "storia";
+          }
+          return "cultura";
+        }
+        
+        // Natura
+        if (text.includes("nature") || text.includes("parco") || text.includes("giardino") || 
+            text.includes("natura") || text.includes("villa") || text.includes("bosco") || 
+            text.includes("lago") || text.includes("montagna") || text.includes("collina") ||
+            text.includes("lago naturale") || text.includes("parco naturale")) {
+          return "natura";
+        }
+        
+        // Avventura/Sport
+        if (text.includes("sport") || text.includes("avventura") || text.includes("outdoor") ||
+            text.includes("bicicletta") || text.includes("bike") || text.includes("trekking")) {
+          return "avventura";
+        }
+        
+        // Relax
+        if (text.includes("spa") || text.includes("terme") || text.includes("relax") || 
+            text.includes("benessere") || text.includes("wellness")) {
+          return "relax";
+        }
+        
+        // Famiglia
+        if (text.includes("famiglia") || text.includes("bambini") || text.includes("kids") || 
+            text.includes("family") || text.includes("zoo") || text.includes("acquario")) {
+          return "famiglia";
+        }
+        
+        // Shopping
+        if (text.includes("shopping") || text.includes("outlet") || text.includes("mercato") || 
+            text.includes("negozi") || text.includes("centro commerciale")) {
+          return "shopping";
+        }
+        
+        // Default: cultura
+        return "cultura";
+      }
+
       // Converte l'attrazione pending in local experience
+      const smartCategory = mapToStandardCategory(
+        pendingAttraction.category, 
+        pendingAttraction.attractionType, 
+        pendingAttraction.name, 
+        pendingAttraction.description
+      );
+      
+
+      
       const localExperience = {
         hotelId: req.params.hotelId,
         name: pendingAttraction.name,
-        category: pendingAttraction.category,
+        category: smartCategory,
         description: pendingAttraction.description,
         location: pendingAttraction.location,
         distance: pendingAttraction.estimatedDistance,

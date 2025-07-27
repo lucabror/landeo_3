@@ -367,53 +367,6 @@ export default function LocalExperiences() {
     return CATEGORIES.find(c => c.value === category) || CATEGORIES[0];
   };
 
-  // Auto-fix categories for existing experiences
-  const autoFixCategoriesMutation = useMutation({
-    mutationFn: async () => {
-      if (!experiences || !Array.isArray(experiences)) return;
-      
-      const updates = [];
-      for (const experience of experiences) {
-        const smartCategory = getSmartCategory(experience.name, experience.description);
-        if (smartCategory !== experience.category) {
-          updates.push({
-            id: experience.id,
-            data: { category: smartCategory }
-          });
-        }
-      }
-      
-      // Process updates in parallel
-      const promises = updates.map(update => 
-        apiRequest("PUT", `/api/local-experiences/${update.id}`, update.data)
-      );
-      
-      await Promise.all(promises);
-      return updates.length;
-    },
-    onSuccess: (count) => {
-      if (count > 0) {
-        queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "local-experiences"] });
-        toast({
-          title: "Categorie aggiornate",
-          description: `${count} esperienze hanno ricevuto categorie più appropriate`,
-        });
-      } else {
-        toast({
-          title: "Tutto a posto",
-          description: "Le categorie sono già ottimali",
-        });
-      }
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Errore",
-        description: error.message || "Errore nell'aggiornamento delle categorie",
-        variant: "destructive",
-      });
-    },
-  });
-
   const toggleTargetAudience = (audience: string) => {
     const current = form.watch("targetAudience") || [];
     const updated = current.includes(audience) 
@@ -439,20 +392,7 @@ export default function LocalExperiences() {
           </div>
           
           <div className="flex gap-2">
-            <Button 
-              onClick={() => autoFixCategoriesMutation.mutate()}
-              disabled={autoFixCategoriesMutation.isPending}
-              variant="outline"
-              className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 hover:from-green-600 hover:to-emerald-700"
-            >
-              {autoFixCategoriesMutation.isPending ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Check className="w-4 h-4 mr-2" />
-              )}
-              Auto-Fix Categorie
-            </Button>
-            
+
             <Button 
               onClick={() => generateAttractionsMutation.mutate()}
               disabled={generateAttractionsMutation.isPending}
