@@ -71,7 +71,7 @@ router.post("/register-hotel", async (req, res) => {
       ? `https://${process.env.REPLIT_DOMAINS}` 
       : 'http://localhost:5000';
     
-    const verificationUrl = `${baseUrl}/verify-email/${verificationToken}`;
+    const verificationUrl = `${baseUrl}/registration-confirmed/${verificationToken}`;
 
     try {
       const emailResult = await resend.emails.send({
