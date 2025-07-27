@@ -126,6 +126,12 @@ Preferred communication style: Simple, everyday language.
   - Banner displays missing fields and direct link to hotel-setup page
   - Success banner shown when configuration is complete
   - Setup invitation persists across all login sessions until completion
+- **2025-01-27**: Fixed critical hotel setup form validation and data saving issues
+  - Resolved form validation errors caused by security fields (password, mfa, credits) in form schema
+  - Updated insertHotelSchema to exclude system fields and make required fields optional for editing
+  - Fixed form reset logic to use only valid form fields, preventing validation conflicts
+  - Hotel data saving now works correctly with proper Zod validation
+  - Form submission proceeds when no actual validation errors exist (not relying on isValid flag)
 
 ## System Architecture
 
