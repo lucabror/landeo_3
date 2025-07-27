@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-27**: Risolto completamente sistema 2FA per hotel manager e super admin
+  - Corretto errore `administrators is not defined` sostituendo con `adminUsers` nel backend
+  - QR Code Google Authenticator ora generato correttamente per super-admin
+  - Risolto redirect post-MFA: sostituito `userType` con `data.user.type` per entrambi i flussi login
+  - Hotel manager reindirizzato a `/dashboard`, super-admin a `/admin-dashboard` dopo verifica 2FA
+  - Sistema MFA completamente funzionante per entrambi i tipi di utente
+  - Testato: login con Google Authenticator funziona correttamente per hotel e admin
 - **2025-01-27**: Risolto sistema 2FA persistente per hotel manager e super admin
   - Rimossa disabilitazione temporanea MFA dalle route di login (linee 119-123 hotel, 192-195 admin)
   - Ripristinato controllo mfaEnabled nel database per determinare richiesta MFA
