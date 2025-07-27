@@ -92,72 +92,182 @@ export async function sendGuestPreferencesEmail(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${template.subject(hotel.name)}</title>
   <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
-    .container { max-width: 600px; margin: 0 auto; background-color: white; }
-    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
-    .content { padding: 30px; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; 
+      line-height: 1.6; 
+      color: #1f2937; 
+      margin: 0; 
+      padding: 0; 
+      background: linear-gradient(to bottom right, #fafaf9, #fffbeb, #f9fafb);
+    }
+    .container { 
+      max-width: 600px; 
+      margin: 0 auto; 
+      background-color: white; 
+      border-radius: 12px; 
+      overflow: hidden; 
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+    .header { 
+      background: linear-gradient(135deg, #b45309 0%, #92400e 100%); 
+      color: white; 
+      padding: 40px 30px; 
+      text-align: center; 
+      position: relative;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><pattern id="grain" patternUnits="userSpaceOnUse" width="100" height="20"><rect width="100" height="20" fill="%23ffffff" opacity="0.03"/></pattern></defs><rect width="100" height="20" fill="url(%23grain)"/></svg>');
+      opacity: 0.3;
+    }
+    .header-content { position: relative; z-index: 1; }
+    .content { padding: 40px 30px; }
     .button { 
       display: inline-block; 
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+      background: linear-gradient(135deg, #b45309 0%, #92400e 100%); 
       color: white; 
-      padding: 15px 30px; 
+      padding: 16px 32px; 
       text-decoration: none; 
-      border-radius: 8px; 
-      font-weight: bold; 
-      margin: 20px 0;
+      border-radius: 12px; 
+      font-weight: 600; 
+      margin: 24px 0;
       text-align: center;
+      box-shadow: 0 4px 12px rgba(180, 83, 9, 0.3);
+      transition: all 0.2s ease;
     }
-    .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #666; }
-    .logo { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-    .highlight { background-color: #e8f4fd; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0; }
-    .details { background: white; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #667eea; }
+    .button:hover {
+      background: linear-gradient(135deg, #92400e 0%, #78350f 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(180, 83, 9, 0.4);
+    }
+    .footer { 
+      background: linear-gradient(to right, #fafaf9, #fffbeb); 
+      padding: 30px; 
+      text-align: center; 
+      color: #6b7280; 
+      border-top: 1px solid #f3f4f6;
+    }
+    .logo { 
+      font-size: 28px; 
+      font-weight: 700; 
+      margin-bottom: 12px; 
+      background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .highlight { 
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); 
+      padding: 20px; 
+      border-left: 4px solid #f59e0b; 
+      margin: 24px 0; 
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.1);
+    }
+    .details { 
+      background: linear-gradient(135deg, #fafaf9 0%, #f9fafb 100%); 
+      padding: 24px; 
+      border-radius: 12px; 
+      margin: 24px 0; 
+      border-left: 4px solid #d97706;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .benefit-item {
+      display: flex;
+      align-items: center;
+      margin: 12px 0;
+      padding: 8px 0;
+    }
+    .benefit-icon {
+      margin-right: 12px;
+      font-size: 18px;
+    }
+    .subtitle {
+      color: #fef3c7;
+      font-size: 18px;
+      margin-top: 8px;
+      font-weight: 400;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo">${hotel.name}</div>
-      <h1>${template.greeting(guestProfile.referenceName)}</h1>
-      <p>${template.subtitle(hotel.name)}</p>
+      <div class="header-content">
+        <div class="logo">${hotel.name}</div>
+        <h1 style="margin: 0; font-size: 32px; font-weight: 700;">${template.greeting(guestProfile.referenceName)}</h1>
+        <p class="subtitle">${template.subtitle(hotel.name)}</p>
+      </div>
     </div>
     
     <div class="content">
-      <p>${template.salutation(guestProfile.referenceName)}</p>
+      <p style="font-size: 18px; margin-bottom: 24px; color: #374151;">${template.salutation(guestProfile.referenceName)}</p>
       
-      <p>${template.welcomeText(hotel.name, checkinDate, checkoutDate)}</p>
+      <p style="font-size: 16px; margin-bottom: 24px; color: #4b5563;">${template.welcomeText(hotel.name, checkinDate, checkoutDate)}</p>
       
       <div class="details">
-        <h3>${template.bookingDetails}</h3>
-        <ul>
-          <li><strong>${template.bookingFields.name}</strong> ${guestProfile.referenceName}</li>
-          <li><strong>${template.bookingFields.people}</strong> ${guestProfile.numberOfPeople}</li>
-          <li><strong>${template.bookingFields.checkin}</strong> ${checkinDate}</li>
-          <li><strong>${template.bookingFields.checkout}</strong> ${checkoutDate}</li>
-        </ul>
+        <h3 style="margin-top: 0; color: #92400e; font-size: 18px; font-weight: 600;">${template.bookingDetails}</h3>
+        <div style="display: grid; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
+            <span style="font-weight: 600; color: #374151;">${template.bookingFields.name}</span>
+            <span style="color: #6b7280;">${guestProfile.referenceName}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
+            <span style="font-weight: 600; color: #374151;">${template.bookingFields.people}</span>
+            <span style="color: #6b7280;">${guestProfile.numberOfPeople}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3f4f6;">
+            <span style="font-weight: 600; color: #374151;">${template.bookingFields.checkin}</span>
+            <span style="color: #6b7280;">${checkinDate}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+            <span style="font-weight: 600; color: #374151;">${template.bookingFields.checkout}</span>
+            <span style="color: #6b7280;">${checkoutDate}</span>
+          </div>
+        </div>
       </div>
       
-      <p>${template.description}</p>
+      <div class="highlight">
+        <p style="margin: 0; font-size: 16px; color: #92400e; font-weight: 500;">${template.description}</p>
+      </div>
       
-      <div style="text-align: center;">
+      <div style="text-align: center; margin: 32px 0;">
         <a href="${preferencesUrl}" class="button">
           ${template.ctaButton}
         </a>
       </div>
       
-      <p><strong>${template.whyTitle}</strong></p>
-      <ul>
-        ${template.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
-      </ul>
+      <h3 style="color: #92400e; font-size: 18px; font-weight: 600; margin-bottom: 16px;">${template.whyTitle}</h3>
+      <div style="margin-bottom: 24px;">
+        ${template.benefits.map(benefit => `
+          <div class="benefit-item">
+            <span class="benefit-icon">${benefit.charAt(0)}</span>
+            <span style="color: #4b5563;">${benefit.substring(2)}</span>
+          </div>
+        `).join('')}
+      </div>
       
-      <p>${template.timeNote}</p>
+      <p style="font-size: 14px; color: #6b7280; font-style: italic; margin-top: 24px;">${template.timeNote}</p>
     </div>
     
     <div class="footer">
-      <p>${template.closing}<br><strong>Team ${hotel.name}</strong></p>
-      <p style="font-size: 12px; color: #999;">
-        ${hotel.city}, ${hotel.region}<br>
-        📧 ${hotel.email} | 📞 ${hotel.phone}
-      </p>
+      <div style="margin-bottom: 16px;">
+        <p style="margin: 0; font-size: 16px; color: #374151; font-weight: 600;">${template.closing}</p>
+        <p style="margin: 4px 0 0 0; font-size: 16px; color: #92400e; font-weight: 700;">Team ${hotel.name}</p>
+      </div>
+      <div style="padding-top: 16px; border-top: 1px solid #e5e7eb;">
+        <p style="margin: 0; font-size: 13px; color: #9ca3af;">
+          📍 ${hotel.city}, ${hotel.region}<br>
+          📧 ${hotel.email} • 📞 ${hotel.phone}
+        </p>
+      </div>
     </div>
   </div>
 </body>
