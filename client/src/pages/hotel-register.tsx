@@ -62,7 +62,7 @@ export default function HotelRegister() {
       
       // Mostra link di debug in modalità sviluppo
       if (data.debugVerificationUrl) {
-        console.log("Link di verifica (DEBUG):", data.debugVerificationUrl);
+
         toast({
           title: "Debug - Link di verifica",
           description: `Link: ${data.debugVerificationUrl}`,

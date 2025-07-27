@@ -133,19 +133,13 @@ router.post("/register-hotel", async (req, res) => {
     } catch (emailError) {
       console.error("Errore invio email:", emailError);
       
-      // Log il link di verifica per debug in caso di errore email
-      console.log("LINK DI VERIFICA (per debug):", verificationUrl);
-      
       // Non bloccare la registrazione se l'email fallisce
-      // L'utente può comunque usare il link dai log
+      // L'utente può comunque usare il link dai log del server
     }
 
     res.json({
       success: true,
-      message: "Registrazione completata. Controlla la tua email per confermare l'account.",
-      ...(process.env.NODE_ENV === 'development' && {
-        debugVerificationUrl: verificationUrl
-      })
+      message: "Registrazione completata. Controlla la tua email per confermare l'account."
     });
 
   } catch (error) {
