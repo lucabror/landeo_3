@@ -10,8 +10,6 @@ import {
   MapPin, 
   Clock, 
   Send,
-  Building,
-  Users,
   HeadphonesIcon
 } from "lucide-react";
 import landeoLogo from "@assets/landeo def_1753695256255.png";
@@ -22,32 +20,32 @@ export default function Contact() {
     {
       icon: Mail,
       title: "Email",
-      value: "info@aitour.it",
+      value: "info@landeo.it",
       description: "Per informazioni generali e commerciali",
       action: "Invia Email",
-      href: "mailto:info@aitour.it"
+      href: "mailto:info@landeo.it"
     },
     {
       icon: HeadphonesIcon,
       title: "Supporto Tecnico",
-      value: "support@aitour.it",
+      value: "supporto@landeo.it",
       description: "Per assistenza tecnica e problemi",
       action: "Contatta Supporto",
-      href: "mailto:support@aitour.it"
+      href: "mailto:supporto@landeo.it"
     },
     {
       icon: Phone,
       title: "Telefono",
-      value: "+39 012 345 6789",
+      value: "+39.328.30.93.519",
       description: "Assistenza telefonica clienti premium",
       action: "Chiama",
-      href: "tel:+390123456789"
+      href: "tel:+393283093519"
     },
     {
       icon: MapPin,
       title: "Sede",
-      value: "Milano, Italia",
-      description: "Via dell'Innovazione 123, 20100 Milano",
+      value: "Velletri (RM), Via di Contrada Comune 159",
+      description: "00049 Velletri (RM)",
       action: "Vedi Mappa",
       href: "#"
     }
@@ -59,26 +57,7 @@ export default function Contact() {
     { day: "Domenica", hours: "Chiuso" }
   ];
 
-  const departments = [
-    {
-      icon: Building,
-      title: "Vendite",
-      description: "Informazioni su piani e prezzi",
-      email: "sales@aitour.it"
-    },
-    {
-      icon: HeadphonesIcon,
-      title: "Supporto Tecnico",
-      description: "Assistenza per problemi tecnici",
-      email: "support@aitour.it"
-    },
-    {
-      icon: Users,
-      title: "Partnership",
-      description: "Collaborazioni e integrazioni",
-      email: "partnership@aitour.it"
-    }
-  ];
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50">
@@ -254,31 +233,7 @@ export default function Contact() {
               </CardContent>
             </Card>
 
-            {/* Departments */}
-            <Card className="border-amber-100">
-              <CardHeader>
-                <CardTitle className="text-xl text-gray-900">Dipartimenti Specializzati</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {departments.map((dept, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <dept.icon className="w-5 h-5 text-amber-700" />
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{dept.title}</h4>
-                        <p className="text-sm text-gray-600">{dept.description}</p>
-                      </div>
-                      <a 
-                        href={`mailto:${dept.email}`}
-                        className="text-amber-700 hover:text-amber-800 text-sm font-medium"
-                      >
-                        Contatta
-                      </a>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+
           </div>
         </div>
 
