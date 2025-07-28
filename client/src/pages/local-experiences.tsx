@@ -304,6 +304,7 @@ export default function LocalExperiences() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "pending-attractions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "local-experiences"] });
       toast({
         title: "Attrazioni generate",
         description: data.message,
