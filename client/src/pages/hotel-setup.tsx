@@ -293,7 +293,7 @@ export default function HotelSetup() {
   };
 
   const onSubmit = (data: HotelSetup) => {
-    console.log("🚀 Form submitted with data:", data);
+    console.log("🚀 onSubmit CALLED! Form submitted with data:", data);
     console.log("🚀 Selected services:", selectedServices);
     console.log("🚀 Hotel exists:", !!hotel);
     console.log("🚀 Form validation errors:", form.formState.errors);
@@ -399,12 +399,6 @@ export default function HotelSetup() {
                     form="hotel-form"
                     disabled={mutation.isPending}
                     className="flex items-center gap-2"
-                    onClick={() => {
-                      console.log("🔥 SAVE BUTTON CLICKED!");
-                      console.log("🔥 Is editing:", isEditing);
-                      console.log("🔥 Mutation pending:", mutation.isPending);
-                      console.log("🔥 Form state:", form.formState);
-                    }}
                   >
                     {mutation.isPending ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -418,7 +412,16 @@ export default function HotelSetup() {
             </div>
           </CardHeader>
           <CardContent>
-            <form id="hotel-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form 
+              id="hotel-form" 
+              onSubmit={(e) => {
+                console.log("🔥 FORM SUBMIT EVENT TRIGGERED!");
+                console.log("🔥 Event:", e);
+                console.log("🔥 Form state before submit:", form.formState);
+                return form.handleSubmit(onSubmit)(e);
+              }} 
+              className="space-y-6"
+            >
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
