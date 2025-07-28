@@ -941,11 +941,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Hotel not found" });
       }
 
+      console.log(`Generating attractions for hotel: ${hotel.name} in ${hotel.city}, ${hotel.region}`);
+      console.log(`Hotel coordinates: lat=${hotel.latitude}, lon=${hotel.longitude}`);
+
+      // Check if hotel has minimum required location data
+      if (!hotel.city || !hotel.region) {
+        console.error(`Hotel ${hotel.name} missing city or region data`);
+        return res.status(400).json({ message: "Hotel must have city and region to generate local experiences" });
+      }
+
       // Check if hotel has valid coordinates, if not try to get them via geocoding
       let coordinates = null;
       if (hotel.latitude && hotel.longitude && hotel.latitude !== '' && hotel.longitude !== '') {
         coordinates = { latitude: hotel.latitude, longitude: hotel.longitude };
+        console.log('Using existing hotel coordinates');
       } else {
+        console.log('Hotel coordinates missing, attempting geocoding...');
         // Try to get coordinates using geocoding service
         try {
           const { geocodeHotel } = await import('./services/geocoding');
@@ -955,22 +966,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
               latitude: geocodedHotel.latitude, 
               longitude: geocodedHotel.longitude 
             };
+            console.log(`Geocoding successful: lat=${coordinates.latitude}, lon=${coordinates.longitude}`);
             // Update hotel with found coordinates for future use
             await storage.updateHotel(hotel.id, {
               latitude: geocodedHotel.latitude,
               longitude: geocodedHotel.longitude
             });
+          } else {
+            console.log('Geocoding returned no results');
           }
         } catch (geocodeError) {
-          console.log('Could not geocode hotel coordinates, proceeding with city/region only');
+          console.log('Geocoding failed:', geocodeError);
+          console.log('Proceeding with city/region only for AI generation');
         }
       }
 
+      console.log(`Calling findLocalAttractions with: city=${hotel.city}, region=${hotel.region}, coordinates=${coordinates ? 'yes' : 'no'}`);
+      
       const pendingAttractions = await findLocalAttractions(
         hotel.city, 
         hotel.region, 
         coordinates
       );
+      
+      console.log(`Found ${pendingAttractions.attractions.length} attractions`);
       
       const experiences = await Promise.all(
         pendingAttractions.attractions.map(async (attraction) => {
@@ -979,10 +998,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
       );
 
+      console.log(`Created ${experiences.length} local experiences`);
       res.status(201).json(experiences);
     } catch (error) {
       console.error("Error generating local experiences:", error);
-      res.status(500).json({ message: "Failed to generate local experiences" });
+      res.status(500).json({ message: "Failed to generate local experiences: " + (error instanceof Error ? error.message : String(error)) });
     }
   });
 
