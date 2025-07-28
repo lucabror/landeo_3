@@ -47,30 +47,35 @@ import { useAuth } from "@/hooks/use-auth";
 import { LANDEO_CATEGORIES } from "@shared/categories";
 
 const CATEGORIES = [
-  // Storia e Cultura
+  // Storia e Cultura (6 categorie)
   { value: "musei", label: "Musei e Arte", icon: Camera, color: "bg-blue-100 text-blue-700" },
   { value: "monumenti", label: "Monumenti Storici", icon: Building, color: "bg-blue-100 text-blue-700" },
   { value: "chiese", label: "Chiese e Santuari", icon: Heart, color: "bg-blue-100 text-blue-700" },
   { value: "borghi", label: "Borghi Medievali", icon: Camera, color: "bg-amber-100 text-amber-700" },
   { value: "archeologia", label: "Siti Archeologici", icon: Sparkles, color: "bg-amber-100 text-amber-700" },
+  { value: "cultura", label: "Eventi Culturali", icon: Music, color: "bg-blue-100 text-blue-700" },
   
-  // Gastronomia
+  // Gastronomia (4 categorie)
   { value: "ristoranti", label: "Ristoranti Tipici", icon: Utensils, color: "bg-green-100 text-green-700" },
   { value: "vino", label: "Vino e Cantine", icon: Wine, color: "bg-purple-100 text-purple-700" },
   { value: "mercati", label: "Mercati Locali", icon: Building, color: "bg-green-100 text-green-700" },
+  { value: "dolci", label: "Dolci e Pasticcerie", icon: Heart, color: "bg-pink-100 text-pink-700" },
   
-  // Natura e Outdoor
+  // Natura e Outdoor (5 categorie)
   { value: "parchi", label: "Parchi Naturali", icon: TreePine, color: "bg-emerald-100 text-emerald-700" },
   { value: "trekking", label: "Trekking e Passeggiate", icon: Mountain, color: "bg-emerald-100 text-emerald-700" },
   { value: "laghi", label: "Laghi e Panorami", icon: Waves, color: "bg-cyan-100 text-cyan-700" },
   { value: "giardini", label: "Giardini Botanici", icon: TreePine, color: "bg-green-100 text-green-700" },
+  { value: "spiagge", label: "Spiagge e Mare", icon: Waves, color: "bg-cyan-100 text-cyan-700" },
   
-  // Sport e Attività
+  // Sport e Attività (3 categorie)
   { value: "sport", label: "Attività Sportive", icon: Mountain, color: "bg-red-100 text-red-700" },
   { value: "ciclismo", label: "Ciclismo", icon: Mountain, color: "bg-orange-100 text-orange-700" },
+  { value: "terme", label: "Terme e Benessere", icon: Heart, color: "bg-teal-100 text-teal-700" },
   
-  // Shopping
-  { value: "shopping", label: "Shopping e Artigianato", icon: Building, color: "bg-gray-100 text-gray-700" }
+  // Shopping e Divertimento (2 categorie)
+  { value: "shopping", label: "Shopping e Artigianato", icon: Building, color: "bg-gray-100 text-gray-700" },
+  { value: "divertimento", label: "Divertimento e Spettacoli", icon: Music, color: "bg-purple-100 text-purple-700" }
 ];
 
 const TARGET_AUDIENCES = [
@@ -102,77 +107,94 @@ function getMatchBadge(matchType: 'high' | 'medium' | 'low') {
 function getSmartCategory(name: string, description: string = ""): string {
   const text = (name + " " + description).toLowerCase();
   
-  // Divertimento
-  if (text.includes("cinecittà") || text.includes("luneur") || text.includes("rainbow") || 
-      text.includes("parco divertimenti") || text.includes("divertimento") || 
-      text.includes("luna park") || text.includes("videogiochi") || text.includes("giochi")) {
-    return "divertimento";
+  // Storia e Cultura
+  if (text.includes("museo") || text.includes("galleria") || text.includes("arte") || 
+      text.includes("pittura") || text.includes("scultura")) {
+    return "musei";
   }
-  
-  // Cultura/Storia/Arte
-  if (text.includes("museo") || text.includes("galleria") || text.includes("palazzo") || 
-      text.includes("basilica") || text.includes("chiesa") || text.includes("duomo") || 
-      text.includes("cappella") || text.includes("archeologico") || text.includes("arte") ||
-      text.includes("storico") || text.includes("storia") || text.includes("cultura") ||
-      text.includes("uffizi") || text.includes("vaticano") || text.includes("colosseo") ||
-      text.includes("foro romano") || text.includes("pantheon")) {
-    if (text.includes("arte") || text.includes("galleria") || text.includes("pittura") || 
-        text.includes("scultura") || text.includes("uffizi")) {
-      return "arte";
-    }
-    if (text.includes("storia") || text.includes("storico") || text.includes("archeologico") ||
-        text.includes("antico") || text.includes("romano") || text.includes("medievale")) {
-      return "storia";
-    }
+  if (text.includes("monumento") || text.includes("palazzo") || text.includes("castello") ||
+      text.includes("forte") || text.includes("torre") || text.includes("storico")) {
+    return "monumenti";
+  }
+  if (text.includes("chiesa") || text.includes("basilica") || text.includes("duomo") || 
+      text.includes("cappella") || text.includes("santuario") || text.includes("convento")) {
+    return "chiese";
+  }
+  if (text.includes("borgo") || text.includes("centro storico") || text.includes("medievale") ||
+      text.includes("antico") || text.includes("storico")) {
+    return "borghi";
+  }
+  if (text.includes("archeologico") || text.includes("scavi") || text.includes("romano") ||
+      text.includes("antica") || text.includes("colosseo") || text.includes("foro")) {
+    return "archeologia";
+  }
+  if (text.includes("teatro") || text.includes("concerto") || text.includes("evento") ||
+      text.includes("festival") || text.includes("spettacolo") || text.includes("cultura")) {
     return "cultura";
   }
   
-  // Gastronomia/Degustazione
-  if (text.includes("vino") || text.includes("cantina") || text.includes("degustazione") || 
-      text.includes("enogastronomia") || text.includes("vigneto") || text.includes("chianti") ||
-      text.includes("tasting") || text.includes("wine")) {
-    return "degustazione";
+  // Gastronomia
+  if (text.includes("ristorante") || text.includes("trattoria") || text.includes("osteria") ||
+      text.includes("cucina") || text.includes("cibo") || text.includes("pranzo")) {
+    return "ristoranti";
+  }
+  if (text.includes("vino") || text.includes("cantina") || text.includes("degustazione") ||
+      text.includes("enoteca") || text.includes("vineyard")) {
+    return "vino";
+  }
+  if (text.includes("mercato") || text.includes("prodotti locali") || text.includes("street food") ||
+      text.includes("gastronomia di strada")) {
+    return "mercati";
+  }
+  if (text.includes("dolci") || text.includes("pasticceria") || text.includes("gelato") ||
+      text.includes("dessert") || text.includes("confetteria")) {
+    return "dolci";
   }
   
-  if (text.includes("cooking") || text.includes("cucina") || text.includes("chef") || 
-      text.includes("ristorante") || text.includes("food") || text.includes("gastronomia") ||
-      text.includes("trattoria") || text.includes("osteria") || text.includes("pizzeria")) {
-    return "gastronomia";
+  // Natura e Outdoor
+  if (text.includes("parco") || text.includes("riserva") || text.includes("oasi") ||
+      text.includes("natura") || text.includes("fauna")) {
+    return "parchi";
+  }
+  if (text.includes("trekking") || text.includes("escursione") || text.includes("sentiero") ||
+      text.includes("passeggiata") || text.includes("camminata")) {
+    return "trekking";
+  }
+  if (text.includes("lago") || text.includes("panorama") || text.includes("belvedere") ||
+      text.includes("vista") || text.includes("veduta")) {
+    return "laghi";
+  }
+  if (text.includes("giardino") || text.includes("orto botanico") || text.includes("botanico") ||
+      text.includes("parco urbano")) {
+    return "giardini";
+  }
+  if (text.includes("spiaggia") || text.includes("mare") || text.includes("costa") ||
+      text.includes("stabilimento") || text.includes("lido")) {
+    return "spiagge";
   }
   
-  // Natura
-  if (text.includes("parco") || text.includes("giardino") || text.includes("natura") || 
-      text.includes("villa") || text.includes("bosco") || text.includes("lago") || 
-      text.includes("montagna") || text.includes("collina") || text.includes("passeggiata") ||
-      text.includes("trekking") || text.includes("escursione")) {
-    return "natura";
+  // Sport e Benessere
+  if (text.includes("sport") || text.includes("palestra") || text.includes("fitness") ||
+      text.includes("calcio") || text.includes("tennis") || text.includes("attività fisica")) {
+    return "sport";
+  }
+  if (text.includes("bicicletta") || text.includes("bike") || text.includes("ciclismo") ||
+      text.includes("pista ciclabile") || text.includes("bike tour")) {
+    return "ciclismo";
+  }
+  if (text.includes("terme") || text.includes("spa") || text.includes("benessere") ||
+      text.includes("relax") || text.includes("massaggio") || text.includes("wellness")) {
+    return "terme";
   }
   
-  // Avventura/Sport
-  if (text.includes("rafting") || text.includes("climbing") || text.includes("adventure") || 
-      text.includes("zipline") || text.includes("canoa") || text.includes("kayak") || 
-      text.includes("bicicletta") || text.includes("bike") || text.includes("sport") ||
-      text.includes("avventura") || text.includes("outdoor")) {
-    return "avventura";
-  }
-  
-  // Relax
-  if (text.includes("spa") || text.includes("terme") || text.includes("relax") || 
-      text.includes("benessere") || text.includes("massaggio") || text.includes("wellness") ||
-      text.includes("bagno") || text.includes("piscina")) {
-    return "relax";
-  }
-  
-  // Famiglia
-  if (text.includes("famiglia") || text.includes("bambini") || text.includes("kids") || 
-      text.includes("family") || text.includes("zoo") || text.includes("acquario")) {
-    return "famiglia";
-  }
-  
-  // Shopping
-  if (text.includes("shopping") || text.includes("outlet") || text.includes("mercato") || 
-      text.includes("negozi") || text.includes("centro commerciale")) {
+  // Shopping e Divertimento
+  if (text.includes("shopping") || text.includes("negozi") || text.includes("outlet") ||
+      text.includes("artigianato") || text.includes("bottega") || text.includes("mercato")) {
     return "shopping";
+  }
+  if (text.includes("divertimento") || text.includes("discoteca") || text.includes("locale notturno") ||
+      text.includes("spettacolo") || text.includes("nightlife") || text.includes("club")) {
+    return "divertimento";
   }
   
   // Default: cultura

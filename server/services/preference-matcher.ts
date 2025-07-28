@@ -4,30 +4,35 @@ import { LANDEO_CATEGORIES } from "@shared/categories";
 
 // MATCHING DIRETTO: Preferenze email → Categorie esperienze locali (1:1)
 const PREFERENCE_TO_CATEGORY_MAP: Record<string, string[]> = {
-  // Storia e Cultura (5 categorie)
+  // Storia e Cultura (6 categorie)
   "Musei e arte": ["musei"],
   "Monumenti storici": ["monumenti"], 
   "Chiese e luoghi sacri": ["chiese"],
   "Borghi medievali": ["borghi"],
   "Siti archeologici": ["archeologia"],
+  "Eventi culturali": ["cultura"],
   
-  // Gastronomia (3 categorie)
+  // Gastronomia (4 categorie)
   "Ristoranti e cucina locale": ["ristoranti"],
   "Vino e degustazioni": ["vino"],
   "Mercati e prodotti tipici": ["mercati"],
+  "Dolci e pasticcerie": ["dolci"],
   
-  // Natura e Outdoor (4 categorie)
+  // Natura e Outdoor (5 categorie)
   "Parchi e riserve naturali": ["parchi"],
   "Trekking e passeggiate": ["trekking"],
   "Laghi e panorami": ["laghi"],
   "Giardini botanici": ["giardini"],
+  "Spiagge e mare": ["spiagge"],
   
-  // Sport (2 categorie)
+  // Sport e Benessere (3 categorie)
   "Attività sportive": ["sport"],
   "Ciclismo e percorsi in bici": ["ciclismo"],
+  "Terme e benessere": ["terme"],
   
-  // Shopping (1 categoria)
-  "Shopping e artigianato": ["shopping"]
+  // Shopping e Divertimento (2 categorie)
+  "Shopping e artigianato": ["shopping"],
+  "Divertimento e spettacoli": ["divertimento"]
 };
 
 export interface ExperienceMatch {
