@@ -126,7 +126,7 @@ export default function Features() {
             <span className="text-amber-700">trasformare l'ospitalità</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            AiTour offre una suite completa di strumenti AI-powered per creare esperienze 
+            Landeo offre una suite completa di strumenti AI-powered per creare esperienze 
             uniche per i vostri ospiti e ottimizzare la gestione del vostro hotel.
           </p>
         </div>
