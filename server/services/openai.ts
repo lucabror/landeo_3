@@ -3,7 +3,9 @@ import type { GuestProfile, Hotel, LocalExperience } from "@shared/schema";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key"
+  apiKey: process.env.OPENAI_API_KEY || (() => {
+    throw new Error('OPENAI_API_KEY environment variable is required');
+  })()
 });
 
 export async function generateItinerary(

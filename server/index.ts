@@ -2,44 +2,76 @@ import express, { type Request, Response, NextFunction } from "express";
 import path from "path";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import crypto from "crypto";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
+// Security middleware con configurazione separata per dev/prod
+if (process.env.NODE_ENV === 'development') {
+  // Configurazione CSP permissiva per development (Vite richiede unsafe-eval e inline)
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        connectSrc: ["'self'", "ws:", "wss:"],
+        imgSrc: ["'self'", "data:", "blob:"],
+      },
     },
-  },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  }
-}));
+    hsts: false, // Disabilitato in development
+  }));
+} else {
+  // Configurazione CSP restrittiva per produzione
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        scriptSrc: ["'self'"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        upgradeInsecureRequests: [],
+      },
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true
+    },
+    noSniff: true,
+    frameguard: { action: 'deny' },
+    xssFilter: true,
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+  }));
+}
 
-// Rate limiting
+// Rate limiting migliorato
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // limit each IP to 1000 requests per windowMs
+  max: 500, // Ridotto da 1000 a 500 requests per IP
   message: 'Troppi tentativi da questo IP, riprova più tardi.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting per file statici
+    return req.path.startsWith('/uploads/') || 
+           req.path.startsWith('/assets/') ||
+           req.path.includes('.');
+  }
 });
 
 const authLimiter = rateLimit({
   windowMs: 3 * 60 * 1000, // 3 minutes
-  max: 10, // limit each IP to 10 auth attempts per windowMs
+  max: 5, // Ridotto da 10 a 5 auth attempts per IP
   message: 'Troppi tentativi di accesso, riprova più tardi.',
   standardHeaders: true,
   legacyHeaders: false,
+  // Rimosso keyGenerator personalizzato per evitare problemi IPv6
 });
 
 app.use('/api/auth', authLimiter);
@@ -87,12 +119,27 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    
+    // Log errore per debugging interno senza esporre dettagli
+    log(`Error ${status} on ${req.method} ${req.path}: ${err.message}`);
+    
+    // Messaggi di errore generici per il cliente
+    let message = "Internal Server Error";
+    if (status === 400) message = "Richiesta non valida";
+    else if (status === 401) message = "Accesso non autorizzato";
+    else if (status === 403) message = "Accesso negato";
+    else if (status === 404) message = "Risorsa non trovata";
+    else if (status === 429) message = "Troppi tentativi, riprova più tardi";
+    else if (status === 500) message = "Errore interno del server";
 
     res.status(status).json({ message });
-    throw err;
+    
+    // Solo in development mostra stack trace nella console
+    if (process.env.NODE_ENV === 'development') {
+      console.error(err);
+    }
   });
 
   // importantly only setup vite in development and after
