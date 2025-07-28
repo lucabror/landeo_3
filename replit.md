@@ -10,6 +10,21 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Implementato sistema matching preferenze ospiti nel PDF itinerari con etichette attività
+  - Aggiunto post-processing intelligente per etichette "🎯 Scelta sulle tue preferenze" vs "🏨 Suggerita dall'hotel"
+  - Integrato calculateExperienceMatches in generateGuestSpecificItinerary per matching automatico
+  - Sistema analizza experienceId e testo attività per determinare match con preferenze ospite
+  - Attività con match "high" ricevono etichetta "preference-matched", altre "hotel-suggested"
+  - PDF ora mostra correttamente le etichette di personalizzazione per ogni attività dell'itinerario
+- **2025-01-28**: Risolto errore ProtectedRoute nella dashboard super-admin
+  - Aggiunto import mancante ProtectedRoute da "@/hooks/use-auth" in App.tsx
+  - Corretto parametro da requiredUserType a requiredRole per compatibilità con componente
+  - Sezione Profilo super-admin ora accessibile senza errori runtime
+- **2025-01-28**: Risolto bug visualizzazione itinerari nel profilo ospite
+  - Identificato problema: frontend usava query allItineraries invece di guestItinerary specifica
+  - Sostituito filtro inefficiente con endpoint dedicato /api/guest-profiles/:id/itinerary
+  - Rimossa query inutile per ottimizzare performance e correttezza dati
+  - Itinerari ora si visualizzano correttamente nella sezione profilo ospite
 - **2025-01-28**: Completato rebranding "Landeo" nelle email manager - sostituiti tutti riferimenti "Itinera"
   - Aggiornate email servizi: sendItineraryPDF, sendCreditPurchaseInstructions 
   - Corretto branding in email reset password e sistema autenticazione 2FA

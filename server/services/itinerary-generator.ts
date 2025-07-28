@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import type { Hotel, GuestProfile, LocalExperience } from "@shared/schema";
 import { storage } from "../storage";
 import { randomUUID } from "crypto";
+import { calculateExperienceMatches } from './preference-matcher';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -108,6 +109,42 @@ ${dates.map((date, index) => `    {
     });
 
     const aiResponse = JSON.parse(response.choices[0].message.content || "{}");
+    
+    // Calculate preference matches for local experiences
+    const experienceMatches = calculateExperienceMatches(guestProfile, localExperiences);
+    
+    // Apply source labels to activities based on preference matching
+    if (aiResponse.days && Array.isArray(aiResponse.days)) {
+      for (const day of aiResponse.days) {
+        if (day.activities && Array.isArray(day.activities)) {
+          for (const activity of day.activities) {
+            // If activity has experienceId, check if it matches guest preferences
+            if (activity.experienceId) {
+              const matchedExperience = experienceMatches.find((match: any) => 
+                match.experience.id === activity.experienceId
+              );
+              
+              if (matchedExperience && matchedExperience.matchType === 'high') {
+                activity.source = 'preference-matched';
+              } else {
+                activity.source = 'hotel-suggested';
+              }
+            } else {
+              // For activities without experienceId, check if they match preferences by keywords
+              const activityText = `${activity.activity} ${activity.description || ''}`.toLowerCase();
+              const hasPreferenceMatch = guestProfile.preferences?.some(pref => 
+                activityText.includes(pref.toLowerCase()) || 
+                pref.toLowerCase().split(' ').some(word => 
+                  word.length > 3 && activityText.includes(word)
+                )
+              );
+              
+              activity.source = hasPreferenceMatch ? 'preference-matched' : 'hotel-suggested';
+            }
+          }
+        }
+      }
+    }
     
     // Create unique URL for the itinerary
     const uniqueUrl = randomUUID();
