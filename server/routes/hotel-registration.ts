@@ -77,16 +77,16 @@ router.post("/register-hotel", async (req, res) => {
       const emailResult = await resend.emails.send({
         from: 'onboarding@resend.dev',
         to: email,
-        subject: 'Conferma il tuo account ItineraItalia',
+        subject: 'Conferma il tuo account AiTour',
         html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #92400e, #a16207); padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">ItineraItalia</h1>
+            <h1 style="color: white; margin: 0;">AiTour</h1>
             <p style="color: #fef3c7; margin: 5px 0;">AI per l'Ospitalità Italiana</p>
           </div>
           
           <div style="padding: 30px; background: #fafafa;">
-            <h2 style="color: #92400e;">Benvenuto in ItineraItalia!</h2>
+            <h2 style="color: #92400e;">Benvenuto in AiTour!</h2>
             
             <p>Grazie per aver scelto la nostra piattaforma per trasformare l'esperienza dei tuoi ospiti.</p>
             
@@ -117,7 +117,7 @@ router.post("/register-hotel", async (req, res) => {
           
           <div style="padding: 20px; text-align: center; background: #f3f4f6; color: #666;">
             <p style="margin: 0; font-size: 12px;">
-              © 2025 ItineraItalia. Tutti i diritti riservati.
+              © 2025 AiTour. Tutti i diritti riservati.
             </p>
           </div>
         </div>

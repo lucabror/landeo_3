@@ -248,7 +248,7 @@ export default function UniversalLogin() {
             {getUserTypeIcon()}
           </div>
           <CardTitle>
-            {step === 'login' && "Accesso ItineraItalia"}
+            {step === 'login' && "Accesso AiTour"}
             {step === 'setup-password' && "Configura Password"}
             {step === 'mfa-verify' && "Verifica 2FA"}
             {step === 'forgot-password' && "Reset Password"}
