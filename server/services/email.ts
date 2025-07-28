@@ -62,6 +62,25 @@ const EMAIL_TEMPLATES = {
   }
 };
 
+// Funzione per sanitizzare input email per prevenire email injection
+function sanitizeEmailInput(input: string): string {
+  if (!input) return '';
+  return input
+    .replace(/[\r\n]/g, '') // Rimuovi newlines che possono causare header injection
+    .replace(/[<>]/g, '') // Rimuovi caratteri che possono causare problemi
+    .trim()
+    .substring(0, 254); // Limita lunghezza email
+}
+
+function sanitizeHtmlContent(input: string): string {
+  if (!input) return '';
+  return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Rimuovi script tags
+    .replace(/javascript:/gi, '') // Rimuovi javascript: urls
+    .replace(/on\w+\s*=/gi, '') // Rimuovi event handlers
+    .trim();
+}
+
 export async function sendGuestPreferencesEmail(
   hotel: Hotel,
   guestProfile: GuestProfile,
@@ -283,10 +302,19 @@ export async function sendGuestPreferencesEmail(
 </body>
 </html>`;
 
+    // Sanitizza input critici
+    const sanitizedEmail = sanitizeEmailInput(guestProfile.email || '');
+    const sanitizedHotelName = sanitizeHtmlContent(hotel.name);
+    const sanitizedGuestName = sanitizeHtmlContent(guestProfile.referenceName);
+    
+    if (!sanitizedEmail || !sanitizedEmail.includes('@')) {
+      return { success: false, error: 'Email non valida' };
+    }
+
     const { data, error } = await resend.emails.send({
-      from: `${hotel.name} <onboarding@resend.dev>`, // Usa l'email di default di Resend
-      to: [guestProfile.email!],
-      subject: template.subject(hotel.name),
+      from: `${sanitizedHotelName} <onboarding@resend.dev>`,
+      to: [sanitizedEmail],
+      subject: template.subject(sanitizedHotelName),
       html: htmlContent,
     });
 

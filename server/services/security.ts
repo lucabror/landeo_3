@@ -12,7 +12,7 @@ import type { Request, Response, NextFunction } from 'express';
 const JWT_SECRET = process.env.JWT_SECRET || (() => {
   throw new Error('JWT_SECRET environment variable is required for production security');
 })();
-const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+const SESSION_DURATION = 2 * 60 * 60 * 1000; // 2 hours (ridotto da 8 per sicurezza)
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 30 * 60 * 1000; // 30 minutes
 
@@ -74,6 +74,17 @@ export async function createSecuritySession(
   ipAddress: string,
   userAgent: string | undefined
 ): Promise<string> {
+  // Invalidate existing sessions for this user to prevent session fixation
+  await db.update(securitySessions)
+    .set({ isActive: false })
+    .where(
+      and(
+        eq(securitySessions.userId, userId),
+        eq(securitySessions.userType, userType),
+        eq(securitySessions.isActive, true)
+      )
+    );
+
   const sessionToken = crypto.randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + SESSION_DURATION);
 
@@ -296,7 +307,7 @@ export async function validateIpWhitelist(
     .where(eq(table.id, userId));
 
   if (!user || !user.ipWhitelist || user.ipWhitelist.length === 0) {
-    return true; // No whitelist means all IPs are allowed
+    return false; // SECURITY FIX: Lista IP vuota = nessun accesso (era true)
   }
 
   return user.ipWhitelist.includes(ipAddress);
