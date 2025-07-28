@@ -85,7 +85,7 @@ function DashboardContent() {
   };
 
   return (
-      <div className="flex-1 p-8 bg-gray-50 min-h-screen ml-64">
+      <div className="flex-1 p-8 bg-gray-50 min-h-screen">
         {/* Header */}
         <div className="mb-8">
           <h2 className="dashboard-title text-3xl text-gray-900 mb-2">
@@ -436,7 +436,7 @@ function DashboardContent() {
 export default function Dashboard() {
   return (
     <ProtectedRoute requiredRole="hotel">
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex">
         <Sidebar />
         <DashboardContent />
       </div>
