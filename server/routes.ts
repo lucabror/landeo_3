@@ -24,6 +24,7 @@ import { findLocalAttractions, attractionToLocalExperience } from "./services/at
 import { sendGuestPreferencesEmail, sendCreditPurchaseInstructions, sendItineraryPDF } from "./services/email";
 import { generateGuestSpecificItinerary } from "./services/itinerary-generator";
 import { calculateExperienceMatches } from "./services/preference-matcher";
+import { requireAuth } from "./services/security";
 import { randomUUID } from "crypto";
 import QRCode from "qrcode";
 import PDFDocument from "pdfkit";
@@ -164,12 +165,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/hotels/:id", async (req, res) => {
+  app.get("/api/hotels/:id", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
       const hotel = await storage.getHotel(req.params.id);
       if (!hotel) {
         return res.status(404).json({ message: "Hotel not found" });
       }
+      
+      // Verify user is accessing their own hotel data
+      const userId = (req as any).user.id;
+      if (hotel.id !== userId) {
+        return res.status(403).json({ message: "Hotel Non Trovato" });
+      }
+      
       res.json(hotel);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch hotel" });
@@ -177,7 +185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Check if hotel configuration is complete
-  app.get("/api/hotels/:id/setup-status", async (req, res) => {
+  app.get("/api/hotels/:id/setup-status", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
       const hotel = await storage.getHotel(req.params.id);
       if (!hotel) {
@@ -229,8 +237,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/hotels/:id", async (req, res) => {
+  app.put("/api/hotels/:id", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
+      // Verify user is updating their own hotel
+      const userId = (req as any).user.id;
+      if (req.params.id !== userId) {
+        return res.status(403).json({ message: "Hotel Non Trovato" });
+      }
+      
       // Sanitizza input prima della validazione
       const sanitizedBody = {
         ...req.body,
@@ -281,8 +295,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Guest Profiles
-  app.get("/api/hotels/:hotelId/guest-profiles", async (req, res) => {
+  app.get("/api/hotels/:hotelId/guest-profiles", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
+      // Verify user is accessing their own hotel's guest profiles
+      const userId = (req as any).user.id;
+      if (req.params.hotelId !== userId) {
+        return res.status(403).json({ message: "Hotel Non Trovato" });
+      }
+      
       const profiles = await storage.getGuestProfilesByHotel(req.params.hotelId);
       res.json(profiles);
     } catch (error) {
@@ -302,8 +322,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/guest-profiles", async (req, res) => {
+  app.post("/api/guest-profiles", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
+      // Verify user is creating guest profile for their own hotel
+      const userId = (req as any).user.id;
+      if (req.body.hotelId !== userId) {
+        return res.status(403).json({ message: "Hotel Non Trovato" });
+      }
+      
       const validatedData = insertGuestProfileSchema.parse(req.body);
       const profile = await storage.createGuestProfile(validatedData);
       
@@ -347,7 +373,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/guest-profiles/:id", async (req, res) => {
+  app.put("/api/guest-profiles/:id", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
       const validatedData = insertGuestProfileSchema.partial().parse(req.body);
       const profile = await storage.updateGuestProfile(req.params.id, validatedData);
@@ -357,7 +383,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/guest-profiles/:id", async (req, res) => {
+  app.delete("/api/guest-profiles/:id", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
       await storage.deleteGuestProfile(req.params.id);
       res.status(204).send();
@@ -378,11 +404,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Generate itinerary for specific guest profile
-  app.post("/api/guest-profiles/:id/generate-itinerary", async (req, res) => {
+  app.post("/api/guest-profiles/:id/generate-itinerary", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
       const guestProfile = await storage.getGuestProfile(req.params.id);
       if (!guestProfile) {
         return res.status(404).json({ message: "Guest profile not found" });
+      }
+      
+      // Verify user is generating itinerary for their own hotel's guest
+      const userId = (req as any).user.id;
+      if (guestProfile.hotelId !== userId) {
+        return res.status(403).json({ message: "Hotel Non Trovato" });
       }
 
       if (!guestProfile.preferencesCompleted) {
@@ -1265,8 +1297,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Generate AI attractions for hotel
-  app.post("/api/hotels/:hotelId/generate-attractions", async (req, res) => {
+  app.post("/api/hotels/:hotelId/generate-attractions", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
+      // Verify user is generating attractions for their own hotel
+      const userId = (req as any).user.id;
+      if (req.params.hotelId !== userId) {
+        return res.status(403).json({ message: "Hotel Non Trovato" });
+      }
+      
       const hotel = await storage.getHotel(req.params.hotelId);
       if (!hotel) {
         return res.status(404).json({ message: "Hotel non trovato" });
@@ -1519,8 +1557,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/local-experiences", async (req, res) => {
+  app.post("/api/local-experiences", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
+      // Verify the hotel ID in the request body matches the authenticated user
+      const userId = (req as any).user.id;
+      if (req.body.hotelId !== userId) {
+        return res.status(403).json({ message: "Hotel Non Trovato" });
+      }
+      
       const validatedData = insertLocalExperienceSchema.parse(req.body);
       const experience = await storage.createLocalExperience(validatedData);
       res.status(201).json(experience);
@@ -1549,8 +1593,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Itineraries
-  app.get("/api/hotels/:hotelId/itineraries", async (req, res) => {
+  app.get("/api/hotels/:hotelId/itineraries", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
+      // Verify user is accessing their own hotel's itineraries
+      const userId = (req as any).user.id;
+      if (req.params.hotelId !== userId) {
+        return res.status(403).json({ message: "Hotel Non Trovato" });
+      }
+      
       const itineraries = await storage.getItinerariesByHotel(req.params.hotelId);
       res.json(itineraries);
     } catch (error) {
@@ -1788,8 +1838,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Dashboard stats
-  app.get("/api/hotels/:hotelId/stats", async (req, res) => {
+  app.get("/api/hotels/:hotelId/stats", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
+      // Verify user is accessing their own hotel's stats
+      const userId = (req as any).user.id;
+      if (req.params.hotelId !== userId) {
+        return res.status(403).json({ message: "Hotel Non Trovato" });
+      }
+      
       const stats = await storage.getHotelStats(req.params.hotelId);
       res.json(stats);
     } catch (error) {
@@ -1800,8 +1856,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Credit System Routes
   
   // Get hotel credit info
-  app.get("/api/hotels/:hotelId/credits", async (req, res) => {
+  app.get("/api/hotels/:hotelId/credits", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
+      // Verify user is accessing their own hotel's credits
+      const userId = (req as any).user.id;
+      if (req.params.hotelId !== userId) {
+        return res.status(403).json({ message: "Hotel Non Trovato" });
+      }
+      
       const credits = await storage.getHotelCredits(req.params.hotelId);
       res.json(credits);
     } catch (error) {
