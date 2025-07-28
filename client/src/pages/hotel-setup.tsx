@@ -74,32 +74,32 @@ export default function HotelSetup() {
 
   // Update form when hotel data is loaded
   useEffect(() => {
-    if (hotel && typeof hotel === 'object') {
+    if (hotel && typeof hotel === 'object' && 'name' in hotel) {
       // Extract only the fields that belong to the form schema
       const formData = {
-        name: hotel.name || '',
-        address: hotel.address || '',
-        city: hotel.city || '',
-        region: hotel.region || '',
-        postalCode: hotel.postalCode || '',
-        phone: hotel.phone || '',
-        email: hotel.email || '',
-        website: hotel.website || '',
-        description: hotel.description || '',
-        logoUrl: hotel.logoUrl || '',
-        latitude: hotel.latitude || '',
-        longitude: hotel.longitude || '',
-        services: Array.isArray(hotel.services) ? hotel.services : [],
+        name: (hotel as any).name || '',
+        address: (hotel as any).address || '',
+        city: (hotel as any).city || '',
+        region: (hotel as any).region || '',
+        postalCode: (hotel as any).postalCode || '',
+        phone: (hotel as any).phone || '',
+        email: (hotel as any).email || '',
+        website: (hotel as any).website || '',
+        description: (hotel as any).description || '',
+        logoUrl: (hotel as any).logoUrl || '',
+        latitude: (hotel as any).latitude || '',
+        longitude: (hotel as any).longitude || '',
+        services: Array.isArray((hotel as any).services) ? (hotel as any).services : [],
       };
       
       console.log("🔧 Resetting form with clean data:", formData);
       form.reset(formData);
       
-      if ('logoUrl' in hotel && hotel.logoUrl) {
-        setLogoPreview(hotel.logoUrl as string);
+      if ('logoUrl' in hotel && (hotel as any).logoUrl) {
+        setLogoPreview((hotel as any).logoUrl as string);
       }
-      if ('services' in hotel && Array.isArray(hotel.services)) {
-        setSelectedServices(hotel.services);
+      if ('services' in hotel && Array.isArray((hotel as any).services)) {
+        setSelectedServices((hotel as any).services);
       } else {
         setSelectedServices([]);
       }
@@ -369,25 +369,25 @@ export default function HotelSetup() {
                     onClick={() => {
                       setIsEditing(false);
                       // Reset with clean form data
-                      if (hotel && typeof hotel === 'object') {
+                      if (hotel && typeof hotel === 'object' && 'name' in hotel) {
                         const formData = {
-                          name: hotel.name || '',
-                          address: hotel.address || '',
-                          city: hotel.city || '',
-                          region: hotel.region || '',
-                          postalCode: hotel.postalCode || '',
-                          phone: hotel.phone || '',
-                          email: hotel.email || '',
-                          website: hotel.website || '',
-                          description: hotel.description || '',
-                          logoUrl: hotel.logoUrl || '',
-                          latitude: hotel.latitude || '',
-                          longitude: hotel.longitude || '',
-                          services: Array.isArray(hotel.services) ? hotel.services : [],
+                          name: (hotel as any).name || '',
+                          address: (hotel as any).address || '',
+                          city: (hotel as any).city || '',
+                          region: (hotel as any).region || '',
+                          postalCode: (hotel as any).postalCode || '',
+                          phone: (hotel as any).phone || '',
+                          email: (hotel as any).email || '',
+                          website: (hotel as any).website || '',
+                          description: (hotel as any).description || '',
+                          logoUrl: (hotel as any).logoUrl || '',
+                          latitude: (hotel as any).latitude || '',
+                          longitude: (hotel as any).longitude || '',
+                          services: Array.isArray((hotel as any).services) ? (hotel as any).services : [],
                         };
                         form.reset(formData);
-                        if (Array.isArray(hotel.services)) {
-                          setSelectedServices(hotel.services);
+                        if (Array.isArray((hotel as any).services)) {
+                          setSelectedServices((hotel as any).services);
                         }
                       }
                     }}
@@ -418,7 +418,15 @@ export default function HotelSetup() {
                 console.log("🔥 FORM SUBMIT EVENT TRIGGERED!");
                 console.log("🔥 Event:", e);
                 console.log("🔥 Form state before submit:", form.formState);
-                return form.handleSubmit(onSubmit)(e);
+                console.log("🔥 Form errors:", form.formState.errors);
+                console.log("🔥 Form values:", form.getValues());
+                
+                try {
+                  return form.handleSubmit(onSubmit)(e);
+                } catch (error) {
+                  console.error("🚨 Form handleSubmit error:", error);
+                  throw error;
+                }
               }} 
               className="space-y-6"
             >
