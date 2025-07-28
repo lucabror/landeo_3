@@ -172,22 +172,34 @@ export class DatabaseStorage implements IStorage {
     // 7. Delete security logs for the hotel manager (by hotel ID)
     await db.delete(securityLogs).where(eq(securityLogs.userId, id));
     
-    // 8. Delete email verifications for the hotel manager (by email)
+    // 8. Delete email verifications and user account associated with this hotel
     // Find the user with the same email as the hotel
     const userWithEmail = await db
-      .select({ id: users.id })
+      .select({ id: users.id, email: users.email })
       .from(users)
       .where(eq(users.email, hotel.email))
       .limit(1);
     
     if (userWithEmail.length > 0) {
       const userId = userWithEmail[0].id;
+      console.log(`Deleting user account ${userId} (${userWithEmail[0].email}) associated with hotel ${hotel.name}`);
       
-      // Delete email verifications for this user
+      // Delete all email verifications for this user
       await db.delete(emailVerifications).where(eq(emailVerifications.userId, userId));
+      
+      // Delete password reset tokens if any exist for this user
+      try {
+        await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, userId));
+      } catch (error) {
+        // Table might not exist or no tokens found, continue
+        console.log('No password reset tokens found or table does not exist, continuing...');
+      }
       
       // Delete the hotel manager account from users table
       await db.delete(users).where(eq(users.id, userId));
+      console.log(`Successfully deleted user account ${userId} for hotel ${hotel.name}`);
+    } else {
+      console.log(`No user account found with email ${hotel.email} for hotel ${hotel.name}`);
     }
     
     // 9. First get all credit purchases for this hotel
