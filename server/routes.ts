@@ -1798,6 +1798,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(410).json({ message: "Preferenze già completate" });
       }
       
+      console.log('Raw request body:', JSON.stringify(req.body, null, 2));
+      
+      try {
+        const validatedPreferences = guestPreferencesSchema.parse(req.body);
+        console.log('Validated preferences:', JSON.stringify(validatedPreferences, null, 2));
+      } catch (validationError) {
+        console.error('Validation error:', validationError);
+        throw validationError;
+      }
+      
       const validatedPreferences = guestPreferencesSchema.parse(req.body);
       
       // Componi array delle preferenze complete
