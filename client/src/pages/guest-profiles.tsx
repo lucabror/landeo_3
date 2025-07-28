@@ -544,12 +544,32 @@ export default function GuestProfiles() {
 
                   {/* Preferences Status */}
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="text-lg font-semibold mb-4">Stato Preferenze</h3>
-                    <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-semibold mb-4">Stato Preferenze Email</h3>
+                    <div className="space-y-3">
                       {viewingProfile?.preferencesCompleted ? (
                         <>
-                          <CheckCircle className="w-5 h-5 text-green-600" />
-                          <span className="text-sm text-green-700 font-medium">Preferenze raccolte</span>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-5 h-5 text-green-600" />
+                            <span className="text-sm text-green-700 font-medium">Preferenze raccolte tramite email</span>
+                          </div>
+                          {viewingProfile.preferences && viewingProfile.preferences.length > 0 && (
+                            <div>
+                              <Label className="text-sm font-medium text-gray-600 mb-2 block">Preferenze Raccolte:</Label>
+                              <div className="flex flex-wrap gap-2">
+                                {viewingProfile.preferences.map((pref: string, index: number) => (
+                                  <Badge key={index} variant="outline" className="bg-green-50 border-green-200 text-green-800">
+                                    ✓ {pref}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {viewingProfile.specialRequests && (
+                            <div>
+                              <Label className="text-sm font-medium text-gray-600 mb-1 block">Richieste Aggiuntive:</Label>
+                              <p className="text-sm text-gray-700 bg-gray-100 p-2 rounded">{viewingProfile.specialRequests}</p>
+                            </div>
+                          )}
                         </>
                       ) : (
                         <>
@@ -990,9 +1010,25 @@ export default function GuestProfiles() {
                         
                         {/* Preferences Status */}
                         {profile.preferencesCompleted ? (
-                          <div className="flex items-center space-x-1">
-                            <CheckCircle className="w-3 h-3 text-green-600" />
-                            <span className="text-xs text-green-700 font-medium">Preferenze completate</span>
+                          <div className="space-y-1">
+                            <div className="flex items-center space-x-1">
+                              <CheckCircle className="w-3 h-3 text-green-600" />
+                              <span className="text-xs text-green-700 font-medium">Preferenze raccolte via email</span>
+                            </div>
+                            {profile.preferences && profile.preferences.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {profile.preferences.slice(0, 2).map((pref: string, index: number) => (
+                                  <Badge key={index} variant="outline" className="text-xs px-1 py-0 h-4 bg-green-50 border-green-200 text-green-700">
+                                    {pref.length > 15 ? `${pref.substring(0, 12)}...` : pref}
+                                  </Badge>
+                                ))}
+                                {profile.preferences.length > 2 && (
+                                  <Badge variant="outline" className="text-xs px-1 py-0 h-4 bg-gray-50 border-gray-200 text-gray-600">
+                                    +{profile.preferences.length - 2}
+                                  </Badge>
+                                )}
+                              </div>
+                            )}
                           </div>
                         ) : (
                           <div className="flex items-center space-x-1">
