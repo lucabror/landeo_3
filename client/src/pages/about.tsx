@@ -9,8 +9,7 @@ import {
   Heart,
   MapPin,
   Calendar,
-  Lightbulb,
-  Zap
+  Lightbulb
 } from "lucide-react";
 import aiTourLogo from "../assets/aitour-logo.png";
 
@@ -61,26 +60,7 @@ export default function About() {
     }
   ];
 
-  const team = [
-    {
-      name: "Marco Rossi",
-      role: "CEO & Founder",
-      description: "10 anni di esperienza nel settore dell'ospitalità e della tecnologia.",
-      icon: Users
-    },
-    {
-      name: "Sofia Bianchi",
-      role: "CTO",
-      description: "Esperta in AI e machine learning con background in hospitality tech.",
-      icon: Zap
-    },
-    {
-      name: "Alessandro Verdi",
-      role: "Head of Product",
-      description: "Designer UX/UI specializzato in piattaforme per il turismo.",
-      icon: Lightbulb
-    }
-  ];
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-50 to-amber-50">
@@ -222,28 +202,7 @@ export default function About() {
           </div>
         </div>
 
-        {/* Team Section */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
-            Il Team
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {team.map((member, index) => (
-              <Card key={index} className="border-amber-100 text-center hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="w-20 h-20 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <member.icon className="w-10 h-10 text-amber-700" />
-                  </div>
-                  <CardTitle className="text-xl text-gray-900">{member.name}</CardTitle>
-                  <p className="text-amber-700 font-medium">{member.role}</p>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">{member.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+
 
         {/* Stats Section */}
         <div className="bg-white rounded-2xl p-8 mb-16 border border-amber-100">
