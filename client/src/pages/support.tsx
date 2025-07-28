@@ -115,7 +115,7 @@ export default function Support() {
     {
       icon: Video,
       title: "Video Tutorial",
-      description: "Guida video completa per iniziare con AiTour",
+      description: "Guida video completa per iniziare con Landeo",
       action: "Guarda Video"
     }
   ];

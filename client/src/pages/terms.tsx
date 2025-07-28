@@ -109,10 +109,10 @@ export default function Terms() {
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             Termini e Condizioni<br />
-            <span className="text-amber-700">di AiTour</span>
+            <span className="text-amber-700">di Landeo</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Questi termini regolano l'uso della piattaforma AiTour. 
+            Questi termini regolano l'uso della piattaforma Landeo. 
             Ti preghiamo di leggerli attentamente prima di utilizzare il nostro servizio.
           </p>
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-left max-w-2xl mx-auto">

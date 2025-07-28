@@ -348,7 +348,7 @@ export default function DiscoverMore() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                <h3 className="text-xl font-bold mb-3">Prima di AiTour</h3>
+                <h3 className="text-xl font-bold mb-3">Prima di Landeo</h3>
                 <ul className="space-y-2 text-blue-100">
                   <li>• Staff sovraccarico di richieste informazioni</li>
                   <li>• Consigli generici e non personalizzati</li>
@@ -357,7 +357,7 @@ export default function DiscoverMore() {
                 </ul>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                <h3 className="text-xl font-bold mb-3">Dopo 3 mesi con AiTour</h3>
+                <h3 className="text-xl font-bold mb-3">Dopo 3 mesi con Landeo</h3>
                 <ul className="space-y-2 text-green-200">
                   <li>• +40% soddisfazione ospiti</li>
                   <li>• +25% recensioni positive</li>
@@ -449,7 +449,7 @@ export default function DiscoverMore() {
             Pronto a Trasformare l'Esperienza dei Tuoi Ospiti?
           </h2>
           <p className="text-xl text-amber-100 mb-8">
-            Unisciti a oltre 500 hotel che hanno già scelto AiTour per distinguersi dalla concorrenza
+            Unisciti a oltre 500 hotel che hanno già scelto Landeo per distinguersi dalla concorrenza
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/hotel-register">

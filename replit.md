@@ -14,7 +14,7 @@ Preferred communication style: Simple, everyday language.
   - Aggiunto footer completo a tutte le pagine statiche con navigation consistente
   - Implementato auto-scroll al top della pagina quando si naviga tra le sezioni
   - Creato hook useScrollToTop per gestione automatica posizionamento pagina
-  - Completato rebranding da "AiTour" a "Landeo" in TUTTE le pagine e contenuti
+  - Completato rebranding a "Landeo" in TUTTE le pagine e contenuti
   - Aggiornati tutti riferimenti: features, pricing, support, contact, about, privacy, terms
   - Sistema di navigazione footer ora completamente funzionale e user-friendly
 - **2025-01-28**: Risolto bug 2FA "codice non valido" con sistema backward compatibility
@@ -43,9 +43,9 @@ Preferred communication style: Simple, everyday language.
   - Aggiunto separatore orizzontale elegante tra logo e slogan
   - Standardizzata implementazione con whitespace-nowrap per prevenire text wrapping
   - Corretto in tutte le pagine: landing, about, features, pricing, contact, support, terms, privacy, sidebar
-- **2025-01-28**: Rebranding completo da AiTour a Landeo
-  - Sostituito logo AiTour con nuovo logo Landeo fornito dall'utente
-  - Aggiornati tutti i riferimenti testuali da "AiTour" a "Landeo" nell'applicazione
+- **2025-01-28**: Rebranding completo da precedente brand a Landeo
+  - Sostituito logo con nuovo logo Landeo fornito dall'utente
+  - Aggiornati tutti i riferimenti testuali a "Landeo" nell'applicazione
   - Rimosso slogan "Itinerari su misura, emozioni autentiche" dal logo
   - Mantenute proporzioni originali del logo senza stretching
   - Aggiornato colore pulsante "Contattaci" nella pagina Chi Siamo con text-[#961d1d]
@@ -273,8 +273,8 @@ Preferred communication style: Simple, everyday language.
   - Implementato auto-refresh ogni 3 secondi per aggiornamento crediti in tempo reale
   - Creato hook useCredits personalizzato per gestione migliore stato crediti
   - Sistema ora aggiorna dashboard e profili ospiti istantaneamente dopo generazione
-- **2025-01-27**: Aggiornato branding completo da "ItineraItalia" ad "AiTour" con slogan
-  - Sostituito logo con nuovo design AiTour fornito dall'utente
+- **2025-01-27**: Aggiornato branding precedente con slogan
+  - Sostituito logo con design fornito dall'utente
   - Aggiunto slogan "Itinerari su misura, emozioni autentiche" sotto il logo
   - Slogan integrato elegantemente in header, sidebar e footer
   - Aggiornati tutti i testi, footer, header e riferimenti al brand
@@ -283,12 +283,12 @@ Preferred communication style: Simple, everyday language.
 - **2025-01-27**: Migliorato testo badge matching nelle esperienze locali
   - Cambiato "• Standard" in "Matching Standard" per maggiore chiarezza
   - Badge ora più consistente con terminologia di matching del sistema
-- **2025-01-27**: Creato sistema completo di pagine footer per AiTour
+- **2025-01-27**: Creato sistema completo di pagine footer
   - Nuove pagine: Funzionalità (/features), Prezzi (/pricing), Centro Assistenza (/support)
   - Pagine aziendali: Contatti (/contact), Chi Siamo (/about), Privacy (/privacy), Termini (/terms)
   - Collegata pagina "Demo" del footer alla registrazione hotel (/hotel-register)
   - Rimossi dal footer: voce "API" dal menu Prodotto e "Sicurezza" dal menu Azienda
-  - Tutte le pagine includono logo AiTour con slogan e design coerente con landing page
+  - Tutte le pagine includono logo Landeo con slogan e design coerente con landing page
   - Footer ora completamente funzionale con link attivi e navigazione completa
 - **2025-01-27**: Corretta struttura prezzi e pagina supporto
   - Rimosso pacchetto "Pay-Per-Use" dalla pagina prezzi
