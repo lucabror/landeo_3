@@ -44,6 +44,7 @@ const PREFERENCE_TO_CATEGORY_MAP: Record<string, string[]> = {
   
   // Famiglie
   "Attività per bambini": ["famiglia"],
+  "Attività per famiglie": ["famiglia"],
   "Parchi giochi": ["famiglia"],
   "Zoo e acquari": ["famiglia"],
   "Attività educative": ["famiglia", "cultura"]
@@ -118,11 +119,11 @@ export function calculateExperienceMatches(
       }
     }
 
-    // Determina il tipo di match (soglie ridotte per essere più inclusivi)
+    // Determina il tipo di match (soglie molto più generose per personalizzazione)
     let matchType: 'high' | 'medium' | 'low';
-    if (matchScore >= 25) {
+    if (matchScore >= 15) {  // Ridotto da 25 a 15 - più facile raggiungere high
       matchType = 'high';
-    } else if (matchScore >= 12) {
+    } else if (matchScore >= 5) {  // Ridotto da 12 a 5 - molto più inclusivo
       matchType = 'medium';
     } else {
       matchType = 'low';
