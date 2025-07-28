@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { ProtectedRoute, useAuth } from "@/hooks/use-auth";
+import aiTourLogo from "../assets/aitour-logo.png";
 
 interface Hotel {
   id: string;
@@ -49,9 +50,16 @@ function AdminDashboardContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [hotelDetailModal, setHotelDetailModal] = useState(false);
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
   const { toast } = useToast();
 
   const queryClient = useQueryClient();
+
+  const handleAuth = () => {
+    // This is handled by the main login flow, redirect to login
+    window.location.href = '/login';
+  };
 
   // Fetch all hotels
   const { data: hotels = [], isLoading: hotelsLoading } = useQuery({
@@ -241,9 +249,21 @@ function AdminDashboardContent() {
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="dashboard-title text-3xl text-gray-900">Dashboard Amministratore</h1>
-          <p className="text-gray-600">Gestione clienti e sistema crediti</p>
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col">
+            <img 
+              src={aiTourLogo} 
+              alt="AiTour" 
+              className="h-12 w-auto mb-2"
+            />
+            <p className="text-xs text-amber-700 font-medium italic">
+              Itinerari su misura, emozioni autentiche
+            </p>
+          </div>
+          <div>
+            <h1 className="dashboard-title text-3xl text-gray-900">Dashboard Amministratore</h1>
+            <p className="text-gray-600">Gestione clienti e sistema crediti</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="text-sm">

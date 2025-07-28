@@ -29,11 +29,16 @@ export function Sidebar() {
   return (
     <div className="w-64 bg-white shadow-sm h-screen sticky top-0 border-r border-gray-200 flex flex-col">
       <div className="p-6 border-b border-gray-200 mb-6">
-        <img 
-          src={aiTourLogo} 
-          alt="AiTour" 
-          className="h-8 w-auto"
-        />
+        <div className="flex flex-col">
+          <img 
+            src={aiTourLogo} 
+            alt="AiTour" 
+            className="h-8 w-auto mb-2"
+          />
+          <p className="text-xs text-gray-500 font-medium italic leading-tight">
+            Itinerari su misura,<br />emozioni autentiche
+          </p>
+        </div>
       </div>
       <div className="p-6 flex-1">
         <div className="space-y-1">

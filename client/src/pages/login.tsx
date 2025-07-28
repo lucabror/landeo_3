@@ -14,6 +14,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useLocation, Link } from "wouter";
 import { Shield, Lock, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import aiTourLogo from "../assets/aitour-logo.png";
 
 const loginSchema = z.object({
   email: z.string().email("Email non valida"),
@@ -319,14 +320,21 @@ export default function Login({ userType }: LoginProps) {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
-            <Shield className="w-6 h-6 text-amber-600" />
+          <div className="mx-auto mb-4">
+            <img 
+              src={aiTourLogo} 
+              alt="AiTour" 
+              className="h-16 w-auto mx-auto mb-2"
+            />
+            <p className="text-xs text-amber-700 font-medium italic">
+              Itinerari su misura, emozioni autentiche
+            </p>
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">
             {userType === 'admin' ? 'Admin Login' : 'Hotel Manager Login'}
           </CardTitle>
           <CardDescription>
-            Accesso sicuro alla piattaforma Itinera
+            Accesso sicuro alla piattaforma AiTour
           </CardDescription>
         </CardHeader>
         
