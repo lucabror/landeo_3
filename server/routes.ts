@@ -1182,17 +1182,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Local experience matching with guest preferences
   app.get("/api/hotels/:hotelId/local-experiences/matches/:guestId", async (req, res) => {
     try {
+      console.log(`Calculating matches for hotel ${req.params.hotelId}, guest ${req.params.guestId}`);
+      
       const experiences = await storage.getLocalExperiencesByHotel(req.params.hotelId);
+      console.log(`Found ${experiences.length} experiences for hotel`);
+      
       const guestProfile = await storage.getGuestProfile(req.params.guestId);
+      console.log(`Guest profile found:`, guestProfile ? 'YES' : 'NO');
       
       if (!guestProfile) {
         return res.status(404).json({ message: "Guest profile not found" });
       }
 
-      const matches = calculateExperienceMatches(experiences, guestProfile);
-      res.json(matches);
+      console.log(`Guest preferences:`, guestProfile.preferences);
+
+      // Fixed parameter order: guestProfile first, then experiences
+      const matches = calculateExperienceMatches(guestProfile, experiences);
+      console.log(`Calculated ${matches.length} matches`);
+      
+      res.json({ matches });
     } catch (error) {
-      res.status(500).json({ message: "Failed to calculate experience matches" });
+      console.error('Error calculating experience matches:', error);
+      res.status(500).json({ message: "Failed to calculate experience matches", error: error instanceof Error ? error.message : String(error) });
     }
   });
 
