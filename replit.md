@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Risolto sistema distanze esperienze locali - ora mostra città invece di CAP nelle card
+  - Hotel inseriti manualmente: card mostrano "X km da Velletri" invece di "X km da CAP 00049"
+  - Modificata logica referencePoint in attractions.ts per utilizzare sempre nome città quando disponibile
+  - Aggiornato prompt AI per usare città come riferimento distanze anche per hotel inseriti manualmente
+  - CAP continua a essere usato internamente dall'AI solo per localizzare area di ricerca
+  - Risolto problema cache invalidation: attrazioni generate appaiono immediatamente senza refresh
 - **2025-01-28**: Risolto sistema generazione esperienze locali per hotel inseriti manualmente
   - Integrato CAP (codice postale) come riferimento geografico principale per maggiore precisione
   - Aggiunto sistema intelligente di recupero coordinate per hotel senza geolocalizzazione

@@ -1004,11 +1004,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           hotel.postalCode
         );
       } else {
-        // Hotel inserito manualmente: usa solo CAP per generare attrazioni entro 50km
+        // Hotel inserito manualmente: usa solo CAP per generare attrazioni entro 50km, ma passa città per reference
         console.log(`Hotel inserito manualmente - usando solo CAP ${hotel.postalCode} per generare attrazioni entro 50km`);
         pendingAttractions = await findLocalAttractions(
-          null, // Non passare città
-          null, // Non passare regione
+          hotel.city, // Passa città per riferimento nelle distanze
+          hotel.region, // Passa regione per riferimento nelle distanze
           null, // Non passare coordinate
           hotel.postalCode // Solo CAP
         );
