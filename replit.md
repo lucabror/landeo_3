@@ -234,8 +234,10 @@ Preferred communication style: Simple, everyday language.
   - Implementato auto-refresh ogni 3 secondi per aggiornamento crediti in tempo reale
   - Creato hook useCredits personalizzato per gestione migliore stato crediti
   - Sistema ora aggiorna dashboard e profili ospiti istantaneamente dopo generazione
-- **2025-01-27**: Aggiornato branding completo da "ItineraItalia" ad "AiTour"
+- **2025-01-27**: Aggiornato branding completo da "ItineraItalia" ad "AiTour" con slogan
   - Sostituito logo con nuovo design AiTour fornito dall'utente
+  - Aggiunto slogan "Itinerari su misura, emozioni autentiche" sotto il logo
+  - Slogan integrato elegantemente in header, sidebar e footer
   - Aggiornati tutti i testi, footer, header e riferimenti al brand
   - Risolto definitivamente sistema di autenticazione: login → logout → secondo login funziona
   - Utilizzato routing normale invece di redirect forzato per stabilità

@@ -30,11 +30,16 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <img 
-                src={aiTourLogo} 
-                alt="AiTour" 
-                className="h-12 w-auto"
-              />
+              <div className="flex flex-col">
+                <img 
+                  src={aiTourLogo} 
+                  alt="AiTour" 
+                  className="h-12 w-auto mb-1"
+                />
+                <p className="text-xs text-amber-700 font-medium italic">
+                  Itinerari su misura, emozioni autentiche
+                </p>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/login">
@@ -547,7 +552,12 @@ export default function Landing() {
                 <div className="w-8 h-8 bg-gradient-to-br from-amber-600 to-amber-700 rounded-lg flex items-center justify-center">
                   <Hotel className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold">AiTour</span>
+                <div className="flex flex-col">
+                  <span className="text-xl font-bold">AiTour</span>
+                  <span className="text-xs text-gray-400 font-medium italic">
+                    Itinerari su misura, emozioni autentiche
+                  </span>
+                </div>
               </div>
               <p className="text-gray-400 text-sm">
                 La piattaforma AI per l'hospitality italiana. Made with ❤️ in Italy.
