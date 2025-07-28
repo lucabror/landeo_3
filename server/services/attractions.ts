@@ -33,11 +33,11 @@ export async function findLocalAttractions(
     let searchArea: string;
     let referencePoint: string;
     
-    if (!hotelCity && !hotelRegion && hotelPostalCode) {
-      // Hotel inserito manualmente: usa solo CAP
+    if (!hotelCoordinates && hotelPostalCode) {
+      // Hotel inserito manualmente: usa solo CAP per area di ricerca, ma città per reference
       searchArea = `CAP ${hotelPostalCode}, Italia`;
-      referencePoint = `CAP ${hotelPostalCode}`;
-    } else if (hotelPostalCode && hotelCity && hotelRegion) {
+      referencePoint = hotelCity || `CAP ${hotelPostalCode}`;
+    } else if (hotelCoordinates && hotelPostalCode && hotelCity && hotelRegion) {
       // Hotel geolocalizzato: usa tutti i dati
       searchArea = `CAP ${hotelPostalCode}, ${hotelCity}, ${hotelRegion}, Italia`;
       referencePoint = hotelCity;
@@ -49,7 +49,7 @@ export async function findLocalAttractions(
     
     const prompt = `Sei un esperto di turismo locale in Italia. Trova le migliori attrazioni turistiche entro 50km da ${searchArea}.
 
-${hotelPostalCode && !hotelCity ? `IMPORTANTE: L'hotel è stato inserito manualmente e l'unica informazione geografica precisa è il CAP ${hotelPostalCode}. Utilizza ESCLUSIVAMENTE questo codice postale per localizzare l'area e trovare attrazioni turistiche entro 50km. NON fare riferimento ad altre città o regioni.` : hotelPostalCode ? `IMPORTANTE: L'area di riferimento è identificata dal CAP ${hotelPostalCode} che è un identificatore geografico preciso. Utilizza questo codice postale per localizzare esattamente l'area e trovare attrazioni nelle immediate vicinanze.` : ''}
+${!hotelCoordinates && hotelPostalCode ? `IMPORTANTE: L'hotel è stato inserito manualmente e l'unica informazione geografica precisa è il CAP ${hotelPostalCode}. Utilizza ESCLUSIVAMENTE questo codice postale per localizzare l'area e trovare attrazioni turistiche entro 50km. Per le distanze, usa "${referencePoint}" come punto di riferimento invece del CAP.` : hotelPostalCode ? `IMPORTANTE: L'area di riferimento è identificata dal CAP ${hotelPostalCode} che è un identificatore geografico preciso. Utilizza questo codice postale per localizzare esattamente l'area e trovare attrazioni nelle immediate vicinanze.` : ''}
 
 Includi:
 - Ristoranti tipici e rinomati
@@ -93,6 +93,7 @@ Trova esattamente 20 attrazioni diverse e interessanti. Rispondi in formato JSON
 }`;
 
     console.log(`Searching for attractions near ${searchArea}`);
+    console.log(`Reference point for distances: ${referencePoint}`);
     
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
