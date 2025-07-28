@@ -244,7 +244,7 @@ export default function Terms() {
           <CardContent>
             <div className="space-y-2">
               <p className="text-gray-700"><strong>Ragione sociale:</strong> Landeo S.r.l.</p>
-              <p className="text-gray-700"><strong>Sede legale:</strong> Via dell'Innovazione 123, 20100 Milano, Italia</p>
+              <p className="text-gray-700"><strong>Sede legale:</strong> Via di Contrada Comune 159, 00049 Velletri (RM)</p>
               <p className="text-gray-700"><strong>Partita IVA:</strong> IT12345678901</p>
               <p className="text-gray-700"><strong>Codice Fiscale:</strong> 12345678901</p>
               <p className="text-gray-700"><strong>Email:</strong> <a href="mailto:legal@landeo.it" className="text-amber-700 hover:text-amber-800">legal@landeo.it</a></p>

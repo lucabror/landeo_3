@@ -269,8 +269,8 @@ export default function Privacy() {
                 <h4 className="font-semibold text-gray-900 mb-2">Titolare del Trattamento</h4>
                 <p className="text-gray-600">
                   Landeo S.r.l.<br />
-                  Via dell'Innovazione 123<br />
-                  20100 Milano, Italia
+                  Via di Contrada Comune 159<br />
+                  00049 Velletri (RM)
                 </p>
               </div>
               <div>
