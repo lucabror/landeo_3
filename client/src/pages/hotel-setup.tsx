@@ -145,7 +145,7 @@ export default function HotelSetup() {
       
       toast({
         title: "Hotel non trovato",
-        description: error.message || "Verifica il nome dell'hotel e riprova",
+        description: "Hotel Non trovato. Riprova a scrivere il nome oppure inserisci la struttura manualmente compilando tutti i campi",
         variant: "destructive",
       });
     }
