@@ -30,57 +30,49 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { guestPreferencesSchema, type GuestPreferences } from "@shared/schema";
 
-// SISTEMA SEMPLIFICATO: Preferenze dirette che corrispondono alle categorie delle esperienze
+import { LANDEO_CATEGORIES } from "@shared/categories";
+
+// PREFERENZE EMAIL = CATEGORIE ESPERIENZE LOCALI (corrispondenza 1:1)
 const PREFERENCE_CATEGORIES = [
   {
     title: "Storia e Cultura",
     icon: Camera,
     color: "bg-blue-50 text-blue-700 border-blue-200",
-    preferences: [
-      "Storia e monumenti",
-      "Musei e arte", 
-      "Chiese e luoghi sacri",
-      "Borghi e architettura"
-    ]
+    preferences: LANDEO_CATEGORIES.filter(cat => 
+      ['musei', 'monumenti', 'chiese', 'borghi', 'archeologia'].includes(cat.value)
+    ).map(cat => cat.emailText)
   },
   {
-    title: "Cibo e Vino",
+    title: "Gastronomia",
     icon: Utensils,
     color: "bg-orange-50 text-orange-700 border-orange-200",
-    preferences: [
-      "Ristoranti tipici",
-      "Vino e degustazioni",
-      "Cucina locale"
-    ]
+    preferences: LANDEO_CATEGORIES.filter(cat => 
+      ['ristoranti', 'vino', 'mercati'].includes(cat.value)
+    ).map(cat => cat.emailText)
   },
   {
     title: "Natura e Outdoor",
     icon: TreePine,
     color: "bg-green-50 text-green-700 border-green-200",
-    preferences: [
-      "Parchi e natura",
-      "Passeggiate e trekking",
-      "Laghi e panorami"
-    ]
+    preferences: LANDEO_CATEGORIES.filter(cat => 
+      ['parchi', 'trekking', 'laghi', 'giardini'].includes(cat.value)
+    ).map(cat => cat.emailText)
   },
   {
-    title: "Sport e Famiglia",
+    title: "Sport",
     icon: Mountain,
     color: "bg-red-50 text-red-700 border-red-200",
-    preferences: [
-      "Attività sportive",
-      "Attività per famiglie",
-      "Ciclismo e bicicletta"
-    ]
+    preferences: LANDEO_CATEGORIES.filter(cat => 
+      ['sport', 'ciclismo'].includes(cat.value)
+    ).map(cat => cat.emailText)
   },
   {
-    title: "Relax e Shopping",
+    title: "Shopping",
     icon: ShoppingBag,
     color: "bg-pink-50 text-pink-700 border-pink-200",
-    preferences: [
-      "Relax e benessere",
-      "Shopping e acquisti"
-    ]
+    preferences: LANDEO_CATEGORIES.filter(cat => 
+      ['shopping'].includes(cat.value)
+    ).map(cat => cat.emailText)
   }
 ];
 
@@ -157,6 +149,15 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
   };
 
   const handleSubmit = () => {
+    if (selectedPreferences.length < 3) {
+      toast({
+        title: "Selezione insufficiente",
+        description: "Seleziona almeno 3-4 preferenze per personalizzare correttamente il tuo itinerario.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const formData = {
       preferences: selectedPreferences,
       otherPreferences: form.getValues("otherPreferences"),

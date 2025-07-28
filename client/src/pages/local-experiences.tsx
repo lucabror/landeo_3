@@ -44,19 +44,33 @@ import { insertLocalExperienceSchema } from "@shared/schema";
 import type { InsertLocalExperience } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
 
+import { LANDEO_CATEGORIES } from "@shared/categories";
+
 const CATEGORIES = [
-  { value: "cultura", label: "Cultura", icon: Camera, color: "bg-blue-100 text-blue-700" },
-  { value: "gastronomia", label: "Gastronomia", icon: Utensils, color: "bg-green-100 text-green-700" },
-  { value: "natura", label: "Natura", icon: TreePine, color: "bg-emerald-100 text-emerald-700" },
-  { value: "relax", label: "Relax", icon: Waves, color: "bg-cyan-100 text-cyan-700" },
-  { value: "avventura", label: "Avventura", icon: Mountain, color: "bg-orange-100 text-orange-700" },
-  { value: "degustazione", label: "Degustazione", icon: Wine, color: "bg-purple-100 text-purple-700" },
-  { value: "divertimento", label: "Divertimento", icon: Music, color: "bg-pink-100 text-pink-700" },
-  { value: "shopping", label: "Shopping", icon: Building, color: "bg-gray-100 text-gray-700" },
-  { value: "famiglia", label: "Famiglia", icon: Users, color: "bg-yellow-100 text-yellow-700" },
-  { value: "storia", label: "Storia", icon: Camera, color: "bg-amber-100 text-amber-700" },
-  { value: "arte", label: "Arte", icon: Sparkles, color: "bg-indigo-100 text-indigo-700" },
-  { value: "sport", label: "Sport", icon: Mountain, color: "bg-red-100 text-red-700" },
+  // Storia e Cultura
+  { value: "musei", label: "Musei e Arte", icon: Camera, color: "bg-blue-100 text-blue-700" },
+  { value: "monumenti", label: "Monumenti Storici", icon: Building, color: "bg-blue-100 text-blue-700" },
+  { value: "chiese", label: "Chiese e Santuari", icon: Heart, color: "bg-blue-100 text-blue-700" },
+  { value: "borghi", label: "Borghi Medievali", icon: Camera, color: "bg-amber-100 text-amber-700" },
+  { value: "archeologia", label: "Siti Archeologici", icon: Sparkles, color: "bg-amber-100 text-amber-700" },
+  
+  // Gastronomia
+  { value: "ristoranti", label: "Ristoranti Tipici", icon: Utensils, color: "bg-green-100 text-green-700" },
+  { value: "vino", label: "Vino e Cantine", icon: Wine, color: "bg-purple-100 text-purple-700" },
+  { value: "mercati", label: "Mercati Locali", icon: Building, color: "bg-green-100 text-green-700" },
+  
+  // Natura e Outdoor
+  { value: "parchi", label: "Parchi Naturali", icon: TreePine, color: "bg-emerald-100 text-emerald-700" },
+  { value: "trekking", label: "Trekking e Passeggiate", icon: Mountain, color: "bg-emerald-100 text-emerald-700" },
+  { value: "laghi", label: "Laghi e Panorami", icon: Waves, color: "bg-cyan-100 text-cyan-700" },
+  { value: "giardini", label: "Giardini Botanici", icon: TreePine, color: "bg-green-100 text-green-700" },
+  
+  // Sport e Attività
+  { value: "sport", label: "Attività Sportive", icon: Mountain, color: "bg-red-100 text-red-700" },
+  { value: "ciclismo", label: "Ciclismo", icon: Mountain, color: "bg-orange-100 text-orange-700" },
+  
+  // Shopping
+  { value: "shopping", label: "Shopping e Artigianato", icon: Building, color: "bg-gray-100 text-gray-700" }
 ];
 
 const TARGET_AUDIENCES = [

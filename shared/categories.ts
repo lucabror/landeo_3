@@ -2,30 +2,30 @@
 // Queste 15 categorie sono utilizzate sia per le esperienze locali che per le preferenze email
 
 export const LANDEO_CATEGORIES = [
-  // Storia e Cultura (4 sottocategorie)
-  { value: "musei", label: "Musei e Arte", emailText: "Musei e arte", description: "Musei, gallerie d'arte, collezioni" },
+  // Storia e Cultura (5 categorie)
+  { value: "musei", label: "Musei e Arte", emailText: "Musei e arte", description: "Musei, gallerie d'arte, collezioni artistiche" },
   { value: "monumenti", label: "Monumenti Storici", emailText: "Monumenti storici", description: "Monumenti, siti storici, architettura antica" },
   { value: "chiese", label: "Chiese e Santuari", emailText: "Chiese e luoghi sacri", description: "Chiese, santuari, luoghi religiosi" },
-  { value: "borghi", label: "Borghi e Centri Storici", emailText: "Borghi e centri storici", description: "Borghi medievali, centri storici" },
+  { value: "borghi", label: "Borghi Medievali", emailText: "Borghi medievali", description: "Borghi storici, centri medievali" },
+  { value: "archeologia", label: "Siti Archeologici", emailText: "Siti archeologici", description: "Scavi, rovine antiche, archeologia" },
   
-  // Gastronomia (3 sottocategorie)
-  { value: "ristoranti", label: "Ristoranti Tipici", emailText: "Ristoranti e cucina locale", description: "Ristoranti tradizionali, cucina tipica" },
-  { value: "vino", label: "Vino e Degustazioni", emailText: "Vino e degustazioni", description: "Cantine, wine tasting, degustazioni" },
-  { value: "mercati", label: "Mercati e Prodotti Locali", emailText: "Mercati e prodotti tipici", description: "Mercati locali, prodotti tipici" },
+  // Gastronomia (3 categorie)
+  { value: "ristoranti", label: "Ristoranti Tipici", emailText: "Ristoranti e cucina locale", description: "Ristoranti tradizionali, cucina tipica regionale" },
+  { value: "vino", label: "Vino e Cantine", emailText: "Vino e degustazioni", description: "Cantine, wine tasting, degustazioni enologiche" },
+  { value: "mercati", label: "Mercati Locali", emailText: "Mercati e prodotti tipici", description: "Mercati rionali, prodotti locali, gastronomia di strada" },
   
-  // Natura e Outdoor (4 sottocategorie)
-  { value: "parchi", label: "Parchi Naturali", emailText: "Parchi e riserve naturali", description: "Parchi nazionali, riserve naturali" },
-  { value: "trekking", label: "Trekking e Passeggiate", emailText: "Trekking e passeggiate", description: "Sentieri, passeggiate, escursioni" },
-  { value: "laghi", label: "Laghi e Panorami", emailText: "Laghi e panorami", description: "Laghi, vedute panoramiche, belvedere" },
-  { value: "giardini", label: "Giardini e Orti", emailText: "Giardini botanici", description: "Giardini botanici, orti, verde urbano" },
+  // Natura e Outdoor (4 categorie)
+  { value: "parchi", label: "Parchi Naturali", emailText: "Parchi e riserve naturali", description: "Parchi nazionali, riserve naturali, aree protette" },
+  { value: "trekking", label: "Trekking e Passeggiate", emailText: "Trekking e passeggiate", description: "Sentieri escursionistici, passeggiate naturalistiche" },
+  { value: "laghi", label: "Laghi e Panorami", emailText: "Laghi e panorami", description: "Laghi, vedute panoramiche, belvedere naturali" },
+  { value: "giardini", label: "Giardini Botanici", emailText: "Giardini botanici", description: "Giardini botanici, orti storici, parchi urbani" },
   
-  // Sport e Attività (2 sottocategorie)
-  { value: "sport", label: "Attività Sportive", emailText: "Attività sportive", description: "Sport, attività fisiche" },
-  { value: "ciclismo", label: "Ciclismo e Bicicletta", emailText: "Ciclismo e percorsi in bici", description: "Piste ciclabili, bike tours" },
+  // Sport e Attività (2 categorie)
+  { value: "sport", label: "Attività Sportive", emailText: "Attività sportive", description: "Sport all'aria aperta, attività fisiche" },
+  { value: "ciclismo", label: "Ciclismo", emailText: "Ciclismo e percorsi in bici", description: "Piste ciclabili, bike tours, cicloturismo" },
   
-  // Relax e Shopping (2 sottocategorie)
-  { value: "benessere", label: "Relax e Benessere", emailText: "Relax e benessere", description: "Spa, terme, centri benessere" },
-  { value: "shopping", label: "Shopping e Artigianato", emailText: "Shopping e artigianato", description: "Negozi, artigianato locale, shopping" }
+  // Relax e Shopping (1 categoria)
+  { value: "shopping", label: "Shopping e Artigianato", emailText: "Shopping e artigianato", description: "Negozi tipici, artigianato locale, botteghe storiche" }
 ] as const;
 
 export type LandeoCategoryValue = typeof LANDEO_CATEGORIES[number]['value'];
