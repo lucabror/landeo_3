@@ -114,6 +114,17 @@ function AdminDashboardContent() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/hotels"] });
       setCreditAdjustment({ amount: 0, description: "" });
       setSelectedHotelId("");
+      toast({
+        title: "Crediti modificati",
+        description: "I crediti dell'hotel sono stati aggiornati con successo.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore nella modifica crediti",
+        description: error.message || "Errore durante la modifica dei crediti",
+        variant: "destructive",
+      });
     },
   });
 
