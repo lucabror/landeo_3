@@ -68,7 +68,16 @@ export default function GuestProfiles() {
         title: "Successo",
         description: "Itinerario eliminato con successo!",
       });
+      
+      // Invalidate all related queries for instant UI update
       queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "itineraries"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "guest-profiles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "stats"] });
+      
+      // If viewing a specific profile, also invalidate its itinerary
+      if (viewingProfile?.id) {
+        queryClient.invalidateQueries({ queryKey: ["/api/guest-profiles", viewingProfile.id, "itinerary"] });
+      }
     },
     onError: (error: any) => {
       toast({

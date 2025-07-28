@@ -55,7 +55,19 @@ export default function Itineraries() {
         title: "Successo",
         description: "Itinerario eliminato con successo!",
       });
+      
+      // Invalidate all related queries immediately for instant UI update
       queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "itineraries"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "guest-profiles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "stats"] });
+      
+      // Also invalidate any guest-specific itinerary queries
+      const guestProfiles = queryClient.getQueryData(["/api/hotels", hotelId, "guest-profiles"]) as any[];
+      if (guestProfiles) {
+        guestProfiles.forEach((profile: any) => {
+          queryClient.invalidateQueries({ queryKey: ["/api/guest-profiles", profile.id, "itinerary"] });
+        });
+      }
     },
     onError: (error: any) => {
       toast({
