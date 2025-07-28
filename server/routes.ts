@@ -227,7 +227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/hotels", async (req, res) => {
+  app.post("/api/hotels", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
       const validatedData = insertHotelSchema.parse(req.body);
       const hotel = await storage.createHotel(validatedData);
