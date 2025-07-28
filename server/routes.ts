@@ -851,7 +851,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(410).json({ message: "Token expired", details: "Il link è scaduto. Contatta l'hotel per un nuovo link." });
       }
       
-      res.json(guestProfile);
+      // Structure the response to match frontend expectations
+      const responseData = {
+        guestProfile: {
+          id: guestProfile.id,
+          hotelId: guestProfile.hotelId,
+          type: guestProfile.type,
+          numberOfPeople: guestProfile.numberOfPeople,
+          referenceName: guestProfile.referenceName,
+          email: guestProfile.email,
+          emailLanguage: guestProfile.emailLanguage,
+          ages: guestProfile.ages,
+          preferences: guestProfile.preferences,
+          specialRequests: guestProfile.specialRequests,
+          checkInDate: guestProfile.checkInDate,
+          checkOutDate: guestProfile.checkOutDate,
+          roomNumber: guestProfile.roomNumber,
+          preferencesCompleted: guestProfile.preferencesCompleted,
+          createdAt: guestProfile.createdAt,
+        },
+        hotel: guestProfile.hotel
+      };
+      
+      res.json(responseData);
     } catch (error) {
       console.error("Error in guest preferences endpoint:", error);
       res.status(500).json({ message: "Failed to fetch guest profile" });

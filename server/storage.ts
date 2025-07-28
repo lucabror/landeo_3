@@ -259,7 +259,7 @@ export class DatabaseStorage implements IStorage {
   async getGuestProfileByToken(token: string): Promise<GuestProfile | undefined> {
     try {
       console.log(`Storage: Looking for token ${token}`);
-      // Look in the guestPreferencesTokens table and join with guestProfiles
+      // Look in the guestPreferencesTokens table and join with guestProfiles and hotels
       const result = await db
         .select({
           id: guestProfiles.id,
@@ -278,9 +278,18 @@ export class DatabaseStorage implements IStorage {
           preferencesCompleted: guestProfiles.preferencesCompleted,
           createdAt: guestProfiles.createdAt,
           tokenGeneratedAt: guestPreferencesTokens.createdAt,
+          hotel: {
+            id: hotels.id,
+            name: hotels.name,
+            city: hotels.city,
+            region: hotels.region,
+            address: hotels.address,
+            logoUrl: hotels.logoUrl,
+          }
         })
         .from(guestPreferencesTokens)
         .innerJoin(guestProfiles, eq(guestPreferencesTokens.guestProfileId, guestProfiles.id))
+        .innerJoin(hotels, eq(guestProfiles.hotelId, hotels.id))
         .where(eq(guestPreferencesTokens.token, token))
         .limit(1);
       
