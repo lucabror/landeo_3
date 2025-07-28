@@ -981,14 +981,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      console.log(`Calling findLocalAttractions with: postalCode=${hotel.postalCode}, city=${hotel.city}, region=${hotel.region}, coordinates=${coordinates ? 'yes' : 'no'}`);
-      
-      const pendingAttractions = await findLocalAttractions(
-        hotel.city, 
-        hotel.region, 
-        coordinates,
-        hotel.postalCode
-      );
+      // Decide generation strategy based on whether hotel has precise coordinates
+      let pendingAttractions;
+      if (coordinates) {
+        // Hotel geolocalizzato: usa posizione precisa
+        console.log(`Hotel geolocalizzato - usando coordinate precise: lat=${coordinates.latitude}, lon=${coordinates.longitude}`);
+        pendingAttractions = await findLocalAttractions(
+          hotel.city, 
+          hotel.region, 
+          coordinates,
+          hotel.postalCode
+        );
+      } else {
+        // Hotel inserito manualmente: usa solo CAP per generare attrazioni entro 50km
+        console.log(`Hotel inserito manualmente - usando solo CAP ${hotel.postalCode} per generare attrazioni entro 50km`);
+        pendingAttractions = await findLocalAttractions(
+          null, // Non passare città
+          null, // Non passare regione
+          null, // Non passare coordinate
+          hotel.postalCode // Solo CAP
+        );
+      }
       
       console.log(`Found ${pendingAttractions.attractions.length} attractions`);
       
