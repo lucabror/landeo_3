@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Risolto pulsante "Re-invia Email" per preferenze ospiti - implementato endpoint mancante
+  - Identificato problema: endpoint `/api/hotels/:hotelId/guest-profiles/:id/resend-email` non esisteva nel backend
+  - Implementato endpoint completo con autenticazione hotel e verifica permessi
+  - Sistema ora crea nuovo token preferenze con scadenza 30 giorni per ogni reinvio
+  - Aggiornato storage per gestire correttamente struttura token con hotel data join
+  - Risolto errore frontend "Cannot read properties of undefined (reading 'name')" nella pagina preferenze
+  - Struttura API response modificata per compatibilità: {guestProfile: {...}, hotel: {...}}
 - **2025-01-28**: Risolto sistema etichette categorie e aggiunto pulsante eliminazione batch
   - Implementato mapping intelligente categorie AI → categorie standardizzate (shopping, cultura, natura, sport, etc.)
   - Aggiunte funzioni mapAIcategoryToStandard() per conversione automatica categorie AI in valori frontend
