@@ -47,7 +47,9 @@ if (process.env.NODE_ENV === 'development') {
     noSniff: true,
     frameguard: { action: 'deny' },
     xssFilter: true,
-    referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    // Vulnerabilità #24 - HTTP Security Headers aggiuntivi
+    hidePoweredBy: true
   }));
 }
 

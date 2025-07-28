@@ -12,6 +12,7 @@ import type { Request, Response, NextFunction } from 'express';
 const JWT_SECRET = process.env.JWT_SECRET || (() => {
   throw new Error('JWT_SECRET environment variable is required for production security');
 })();
+const MFA_ENCRYPTION_KEY = process.env.MFA_ENCRYPTION_KEY || JWT_SECRET; // Use for MFA secret encryption
 const SESSION_DURATION = 2 * 60 * 60 * 1000; // 2 hours (ridotto da 8 per sicurezza)
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 30 * 60 * 1000; // 30 minutes
@@ -47,6 +48,26 @@ export async function hashPassword(password: string): Promise<string> {
 
 export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
   return bcrypt.compare(password, hashedPassword);
+}
+
+// MFA Secret Encryption (Vulnerabilità #23 - MFA Secret Storage)
+export function encryptMfaSecret(secret: string): string {
+  const cipher = crypto.createCipher('aes-256-cbc', MFA_ENCRYPTION_KEY);
+  let encrypted = cipher.update(secret, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return encrypted;
+}
+
+export function decryptMfaSecret(encryptedSecret: string): string {
+  try {
+    const decipher = crypto.createDecipher('aes-256-cbc', MFA_ENCRYPTION_KEY);
+    let decrypted = decipher.update(encryptedSecret, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  } catch (error) {
+    console.error('Error decrypting MFA secret:', error);
+    throw new Error('Failed to decrypt MFA secret');
+  }
 }
 
 // JWT token management
@@ -97,6 +118,16 @@ export async function createSecuritySession(
     expiresAt,
     mfaVerified: false,
   });
+
+  // Log security event for monitoring
+  await logSecurityEvent(
+    userId,
+    userType,
+    'session_created',
+    ipAddress,
+    userAgent,
+    { sessionToken: sessionToken.substring(0, 8) + '...' }
+  );
 
   return sessionToken;
 }
@@ -210,11 +241,12 @@ export async function setupGoogleAuthenticator(
   // Generate QR code
   const qrCodeDataUrl = await qrcode.toDataURL(secret.otpauth_url || '');
 
-  // Store the secret in database
+  // Encrypt and store the secret in database (Vulnerabilità #23 fix)
+  const encryptedSecret = encryptMfaSecret(secret.base32);
   const table = userType === 'hotel' ? hotels : adminUsers;
   await db
     .update(table)
-    .set({ mfaSecret: secret.base32 })
+    .set({ mfaSecret: encryptedSecret })
     .where(eq(table.id, userId));
 
   return {
@@ -239,9 +271,10 @@ export async function enableGoogleAuthenticator(
     return { success: false, error: 'Setup MFA non trovato' };
   }
 
-  // Verify the code
+  // Decrypt and verify the code (Vulnerabilità #23 fix)
+  const decryptedSecret = decryptMfaSecret(user.mfaSecret);
   const verified = speakeasy.totp.verify({
-    secret: user.mfaSecret,
+    secret: decryptedSecret,
     encoding: 'base32',
     token: verificationCode,
     time: Date.now() / 1000,
@@ -278,8 +311,10 @@ export async function verifyGoogleAuthenticatorCode(
     return { success: false, error: 'MFA non configurato' };
   }
 
+  // Decrypt MFA secret before verification (Vulnerabilità #23 fix)
+  const decryptedSecret = decryptMfaSecret(user.mfaSecret);
   const verified = speakeasy.totp.verify({
-    secret: user.mfaSecret,
+    secret: decryptedSecret,
     encoding: 'base32',
     token: code,
     time: Date.now() / 1000,
