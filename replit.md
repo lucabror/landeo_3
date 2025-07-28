@@ -10,6 +10,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Risolto errore funzione "Rimuovi Struttura" nella dashboard admin
+  - Sostituito controllo hardcoded email admin con environment variables VITE_ADMIN_EMAIL
+  - Configurati secret VITE_ADMIN_EMAIL e VITE_ADMIN_PASSWORD in Replit per autenticazione admin
+  - Endpoint DELETE /api/admin/hotels/:hotelId ora verifica credenziali da environment variables
+  - Funzione eliminazione hotel ora funziona correttamente per operazioni admin autorizzate
+- **2025-01-28**: Aggiornate tutte le informazioni di contatto nel sistema Landeo
+  - Email sostituita da info@aitour.it a info@landeo.it in pagina contatti
+  - Email supporto cambiata da support@aitour.it a supporto@landeo.it
+  - Numero telefono aggiornato a +39.328.30.93.519 in tutte le pagine
+  - Indirizzo sede cambiato da Milano a Velletri (RM), Via di Contrada Comune 159, 00049 Velletri (RM)
+  - Rimossa sezione "Dipartimenti Specializzati" dalla pagina contatti per semplificare interfaccia
+  - Aggiornate pagine privacy e termini servizio con nuove informazioni aziendali
 - **2025-01-28**: Risolto conflitto dipendenze vite/types/node per deployment
   - Aggiornato @types/node da versione 20.16.11 a ^20.19.9
   - Risolto peer dependency conflict: vite@7.0.6 richiedeva @types/node ^20.19.0 || >=22.12.0
