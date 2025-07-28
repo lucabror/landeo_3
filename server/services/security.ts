@@ -52,10 +52,11 @@ export async function verifyPassword(password: string, hashedPassword: string): 
 
 // MFA Secret Encryption (Vulnerabilità #23 - MFA Secret Storage)
 export function encryptMfaSecret(secret: string): string {
-  const cipher = crypto.createCipher('aes-256-cbc', MFA_ENCRYPTION_KEY);
+  const iv = crypto.randomBytes(16); // Generate random IV for each encryption
+  const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(MFA_ENCRYPTION_KEY).subarray(0, 32), iv);
   let encrypted = cipher.update(secret, 'utf8', 'hex');
   encrypted += cipher.final('hex');
-  return encrypted;
+  return iv.toString('hex') + ':' + encrypted; // Prepend IV to encrypted data
 }
 
 export function decryptMfaSecret(encryptedSecret: string): string {
@@ -65,10 +66,21 @@ export function decryptMfaSecret(encryptedSecret: string): string {
       return encryptedSecret;
     }
     
-    const decipher = crypto.createDecipher('aes-256-cbc', MFA_ENCRYPTION_KEY);
-    let decrypted = decipher.update(encryptedSecret, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    return decrypted;
+    // Check if this is new format with IV (contains ':')
+    if (encryptedSecret.includes(':')) {
+      const [ivHex, encryptedData] = encryptedSecret.split(':');
+      const iv = Buffer.from(ivHex, 'hex');
+      const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(MFA_ENCRYPTION_KEY).subarray(0, 32), iv);
+      let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+      decrypted += decipher.final('utf8');
+      return decrypted;
+    } else {
+      // Legacy format - still support old encrypted secrets temporarily
+      const decipher = crypto.createDecipher('aes-256-cbc', MFA_ENCRYPTION_KEY);
+      let decrypted = decipher.update(encryptedSecret, 'hex', 'utf8');
+      decrypted += decipher.final('utf8');
+      return decrypted;
+    }
   } catch (error) {
     console.error('Error decrypting MFA secret:', error);
     // Fallback: se la decrittazione fallisce, prova a usare il secret direttamente
