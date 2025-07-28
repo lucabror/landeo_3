@@ -99,7 +99,7 @@ app.use((req, res, next) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: options.sameSite || 'strict'
     };
-    return originalCookie.call(this, name, value, secureOptions);
+    return originalCookie.call(this, name, value, secureOptions) as any;
   };
   next();
 });
@@ -126,7 +126,8 @@ function validateCSRFToken(sessionId: string, token: string): boolean {
 app.use((req, res, next) => {
   // Skip per metodi safe e endpoint specifici
   if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS' ||
-      req.path.includes('/api/upload/') || req.path.includes('/api/csrf-token')) {
+      req.path.includes('/api/upload/') || req.path.includes('/api/csrf-token') ||
+      req.path.includes('/api/auth/')) { // Skip CSRF per auth endpoints durante development
     return next();
   }
   
