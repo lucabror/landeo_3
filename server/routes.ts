@@ -2011,7 +2011,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all hotels for admin
-  app.get("/api/admin/hotels", async (req, res) => {
+  app.get("/api/admin/hotels", requireAuth({ userType: 'admin' }), async (req, res) => {
     try {
       const hotels = await storage.getAllHotelsForAdmin();
       res.json(hotels);
@@ -2021,7 +2021,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get pending credit purchases
-  app.get("/api/admin/pending-purchases", async (req, res) => {
+  app.get("/api/admin/pending-purchases", requireAuth({ userType: 'admin' }), async (req, res) => {
     try {
       const purchases = await storage.getPendingCreditPurchases();
       res.json(purchases);
@@ -2031,7 +2031,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Approve credit purchase
-  app.post("/api/admin/purchases/:purchaseId/approve", async (req, res) => {
+  app.post("/api/admin/purchases/:purchaseId/approve", requireAuth({ userType: 'admin' }), async (req, res) => {
     try {
       const { adminEmail, notes } = req.body;
       await storage.approveCreditPurchase(req.params.purchaseId, adminEmail, notes);
@@ -2042,7 +2042,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Reject credit purchase
-  app.post("/api/admin/purchases/:purchaseId/reject", async (req, res) => {
+  app.post("/api/admin/purchases/:purchaseId/reject", requireAuth({ userType: 'admin' }), async (req, res) => {
     try {
       const { adminEmail, notes } = req.body;
       await storage.rejectCreditPurchase(req.params.purchaseId, adminEmail, notes);
@@ -2053,7 +2053,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Manually adjust hotel credits
-  app.post("/api/admin/hotels/:hotelId/adjust-credits", async (req, res) => {
+  app.post("/api/admin/hotels/:hotelId/adjust-credits", requireAuth({ userType: 'admin' }), async (req, res) => {
     try {
       const { amount, description, adminEmail } = req.body;
       await storage.adjustHotelCredits(req.params.hotelId, amount, description, adminEmail);
