@@ -127,7 +127,8 @@ app.use((req, res, next) => {
   // Skip per metodi safe e endpoint specifici
   if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS' ||
       req.path.includes('/api/upload/') || req.path.includes('/api/csrf-token') ||
-      req.path.includes('/api/auth/') || req.path.includes('/api/hotels/geocode')) { // Skip CSRF per auth e geocoding
+      req.path.includes('/api/auth/') || req.path.includes('/api/hotels/geocode') ||
+      req.path.match(/^\/api\/hotels\/[^/]+$/)) { // Skip CSRF per hotel CRUD operations
     return next();
   }
   
