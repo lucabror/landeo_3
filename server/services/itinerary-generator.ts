@@ -118,28 +118,43 @@ ${dates.map((date, index) => `    {
       for (const day of aiResponse.days) {
         if (day.activities && Array.isArray(day.activities)) {
           for (const activity of day.activities) {
+            // Debug logging for matching
+            console.log(`Processing activity: ${activity.activity}, experienceId: ${activity.experienceId}`);
+            
             // If activity has experienceId, check if it matches guest preferences
             if (activity.experienceId) {
               const matchedExperience = experienceMatches.find((match: any) => 
                 match.experience.id === activity.experienceId
               );
               
+              console.log(`Experience match found: ${!!matchedExperience}, matchType: ${matchedExperience?.matchType}`);
+              
               if (matchedExperience && matchedExperience.matchType === 'high') {
                 activity.source = 'preference-matched';
+                console.log(`✓ Marked as preference-matched: ${activity.activity}`);
               } else {
                 activity.source = 'hotel-suggested';
+                console.log(`✓ Marked as hotel-suggested: ${activity.activity}`);
               }
             } else {
               // For activities without experienceId, check if they match preferences by keywords
               const activityText = `${activity.activity} ${activity.description || ''}`.toLowerCase();
-              const hasPreferenceMatch = guestProfile.preferences?.some(pref => 
-                activityText.includes(pref.toLowerCase()) || 
-                pref.toLowerCase().split(' ').some(word => 
-                  word.length > 3 && activityText.includes(word)
-                )
-              );
+              const guestPrefs = guestProfile.preferences || [];
+              
+              console.log(`Checking activity text: "${activityText}" against preferences: ${guestPrefs.join(', ')}`);
+              
+              const hasPreferenceMatch = guestPrefs.some(pref => {
+                const prefLower = pref.toLowerCase();
+                const matches = activityText.includes(prefLower) || 
+                  prefLower.split(' ').some(word => 
+                    word.length > 3 && activityText.includes(word)
+                  );
+                if (matches) console.log(`✓ Preference match: "${pref}" matches "${activityText}"`);
+                return matches;
+              });
               
               activity.source = hasPreferenceMatch ? 'preference-matched' : 'hotel-suggested';
+              console.log(`✓ Text-based matching result: ${activity.source} for ${activity.activity}`);
             }
           }
         }

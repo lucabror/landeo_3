@@ -180,12 +180,12 @@ export async function generateItineraryPDF(
             for (let actIndex = 0; actIndex < day.activities.length; actIndex++) {
               const activity = day.activities[actIndex];
               
-              // Check if we need a new page
-              if (yPosition > doc.page.height - 120) {
+              // Check if we need a new page (improved logic to prevent empty pages)
+              if (yPosition > doc.page.height - 150) {
                 doc.addPage();
                 doc.rect(0, 0, doc.page.width, doc.page.height).fill(colors.backgroundLight);
                 doc.rect(40, 40, doc.page.width - 80, doc.page.height - 80).fill(colors.white);
-                yPosition = 60;
+                yPosition = 80; // Start higher to avoid layout issues
               }
 
               // Activity row like spa treatment entry
@@ -200,17 +200,17 @@ export async function generateItineraryPDF(
                  .fillColor(colors.darkText)
                  .text(activity.activity, leftMargin + 15, yPosition + 10);
 
-              // Source label with spa-style colors
+              // Source label with spa-style colors (without emoji to avoid PDF encoding issues)
               if (activity.source === 'preference-matched') {
                 doc.font('Helvetica')
                    .fontSize(8)
                    .fillColor(colors.primaryTeal)
-                   .text('🎯 Scelta sulle tue preferenze', leftMargin + 15, yPosition + 28);
+                   .text('• Scelta sulle tue preferenze', leftMargin + 15, yPosition + 28);
               } else if (activity.source === 'hotel-suggested') {
                 doc.font('Helvetica')
                    .fontSize(8)
                    .fillColor(colors.lightTeal)
-                   .text('🏨 Suggerita dall\'hotel', leftMargin + 15, yPosition + 28);
+                   .text('• Suggerita dall\'hotel', leftMargin + 15, yPosition + 28);
               }
 
               // Description
@@ -248,37 +248,40 @@ export async function generateItineraryPDF(
         }
       }
 
-      // Clean spa-style footer
-      const footerY = doc.page.height - 60;
-      
-      // Footer background section
-      doc.rect(40, footerY, doc.page.width - 80, 50).fill(colors.sectionBg);
-      
-      // Hotel information
-      doc.font('Helvetica-Bold')
-         .fontSize(9)
-         .fillColor(colors.primaryTeal)
-         .text(hotel.name, leftMargin, footerY + 12);
-      
-      doc.font('Helvetica')
-         .fontSize(8)
-         .fillColor(colors.mediumText)
-         .text(`${hotel.city}, ${hotel.region}`, leftMargin, footerY + 26);
-      
-      // Generation date
-      doc.text(`Generato il ${new Date().toLocaleDateString('it-IT')}`, 
-               rightMargin - 120, footerY + 12);
-      
-      // Branding
-      doc.font('Helvetica')
-         .fontSize(8)
-         .fillColor(colors.lightText)
-         .text('Powered by Landeo - AI Itinerari Personalizzati', leftMargin, footerY + 38, { 
-           width: rightMargin - leftMargin,
-           align: 'center' 
-         });
+      // Add footer only if there's content on the current page
+      if (yPosition > 80) {
+        // Clean spa-style footer
+        const footerY = Math.max(yPosition + 40, doc.page.height - 100);
+        
+        // Footer background section
+        doc.rect(40, footerY, doc.page.width - 80, 50).fill(colors.sectionBg);
+        
+        // Hotel information
+        doc.font('Helvetica-Bold')
+           .fontSize(9)
+           .fillColor(colors.primaryTeal)
+           .text(hotel.name, leftMargin, footerY + 12);
+        
+        doc.font('Helvetica')
+           .fontSize(8)
+           .fillColor(colors.mediumText)
+           .text(`${hotel.city}, ${hotel.region}`, leftMargin, footerY + 26);
+        
+        // Generation date
+        doc.text(`Generato il ${new Date().toLocaleDateString('it-IT')}`, 
+                 rightMargin - 120, footerY + 12);
+        
+        // Branding
+        doc.font('Helvetica')
+           .fontSize(8)
+           .fillColor(colors.lightText)
+           .text('Powered by Landeo - AI Itinerari Personalizzati', leftMargin, footerY + 38, { 
+             width: rightMargin - leftMargin,
+             align: 'center' 
+           });
+      }
 
-      // Finalize the PDF
+      // Finalize the PDF without adding unnecessary pages
       doc.end();
 
       stream.on('finish', () => {
