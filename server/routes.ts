@@ -473,6 +473,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete itinerary
+  app.delete("/api/itineraries/:id", requireAuth({ userType: 'hotel' }), async (req, res) => {
+    try {
+      const itinerary = await storage.getItinerary(req.params.id);
+      if (!itinerary) {
+        return res.status(404).json({ message: "Itinerary not found" });
+      }
+
+      // Verify user can delete this itinerary (belongs to their hotel)
+      const userId = (req as any).user.id;
+      if (itinerary.hotelId !== userId) {
+        return res.status(403).json({ message: "Not authorized to delete this itinerary" });
+      }
+
+      await storage.deleteItinerary(req.params.id);
+      
+      console.log(`🗑️ Itinerary deleted: ${itinerary.title} (ID: ${req.params.id})`);
+      res.json({ message: "Itinerary deleted successfully" });
+    } catch (error) {
+      console.error('Error deleting itinerary:', error);
+      res.status(500).json({ message: "Failed to delete itinerary" });
+    }
+  });
+
   // Generate itinerary for specific guest profile
   app.post("/api/guest-profiles/:id/generate-itinerary", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
@@ -766,8 +790,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pdfPath = await generateItineraryPDF(itinerary, hotel, guestProfile);
       
       // Read PDF file as buffer for email attachment
-      const fs = require('fs');
-      const pdfBuffer = fs.readFileSync(pdfPath);
+      const pdfBuffer = await fs.readFile(pdfPath);
 
       // Send PDF via email with correct parameter order
       const emailResult = await sendItineraryPDF(hotel, guestProfile, itinerary, pdfBuffer, recipientEmail, recipientName);
