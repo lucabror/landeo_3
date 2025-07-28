@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Risolto vulnerabilità crittografica MFA - sostituiti createCipher/createDecipher deprecati
+  - Identificata vulnerabilità: createCipher genera stesso IV ad ogni crittografia, permettendo pattern analysis  
+  - Sostituiti crypto.createCipher/createDecipher con createCipheriv/createDecipheriv sicuri
+  - Implementato IV randomico per ogni operazione crittografia MFA secrets
+  - Mantenuta backward compatibility per secret esistenti con formato legacy
+  - Fix critico per sicurezza autenticazione a due fattori
 - **2025-01-28**: Risolto vulnerability critica - eliminati credenziali admin hardcoded
   - Rimossi ADMIN_EMAIL e ADMIN_PASSWORD hardcoded dal codice client-side (admin-dashboard.tsx)
   - Sostituiti con environment variables VITE_ADMIN_EMAIL e VITE_ADMIN_PASSWORD
