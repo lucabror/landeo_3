@@ -993,9 +993,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Found ${pendingAttractions.attractions.length} attractions`);
       
       const experiences = await Promise.all(
-        pendingAttractions.attractions.map(async (attraction) => {
-          const experience = attractionToLocalExperience(attraction, hotel.id);
-          return await storage.createLocalExperience(experience);
+        pendingAttractions.attractions.map(async (attraction, index) => {
+          try {
+            const experience = attractionToLocalExperience(attraction, hotel.id);
+            console.log(`Creating experience ${index + 1}: ${experience.name}`);
+            const created = await storage.createLocalExperience(experience);
+            console.log(`Successfully created experience: ${created.name}`);
+            return created;
+          } catch (error) {
+            console.error(`Failed to create experience ${index + 1} (${attraction.name}):`, error);
+            throw error;
+          }
         })
       );
 
