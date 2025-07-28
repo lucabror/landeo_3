@@ -40,7 +40,9 @@ export default function AdminProfile() {
   });
 
   useEffect(() => {
+    console.log('MFA Status from API:', mfaStatus);
     if (mfaStatus && typeof mfaStatus === 'object' && 'mfaEnabled' in mfaStatus) {
+      console.log('Setting MFA Enabled to:', Boolean(mfaStatus.mfaEnabled));
       setMfaEnabled(Boolean(mfaStatus.mfaEnabled));
     }
   }, [mfaStatus]);
