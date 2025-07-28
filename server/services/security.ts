@@ -9,7 +9,9 @@ import { eq, and, lt, gt } from 'drizzle-orm';
 import type { Request, Response, NextFunction } from 'express';
 
 // Security configuration
-const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex');
+const JWT_SECRET = process.env.JWT_SECRET || (() => {
+  throw new Error('JWT_SECRET environment variable is required for production security');
+})();
 const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 30 * 60 * 1000; // 30 minutes

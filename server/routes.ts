@@ -29,6 +29,27 @@ import QRCode from "qrcode";
 import PDFDocument from "pdfkit";
 import { Resend } from "resend";
 
+// Utility per sanitizzazione input
+function sanitizeInput(input: string): string {
+  if (!input) return '';
+  return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers
+    .trim()
+    .substring(0, 10000); // Limita lunghezza per prevenire DoS
+}
+
+// Validation per nomi file sicuri
+function isValidFilename(filename: string): boolean {
+  const invalidChars = /[<>:"/\\|?*\x00-\x1f]/;
+  const reservedNames = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i;
+  return !invalidChars.test(filename) && 
+         !reservedNames.test(filename.split('.')[0]) &&
+         filename.length > 0 && 
+         filename.length <= 255;
+}
+
 // Configurazione multer per upload dei loghi
 const logoStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -47,14 +68,28 @@ const logoStorage = multer.diskStorage({
 const logoUpload = multer({
   storage: logoStorage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB
+    fileSize: 2 * 1024 * 1024, // 2MB (ridotto da 5MB)
   },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg') {
-      cb(null, true);
-    } else {
-      cb(new Error('Solo file PNG e JPG sono consentiti'));
+    // Validazione rigorosa del tipo file
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/jpg'];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png'];
+    
+    if (!allowedMimes.includes(file.mimetype)) {
+      return cb(new Error('Solo file PNG e JPG sono consentiti'));
     }
+    
+    const fileExtension = path.extname(file.originalname).toLowerCase();
+    if (!allowedExtensions.includes(fileExtension)) {
+      return cb(new Error('Estensione file non valida'));
+    }
+    
+    // Controllo dimensione filename per evitare path traversal
+    if (file.originalname.includes('..') || file.originalname.includes('/') || file.originalname.includes('\\')) {
+      return cb(new Error('Nome file non valido'));
+    }
+    
+    cb(null, true);
   }
 });
 
@@ -196,7 +231,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/hotels/:id", async (req, res) => {
     try {
-      const validatedData = insertHotelSchema.partial().parse(req.body);
+      // Sanitizza input prima della validazione
+      const sanitizedBody = {
+        ...req.body,
+        name: req.body.name ? sanitizeInput(req.body.name) : undefined,
+        address: req.body.address ? sanitizeInput(req.body.address) : undefined,
+        city: req.body.city ? sanitizeInput(req.body.city) : undefined,
+        region: req.body.region ? sanitizeInput(req.body.region) : undefined,
+        phone: req.body.phone ? sanitizeInput(req.body.phone) : undefined,
+        email: req.body.email ? req.body.email.trim().toLowerCase() : undefined,
+        website: req.body.website ? sanitizeInput(req.body.website) : undefined,
+        description: req.body.description ? sanitizeInput(req.body.description) : undefined,
+      };
+
+      const validatedData = insertHotelSchema.partial().parse(sanitizedBody);
       const hotel = await storage.updateHotel(req.params.id, validatedData);
       res.json(hotel);
     } catch (error) {

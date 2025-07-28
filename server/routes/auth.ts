@@ -27,8 +27,8 @@ import {
 const router = Router();
 
 // Rate limiting for auth endpoints
-const loginLimiter = createRateLimiter(15 * 60 * 1000, 5); // 5 attempts per 15 minutes
-const mfaLimiter = createRateLimiter(5 * 60 * 1000, 10); // 10 attempts per 5 minutes
+const loginLimiter = createRateLimiter(15 * 60 * 1000, 3); // 3 attempts per 15 minutes (ridotto da 5)
+const mfaLimiter = createRateLimiter(5 * 60 * 1000, 3); // 3 attempts per 5 minutes (ridotto da 10)
 
 // Validation schemas
 const loginSchema = z.object({
@@ -43,7 +43,10 @@ const mfaVerifySchema = z.object({
 
 const setupPasswordSchema = z.object({
   hotelId: z.string().uuid('ID hotel non valido'),
-  password: z.string().min(8, 'La password deve essere di almeno 8 caratteri'),
+  password: z.string()
+    .min(12, 'La password deve essere di almeno 12 caratteri')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
+           'La password deve contenere almeno: 1 minuscola, 1 maiuscola, 1 numero, 1 carattere speciale'),
 });
 
 // Hotel manager login
@@ -65,20 +68,15 @@ router.post('/login/hotel', loginLimiter, async (req, res) => {
     const userAgent = req.get('User-Agent') || 'unknown';
 
     // Find hotel by email
-    console.log("Looking for hotel with email:", email);
     const [hotel] = await db
       .select()
       .from(hotels)
       .where(eq(hotels.email, email));
 
-    console.log("Hotel found:", hotel ? "Yes" : "No");
-    if (hotel) {
-      console.log("Hotel password hash:", hotel.password);
-    }
-
     if (!hotel) {
-      await logSecurityEvent(null, 'hotel', 'login_failed_user_not_found', ipAddress, userAgent, { email });
-      console.log("Hotel not found for email:", email);
+      await logSecurityEvent(null, 'hotel', 'login_failed', ipAddress, userAgent, { email: email.substring(0, 3) + '***' });
+      // Ritardo artificiale per prevenire timing attacks
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
       return res.status(401).json({ error: 'Credenziali non valide' });
     }
 
@@ -99,17 +97,13 @@ router.post('/login/hotel', loginLimiter, async (req, res) => {
     }
 
     // Verify password
-    console.log("Verifying password for hotel:", hotel.email);
-    console.log("Input password:", password);
-    console.log("Stored hash:", hotel.password);
-    
     const passwordValid = await verifyPassword(password, hotel.password);
-    console.log("Password valid:", passwordValid);
     
     if (!passwordValid) {
       await incrementLoginAttempts(hotel.id, 'hotel');
-      await logSecurityEvent(hotel.id, 'hotel', 'login_failed_wrong_password', ipAddress, userAgent);
-      console.log("Password verification failed for hotel:", hotel.email);
+      await logSecurityEvent(hotel.id, 'hotel', 'login_failed', ipAddress, userAgent);
+      // Ritardo artificiale per prevenire timing attacks
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
       return res.status(401).json({ error: 'Credenziali non valide' });
     }
 

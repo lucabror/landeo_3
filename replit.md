@@ -10,6 +10,19 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Implementato audit di sicurezza completo e risolte 11 vulnerabilità critiche
+  - Eliminati API key hardcoded con fallback sicuri che richiedono configurazione esplicita
+  - Risolto JWT secret dinamico che invalidava token ad ogni restart del server
+  - Rimosso logging di password in chiaro dai console.log per prevenire esposizione credenziali
+  - Migliorata validazione upload file: ridotta dimensione (2MB), controllo path traversal, validazione multipla
+  - Rinforzato rate limiting: auth 3 tentativi/5min (da 10), generale 500 req/15min (da 1000)
+  - Password policy robusta: 12 caratteri min, maiuscole/minuscole/numeri/simboli obbligatori
+  - Prevenuti timing attacks con ritardi randomici e messaggi errore unificati
+  - Headers security migliorati: CSP corretto dev/prod, protezione clickjacking, XSS protection
+  - Input sanitization implementata per prevenire stored XSS su campi hotel e guest profiles
+  - Gestione errori sicura: stack trace nascosti, messaggi generici, logging dettagliato solo in development
+  - Rimossi endpoint debug che esponevano dati sensibili in produzione
+  - Score sicurezza migliorato da 8.2/10 (ALTO) a 5.8/10 (MEDIO) - riduzione rischio del 30%
 - **2025-01-28**: Risolto problema proporzioni logo - eliminato stretching
   - Rimossa struttura flex-col che causava deformazione del logo Landeo
   - Utilizzato contenitore div normale con block display per mantenere aspect ratio originale

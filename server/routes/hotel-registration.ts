@@ -12,8 +12,12 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Schema per la registrazione hotel
 const registerHotelSchema = z.object({
-  email: z.string().email("Email non valida"),
-  password: z.string().min(8, "La password deve essere di almeno 8 caratteri"),
+  email: z.string().email("Email non valida").max(254, "Email troppo lunga"),
+  password: z.string()
+    .min(12, "La password deve essere di almeno 12 caratteri")
+    .max(128, "Password troppo lunga")
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
+           "La password deve contenere almeno: 1 minuscola, 1 maiuscola, 1 numero, 1 carattere speciale"),
 });
 
 // Schema per la verifica email
@@ -24,7 +28,10 @@ const verifyEmailSchema = z.object({
 // Registrazione hotel - Step 1
 router.post("/register-hotel", async (req, res) => {
   try {
-    const { email, password } = registerHotelSchema.parse(req.body);
+    const { email, password } = registerHotelSchema.parse({
+      email: req.body.email?.trim().toLowerCase(),
+      password: req.body.password
+    });
 
     // Controlla se l'utente esiste già
     const existingUser = await db
@@ -217,8 +224,6 @@ router.post("/verify-email", async (req, res) => {
       .where(eq(users.id, userId));
 
     // Crea record hotel con la password dell'utente
-    console.log("Creating hotel record for user:", user.email);
-    console.log("User password hash:", user.passwordHash);
     
     const [hotelRecord] = await db.insert(hotels).values({
       email: user.email,
@@ -238,7 +243,7 @@ router.post("/verify-email", async (req, res) => {
       isActive: true,
     }).returning();
     
-    console.log("Hotel record created:", hotelRecord);
+    // Hotel record created successfully
 
     // Rimuovi il token usato
     await db
@@ -267,39 +272,6 @@ router.post("/verify-email", async (req, res) => {
   }
 });
 
-// Debug endpoint - solo in development
-if (process.env.NODE_ENV === 'development') {
-  router.get("/debug/pending-verifications", async (req, res) => {
-    try {
-      const pendingVerifications = await db
-        .select({
-          id: emailVerifications.id,
-          userId: emailVerifications.userId,
-          token: emailVerifications.token,
-          expiresAt: emailVerifications.expiresAt,
-          userEmail: users.email,
-        })
-        .from(emailVerifications)
-        .leftJoin(users, eq(emailVerifications.userId, users.id))
-        .where(eq(users.isEmailVerified, false));
-
-      const baseUrl = process.env.REPLIT_DOMAINS 
-        ? `https://${process.env.REPLIT_DOMAINS}` 
-        : 'http://localhost:5000';
-      
-      res.json({
-        success: true,
-        pendingVerifications: pendingVerifications.map(v => ({
-          userEmail: v.userEmail,
-          verificationUrl: `${baseUrl}/verify-email/${v.token}`,
-          expiresAt: v.expiresAt,
-        }))
-      });
-    } catch (error) {
-      console.error("Errore debug verifications:", error);
-      res.status(500).json({ success: false, error: "Errore interno" });
-    }
-  });
-}
+// Debug endpoint rimosso per sicurezza
 
 export default router;
