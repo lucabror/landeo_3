@@ -187,13 +187,7 @@ export class DatabaseStorage implements IStorage {
       // Delete all email verifications for this user
       await db.delete(emailVerifications).where(eq(emailVerifications.userId, userId));
       
-      // Delete password reset tokens if any exist for this user
-      try {
-        await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, userId));
-      } catch (error) {
-        // Table might not exist or no tokens found, continue
-        console.log('No password reset tokens found or table does not exist, continuing...');
-      }
+      // Password reset tokens handling removed as table doesn't exist
       
       // Delete the hotel manager account from users table
       await db.delete(users).where(eq(users.id, userId));
@@ -260,6 +254,42 @@ export class DatabaseStorage implements IStorage {
 
   async deleteGuestProfile(id: string): Promise<void> {
     await db.delete(guestProfiles).where(eq(guestProfiles.id, id));
+  }
+
+  async getGuestProfileByToken(token: string): Promise<GuestProfile | undefined> {
+    try {
+      console.log(`Storage: Looking for token ${token}`);
+      // Look in the guestPreferencesTokens table and join with guestProfiles
+      const result = await db
+        .select({
+          id: guestProfiles.id,
+          hotelId: guestProfiles.hotelId,
+          type: guestProfiles.type,
+          numberOfPeople: guestProfiles.numberOfPeople,
+          referenceName: guestProfiles.referenceName,
+          email: guestProfiles.email,
+          emailLanguage: guestProfiles.emailLanguage,
+          ages: guestProfiles.ages,
+          preferences: guestProfiles.preferences,
+          specialRequests: guestProfiles.specialRequests,
+          checkInDate: guestProfiles.checkInDate,
+          checkOutDate: guestProfiles.checkOutDate,
+          roomNumber: guestProfiles.roomNumber,
+          preferencesCompleted: guestProfiles.preferencesCompleted,
+          createdAt: guestProfiles.createdAt,
+          tokenGeneratedAt: guestPreferencesTokens.createdAt,
+        })
+        .from(guestPreferencesTokens)
+        .innerJoin(guestProfiles, eq(guestPreferencesTokens.guestProfileId, guestProfiles.id))
+        .where(eq(guestPreferencesTokens.token, token))
+        .limit(1);
+      
+      console.log(`Storage: Profile found:`, result.length > 0 ? 'YES' : 'NO');
+      return result[0] || undefined;
+    } catch (error) {
+      console.error('Storage error in getGuestProfileByToken:', error);
+      throw error;
+    }
   }
 
   // Local Experiences
