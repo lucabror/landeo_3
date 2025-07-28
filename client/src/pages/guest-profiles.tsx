@@ -97,13 +97,27 @@ export default function GuestProfiles() {
   // Get hotel ID from authenticated user
   const hotelId = user?.hotelId;
   
+  if (!user) {
+    return <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <p className="text-gray-600">Caricamento autenticazione...</p>
+      </div>
+    </div>;
+  }
+  
   if (!hotelId) {
-    return <div>Errore: ID hotel non trovato</div>;
+    return <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <p className="text-red-600">Errore: ID hotel non trovato</p>
+        <p className="text-sm text-gray-500 mt-2">Ricarica la pagina o torna alla dashboard</p>
+      </div>
+    </div>;
   }
 
-  // Fetch guest profiles with itineraries
+  // Fetch guest profiles with itineraries with real-time polling for preference updates
   const { data: guestProfiles, isLoading } = useQuery({
     queryKey: ["/api/hotels", hotelId, "guest-profiles"],
+    refetchInterval: 5000, // Auto-refresh every 5 seconds to catch preference updates
   });
 
   // Fetch guest-specific itinerary when viewing profile

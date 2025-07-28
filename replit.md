@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Risolto aggiornamento real-time preferenze ospiti e pagina bianca dopo refresh
+  - Problema 1: dashboard non aggiornava schede profilo quando ospite compilava preferenze via email
+  - Soluzione: aggiunto auto-refresh ogni 5 secondi per query guest-profiles per catturare modifiche preferenze
+  - Problema 2: refresh pagina guest-profiles causava schermata bianca per mancanza protezione route
+  - Soluzione: aggiunte ProtectedRoute per guest-profiles, local-experiences, itineraries con auth hotel
+  - Migliorata gestione stati loading/error per evitare rendering vuoto durante caricamento auth
+  - Dashboard ora mostra aggiornamenti preferenze in tempo reale senza refresh manuale
 - **2025-01-28**: Risolto problema cache invalidation eliminazione itinerari
   - Identificato problema: itinerari eliminati continuavano a comparire nell'UI per mancanza cache invalidation
   - Aggiunta invalidazione completa cache per queries correlate: itinerari hotel, guest profiles, statistiche
