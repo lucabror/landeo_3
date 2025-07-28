@@ -511,7 +511,7 @@ export default function HotelSetup() {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="address" className="flex items-center">
-                    Indirizzo *
+                    Indirizzo <span className="text-red-500 ml-1">*</span>
                     {searchStatus === 'success' && (
                       <MapPin className="h-3 w-3 ml-1 text-green-600" />
                     )}
@@ -533,7 +533,7 @@ export default function HotelSetup() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="city" className="flex items-center">
-                      Città *
+                      Città <span className="text-red-500 ml-1">*</span>
                       {searchStatus === 'success' && (
                         <MapPin className="h-3 w-3 ml-1 text-green-600" />
                       )}
@@ -554,7 +554,7 @@ export default function HotelSetup() {
 
                   <div>
                     <Label htmlFor="region" className="flex items-center">
-                      Regione *
+                      Regione <span className="text-red-500 ml-1">*</span>
                       {searchStatus === 'success' && (
                         <MapPin className="h-3 w-3 ml-1 text-green-600" />
                       )}
@@ -575,7 +575,7 @@ export default function HotelSetup() {
 
                   <div>
                     <Label htmlFor="postalCode" className="flex items-center">
-                      CAP *
+                      CAP <span className="text-red-500 ml-1">*</span>
                       {searchStatus === 'success' && (
                         <MapPin className="h-3 w-3 ml-1 text-green-600" />
                       )}
@@ -641,39 +641,16 @@ export default function HotelSetup() {
                 />
               </div>
 
-              {/* Location */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="latitude" className="flex items-center">
-                    Latitudine
-                    {searchStatus === 'success' && (
-                      <MapPin className="h-3 w-3 ml-1 text-green-600" />
-                    )}
-                  </Label>
-                  <Input
-                    id="latitude"
-                    {...form.register("latitude")}
-                    placeholder="43.7696"
-                    className={`mt-1 ${searchStatus === 'success' ? 'border-green-300 bg-green-50' : ''}`}
-                    disabled={!isEditing}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="longitude" className="flex items-center">
-                    Longitudine
-                    {searchStatus === 'success' && (
-                      <MapPin className="h-3 w-3 ml-1 text-green-600" />
-                    )}
-                  </Label>
-                  <Input
-                    id="longitude"
-                    {...form.register("longitude")}
-                    placeholder="11.2558"
-                    className={`mt-1 ${searchStatus === 'success' ? 'border-green-300 bg-green-50' : ''}`}
-                    disabled={!isEditing}
-                  />
-                </div>
+              {/* Location - Hidden fields for latitude/longitude */}
+              <div className="hidden">
+                <Input
+                  {...form.register("latitude")}
+                  type="hidden"
+                />
+                <Input
+                  {...form.register("longitude")}
+                  type="hidden"
+                />
               </div>
 
               {/* Logo Upload */}
