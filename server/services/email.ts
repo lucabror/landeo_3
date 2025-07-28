@@ -580,19 +580,19 @@ export async function sendCreditPurchaseInstructions(
       <p>Se avete domande o necessitate di assistenza, non esitate a contattarci.</p>
       
       <p>Cordiali saluti,<br>
-      <strong>Luca Borro - Itinera</strong></p>
+      <strong>Luca Borro - Landeo</strong></p>
     </div>
     
     <div class="footer">
       <p>Questa email è stata generata automaticamente. Per assistenza contattate il nostro supporto.</p>
-      <p>© 2025 Luca Borro - Itinera - Sistema di Gestione Itinerari per Hotel</p>
+      <p>© 2025 Luca Borro - Landeo - Sistema di Gestione Itinerari per Hotel</p>
     </div>
   </div>
 </body>
 </html>`;
 
     const { data, error } = await resend.emails.send({
-      from: `Luca Borro - Itinera <onboarding@resend.dev>`,
+      from: `Luca Borro - Landeo <onboarding@resend.dev>`,
       to: [hotel.email],
       subject: `📋 Istruzioni Bonifico - Ordine Crediti ${packageName}`,
       html: htmlContent,

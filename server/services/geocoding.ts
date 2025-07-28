@@ -31,7 +31,7 @@ export async function geocodeHotel(hotelName: string, country: string = 'Italy')
       
       const response = await fetch(nominatimUrl, {
         headers: {
-          'User-Agent': 'HotelItineraryApp/1.0 (hotel management system)'
+          'User-Agent': 'LandeoApp/1.0 (hotel management system)'
         }
       });
       
@@ -126,7 +126,7 @@ export async function geocodeHotel(hotelName: string, country: string = 'Italy')
       
       const reverseResponse = await fetch(reverseUrl, {
         headers: {
-          'User-Agent': 'HotelItineraryApp/1.0 (hotel management system)'
+          'User-Agent': 'LandeoApp/1.0 (hotel management system)'
         }
       });
       
@@ -219,7 +219,7 @@ async function searchByCityFallback(hotelName: string, country: string): Promise
       
       const response = await fetch(nominatimUrl, {
         headers: {
-          'User-Agent': 'HotelItineraryApp/1.0 (hotel management system)'
+          'User-Agent': 'LandeoApp/1.0 (hotel management system)'
         }
       });
       
