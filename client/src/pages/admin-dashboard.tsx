@@ -39,8 +39,9 @@ interface CreditPurchase {
   hotel: Hotel;
 }
 
-const ADMIN_EMAIL = "itinera1prova@gmail.com";
-const ADMIN_PASSWORD = "admin2025";
+// Admin credentials should be stored securely in environment variables
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "";
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "";
 
 function AdminDashboardContent() {
   const [selectedHotelId, setSelectedHotelId] = useState<string>("");

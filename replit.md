@@ -10,6 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Risolto vulnerability critica - eliminati credenziali admin hardcoded
+  - Rimossi ADMIN_EMAIL e ADMIN_PASSWORD hardcoded dal codice client-side (admin-dashboard.tsx)
+  - Sostituiti con environment variables VITE_ADMIN_EMAIL e VITE_ADMIN_PASSWORD
+  - Credenziali precedenti erano visibili in chiaro nel browser e repository
+  - Sistema ora richiede configurazione sicura tramite Replit secrets per funzionare
 - **2025-01-28**: Creato sistema matching universale adattivo per TUTTI gli hotel
   - Rimossi riferimenti hardcoded a distribuzione specifica (65% cultura, 25% natura, etc.)
   - Implementato sistema soglie adattive che si regola automaticamente per ogni hotel
