@@ -29,17 +29,16 @@ export function Sidebar() {
   return (
     <div className="w-64 bg-white shadow-sm h-screen sticky top-0 border-r border-gray-200 flex flex-col">
       <div className="p-6 border-b border-gray-200 mb-6">
-        <div className="flex flex-col">
+        <div>
           <img 
             src={landeoLogo} 
             alt="Landeo" 
-            className="h-8 w-auto"
+            className="h-8 w-auto block"
           />
           <div className="w-full h-px bg-gray-200 my-2"></div>
-          <p className="text-xs text-gray-500 font-medium tracking-wide leading-tight">
+          <p className="text-xs text-gray-500 font-medium tracking-wide leading-tight whitespace-nowrap">
             Itinerari su misura, emozioni autentiche
           </p>
-
         </div>
       </div>
       <div className="p-6 flex-1">
