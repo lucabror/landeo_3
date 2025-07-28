@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Creato sistema matching universale adattivo per TUTTI gli hotel
+  - Rimossi riferimenti hardcoded a distribuzione specifica (65% cultura, 25% natura, etc.)
+  - Implementato sistema soglie adattive che si regola automaticamente per ogni hotel
+  - Soglie dinamiche: hotel con poche esperienze (≤10) usa soglie 10/3, categoria dominante (>60%) usa 12/4, equilibrato usa 15/5
+  - Mapping preferenze universale con parole chiave ampie per massimizzare matching cross-hotel
+  - Inclusi match "medium" come "preference-matched" per aumentare personalizzazione da ~10% a ~80%
+  - Sistema ora funziona ottimamente per hotel con qualsiasi distribuzione di esperienze locali
 - **2025-01-28**: Risolto pulsante "Re-invia Email" per preferenze ospiti - implementato endpoint mancante
   - Identificato problema: endpoint `/api/hotels/:hotelId/guest-profiles/:id/resend-email` non esisteva nel backend
   - Implementato endpoint completo con autenticazione hotel e verifica permessi

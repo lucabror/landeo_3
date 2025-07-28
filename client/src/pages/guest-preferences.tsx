@@ -32,7 +32,7 @@ import { guestPreferencesSchema, type GuestPreferences } from "@shared/schema";
 
 const PREFERENCE_CATEGORIES = [
   {
-    title: "Storia & Cultura (La maggior parte delle nostre esperienze)",
+    title: "Storia & Cultura",
     icon: Camera,
     color: "bg-blue-50 text-blue-700 border-blue-200",
     preferences: [
@@ -40,16 +40,14 @@ const PREFERENCE_CATEGORIES = [
       "Musei e gallerie d'arte", 
       "Monumenti storici",
       "Siti archeologici",
-      "Architettura antica",
+      "Architettura storica",
       "Borghi medievali",
-      "Palazzi storici",
-      "Templi e santuari",
-      "Ville storiche",
-      "Centro storico"
+      "Palazzi e ville storiche",
+      "Arte e cultura locale"
     ]
   },
   {
-    title: "Gastronomia & Ristoranti",
+    title: "Gastronomia",
     icon: Utensils,
     color: "bg-orange-50 text-orange-700 border-orange-200",
     preferences: [
@@ -57,33 +55,45 @@ const PREFERENCE_CATEGORIES = [
       "Cucina tipica locale",
       "Wine tasting",
       "Cantine e vigneti",
-      "Mercati e prodotti tipici",
-      "Cooking class"
+      "Mercati locali",
+      "Esperienze culinarie"
     ]
   },
   {
-    title: "Natura & Parchi",
+    title: "Natura & Outdoor",
     icon: TreePine,
     color: "bg-green-50 text-green-700 border-green-200",
     preferences: [
       "Parchi naturali",
-      "Parchi regionali",
-      "Trekking e escursioni",
-      "Giardini e ville",
+      "Trekking e passeggiate",
       "Laghi e panorami",
-      "Attività outdoor"
+      "Giardini botanici",
+      "Attività all'aperto",
+      "Natura e relax"
     ]
   },
   {
-    title: "Sport & Attività",
+    title: "Sport & Famiglia",
     icon: Mountain,
     color: "bg-red-50 text-red-700 border-red-200",
     preferences: [
-      "Piste ciclabili",
-      "Escursioni a piedi",
-      "Sport acquatici",
+      "Attività sportive",
       "Attività per famiglie",
-      "Percorsi sportivi"
+      "Percorsi ciclabili",
+      "Sport acquatici",
+      "Avventura e divertimento"
+    ]
+  },
+  {
+    title: "Shopping & Relax",
+    icon: ShoppingBag,
+    color: "bg-pink-50 text-pink-700 border-pink-200",
+    preferences: [
+      "Shopping locale",
+      "Centri benessere",
+      "Relax e spa",
+      "Artigianato tipico",
+      "Luoghi tranquilli"
     ]
   }
 ];

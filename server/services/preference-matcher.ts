@@ -1,46 +1,46 @@
 import type { GuestProfile, LocalExperience } from "@shared/schema";
 
-// Mapping ottimizzato delle preferenze per massimizzare matching con esperienze disponibili
+// Mapping universale delle preferenze per massimizzare matching per TUTTI gli hotel
 const PREFERENCE_TO_CATEGORY_MAP: Record<string, string[]> = {
-  // Storia & Cultura (65% delle esperienze) - mapping molto dettagliato
-  "Chiese e luoghi sacri": ["cultura", "storia"],
-  "Musei e gallerie d'arte": ["cultura", "storia"],
+  // Storia & Cultura - Mapping ampio per cogliere diverse tipologie
+  "Chiese e luoghi sacri": ["cultura", "storia", "religioso"],
+  "Musei e gallerie d'arte": ["cultura", "storia", "arte"],
   "Monumenti storici": ["cultura", "storia"],
-  "Siti archeologici": ["cultura", "storia"],
-  "Architettura antica": ["cultura", "storia"],
-  "Borghi medievali": ["cultura", "storia"],
-  "Palazzi storici": ["cultura", "storia"],
-  "Templi e santuari": ["cultura", "storia"],
-  "Ville storiche": ["cultura", "storia"],
-  "Centro storico": ["cultura", "storia"],
+  "Siti archeologici": ["cultura", "storia", "archeologia"],
+  "Architettura storica": ["cultura", "storia", "architettura"],
+  "Borghi medievali": ["cultura", "storia", "borgo"],
+  "Palazzi e ville storiche": ["cultura", "storia", "villa", "palazzo"],
+  "Arte e cultura locale": ["cultura", "arte", "locale"],
   
-  // Gastronomia & Ristoranti
-  "Ristoranti tradizionali": ["gastronomia", "cultura"],
-  "Cucina tipica locale": ["gastronomia", "cultura"],
-  "Wine tasting": ["gastronomia"],
-  "Cantine e vigneti": ["gastronomia"],
-  "Mercati e prodotti tipici": ["gastronomia"],
-  "Cooking class": ["gastronomia"],
+  // Gastronomia - Ampio per coprire diverse esperienze culinarie
+  "Ristoranti tradizionali": ["gastronomia", "ristorante", "tradizionale"],
+  "Cucina tipica locale": ["gastronomia", "cucina", "locale"],
+  "Wine tasting": ["gastronomia", "vino", "degustazione"],
+  "Cantine e vigneti": ["gastronomia", "vino", "cantina"],
+  "Mercati locali": ["gastronomia", "mercato", "locale"],
+  "Esperienze culinarie": ["gastronomia", "cucina", "esperienza"],
   
-  // Natura & Parchi (25% delle esperienze)
-  "Parchi naturali": ["natura"],
-  "Parchi regionali": ["natura"],
-  "Trekking e escursioni": ["natura"],
-  "Giardini e ville": ["natura", "cultura"],
-  "Laghi e panorami": ["natura"],
-  "Attività outdoor": ["natura"],
+  // Natura & Outdoor
+  "Parchi naturali": ["natura", "parco"],
+  "Trekking e passeggiate": ["natura", "trekking", "passeggiata"],
+  "Laghi e panorami": ["natura", "lago", "panorama"],
+  "Giardini botanici": ["natura", "giardino"],
+  "Attività all'aperto": ["natura", "outdoor"],
+  "Natura e relax": ["natura", "relax"],
   
-  // Sport & Attività (5% delle esperienze)
-  "Piste ciclabili": ["sport", "natura"],
-  "Escursioni a piedi": ["sport", "natura"],
-  "Sport acquatici": ["sport", "natura"],
-  "Attività per famiglie": ["sport", "famiglia"],
-  "Percorsi sportivi": ["sport", "natura"],
+  // Sport & Famiglia
+  "Attività sportive": ["sport", "attività"],
+  "Attività per famiglie": ["famiglia", "bambini", "attività"],
+  "Percorsi ciclabili": ["sport", "bicicletta", "ciclabile"],
+  "Sport acquatici": ["sport", "acqua"],
+  "Avventura e divertimento": ["avventura", "divertimento", "famiglia"],
   
-  // Shopping (5% delle esperienze)
-  "Shopping locale": ["shopping"],
-  "Mercatini": ["shopping", "cultura"],
-  "Artigianato locale": ["shopping", "cultura"]
+  // Shopping & Relax
+  "Shopping locale": ["shopping", "negozio"],
+  "Centri benessere": ["benessere", "spa", "relax"],
+  "Relax e spa": ["relax", "spa", "benessere"],
+  "Artigianato tipico": ["artigianato", "tipico", "shopping"],
+  "Luoghi tranquilli": ["relax", "tranquillo", "pace"]
 };
 
 export interface ExperienceMatch {
@@ -62,6 +62,15 @@ export function calculateExperienceMatches(
       matchType: 'low' as const
     }));
   }
+
+  // Analizza distribuzione categorie per soglie adattive
+  const categoryDistribution = analyzeExperienceDistribution(localExperiences);
+  const adaptiveThresholds = calculateAdaptiveThresholds(categoryDistribution);
+  
+  console.log('🎯 ADAPTIVE MATCHING:', {
+    categories: categoryDistribution,
+    thresholds: adaptiveThresholds
+  });
 
   const matches: ExperienceMatch[] = [];
 
@@ -116,11 +125,11 @@ export function calculateExperienceMatches(
       }
     }
 
-    // Determina il tipo di match (soglie molto più generose per personalizzazione)
+    // Usa soglie adattive basate sulla distribuzione di esperienze dell'hotel
     let matchType: 'high' | 'medium' | 'low';
-    if (matchScore >= 15) {  // Ridotto da 25 a 15 - più facile raggiungere high
+    if (matchScore >= adaptiveThresholds.high) {
       matchType = 'high';
-    } else if (matchScore >= 5) {  // Ridotto da 12 a 5 - molto più inclusivo
+    } else if (matchScore >= adaptiveThresholds.medium) {
       matchType = 'medium';
     } else {
       matchType = 'low';
@@ -136,6 +145,36 @@ export function calculateExperienceMatches(
 
   // Ordina per punteggio di match decrescente
   return matches.sort((a, b) => b.matchScore - a.matchScore);
+}
+
+// Analizza la distribuzione delle categorie per calcolare soglie adattive
+function analyzeExperienceDistribution(experiences: LocalExperience[]) {
+  const distribution: Record<string, number> = {};
+  
+  experiences.forEach(exp => {
+    distribution[exp.category] = (distribution[exp.category] || 0) + 1;
+  });
+  
+  return distribution;
+}
+
+// Calcola soglie adattive basate sulla distribuzione delle esperienze
+function calculateAdaptiveThresholds(distribution: Record<string, number>) {
+  const total = Object.values(distribution).reduce((sum, count) => sum + count, 0);
+  
+  // Se ci sono poche esperienze totali, soglie più basse per aumentare matching
+  if (total <= 10) {
+    return { high: 10, medium: 3 };
+  }
+  
+  // Se una categoria domina (>60%), soglie più basse per quella categoria
+  const maxCategoryPercent = Math.max(...Object.values(distribution)) / total;
+  if (maxCategoryPercent > 0.6) {
+    return { high: 12, medium: 4 };
+  }
+  
+  // Distribuzione equilibrata - soglie standard
+  return { high: 15, medium: 5 };
 }
 
 export function getPreferenceIcon(preference: string): string {
