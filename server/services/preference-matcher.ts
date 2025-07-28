@@ -82,30 +82,47 @@ export function calculateExperienceMatches(
       // Se la categoria dell'esperienza corrisponde a una categoria della preferenza
       if (relatedCategories.includes(experience.category)) {
         matchingPreferences.push(preference);
-        matchScore += 10; // Punteggio base per match categoria
+        matchScore += 20; // Aumentato punteggio base per match categoria
       }
       
       // Match additivo per target audience
       if (experience.targetAudience?.includes(guestProfile.type)) {
-        matchScore += 5;
+        matchScore += 10; // Aumentato punteggio per target audience
       }
       
-      // Bonus per match diretto nelle descrizioni
+      // Bonus per match diretto nelle descrizioni (più generoso)
       const searchText = (experience.name + " " + experience.description).toLowerCase();
       const preferenceKeywords = preference.toLowerCase().split(' ');
       
+      // Match diretto del nome completo della preferenza
+      if (searchText.includes(preference.toLowerCase())) {
+        matchScore += 15; // Bonus alto per match completo
+        if (!matchingPreferences.includes(preference)) {
+          matchingPreferences.push(preference);
+        }
+      }
+      
+      // Match per singole parole chiave
       for (const keyword of preferenceKeywords) {
         if (keyword.length > 3 && searchText.includes(keyword)) {
-          matchScore += 2;
+          matchScore += 5; // Aumentato bonus per parole chiave
+        }
+      }
+      
+      // Match speciale per parole chiave comuni
+      const commonWords = ['museo', 'arte', 'storia', 'natura', 'parco', 'ristorante', 'cibo', 'vino', 'relax', 'spa'];
+      for (const word of commonWords) {
+        if (preference.toLowerCase().includes(word) && searchText.includes(word)) {
+          matchScore += 8;
         }
       }
     }
 
-    // Determina il tipo di match
+    // Determina il tipo di match (soglie ridotte per essere più inclusivi)
     let matchType: 'high' | 'medium' | 'low';
-    if (matchScore >= 15) {
+    if (matchScore >= 25) {
       matchType = 'high';
-    } else if (matchScore >= 8) {
+    } else if (matchScore >= 12) {
       matchType = 'medium';
     } else {
       matchType = 'low';
