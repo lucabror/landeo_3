@@ -191,13 +191,13 @@ export default function LocalExperiences() {
   const hotelId = user?.hotelId;
 
   // Fetch local experiences
-  const { data: experiences, isLoading } = useQuery({
+  const { data: experiences = [], isLoading } = useQuery({
     queryKey: ["/api/hotels", hotelId, "local-experiences"],
     enabled: !!hotelId,
   });
 
   // Fetch guest profiles for matching
-  const { data: guestProfiles } = useQuery({
+  const { data: guestProfiles = [] } = useQuery({
     queryKey: ["/api/hotels", hotelId, "guest-profiles"],
     enabled: !!hotelId,
   });
@@ -209,7 +209,7 @@ export default function LocalExperiences() {
   });
 
   // Fetch pending attractions
-  const { data: pendingAttractions, isLoading: isLoadingPending } = useQuery({
+  const { data: pendingAttractions = [], isLoading: isLoadingPending } = useQuery({
     queryKey: ["/api/hotels", hotelId, "pending-attractions"],
     enabled: !!hotelId,
   });
@@ -316,12 +316,12 @@ export default function LocalExperiences() {
         duration: 10000, // Keep the toast for 10 seconds
       });
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "pending-attractions"] });
       queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "local-experiences"] });
       toast({
         title: "Attrazioni generate",
-        description: data.message,
+        description: data?.message || "Attrazioni generate con successo",
       });
     },
     onError: (error: any) => {
@@ -487,7 +487,7 @@ export default function LocalExperiences() {
               Genera con AI
             </Button>
             
-            {experiences && experiences.length > 0 && (
+            {experiences.length > 0 && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
@@ -512,7 +512,7 @@ export default function LocalExperiences() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Eliminare tutte le esperienze?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Questa azione eliminerà definitivamente tutte le {experiences.length} esperienze locali. 
+                      Questa azione eliminerà definitivamente tutte le {experiences?.length || 0} esperienze locali. 
                       Non è possibile annullare questa operazione.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
@@ -784,7 +784,7 @@ export default function LocalExperiences() {
         </div>
 
         {/* Pending Attractions Section */}
-        {pendingAttractions && pendingAttractions.length > 0 && (
+        {pendingAttractions.length > 0 && (
           <div className="mb-6">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-center mb-3">
@@ -826,7 +826,7 @@ export default function LocalExperiences() {
                         {attraction.highlights && attraction.highlights.length > 0 && (
                           <div className="mt-2">
                             <div className="flex flex-wrap gap-1">
-                              {attraction.highlights.slice(0, 3).map((highlight, idx) => (
+                              {attraction.highlights.slice(0, 3).map((highlight: any, idx: number) => (
                                 <span key={idx} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
                                   {highlight}
                                 </span>
@@ -872,7 +872,7 @@ export default function LocalExperiences() {
         )}
 
         {/* Guest Preference Matching */}
-        {guestProfiles && guestProfiles.length > 0 && (
+        {guestProfiles.length > 0 && (
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center">
@@ -890,7 +890,7 @@ export default function LocalExperiences() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">Nessun filtro</SelectItem>
-                      {guestProfiles.map((guest) => (
+                      {guestProfiles.map((guest: any) => (
                         <SelectItem key={guest.id} value={guest.id}>
                           <div className="flex items-center">
                             <User className="h-4 w-4 mr-2" />
@@ -905,7 +905,7 @@ export default function LocalExperiences() {
                 {selectedGuestId && selectedGuestId !== "none" && matchData && (
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                     <div className="text-sm text-gray-600">
-                      <strong>Preferenze:</strong> {matchData.guestProfile.preferences.join(", ") || "Nessuna"}
+                      <strong>Preferenze:</strong> {(matchData as any)?.guestProfile?.preferences?.join(", ") || "Nessuna"}
                     </div>
                   </div>
                 )}
@@ -929,9 +929,9 @@ export default function LocalExperiences() {
         ) : (
           <>
             {/* Local Experiences Grid */}
-            {experiences && experiences.length > 0 ? (
+            {experiences.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {(selectedGuestId && selectedGuestId !== "none" && matchData ? matchData.matches : experiences.map(exp => ({ experience: exp, matchType: 'low' as const, matchingPreferences: [] }))).map((match) => {
+                {(selectedGuestId && selectedGuestId !== "none" && matchData ? (matchData as any)?.matches || [] : experiences.map((exp: any) => ({ experience: exp, matchType: 'low' as const, matchingPreferences: [] }))).map((match: any) => {
                   const experience = match.experience;
                   const categoryConfig = getCategoryConfig(experience.category);
                   const IconComponent = categoryConfig.icon;
@@ -1043,7 +1043,7 @@ export default function LocalExperiences() {
                         
                         {experience.targetAudience && experience.targetAudience.length > 0 && (
                           <div className="mt-3 flex flex-wrap gap-1">
-                            {experience.targetAudience.slice(0, 3).map((audience, idx) => (
+                            {experience.targetAudience.slice(0, 3).map((audience: any, idx: number) => (
                               <Badge key={idx} variant="outline" className="text-xs capitalize">
                                 {audience}
                               </Badge>
