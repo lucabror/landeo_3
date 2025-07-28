@@ -895,6 +895,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Local experiences routes
 
+  // Get local experiences by hotel - Main endpoint
+  app.get("/api/hotels/:hotelId/local-experiences", async (req, res) => {
+    try {
+      const experiences = await storage.getLocalExperiencesByHotel(req.params.hotelId);
+      res.json(experiences);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch local experiences" });
+    }
+  });
+
+  // Legacy endpoint for compatibility
   app.get("/api/local-experiences/:hotelId", async (req, res) => {
     try {
       const experiences = await storage.getLocalExperiencesByHotel(req.params.hotelId);
