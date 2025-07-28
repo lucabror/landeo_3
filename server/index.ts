@@ -3,6 +3,7 @@ import path from "path";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import crypto from "crypto";
+import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
@@ -82,6 +83,70 @@ app.set('trust proxy', 1);
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+app.use(cookieParser());
+
+// Configurazione cookie di sicurezza
+const SESSION_DURATION = 2 * 60 * 60 * 1000; // 2 hours
+app.use((req, res, next) => {
+  // Override cookie method per aggiungere security defaults
+  const originalCookie = res.cookie;
+  res.cookie = function(name: string, value: any, options: any = {}) {
+    const secureOptions = {
+      ...options,
+      httpOnly: options.httpOnly !== false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: options.sameSite || 'strict'
+    };
+    return originalCookie.call(this, name, value, secureOptions);
+  };
+  next();
+});
+
+// CSRF Protection personalizzato (semplice ma efficace)
+const csrfTokens = new Map<string, { token: string, expires: number }>();
+
+// Genera token CSRF
+function generateCSRFToken(): string {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+// Valida token CSRF
+function validateCSRFToken(sessionId: string, token: string): boolean {
+  const stored = csrfTokens.get(sessionId);
+  if (!stored || stored.expires < Date.now()) {
+    csrfTokens.delete(sessionId);
+    return false;
+  }
+  return stored.token === token;
+}
+
+// Middleware CSRF per richieste che modificano dati
+app.use((req, res, next) => {
+  // Skip per metodi safe e endpoint specifici
+  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS' ||
+      req.path.includes('/api/upload/') || req.path.includes('/api/csrf-token')) {
+    return next();
+  }
+  
+  const sessionId = req.headers['x-session-id'] as string || 'anonymous';
+  const csrfToken = req.headers['x-csrf-token'] as string;
+  
+  if (!csrfToken || !validateCSRFToken(sessionId, csrfToken)) {
+    return res.status(403).json({ message: 'Token CSRF non valido' });
+  }
+  
+  next();
+});
+
+// Endpoint per ottenere CSRF token
+app.get('/api/csrf-token', (req, res) => {
+  const sessionId = req.headers['x-session-id'] as string || 'anonymous';
+  const token = generateCSRFToken();
+  const expires = Date.now() + (60 * 60 * 1000); // 1 ora
+  
+  csrfTokens.set(sessionId, { token, expires });
+  res.json({ csrfToken: token });
+});
 
 // Servire i file caricati (loghi) staticamente
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
