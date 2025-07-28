@@ -51,17 +51,38 @@ export async function findLocalAttractions(
 
 ${!hotelCoordinates && hotelPostalCode ? `IMPORTANTE: L'hotel è stato inserito manualmente e l'unica informazione geografica precisa è il CAP ${hotelPostalCode}. Utilizza ESCLUSIVAMENTE questo codice postale per localizzare l'area e trovare attrazioni turistiche entro 50km. Per le distanze, usa "${referencePoint}" come punto di riferimento invece del CAP.` : hotelPostalCode ? `IMPORTANTE: L'area di riferimento è identificata dal CAP ${hotelPostalCode} che è un identificatore geografico preciso. Utilizza questo codice postale per localizzare esattamente l'area e trovare attrazioni nelle immediate vicinanze.` : ''}
 
-Includi attrazioni specificatamente nelle vicinanze e zone limitrofe:
-- Ristoranti tipici e rinomati locali
-- Musei e siti culturali della zona
-- Mostre temporanee e permanenti regionali
-- Punti paesaggistici e naturali (laghi, parchi, riserve naturali)
-- Luoghi per attività sportive locali
-- Monumenti e siti storici dell'area
-- Centri commerciali e negozi caratteristici regionali
-- Luoghi di intrattenimento della zona
+CATEGORIE OBBLIGATORIE - Trova attrazioni SOLO in queste 15 categorie:
 
-ESCLUSIVAMENTE attrazioni che si trovano effettivamente entro 50km dall'area di riferimento. Verifica attentamente le distanze reali e non includere attrazioni di grandi città lontane che superano i 50km.
+STORIA E CULTURA (5 categorie):
+1. "musei" - Musei, gallerie d'arte, collezioni artistiche
+2. "monumenti" - Monumenti, siti storici, architettura antica  
+3. "chiese" - Chiese, santuari, luoghi religiosi
+4. "borghi" - Borghi storici, centri medievali
+5. "archeologia" - Scavi, rovine antiche, siti archeologici
+
+GASTRONOMIA (3 categorie):
+6. "ristoranti" - Ristoranti tradizionali, cucina tipica regionale
+7. "vino" - Cantine, wine tasting, degustazioni enologiche
+8. "mercati" - Mercati rionali, prodotti locali, gastronomia di strada
+
+NATURA E OUTDOOR (4 categorie):
+9. "parchi" - Parchi nazionali, riserve naturali, aree protette
+10. "trekking" - Sentieri escursionistici, passeggiate naturalistiche
+11. "laghi" - Laghi, vedute panoramiche, belvedere naturali
+12. "giardini" - Giardini botanici, orti storici, parchi urbani
+
+SPORT (2 categorie):
+13. "sport" - Sport all'aria aperta, attività fisiche
+14. "ciclismo" - Piste ciclabili, bike tours, cicloturismo
+
+SHOPPING (1 categoria):
+15. "shopping" - Negozi tipici, artigianato locale, botteghe storiche
+
+REGOLE FERREE:
+- Utilizza ESCLUSIVAMENTE queste 15 categorie nel campo "category"
+- Distribuisci le 20 attrazioni tra tutte le categorie (almeno 1 per categoria)
+- ESCLUSIVAMENTE attrazioni che si trovano effettivamente entro 50km dall'area di riferimento
+- Verifica attentamente le distanze reali
 
 Per ogni attrazione, fornisci:
 - Nome preciso
@@ -69,13 +90,13 @@ Per ogni attrazione, fornisci:
 - Descrizione coinvolgente (2-3 frasi)
 - Posizione specifica
 - Distanza stimata da ${referencePoint} (USA SEMPRE "${referencePoint}" e MAI il codice postale)
-- Categoria dettagliata
+- Categoria (USA SOLO UNA delle 15 categorie sopra elencate)
 - 3-4 punti salienti
 - Durata consigliata della visita
 - Fascia di prezzo (gratuito/economico/medio/costoso)
 - Momento migliore per visitare
 
-Trova esattamente 20 attrazioni diverse e interessanti. Rispondi in formato JSON con questa struttura:
+Trova esattamente 20 attrazioni diverse e interessanti distribuite tra le 15 categorie. Rispondi in formato JSON con questa struttura:
 
 {
   "attractions": [

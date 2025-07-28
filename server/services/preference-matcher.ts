@@ -1,31 +1,33 @@
 import type { GuestProfile, LocalExperience } from "@shared/schema";
 
-// SISTEMA SEMPLIFICATO: Mapping diretto preferenze → categorie esperienze
+import { LANDEO_CATEGORIES } from "@shared/categories";
+
+// MATCHING DIRETTO: Preferenze email → Categorie esperienze locali (1:1)
 const PREFERENCE_TO_CATEGORY_MAP: Record<string, string[]> = {
-  // Storia e Cultura → categoria "cultura"
-  "Storia e monumenti": ["cultura"],
-  "Musei e arte": ["cultura"], 
-  "Chiese e luoghi sacri": ["cultura"],
-  "Borghi e architettura": ["cultura"],
+  // Storia e Cultura (5 categorie)
+  "Musei e arte": ["musei"],
+  "Monumenti storici": ["monumenti"], 
+  "Chiese e luoghi sacri": ["chiese"],
+  "Borghi medievali": ["borghi"],
+  "Siti archeologici": ["archeologia"],
   
-  // Cibo e Vino → categoria "gastronomia"
-  "Ristoranti tipici": ["gastronomia"],
-  "Vino e degustazioni": ["gastronomia"],
-  "Cucina locale": ["gastronomia"],
+  // Gastronomia (3 categorie)
+  "Ristoranti e cucina locale": ["ristoranti"],
+  "Vino e degustazioni": ["vino"],
+  "Mercati e prodotti tipici": ["mercati"],
   
-  // Natura → categoria "natura"
-  "Parchi e natura": ["natura"],
-  "Passeggiate e trekking": ["natura"],
-  "Laghi e panorami": ["natura"],
+  // Natura e Outdoor (4 categorie)
+  "Parchi e riserve naturali": ["parchi"],
+  "Trekking e passeggiate": ["trekking"],
+  "Laghi e panorami": ["laghi"],
+  "Giardini botanici": ["giardini"],
   
-  // Sport → categoria "sport"
+  // Sport (2 categorie)
   "Attività sportive": ["sport"],
-  "Attività per famiglie": ["sport"],
-  "Ciclismo e bicicletta": ["sport"],
+  "Ciclismo e percorsi in bici": ["ciclismo"],
   
-  // Shopping/Relax → categorie "shopping"/"relax"
-  "Relax e benessere": ["relax"],
-  "Shopping e acquisti": ["shopping"]
+  // Shopping (1 categoria)
+  "Shopping e artigianato": ["shopping"]
 };
 
 export interface ExperienceMatch {
