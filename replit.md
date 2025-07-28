@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Risolto sistema etichette categorie e aggiunto pulsante eliminazione batch
+  - Implementato mapping intelligente categorie AI → categorie standardizzate (shopping, cultura, natura, sport, etc.)
+  - Aggiunte funzioni mapAIcategoryToStandard() per conversione automatica categorie AI in valori frontend
+  - Etichette categoria ora consistenti: no più "Shopping e Svago" ma "shopping" come da array CATEGORIES
+  - Aggiunto pulsante "Elimina Esperienze" nell'header per eliminazione batch di tutte le esperienze
+  - Nuovo endpoint DELETE /api/hotels/:hotelId/local-experiences per eliminazione massiva
+  - AlertDialog con conferma per prevenire eliminazioni accidentali con conteggio esperienze
 - **2025-01-28**: Reso prompt OpenAI completamente generico e dinamico per qualsiasi hotel
   - Rimossi riferimenti hardcoded a città specifiche (Velletri, Castelli Romani, Roma)
   - Prompt ora utilizza dinamicamente ${searchArea}, ${referencePoint}, ${hotelPostalCode} dai dati hotel

@@ -319,6 +319,25 @@ export default function LocalExperiences() {
     },
   });
 
+  // Delete all experiences mutation
+  const deleteAllMutation = useMutation({
+    mutationFn: () => apiRequest("DELETE", `/api/hotels/${hotelId}/local-experiences`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "local-experiences"] });
+      toast({
+        title: "Successo",
+        description: "Tutte le esperienze sono state eliminate con successo!",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore",
+        description: error.message || "Errore durante l'eliminazione delle esperienze",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Approve attraction mutation
   const approveAttractionMutation = useMutation({
     mutationFn: (attractionId: string) => apiRequest("POST", `/api/hotels/${hotelId}/pending-attractions/${attractionId}/approve`),
@@ -453,6 +472,48 @@ export default function LocalExperiences() {
               )}
               Genera con AI
             </Button>
+            
+            {experiences && experiences.length > 0 && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="border-red-300 text-red-600 hover:bg-red-50"
+                    disabled={deleteAllMutation.isPending}
+                  >
+                    {deleteAllMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Eliminando...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Elimina Esperienze
+                      </>
+                    )}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Eliminare tutte le esperienze?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Questa azione eliminerà definitivamente tutte le {experiences.length} esperienze locali. 
+                      Non è possibile annullare questa operazione.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annulla</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={() => deleteAllMutation.mutate()}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Elimina Tutte
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
             
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
