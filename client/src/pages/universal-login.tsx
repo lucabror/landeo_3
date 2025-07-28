@@ -248,7 +248,7 @@ export default function UniversalLogin() {
             {getUserTypeIcon()}
           </div>
           <CardTitle>
-            {step === 'login' && "Accesso AiTour"}
+            {step === 'login' && "Accedi alla tua Dashboard Landeo"}
             {step === 'setup-password' && "Configura Password"}
             {step === 'mfa-verify' && "Verifica 2FA"}
             {step === 'forgot-password' && "Reset Password"}

@@ -11,11 +11,27 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
-import { Hotel, Mail, Eye, EyeOff, CheckCircle, ArrowLeft } from "lucide-react";
+import { Hotel, Mail, Eye, EyeOff, CheckCircle, ArrowLeft, Check, X } from "lucide-react";
+
+// Password requirements
+const passwordRequirements = {
+  minLength: 8,
+  hasUppercase: /[A-Z]/,
+  hasLowercase: /[a-z]/,
+  hasNumber: /\d/,
+  hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/
+};
+
+const passwordSchema = z.string()
+  .min(passwordRequirements.minLength, `Minimo ${passwordRequirements.minLength} caratteri`)
+  .refine(val => passwordRequirements.hasUppercase.test(val), "Almeno una lettera maiuscola")
+  .refine(val => passwordRequirements.hasLowercase.test(val), "Almeno una lettera minuscola")
+  .refine(val => passwordRequirements.hasNumber.test(val), "Almeno un numero")
+  .refine(val => passwordRequirements.hasSpecialChar.test(val), "Almeno un carattere speciale (!@#$%^&*)");
 
 const registerSchema = z.object({
   email: z.string().email("Email non valida"),
-  password: z.string().min(8, "La password deve essere di almeno 8 caratteri"),
+  password: passwordSchema,
   confirmPassword: z.string(),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Le password non coincidono",
@@ -30,6 +46,11 @@ export default function HotelRegister() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // Check password requirements
+  const checkRequirement = (requirement: RegExp, value: string) => requirement.test(value);
+  const checkLength = (value: string) => value.length >= passwordRequirements.minLength;
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -163,21 +184,54 @@ export default function HotelRegister() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Minimo 8 caratteri"
-                          {...field}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Crea una password sicura"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              setPassword(e.target.value);
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
+                        
+                        {/* Password Requirements */}
+                        <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                          <p className="text-sm font-medium text-gray-700">Requisiti password:</p>
+                          <div className="space-y-1">
+                            <div className={`flex items-center gap-2 text-xs ${checkLength(password) ? 'text-green-600' : 'text-gray-500'}`}>
+                              {checkLength(password) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                              <span>Almeno 8 caratteri</span>
+                            </div>
+                            <div className={`flex items-center gap-2 text-xs ${checkRequirement(passwordRequirements.hasUppercase, password) ? 'text-green-600' : 'text-gray-500'}`}>
+                              {checkRequirement(passwordRequirements.hasUppercase, password) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                              <span>Una lettera maiuscola (A-Z)</span>
+                            </div>
+                            <div className={`flex items-center gap-2 text-xs ${checkRequirement(passwordRequirements.hasLowercase, password) ? 'text-green-600' : 'text-gray-500'}`}>
+                              {checkRequirement(passwordRequirements.hasLowercase, password) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                              <span>Una lettera minuscola (a-z)</span>
+                            </div>
+                            <div className={`flex items-center gap-2 text-xs ${checkRequirement(passwordRequirements.hasNumber, password) ? 'text-green-600' : 'text-gray-500'}`}>
+                              {checkRequirement(passwordRequirements.hasNumber, password) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                              <span>Un numero (0-9)</span>
+                            </div>
+                            <div className={`flex items-center gap-2 text-xs ${checkRequirement(passwordRequirements.hasSpecialChar, password) ? 'text-green-600' : 'text-gray-500'}`}>
+                              {checkRequirement(passwordRequirements.hasSpecialChar, password) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                              <span>Un carattere speciale (!@#$%^&*)</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </FormControl>
                     <FormMessage />
