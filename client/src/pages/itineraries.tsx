@@ -22,31 +22,28 @@ import {
   Plus
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-
-// Mock hotel ID - in real app this would come from auth/context
-const MOCK_HOTEL_ID = "d2dd46f0-97d3-4121-96e3-01500370c73f";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Itineraries() {
   const [selectedItinerary, setSelectedItinerary] = useState<any>(null);
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  
+  const hotelId = user?.hotelId;
 
   // Fetch itineraries
   const { data: itineraries, isLoading } = useQuery({
-    queryKey: ["/api/hotels", MOCK_HOTEL_ID, "itineraries"],
+    queryKey: ["/api/hotels", hotelId, "itineraries"],
+    enabled: !!hotelId,
   });
 
   // Fetch guest profiles for reference
   const { data: guestProfiles } = useQuery({
-    queryKey: ["/api/hotels", MOCK_HOTEL_ID, "guest-profiles"],
+    queryKey: ["/api/hotels", hotelId, "guest-profiles"],
+    enabled: !!hotelId,
   });
-
-  // Mock hotel data
-  const hotel = {
-    name: "Grand Hotel Villa Medici",
-    id: MOCK_HOTEL_ID
-  };
 
   // Delete mutation
   const deleteMutation = useMutation({
@@ -58,7 +55,7 @@ export default function Itineraries() {
         title: "Successo",
         description: "Itinerario eliminato con successo!",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", MOCK_HOTEL_ID, "itineraries"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "itineraries"] });
     },
     onError: (error: any) => {
       toast({

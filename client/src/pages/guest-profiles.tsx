@@ -57,6 +57,33 @@ export default function GuestProfiles() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+
+  // Delete itinerary mutation
+  const deleteItineraryMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest("DELETE", `/api/itineraries/${id}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Successo",
+        description: "Itinerario eliminato con successo!",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "itineraries"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore",
+        description: error.message || "Errore durante l'eliminazione",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteItinerary = (id: string) => {
+    if (confirm("Sei sicuro di voler eliminare questo itinerario?")) {
+      deleteItineraryMutation.mutate(id);
+    }
+  };
   
   // Get hotel ID from authenticated user
   const hotelId = user?.hotelId;
@@ -627,6 +654,14 @@ export default function GuestProfiles() {
                                   >
                                     <Mail className="h-4 w-4 mr-1" />
                                     Email PDF
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="text-red-500 hover:text-red-700"
+                                    onClick={() => handleDeleteItinerary(itinerary.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
                                   </Button>
                                 </div>
                               </div>
