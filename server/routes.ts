@@ -832,7 +832,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Guest preferences endpoint
   app.get("/api/guest-preferences/:token", async (req, res) => {
     try {
+      console.log(`Looking for guest profile with token: ${req.params.token}`);
       const guestProfile = await storage.getGuestProfileByToken(req.params.token);
+      console.log(`Guest profile found:`, guestProfile ? 'YES' : 'NO');
+      
       if (!guestProfile) {
         return res.status(404).json({ message: "Guest profile not found" });
       }
@@ -842,12 +845,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const now = new Date();
       const hoursDiff = (now.getTime() - tokenDate.getTime()) / (1000 * 60 * 60);
       
+      console.log(`Token age: ${hoursDiff} hours`);
+      
       if (hoursDiff > 24) {
         return res.status(410).json({ message: "Token expired", details: "Il link è scaduto. Contatta l'hotel per un nuovo link." });
       }
       
       res.json(guestProfile);
     } catch (error) {
+      console.error("Error in guest preferences endpoint:", error);
       res.status(500).json({ message: "Failed to fetch guest profile" });
     }
   });
