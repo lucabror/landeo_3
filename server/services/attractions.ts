@@ -126,7 +126,7 @@ Trova esattamente 20 attrazioni diverse e interessanti. Rispondi in formato JSON
 
   } catch (error) {
     console.error('Error finding local attractions:', error);
-    throw new Error('Errore nella ricerca delle attrazioni locali: ' + error.message);
+    throw new Error('Errore nella ricerca delle attrazioni locali: ' + (error instanceof Error ? error.message : String(error)));
   }
 }
 
