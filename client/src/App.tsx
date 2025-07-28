@@ -103,7 +103,13 @@ function Router() {
       {/* Admin dashboard */}
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin-dashboard" component={AdminDashboard} />
-      <Route path="/admin-profile" component={AdminProfile} />
+      <Route path="/admin-profile">
+        {() => (
+          <ProtectedRoute requiredUserType="admin">
+            <AdminProfile />
+          </ProtectedRoute>
+        )}
+      </Route>
       
       {/* QR Code & PDF page redirects to itineraries for now */}
       <Route path="/qr-pdf" component={Itineraries} />
