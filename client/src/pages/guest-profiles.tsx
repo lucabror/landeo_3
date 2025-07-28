@@ -112,10 +112,7 @@ export default function GuestProfiles() {
   // Type assertion for creditInfo to avoid TypeScript errors
   const credits = (creditInfo as any).credits || 0;
 
-  // Fetch all itineraries for current guest profile
-  const { data: allItineraries = [] } = useQuery({
-    queryKey: ["/api/hotels", hotelId, "itineraries"],
-  });
+  // Note: Guest-specific itineraries are fetched via guestItinerary query when viewing profile
 
   const form = useForm<InsertGuestProfile>({
     resolver: zodResolver(insertGuestProfileSchema),
@@ -570,10 +567,8 @@ export default function GuestProfiles() {
                       Itinerari Generati
                     </h3>
                     {(() => {
-                      // Filter itineraries for this guest and sort by creation date (newest first)
-                      const guestItineraries = (allItineraries as any)?.filter((itinerary: any) => 
-                        itinerary.guestProfileId === viewingProfile.id
-                      ).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [];
+                      // Use guest-specific itinerary query instead of filtering all itineraries
+                      const guestItineraries = (guestItinerary as any) || [];
                       
                       if (guestItineraries.length > 0) {
                         return (
