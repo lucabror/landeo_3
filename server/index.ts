@@ -129,7 +129,8 @@ app.use((req, res, next) => {
       req.path.includes('/api/upload/') || req.path.includes('/api/csrf-token') ||
       req.path.includes('/api/auth/') || req.path.includes('/api/hotels/geocode') ||
       req.path.match(/^\/api\/hotels\/[^/]+$/) || // Skip CSRF per hotel CRUD operations
-      req.path.includes('/generate-attractions')) { // Skip CSRF per AI generation
+      req.path.includes('/generate-attractions') || // Skip CSRF per AI generation
+      req.path.includes('/pending-attractions')) { // Skip CSRF per pending attractions management
     return next();
   }
   

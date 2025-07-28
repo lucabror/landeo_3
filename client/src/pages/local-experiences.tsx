@@ -294,6 +294,14 @@ export default function LocalExperiences() {
   // Generate AI attractions mutation
   const generateAttractionsMutation = useMutation({
     mutationFn: () => apiRequest("POST", `/api/hotels/${hotelId}/generate-attractions`),
+    onMutate: () => {
+      // Show warning message during generation
+      toast({
+        title: "Generazione in corso",
+        description: "La generazione delle Esperienze Locali può richiedere alcuni minuti. Non chiudere o aggiornare questa pagina fino al termine della generazione.",
+        duration: 10000, // Keep the toast for 10 seconds
+      });
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "pending-attractions"] });
       toast({
