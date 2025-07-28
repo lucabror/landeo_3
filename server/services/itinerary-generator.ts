@@ -29,9 +29,26 @@ export async function generateGuestSpecificItinerary(
     dates.push(currentDate.toISOString().split('T')[0]);
   }
 
+  // Calculate preference matches for intelligent selection
+  const experienceMatches = calculateExperienceMatches(guestProfile, localExperiences);
+  
+  console.log('=== MATCHING ANALYSIS ===');
+  console.log(`Guest preferences: ${guestProfile.preferences?.join(', ') || 'None'}`);
+  experienceMatches.forEach(match => {
+    console.log(`${match.experience.name} (${match.experience.category}): ${match.matchType} match (score: ${match.matchScore})`);
+    if (match.matchingPreferences.length > 0) {
+      console.log(`  → Matches: ${match.matchingPreferences.join(', ')}`);
+    }
+  });
+
+  // Separate experiences by match quality
+  const highMatchExperiences = experienceMatches.filter(m => m.matchType === 'high');
+  const mediumMatchExperiences = experienceMatches.filter(m => m.matchType === 'medium');
+  const lowMatchExperiences = experienceMatches.filter(m => m.matchType === 'low');
+
   // Create AI prompt for guest-specific itinerary
   const prompt = `
-Genera un itinerario personalizzato che deve basarsi ESCLUSIVAMENTE su questi tre elementi:
+Genera un itinerario personalizzato che deve basarsi ESCLUSIVAMENTE su questi elementi:
 
 1. CARATTERISTICHE HOTEL "${hotel.name}":
 ${hotel.services?.length ? 
@@ -46,26 +63,49 @@ ${hotel.description ? `   - Descrizione: ${hotel.description}` : ''}
    - Preferenze specifiche: ${guestProfile.preferences?.join(", ") || "Nessuna preferenza particolare"}
    - Richieste speciali: ${guestProfile.specialRequests || "Nessuna richiesta particolare"}
 
-3. ESPERIENZE LOCALI SELEZIONATE DAL MANAGER:
-${localExperiences.length > 0 ? 
-  localExperiences.map(exp => `   - ID: ${exp.id}
-     Nome: ${exp.name} (${exp.category})
-     Durata: ${exp.duration} | Prezzo: ${exp.priceRange}
-     Località: ${exp.location}
-     Descrizione: ${exp.description}`).join('\n\n') :
-  '   - Nessuna esperienza locale configurata dal manager'
+3. ESPERIENZE LOCALI CATEGORIZZATE PER AFFINITÀ CON L'OSPITE:
+
+   🎯 ESPERIENZE PERFETTAMENTE ALLINEATE (USA PRIORITARIAMENTE):
+${highMatchExperiences.length > 0 ? 
+  highMatchExperiences.map(match => `   - ID: ${match.experience.id}
+     Nome: ${match.experience.name} (${match.experience.category})
+     MATCH PERFETTO: ${match.matchingPreferences.join(", ")}
+     Durata: ${match.experience.duration} | Prezzo: ${match.experience.priceRange}
+     Località: ${match.experience.location}
+     Descrizione: ${match.experience.description}`).join('\n\n') :
+  '   - Nessuna esperienza con match perfetto'
+}
+
+   ✨ ESPERIENZE COMPATIBILI (USA SE NECESSARIO):
+${mediumMatchExperiences.length > 0 ? 
+  mediumMatchExperiences.map(match => `   - ID: ${match.experience.id}
+     Nome: ${match.experience.name} (${match.experience.category})
+     Match parziale: ${match.matchingPreferences.join(", ") || "compatibile"}
+     Durata: ${match.experience.duration} | Prezzo: ${match.experience.priceRange}
+     Località: ${match.experience.location}`) :
+  '   - Nessuna esperienza con match medio'
+}
+
+   • ESPERIENZE STANDARD (USA SOLO PER COMPLETARE):
+${lowMatchExperiences.length > 0 ? 
+  lowMatchExperiences.map(match => `   - ID: ${match.experience.id}
+     Nome: ${match.experience.name} (${match.experience.category})
+     Durata: ${match.experience.duration} | Località: ${match.experience.location}`) :
+  '   - Nessuna esperienza standard'
 }
 
 REGOLE FONDAMENTALI:
 - Crea un itinerario di ESATTAMENTE ${stayDuration} giorni (dal ${dates[0]} al ${dates[dates.length - 1]})
-- USA SOLO le esperienze locali elencate sopra con i loro ID specifici
+- USA PRIORITARIAMENTE le esperienze 🎯 PERFETTAMENTE ALLINEATE (almeno il 70% dell'itinerario)
+- USA le esperienze ✨ COMPATIBILI solo se necessario per completare l'itinerario
+- USA le esperienze • STANDARD solo come ultima risorsa
 - NON inventare attività o esperienze non presenti nella lista
 - INTEGRA i servizi dell'hotel specificati nella lista servizi
 - RISPETTA sempre le preferenze dell'ospite: ${guestProfile.preferences?.join(", ") || "nessuna preferenza particolare"}
 - Per il tipo ospite "${guestProfile.type}" considera il target appropriato
-- Se non ci sono esperienze locali, concentrati sui servizi dell'hotel
 - Ogni giorno deve avere dalle 3 alle 5 attività distribuite dalla mattina alla sera
 - Per le esperienze locali usa sempre l'ID corrispondente nel campo "experienceId"
+- L'itinerario finale deve essere PRINCIPALMENTE basato sui gusti personali dell'ospite
 
 FORMAT RICHIESTO - Rispondi SOLO con JSON valido:
 {
