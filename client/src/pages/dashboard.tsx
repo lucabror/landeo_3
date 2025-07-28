@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,11 +22,14 @@ import {
   Settings,
   AlertCircle,
   CheckCircle,
-  Sparkles
+  Sparkles,
+  Trash2
 } from "lucide-react";
 import CreditPurchaseDialog from "@/components/credit-purchase-dialog";
 import { ProtectedRoute, useAuth } from "@/hooks/use-auth";
 import { Link } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 // Mock hotel ID - in real app this would come from auth/context
 const MOCK_HOTEL_ID = "d2dd46f0-97d3-4121-96e3-01500370c73f";
@@ -35,12 +38,41 @@ function DashboardContent() {
   const [selectedItinerary, setSelectedItinerary] = useState<any>(null);
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Use the user's hotel ID from authentication
   const hotelId = user?.hotelId || user?.id || MOCK_HOTEL_ID;
   
   console.log("Current user:", user);
   console.log("Using hotel ID:", hotelId);
+
+  // Delete itinerary mutation
+  const deleteItineraryMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest("DELETE", `/api/itineraries/${id}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Successo",
+        description: "Itinerario eliminato con successo!",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "itineraries"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore",
+        description: error.message || "Errore durante l'eliminazione",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteItinerary = (id: string) => {
+    if (confirm("Sei sicuro di voler eliminare questo itinerario?")) {
+      deleteItineraryMutation.mutate(id);
+    }
+  };
 
   // Fetch hotel stats
   const { data: stats } = useQuery({
@@ -409,6 +441,14 @@ function DashboardContent() {
                           QR
                         </Button>
                       )}
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-xs h-7 text-red-500 hover:text-red-700"
+                        onClick={() => handleDeleteItinerary(itinerary.id)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
                     </div>
                   </div>
                 )) || (
