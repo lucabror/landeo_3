@@ -15,6 +15,7 @@ import {
   HeadphonesIcon
 } from "lucide-react";
 import landeoLogo from "@assets/landeo def_1753695256255.png";
+import Footer from "@/components/footer";
 
 export default function Contact() {
   const contactInfo = [
@@ -287,7 +288,7 @@ export default function Contact() {
             Pronto per Iniziare?
           </h2>
           <p className="text-xl mb-8 text-amber-100">
-            Non aspettare. Inizia subito a migliorare l'esperienza dei tuoi ospiti con AiTour.
+            Non aspettare. Inizia subito a migliorare l'esperienza dei tuoi ospiti con Landeo.
           </p>
           <Link href="/hotel-register">
             <Button size="lg" className="bg-white text-amber-700 hover:bg-gray-50">
@@ -296,6 +297,8 @@ export default function Contact() {
           </Link>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }

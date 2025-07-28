@@ -14,6 +14,7 @@ import {
   CheckCircle
 } from "lucide-react";
 import landeoLogo from "@assets/landeo def_1753695256255.png";
+import Footer from "@/components/footer";
 
 export default function Support() {
   const supportOptions = [
@@ -40,15 +41,15 @@ export default function Support() {
       title: "Primi Passi",
       questions: [
         {
-          q: "Come registro il mio hotel su AiTour?",
+          q: "Come registro il mio hotel su Landeo?",
           a: "Clicca su 'Inizia Gratis' nella homepage, inserisci la tua email e segui il processo di verifica. Riceverai un link di conferma via email."
         },
         {
-          q: "Quanto tempo serve per configurare AiTour?",
+          q: "Quanto tempo serve per configurare Landeo?",
           a: "Il setup iniziale richiede circa 5-10 minuti. Inserisci i dati del tuo hotel, aggiungi alcune esperienze locali e sei pronto per generare i primi itinerari."
         },
         {
-          q: "Posso provare AiTour gratuitamente?",
+          q: "Posso provare Landeo gratuitamente?",
           a: "Sì! Ogni nuovo hotel riceve 5 itinerari gratuiti per testare completamente la piattaforma senza alcun costo."
         }
       ]
@@ -264,6 +265,8 @@ export default function Support() {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }

@@ -12,38 +12,39 @@ import {
   Mail
 } from "lucide-react";
 import landeoLogo from "@assets/landeo def_1753695256255.png";
+import Footer from "@/components/footer";
 
 export default function Terms() {
   const sections = [
     {
       title: "Accettazione dei Termini",
       icon: CheckCircle,
-      content: "Utilizzando AiTour, accetti integralmente questi Termini e Condizioni. Se non accetti questi termini, non utilizzare il servizio. L'uso continuato della piattaforma costituisce accettazione di eventuali modifiche ai termini."
+      content: "Utilizzando Landeo, accetti integralmente questi Termini e Condizioni. Se non accetti questi termini, non utilizzare il servizio. L'uso continuato della piattaforma costituisce accettazione di eventuali modifiche ai termini."
     },
     {
       title: "Descrizione del Servizio",
       icon: FileText,
-      content: "AiTour è una piattaforma SaaS che permette agli hotel di creare itinerari personalizzati per i propri ospiti utilizzando intelligenza artificiale. Il servizio include gestione profili ospiti, generazione di itinerari AI, creazione di PDF e QR code, e sistema di email automatiche."
+      content: "Landeo è una piattaforma SaaS che permette agli hotel di creare itinerari personalizzati per i propri ospiti utilizzando intelligenza artificiale. Il servizio include gestione profili ospiti, generazione di itinerari AI, creazione di PDF e QR code, e sistema di email automatiche."
     },
     {
       title: "Account Utente",
       icon: Shield,
-      content: "Per utilizzare AiTour devi creare un account fornendo informazioni accurate e complete. Sei responsabile della sicurezza del tuo account e password. Devi notificarci immediatamente qualsiasi accesso non autorizzato al tuo account."
+      content: "Per utilizzare Landeo devi creare un account fornendo informazioni accurate e complete. Sei responsabile della sicurezza del tuo account e password. Devi notificarci immediatamente qualsiasi accesso non autorizzato al tuo account."
     },
     {
       title: "Pagamenti e Fatturazione",
       icon: CreditCard,
-      content: "AiTour opera con un sistema a crediti. Ogni itinerario generato costa 1 credito (1€). I pagamenti avvengono tramite bonifico bancario. I crediti non scadono e non sono rimborsabili una volta acquistati, salvo quanto previsto dalla legge."
+      content: "Landeo opera con un sistema a crediti. Ogni itinerario generato costa 1 credito (1€). I pagamenti avvengono tramite bonifico bancario. I crediti non scadono e non sono rimborsabili una volta acquistati, salvo quanto previsto dalla legge."
     },
     {
       title: "Uso Accettabile",
       icon: Scale,
-      content: "Ti impegni a utilizzare AiTour solo per scopi legali e in conformità con questi termini. È vietato: usare il servizio per attività illegali, tentare di violare la sicurezza del sistema, utilizzare il servizio per spam o attività dannose."
+      content: "Ti impegni a utilizzare Landeo solo per scopi legali e in conformità con questi termini. È vietato: usare il servizio per attività illegali, tentare di violare la sicurezza del sistema, utilizzare il servizio per spam o attività dannose."
     },
     {
       title: "Proprietà Intellettuale",
       icon: AlertCircle,
-      content: "AiTour e tutti i suoi contenuti sono protetti da copyright e altri diritti di proprietà intellettuale. Ti concediamo una licenza limitata, non esclusiva e revocabile per utilizzare il servizio secondo questi termini."
+      content: "Landeo e tutti i suoi contenuti sono protetti da copyright e altri diritti di proprietà intellettuale. Ti concediamo una licenza limitata, non esclusiva e revocabile per utilizzare il servizio secondo questi termini."
     }
   ];
 
@@ -150,7 +151,7 @@ export default function Terms() {
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 mb-6">
-              Utilizzando AiTour, ti impegni a rispettare i seguenti obblighi:
+              Utilizzando Landeo, ti impegni a rispettare i seguenti obblighi:
             </p>
             <div className="space-y-3">
               {userObligations.map((obligation, index) => (
@@ -192,10 +193,10 @@ export default function Terms() {
             <div className="space-y-4">
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Risoluzione da parte dell'Utente</h4>
-                <p className="text-gray-600">Puoi cessare l'utilizzo di AiTour in qualsiasi momento. I crediti residui rimarranno disponibili secondo i termini di servizio.</p>
+                <p className="text-gray-600">Puoi cessare l'utilizzo di Landeo in qualsiasi momento. I crediti residui rimarranno disponibili secondo i termini di servizio.</p>
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Risoluzione da parte di AiTour</h4>
+                <h4 className="font-semibold text-gray-900 mb-2">Risoluzione da parte di Landeo</h4>
                 <p className="text-gray-600">Possiamo sospendere o terminare il tuo account in caso di violazione di questi termini o per motivi di sicurezza.</p>
               </div>
               <div>
@@ -242,12 +243,12 @@ export default function Terms() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <p className="text-gray-700"><strong>Ragione sociale:</strong> AiTour S.r.l.</p>
+              <p className="text-gray-700"><strong>Ragione sociale:</strong> Landeo S.r.l.</p>
               <p className="text-gray-700"><strong>Sede legale:</strong> Via dell'Innovazione 123, 20100 Milano, Italia</p>
               <p className="text-gray-700"><strong>Partita IVA:</strong> IT12345678901</p>
               <p className="text-gray-700"><strong>Codice Fiscale:</strong> 12345678901</p>
-              <p className="text-gray-700"><strong>Email:</strong> <a href="mailto:legal@aitour.it" className="text-amber-700 hover:text-amber-800">legal@aitour.it</a></p>
-              <p className="text-gray-700"><strong>PEC:</strong> aitour@pec.it</p>
+              <p className="text-gray-700"><strong>Email:</strong> <a href="mailto:legal@landeo.it" className="text-amber-700 hover:text-amber-800">legal@landeo.it</a></p>
+              <p className="text-gray-700"><strong>PEC:</strong> landeo@pec.it</p>
             </div>
           </CardContent>
         </Card>
@@ -273,6 +274,8 @@ export default function Terms() {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }
