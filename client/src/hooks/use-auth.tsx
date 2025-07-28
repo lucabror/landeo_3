@@ -49,6 +49,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = (userData: User, sessionToken: string) => {
+    console.log('AuthProvider login called with:', userData);
+    
     // Selective cleanup - only auth-related data
     localStorage.removeItem('sessionToken');
     localStorage.removeItem('user');
@@ -59,6 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('sessionToken', sessionToken);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
+    
+    console.log('AuthProvider login completed, user state set');
   };
 
   const logout = async () => {
