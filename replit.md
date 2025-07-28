@@ -244,6 +244,13 @@ Preferred communication style: Simple, everyday language.
 - **2025-01-27**: Migliorato testo badge matching nelle esperienze locali
   - Cambiato "• Standard" in "Matching Standard" per maggiore chiarezza
   - Badge ora più consistente con terminologia di matching del sistema
+- **2025-01-27**: Creato sistema completo di pagine footer per AiTour
+  - Nuove pagine: Funzionalità (/features), Prezzi (/pricing), Centro Assistenza (/support)
+  - Pagine aziendali: Contatti (/contact), Chi Siamo (/about), Privacy (/privacy), Termini (/terms)
+  - Collegata pagina "Demo" del footer alla registrazione hotel (/hotel-register)
+  - Rimossi dal footer: voce "API" dal menu Prodotto e "Sicurezza" dal menu Azienda
+  - Tutte le pagine includono logo AiTour con slogan e design coerente con landing page
+  - Footer ora completamente funzionale con link attivi e navigazione completa
 
 ## System Architecture
 

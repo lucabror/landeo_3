@@ -7,6 +7,13 @@ import { AuthProvider } from "@/hooks/use-auth";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import DiscoverMore from "@/pages/discover-more";
+import Features from "@/pages/features";
+import Pricing from "@/pages/pricing";
+import Support from "@/pages/support";
+import Contact from "@/pages/contact";
+import About from "@/pages/about";
+import Privacy from "@/pages/privacy";
+import Terms from "@/pages/terms";
 import Dashboard from "@/pages/dashboard";
 import HotelSetup from "@/pages/hotel-setup";
 import GuestProfiles from "@/pages/guest-profiles";
@@ -34,6 +41,15 @@ function Router() {
       
       {/* Discover more page */}
       <Route path="/discover-more" component={DiscoverMore} />
+      
+      {/* Footer pages */}
+      <Route path="/features" component={Features} />
+      <Route path="/pricing" component={Pricing} />
+      <Route path="/support" component={Support} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/about" component={About} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/terms" component={Terms} />
       
       {/* Main dashboard */}
       <Route path="/dashboard" component={Dashboard} />

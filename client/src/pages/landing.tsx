@@ -566,28 +566,24 @@ export default function Landing() {
             <div>
               <h4 className="font-semibold mb-4">Prodotto</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li>Funzionalità</li>
-                <li>Prezzi</li>
-                <li>Demo</li>
-                <li>API</li>
+                <li><Link href="/features" className="hover:text-white transition-colors">Funzionalità</Link></li>
+                <li><Link href="/pricing" className="hover:text-white transition-colors">Prezzi</Link></li>
+                <li><Link href="/hotel-register" className="hover:text-white transition-colors">Demo</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Supporto</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li>Centro Assistenza</li>
-                <li>Documentazione</li>
-                <li>Contatti</li>
-                <li>Status</li>
+                <li><Link href="/support" className="hover:text-white transition-colors">Centro Assistenza</Link></li>
+                <li><Link href="/contact" className="hover:text-white transition-colors">Contatti</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Azienda</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li>Chi Siamo</li>
-                <li>Privacy</li>
-                <li>Termini</li>
-                <li>Sicurezza</li>
+                <li><Link href="/about" className="hover:text-white transition-colors">Chi Siamo</Link></li>
+                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link></li>
+                <li><Link href="/terms" className="hover:text-white transition-colors">Termini e Condizioni</Link></li>
               </ul>
             </div>
           </div>
