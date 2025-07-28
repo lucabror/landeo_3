@@ -14,7 +14,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useLocation, Link } from "wouter";
 import { Shield, Lock, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import aiTourLogo from "../assets/aitour-logo.png";
+import landeoLogo from "@assets/landeo def_1753695256255.png";
 
 const loginSchema = z.object({
   email: z.string().email("Email non valida"),
@@ -322,8 +322,8 @@ export default function Login({ userType }: LoginProps) {
         <CardHeader className="text-center">
           <div className="mx-auto mb-4">
             <img 
-              src={aiTourLogo} 
-              alt="AiTour" 
+              src={landeoLogo} 
+              alt="Landeo" 
               className="h-16 w-auto mx-auto mb-2"
             />
             <p className="text-xs text-amber-700 font-medium italic">

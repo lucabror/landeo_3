@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, X, Zap, Crown, Building } from "lucide-react";
-import aiTourLogo from "../assets/aitour-logo.png";
+import landeoLogo from "@assets/landeo def_1753695256255.png";
 
 export default function Pricing() {
   const pricingPlans = [
@@ -81,8 +81,8 @@ export default function Pricing() {
               <div className="flex items-center space-x-3">
                 <div className="flex flex-col">
                   <img 
-                    src={aiTourLogo} 
-                    alt="AiTour" 
+                    src={landeoLogo} 
+                    alt="Landeo" 
                     className="h-12 w-auto mb-1"
                   />
                   <p className="text-xs text-amber-700 font-medium italic">

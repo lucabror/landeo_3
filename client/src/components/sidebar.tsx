@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import aiTourLogo from "../assets/aitour-logo.png";
+import landeoLogo from "@assets/landeo def_1753695256255.png";
 import { 
   LayoutDashboard, 
   Hotel, 
@@ -31,13 +31,11 @@ export function Sidebar() {
       <div className="p-6 border-b border-gray-200 mb-6">
         <div className="flex flex-col">
           <img 
-            src={aiTourLogo} 
-            alt="AiTour" 
+            src={landeoLogo} 
+            alt="Landeo" 
             className="h-8 w-auto mb-2"
           />
-          <p className="text-xs text-gray-500 font-medium italic leading-tight">
-            Itinerari su misura,<br />emozioni autentiche
-          </p>
+
         </div>
       </div>
       <div className="p-6 flex-1">

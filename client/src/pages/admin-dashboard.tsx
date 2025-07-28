@@ -14,7 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { ProtectedRoute, useAuth } from "@/hooks/use-auth";
-import aiTourLogo from "../assets/aitour-logo.png";
+import landeoLogo from "@assets/landeo def_1753695256255.png";
 
 interface Hotel {
   id: string;
@@ -252,8 +252,8 @@ function AdminDashboardContent() {
         <div className="flex items-center gap-4">
           <div className="flex flex-col">
             <img 
-              src={aiTourLogo} 
-              alt="AiTour" 
+              src={landeoLogo} 
+              alt="Landeo" 
               className="h-12 w-auto mb-2"
             />
             <p className="text-xs text-amber-700 font-medium italic">
