@@ -607,17 +607,17 @@ router.post('/forgot-password', async (req, res) => {
         await resend.emails.send({
           from: 'delivered@resend.dev',
           to: email,
-          subject: 'Reset Password - Itinera Platform (Development)',
+          subject: 'Reset Password - Landeo Platform (Development)',
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
               <div style="background: linear-gradient(135deg, #8B4513, #DAA520); padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
-                <h1 style="color: white; margin: 0; font-size: 24px;">🏨 Itinera Platform</h1>
+                <h1 style="color: white; margin: 0; font-size: 24px;">🏨 Landeo Platform</h1>
                 <p style="color: #F5F5DC; margin: 5px 0 0 0;">Reset Password Richiesto</p>
               </div>
               
               <div style="background: white; padding: 30px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px;">
                 <p style="font-size: 16px; color: #2c3e50; margin-bottom: 20px;">
-                  Hai richiesto il reset della password per il tuo account Itinera.
+                  Hai richiesto il reset della password per il tuo account Landeo.
                 </p>
                 
                 <p style="font-size: 16px; color: #2c3e50; margin-bottom: 25px;">

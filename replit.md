@@ -10,6 +10,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Completato rebranding "Landeo" nelle email manager - sostituiti tutti riferimenti "Itinera"
+  - Aggiornate email servizi: sendItineraryPDF, sendCreditPurchaseInstructions 
+  - Corretto branding in email reset password e sistema autenticazione 2FA
+  - Modificato User-Agent da "HotelItineraryApp" a "LandeoApp" nel servizio geocoding
+  - Issuer MFA Google Authenticator ora "Landeo Hotel Management"
+  - Tutte le email ai manager ora mostrano "Luca Borro - Landeo" come mittente
+- **2025-01-28**: Risolto sistema PDF duplicato - unificata generazione elegante con etichette attività
+  - Identificato problema: vecchio sistema PDF in routes.ts vs nuovo in services/pdf.ts
+  - Sostituito endpoint download-pdf per usare servizio spa-style con etichette delle attività
+  - Aggiornato endpoint email-pdf per usare stesso servizio elegante con design wellness
+  - Sistema ora include etichette "🎯 Scelta sulle tue preferenze" e "🏨 Suggerita dall'hotel"
+  - PDF mantiene design spa/wellness con colori teal come da template fornito
 - **2025-01-28**: Risolto sistema CSRF completo con whitelist comprehensiva per tutti gli endpoint
   - Eliminati tutti gli errori 403 "Forbidden" per operazioni autenticate
   - Implementata whitelist CSRF per tutti gli endpoint con requireAuth

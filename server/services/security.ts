@@ -239,8 +239,8 @@ export async function setupGoogleAuthenticator(
   userEmail: string
 ): Promise<{ secret: string; qrCodeDataUrl: string }> {
   const secret = speakeasy.generateSecret({
-    name: `Itinera (${userEmail})`,
-    issuer: 'Itinera Hotel Management',
+    name: `Landeo (${userEmail})`,
+    issuer: 'Landeo Hotel Management',
     length: 32,
   });
 
