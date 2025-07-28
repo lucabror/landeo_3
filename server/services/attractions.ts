@@ -143,15 +143,21 @@ export function attractionToLocalExperience(attraction: LocalAttraction, hotelId
     description: attraction.description,
     category: attraction.category,
     location: attraction.location,
+    distance: attraction.estimatedDistance, // Mappo a distance per compatibilità schema
     duration: attraction.recommendedDuration,
     priceRange: attraction.priceRange,
-    highlights: attraction.highlights,
-    imageUrl: '', // L'hotel potrà aggiungere un'immagine successivamente
-    website: '',  // L'hotel potrà aggiungere il sito web successivamente
-    // Campi aggiuntivi per il tracking
+    contactInfo: {}, // Oggetto vuoto per contactInfo
+    openingHours: null,
+    seasonality: null,
+    targetAudience: [], // Array vuoto per targetAudience
+    rating: null,
+    imageUrl: null,
+    isActive: true,
+    // Campi AI aggiuntivi
     aiGenerated: true,
     attractionType: attraction.type,
     estimatedDistance: attraction.estimatedDistance,
-    bestTimeToVisit: attraction.bestTimeToVisit
+    bestTimeToVisit: attraction.bestTimeToVisit,
+    highlights: attraction.highlights || []
   };
 }
