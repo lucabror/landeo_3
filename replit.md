@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Migliorato prompt OpenAI per generazione attrazioni locali realistiche entro 50km
+  - Aggiunto filtro esplicito per escludere Roma centro, Napoli e altre città lontane
+  - Specificato focus su Castelli Romani e attrazioni effettivamente raggiungibili 
+  - Rinforzate istruzioni per usare sempre nome città invece di CAP nelle distanze
+  - Prompt ora più preciso per localizzazione geografica usando città + CAP
+  - Sistema genera attrazioni più appropriate: 0-48km invece di 39km+ per monumenti romani
 - **2025-01-28**: Risolto sistema distanze esperienze locali - ora mostra città invece di CAP nelle card
   - Hotel inseriti manualmente: card mostrano "X km da Velletri" invece di "X km da CAP 00049"
   - Modificata logica referencePoint in attractions.ts per utilizzare sempre nome città quando disponibile
