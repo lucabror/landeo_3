@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Lock, Eye, FileText, Mail } from "lucide-react";
 import landeoLogo from "@assets/landeo def_1753695256255.png";
+import Footer from "@/components/footer";
 
 export default function Privacy() {
   const sections = [
@@ -21,7 +22,7 @@ export default function Privacy() {
         },
         {
           subtitle: "Dati di Utilizzo",
-          text: "Informazioni su come utilizzi la piattaforma AiTour, inclusi log di accesso, funzionalità utilizzate e statistiche aggregate."
+          text: "Informazioni su come utilizzi la piattaforma Landeo, inclusi log di accesso, funzionalità utilizzate e statistiche aggregate."
         }
       ]
     },
@@ -138,7 +139,7 @@ export default function Privacy() {
             <span className="text-amber-700">la nostra priorità</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            AiTour si impegna a proteggere la tua privacy e i tuoi dati personali. 
+            Landeo si impegna a proteggere la tua privacy e i tuoi dati personali. 
             Questa policy spiega come raccogliamo, utilizziamo e proteggiamo le tue informazioni.
           </p>
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-left max-w-2xl mx-auto">
@@ -197,7 +198,7 @@ export default function Privacy() {
             <div className="mt-6 p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600">
                 <strong>Come esercitare i tuoi diritti:</strong> Contatta il nostro Data Protection Officer 
-                all'indirizzo <a href="mailto:privacy@aitour.it" className="text-amber-700 hover:text-amber-800">privacy@aitour.it</a> 
+                all'indirizzo <a href="mailto:privacy@landeo.it" className="text-amber-700 hover:text-amber-800">privacy@landeo.it</a> 
                 o utilizza il modulo di contatto sul nostro sito.
               </p>
             </div>
@@ -262,12 +263,12 @@ export default function Privacy() {
             <div className="space-y-4">
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Data Protection Officer</h4>
-                <p className="text-gray-600">Email: <a href="mailto:privacy@aitour.it" className="text-amber-700 hover:text-amber-800">privacy@aitour.it</a></p>
+                <p className="text-gray-600">Email: <a href="mailto:privacy@landeo.it" className="text-amber-700 hover:text-amber-800">privacy@landeo.it</a></p>
               </div>
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Titolare del Trattamento</h4>
                 <p className="text-gray-600">
-                  AiTour S.r.l.<br />
+                  Landeo S.r.l.<br />
                   Via dell'Innovazione 123<br />
                   20100 Milano, Italia
                 </p>
@@ -304,6 +305,8 @@ export default function Privacy() {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }

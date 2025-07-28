@@ -12,6 +12,7 @@ import {
   Lightbulb
 } from "lucide-react";
 import landeoLogo from "@assets/landeo def_1753695256255.png";
+import Footer from "@/components/footer";
 
 export default function About() {
   const values = [
@@ -252,6 +253,8 @@ export default function About() {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }

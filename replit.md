@@ -10,6 +10,19 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Risolti problemi footer navigation e completato rebranding Landeo
+  - Aggiunto footer completo a tutte le pagine statiche con navigation consistente
+  - Implementato auto-scroll al top della pagina quando si naviga tra le sezioni
+  - Creato hook useScrollToTop per gestione automatica posizionamento pagina
+  - Completato rebranding da "AiTour" a "Landeo" in TUTTE le pagine e contenuti
+  - Aggiornati tutti riferimenti: features, pricing, support, contact, about, privacy, terms
+  - Sistema di navigazione footer ora completamente funzionale e user-friendly
+- **2025-01-28**: Risolto bug 2FA "codice non valido" con sistema backward compatibility
+  - Problema identificato: sistema crittografia tentava decrittare secret già in chiaro
+  - Implementato fallback intelligente per secret MFA esistenti nel database
+  - Sistema riconosce automaticamente formato secret (base32 vs crittografato)
+  - Eliminati errori "Failed to decrypt MFA secret" durante verifica codici
+  - Compatibilità completa con dati esistenti mantenuta senza perdita funzionalità
 - **2025-01-28**: Completato audit di sicurezza avanzato - TUTTE le vulnerabilità risolte
   - **FASE 1**: Risolte 11 vulnerabilità CRITICHE (100% completato)
     - Eliminati API key hardcoded, JWT secret fisso, password logging, file upload sicuro

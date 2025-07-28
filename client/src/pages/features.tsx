@@ -18,6 +18,7 @@ import {
   CheckCircle
 } from "lucide-react";
 import landeoLogo from "@assets/landeo def_1753695256255.png";
+import Footer from "@/components/footer";
 
 export default function Features() {
   const features = [
@@ -196,6 +197,8 @@ export default function Features() {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }

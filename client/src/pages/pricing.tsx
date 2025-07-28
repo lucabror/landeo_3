@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, X, Zap, Crown, Building } from "lucide-react";
 import landeoLogo from "@assets/landeo def_1753695256255.png";
+import Footer from "@/components/footer";
 
 export default function Pricing() {
   const pricingPlans = [
@@ -193,7 +194,7 @@ export default function Pricing() {
         {/* Benefits Section */}
         <div className="bg-white rounded-2xl p-8 mb-16 border border-amber-100">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">
-            Perché Scegliere AiTour?
+            Perché Scegliere Landeo?
           </h2>
           <div className="grid md:grid-cols-2 gap-6">
             {benefits.map((benefit, index) => (
@@ -251,6 +252,8 @@ export default function Pricing() {
           </Link>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }

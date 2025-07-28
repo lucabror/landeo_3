@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
+import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import DiscoverMore from "@/pages/discover-more";
@@ -34,6 +35,8 @@ import RegistrationConfirmed from "@/pages/registration-confirmed";
 import UniversalLogin from "@/pages/universal-login";
 
 function Router() {
+  useScrollToTop(); // Auto scroll to top on route change
+  
   return (
     <Switch>
       {/* Landing page */}
