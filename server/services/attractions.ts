@@ -25,12 +25,17 @@ interface AttractionSearchResult {
 export async function findLocalAttractions(
   hotelCity: string, 
   hotelRegion: string, 
-  hotelCoordinates?: { latitude: string; longitude: string }
+  hotelCoordinates?: { latitude: string; longitude: string } | null,
+  hotelPostalCode?: string
 ): Promise<AttractionSearchResult> {
   try {
-    const searchArea = `${hotelCity}, ${hotelRegion}, Italia`;
+    const searchArea = hotelPostalCode 
+      ? `CAP ${hotelPostalCode}, ${hotelCity}, ${hotelRegion}, Italia`
+      : `${hotelCity}, ${hotelRegion}, Italia`;
     
     const prompt = `Sei un esperto di turismo locale in Italia. Trova le migliori attrazioni turistiche entro 50km da ${searchArea}.
+
+${hotelPostalCode ? `IMPORTANTE: L'area di riferimento è identificata dal CAP ${hotelPostalCode} che è un identificatore geografico preciso. Utilizza questo codice postale per localizzare esattamente l'area e trovare attrazioni nelle immediate vicinanze.` : ''}
 
 Includi:
 - Ristoranti tipici e rinomati
@@ -47,7 +52,7 @@ Per ogni attrazione, fornisci:
 - Tipo (restaurant/museum/exhibition/nature/sport/monument/shopping/entertainment/other)
 - Descrizione coinvolgente (2-3 frasi)
 - Posizione specifica
-- Distanza stimata da ${hotelCity}
+- Distanza stimata da ${hotelPostalCode ? `CAP ${hotelPostalCode}` : hotelCity}
 - Categoria dettagliata
 - 3-4 punti salienti
 - Durata consigliata della visita
@@ -63,7 +68,7 @@ Trova esattamente 20 attrazioni diverse e interessanti. Rispondi in formato JSON
       "type": "tipo",
       "description": "Descrizione coinvolgente",
       "location": "Indirizzo o zona specifica",
-      "estimatedDistance": "X km da ${hotelCity}",
+      "estimatedDistance": "X km da ${hotelPostalCode ? `CAP ${hotelPostalCode}` : hotelCity}",
       "category": "Categoria dettagliata",
       "highlights": ["Punto 1", "Punto 2", "Punto 3"],
       "recommendedDuration": "1-2 ore",

@@ -10,6 +10,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Risolto sistema generazione esperienze locali per hotel inseriti manualmente
+  - Integrato CAP (codice postale) come riferimento geografico principale per maggiore precisione
+  - Aggiunto sistema intelligente di recupero coordinate per hotel senza geolocalizzazione
+  - Implementato fallback geocoding automatico usando nome + CAP + città + regione
+  - Sistema ora aggiorna automaticamente coordinate hotel quando trovate via geocoding
+  - Migliorato prompt AI per utilizzare CAP come identificatore geografico preciso
+  - Aggiunto controllo obbligatorio per CAP, città e regione nella generazione esperienze
+  - Logging dettagliato per diagnosticare problemi di geolocalizzazione hotel
 - **2025-01-28**: Implementato sistema matching preferenze ospiti nel PDF itinerari con etichette attività
   - Aggiunto post-processing intelligente per etichette "🎯 Scelta sulle tue preferenze" vs "🏨 Suggerita dall'hotel"
   - Integrato calculateExperienceMatches in generateGuestSpecificItinerary per matching automatico

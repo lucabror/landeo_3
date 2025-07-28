@@ -941,13 +941,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Hotel not found" });
       }
 
-      console.log(`Generating attractions for hotel: ${hotel.name} in ${hotel.city}, ${hotel.region}`);
+      console.log(`Generating attractions for hotel: ${hotel.name} in ${hotel.city}, ${hotel.region}, CAP: ${hotel.postalCode}`);
       console.log(`Hotel coordinates: lat=${hotel.latitude}, lon=${hotel.longitude}`);
 
       // Check if hotel has minimum required location data
-      if (!hotel.city || !hotel.region) {
-        console.error(`Hotel ${hotel.name} missing city or region data`);
-        return res.status(400).json({ message: "Hotel must have city and region to generate local experiences" });
+      if (!hotel.city || !hotel.region || !hotel.postalCode) {
+        console.error(`Hotel ${hotel.name} missing city, region, or postal code data`);
+        return res.status(400).json({ message: "Hotel must have city, region, and postal code to generate local experiences" });
       }
 
       // Check if hotel has valid coordinates, if not try to get them via geocoding
@@ -960,7 +960,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Try to get coordinates using geocoding service
         try {
           const { geocodeHotel } = await import('./services/geocoding');
-          const geocodedHotel = await geocodeHotel(`${hotel.name} ${hotel.city} ${hotel.region}`);
+          const geocodedHotel = await geocodeHotel(`${hotel.name} ${hotel.postalCode} ${hotel.city} ${hotel.region}`);
           if (geocodedHotel && geocodedHotel.latitude && geocodedHotel.longitude) {
             coordinates = { 
               latitude: geocodedHotel.latitude, 
@@ -981,12 +981,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      console.log(`Calling findLocalAttractions with: city=${hotel.city}, region=${hotel.region}, coordinates=${coordinates ? 'yes' : 'no'}`);
+      console.log(`Calling findLocalAttractions with: postalCode=${hotel.postalCode}, city=${hotel.city}, region=${hotel.region}, coordinates=${coordinates ? 'yes' : 'no'}`);
       
       const pendingAttractions = await findLocalAttractions(
         hotel.city, 
         hotel.region, 
-        coordinates
+        coordinates,
+        hotel.postalCode
       );
       
       console.log(`Found ${pendingAttractions.attractions.length} attractions`);
