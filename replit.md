@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Risolto problema proporzioni logo - eliminato stretching
+  - Rimossa struttura flex-col che causava deformazione del logo Landeo
+  - Utilizzato contenitore div normale con block display per mantenere aspect ratio originale
+  - Aggiunto separatore orizzontale elegante tra logo e slogan
+  - Standardizzata implementazione con whitespace-nowrap per prevenire text wrapping
+  - Corretto in tutte le pagine: landing, about, features, pricing, contact, support, terms, privacy, sidebar
 - **2025-01-28**: Rebranding completo da AiTour a Landeo
   - Sostituito logo AiTour con nuovo logo Landeo fornito dall'utente
   - Aggiornati tutti i riferimenti testuali da "AiTour" a "Landeo" nell'applicazione

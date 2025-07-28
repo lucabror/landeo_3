@@ -79,13 +79,14 @@ export default function Pricing() {
           <div className="flex justify-between items-center py-4">
             <Link href="/">
               <div className="flex items-center space-x-3">
-                <div className="flex flex-col">
+                <div>
                   <img 
                     src={landeoLogo} 
                     alt="Landeo" 
-                    className="h-12 w-auto mb-1"
+                    className="h-12 w-auto block"
                   />
-                  <p className="text-xs text-amber-700 font-medium italic">
+                  <div className="w-full h-px bg-gray-200 my-2"></div>
+                  <p className="text-xs text-amber-700 font-medium tracking-wide whitespace-nowrap">
                     Itinerari su misura, emozioni autentiche
                   </p>
                 </div>
