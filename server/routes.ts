@@ -644,7 +644,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Generate full itinerary PDF for download
+  // Generate full itinerary PDF for download using elegant spa-style PDF service
   app.get("/api/itinerary/:uniqueUrl/download-pdf", async (req, res) => {
     try {
       const itinerary = await storage.getItineraryByUniqueUrl(req.params.uniqueUrl);
@@ -654,275 +654,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const hotel = await storage.getHotel(itinerary.hotelId);
       const guestProfile = await storage.getGuestProfile(itinerary.guestProfileId);
+      
+      if (!hotel || !guestProfile) {
+        return res.status(404).json({ message: "Required data not found" });
+      }
 
-      // Generate elegant PDF with full itinerary
-      const doc = new PDFDocument({ 
-        margin: 40,
-        size: 'A4',
-        info: {
-          Title: itinerary.title,
-          Author: hotel?.name || 'Hotel',
-          Subject: 'Itinerario Personalizzato',
-          Creator: 'Sistema Gestione Itinerari'
-        }
-      });
+      // Use the elegant spa-style PDF service which includes source labels
+      const pdfPath = await generateItineraryPDF(itinerary, hotel, guestProfile);
       
       // Set headers for PDF download
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="Itinerario-${itinerary.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="Itinerario-${guestProfile.referenceName || 'Guest'}.pdf"`);
       
-      doc.pipe(res);
-
-      // Color palette - elegant and soft tones
-      const colors = {
-        primary: '#8B4513',      // Saddle brown
-        secondary: '#DAA520',    // Goldenrod
-        accent: '#9ACD32',       // Yellow green
-        lightGold: '#F5DEB3',    // Wheat
-        lightBrown: '#F4A460',   // Sandy brown
-        lightGreen: '#E0F2E7',   // Light mint
-        darkText: '#2C2C2C',     // Dark gray
-        lightText: '#666666',    // Medium gray
-        background: '#FAFAFA'    // Off-white
-      };
-
-      let yPos = 60;
-
-      // Header section with elegant styling
-      doc.rect(0, 0, doc.page.width, 120).fill(colors.primary);
-      
-      // Hotel name and title
-      doc.fillColor('white')
-         .fontSize(28)
-         .font('Helvetica-Bold')
-         .text(hotel?.name || 'Hotel', 60, 30, { width: doc.page.width - 120, align: 'center' });
-      
-      doc.fontSize(16)
-         .font('Helvetica')
-         .text(`${hotel?.city || ''}, ${hotel?.region || ''}`, 60, 65, { width: doc.page.width - 120, align: 'center' });
-      
-      yPos = 150;
-
-      // Itinerary title with decorative border
-      doc.rect(40, yPos - 10, doc.page.width - 80, 50)
-         .fill(colors.lightGold)
-         .stroke(colors.secondary)
-         .lineWidth(2);
-      
-      doc.fillColor(colors.darkText)
-         .fontSize(22)
-         .font('Helvetica-Bold')
-         .text(itinerary.title, 60, yPos + 8, { width: doc.page.width - 120, align: 'center' });
-      
-      yPos += 80;
-
-      // Guest information in elegant boxes
-      const boxHeight = 25;
-      const boxSpacing = 5;
-      
-      // Create guest info boxes
-      const guestInfo = [
-        { label: 'Ospite', value: guestProfile?.referenceName || 'N/A' },
-        { label: 'Persone', value: guestProfile?.numberOfPeople?.toString() || 'N/A' },
-        { label: 'Check-in', value: guestProfile?.checkInDate ? new Date(guestProfile.checkInDate).toLocaleDateString('it-IT') : 'N/A' },
-        { label: 'Check-out', value: guestProfile?.checkOutDate ? new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT') : 'N/A' }
-      ];
-
-      guestInfo.forEach((info, index) => {
-        const boxY = yPos + (index * (boxHeight + boxSpacing));
-        
-        // Alternate colors for visual appeal
-        const bgColor = index % 2 === 0 ? colors.lightGreen : colors.lightGold;
-        
-        doc.rect(40, boxY, doc.page.width - 80, boxHeight)
-           .fill(bgColor)
-           .stroke(colors.secondary)
-           .lineWidth(1);
-        
-        doc.fillColor(colors.darkText)
-           .fontSize(12)
-           .font('Helvetica-Bold')
-           .text(info.label + ':', 60, boxY + 6);
-        
-        doc.font('Helvetica')
-           .text(info.value, 150, boxY + 6);
-      });
-      
-      yPos += (guestInfo.length * (boxHeight + boxSpacing)) + 30;
-
-      // Description section with elegant styling
-      if (itinerary.description) {
-        if (yPos > 650) {
-          doc.addPage();
-          yPos = 60;
-        }
-        
-        doc.rect(40, yPos - 5, doc.page.width - 80, 2)
-           .fill(colors.secondary);
-        
-        doc.fillColor(colors.darkText)
-           .fontSize(16)
-           .font('Helvetica-Bold')
-           .text('Descrizione', 40, yPos + 10);
-        
-        yPos += 35;
-        
-        doc.rect(40, yPos - 10, doc.page.width - 80, 60)
-           .fill(colors.background)
-           .stroke(colors.lightBrown)
-           .lineWidth(1);
-        
-        doc.fillColor(colors.lightText)
-           .fontSize(11)
-           .font('Helvetica')
-           .text(itinerary.description, 55, yPos, { width: doc.page.width - 110, align: 'justify' });
-        
-        yPos += 70;
-      }
-
-      // Days section with enhanced styling
-      if (itinerary.days && Array.isArray(itinerary.days)) {
-        itinerary.days.forEach((day: any, dayIndex: number) => {
-          if (yPos > 600) {
-            doc.addPage();
-            yPos = 60;
-          }
-          
-          // Day header with gradient-like effect
-          doc.rect(40, yPos, doc.page.width - 80, 35)
-             .fill(colors.primary);
-          
-          doc.rect(40, yPos + 35, doc.page.width - 80, 5)
-             .fill(colors.secondary);
-          
-          const dayText = `Giorno ${day.day}`;
-          const dateText = new Date(day.date).toLocaleDateString('it-IT', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          });
-          
-          doc.fillColor('white')
-             .fontSize(16)
-             .font('Helvetica-Bold')
-             .text(dayText, 60, yPos + 8);
-          
-          doc.fontSize(12)
-             .font('Helvetica')
-             .text(dateText, 60, yPos + 24);
-          
-          yPos += 50;
-          
-          // Activities with elegant card design
-          if (day.activities && Array.isArray(day.activities)) {
-            day.activities.forEach((activity: any, actIndex: number) => {
-              const activityHeight = 120; // Estimate height needed
-              
-              if (yPos + activityHeight > 750) {
-                doc.addPage();
-                yPos = 60;
-              }
-              
-              // Activity card background
-              const cardColor = actIndex % 3 === 0 ? colors.lightGreen : 
-                               actIndex % 3 === 1 ? colors.lightGold : colors.background;
-              
-              doc.rect(60, yPos, doc.page.width - 120, 100)
-                 .fill(cardColor)
-                 .stroke(colors.lightBrown)
-                 .lineWidth(1);
-              
-              // Time badge
-              doc.rect(80, yPos + 10, 60, 20)
-                 .fill(colors.secondary)
-                 .stroke(colors.primary)
-                 .lineWidth(1);
-              
-              doc.fillColor('white')
-                 .fontSize(10)
-                 .font('Helvetica-Bold')
-                 .text(activity.time || '---', 85, yPos + 16);
-              
-              // Activity title
-              doc.fillColor(colors.darkText)
-                 .fontSize(14)
-                 .font('Helvetica-Bold')
-                 .text(activity.activity || 'Attivita', 160, yPos + 15, { width: doc.page.width - 220 });
-              
-              let actYPos = yPos + 35;
-              
-              // Location with icon-like prefix
-              if (activity.location) {
-                doc.fillColor(colors.primary)
-                   .fontSize(10)
-                   .font('Helvetica-Bold')
-                   .text('LUOGO:', 80, actYPos);
-                
-                doc.fillColor(colors.lightText)
-                   .font('Helvetica')
-                   .text(activity.location, 125, actYPos, { width: doc.page.width - 185 });
-                
-                actYPos += 15;
-              }
-              
-              // Description
-              if (activity.description) {
-                doc.fillColor(colors.lightText)
-                   .fontSize(9)
-                   .font('Helvetica')
-                   .text(activity.description, 80, actYPos, { width: doc.page.width - 140 });
-                
-                actYPos += 20;
-              }
-              
-              // Duration and notes in a single line if space allows
-              const infoLine = [];
-              if (activity.duration) infoLine.push(`Durata: ${activity.duration}`);
-              if (activity.notes) infoLine.push(`Note: ${activity.notes}`);
-              
-              if (infoLine.length > 0) {
-                doc.fillColor(colors.secondary)
-                   .fontSize(8)
-                   .font('Helvetica-Oblique')
-                   .text(infoLine.join(' • '), 80, actYPos);
-              }
-              
-              yPos += 110;
-            });
-          }
-          
-          yPos += 20; // Space between days
-        });
-      }
-
-      // Elegant footer
-      if (yPos > 700) {
-        doc.addPage();
-        yPos = 60;
-      }
-      
-      // Footer separator
-      doc.rect(40, doc.page.height - 100, doc.page.width - 80, 2)
-         .fill(colors.secondary);
-      
-      doc.fillColor(colors.lightText)
-         .fontSize(9)
-         .font('Helvetica-Oblique')
-         .text('Generato automaticamente dal sistema di gestione itinerari', 
-               40, doc.page.height - 80, { width: doc.page.width - 80, align: 'center' });
-      
-      doc.text(`Data di generazione: ${new Date().toLocaleDateString('it-IT')}`, 
-               40, doc.page.height - 65, { width: doc.page.width - 80, align: 'center' });
-
-      doc.end();
+      // Send the file
+      res.sendFile(pdfPath, { root: process.cwd() });
     } catch (error) {
       console.error('Error generating itinerary PDF:', error);
       res.status(500).json({ message: "Failed to generate itinerary PDF" });
     }
   });
 
-  // Generate and send itinerary PDF via email
+  // Generate and send itinerary PDF via email using elegant spa-style PDF service
   app.post("/api/itinerary/:uniqueUrl/email-pdf", async (req, res) => {
     try {
       const { recipientEmail, recipientName } = req.body;
@@ -934,716 +686,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const hotel = await storage.getHotel(itinerary.hotelId);
       const guestProfile = await storage.getGuestProfile(itinerary.guestProfileId);
-
-      // Generate elegant PDF with full itinerary (same design as download endpoint)
-      const doc = new PDFDocument({ 
-        margin: 40,
-        size: 'A4',
-        info: {
-          Title: itinerary.title,
-          Author: hotel?.name || 'Hotel',
-          Subject: 'Itinerario Personalizzato',
-          Creator: 'Sistema Gestione Itinerari'
-        }
-      });
       
-      // Create PDF buffer
-      const chunks: Buffer[] = [];
-      doc.on('data', (chunk: Buffer) => chunks.push(chunk));
-      
-      await new Promise<void>((resolve) => {
-        doc.on('end', resolve);
-        
-        // Color palette - elegant tones matching landing page
-        const colors = {
-          primary: '#B45309',      // Amber-700 (elegant warm tone)
-          secondary: '#92400E',    // Amber-800 (deeper warm tone)  
-          accent: '#F3F4F6',       // Stone-100 (very light background)
-          lightAccent: '#FAFAF9',  // Stone-50 (almost white)
-          textDark: '#1F2937',     // Gray-800 (elegant dark text)
-          textLight: '#6B7280',    // Gray-500 (subtle text)
-          border: '#E5E7EB',       // Gray-200 (light borders)
-          gold: '#FBBF24'          // Amber-400 (soft gold accents)
-        };
-
-        let yPos = 60;
-
-        // Elegant header with subtle design
-        doc.rect(0, 0, doc.page.width, 100).fill(colors.lightAccent);
-        doc.rect(0, 0, doc.page.width, 4).fill(colors.primary);
-        
-        // Hotel name and title
-        doc.fillColor(colors.primary)
-           .fontSize(24)
-           .font('Helvetica-Bold')
-           .text(hotel?.name || 'Hotel', 60, 25, { width: doc.page.width - 120, align: 'center' });
-        
-        doc.fontSize(12)
-           .font('Helvetica')
-           .fillColor(colors.textLight)
-           .text(`${hotel?.city || ''}, ${hotel?.region || ''}`, 60, 50, { width: doc.page.width - 120, align: 'center' });
-        
-        yPos = 125;
-
-        // Itinerary title with elegant styling
-        doc.rect(40, yPos - 5, doc.page.width - 80, 40)
-           .fill(colors.accent)
-           .stroke(colors.border)
-           .lineWidth(1);
-        
-        doc.fillColor(colors.textDark)
-           .fontSize(18)
-           .font('Helvetica-Bold')
-           .text(itinerary.title, 60, yPos + 10, { width: doc.page.width - 120, align: 'center' });
-        
-        // Decorative line under title
-        doc.rect(60, yPos + 30, doc.page.width - 120, 2).fill(colors.gold);
-        
-        yPos += 80;
-
-        // Guest information in elegant boxes
-        const boxHeight = 25;
-        const boxSpacing = 5;
-        
-        // Create guest info boxes
-        const guestInfo = [
-          { label: 'Ospite', value: recipientName || guestProfile?.referenceName || 'N/A' },
-          { label: 'Persone', value: guestProfile?.numberOfPeople?.toString() || 'N/A' },
-          { label: 'Check-in', value: guestProfile?.checkInDate ? new Date(guestProfile.checkInDate).toLocaleDateString('it-IT') : 'N/A' },
-          { label: 'Check-out', value: guestProfile?.checkOutDate ? new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT') : 'N/A' }
-        ];
-
-        guestInfo.forEach((info, index) => {
-          const boxY = yPos + (index * (boxHeight + boxSpacing));
-          
-          // Alternate colors for visual appeal
-          const bgColor = index % 2 === 0 ? colors.accent : colors.lightAccent;
-          
-          doc.rect(40, boxY, doc.page.width - 80, boxHeight)
-             .fill(bgColor)
-             .stroke(colors.border)
-             .lineWidth(1);
-          
-          doc.fillColor(colors.textDark)
-             .fontSize(11)
-             .font('Helvetica-Bold')
-             .text(info.label + ':', 60, boxY + 6);
-          
-          doc.font('Helvetica')
-             .fillColor(colors.textLight)
-             .text(info.value, 150, boxY + 6);
-        });
-        
-        yPos += (guestInfo.length * (boxHeight + boxSpacing)) + 30;
-
-        // Description section with elegant styling
-        if (itinerary.description) {
-          if (yPos > 650) {
-            doc.addPage();
-            yPos = 60;
-          }
-          
-          doc.rect(40, yPos - 5, doc.page.width - 80, 2)
-             .fill(colors.gold);
-          
-          doc.fillColor(colors.textDark)
-             .fontSize(16)
-             .font('Helvetica-Bold')
-             .text('Descrizione', 40, yPos + 10);
-          
-          yPos += 35;
-          
-          doc.rect(40, yPos - 10, doc.page.width - 80, 60)
-             .fill(colors.lightAccent)
-             .stroke(colors.border)
-             .lineWidth(1);
-          
-          doc.fillColor(colors.textLight)
-             .fontSize(11)
-             .font('Helvetica')
-             .text(itinerary.description, 55, yPos, { width: doc.page.width - 110, align: 'justify' });
-          
-          yPos += 70;
-        }
-
-        // Days section with enhanced styling
-        if (itinerary.days && Array.isArray(itinerary.days)) {
-          itinerary.days.forEach((day: any, dayIndex: number) => {
-            if (yPos > 600) {
-              doc.addPage();
-              yPos = 60;
-            }
-            
-            // Day header with gradient-like effect
-            doc.rect(40, yPos, doc.page.width - 80, 35)
-               .fill(colors.primary);
-            
-            doc.rect(40, yPos + 35, doc.page.width - 80, 3)
-               .fill(colors.gold);
-            
-            const dayText = `Giorno ${day.day}`;
-            const dateText = new Date(day.date).toLocaleDateString('it-IT', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            });
-            
-            doc.fillColor('white')
-               .fontSize(16)
-               .font('Helvetica-Bold')
-               .text(dayText, 60, yPos + 8);
-            
-            doc.fontSize(12)
-               .font('Helvetica')
-               .text(dateText, 60, yPos + 24);
-            
-            yPos += 50;
-            
-            // Activities with elegant card design
-            if (day.activities && Array.isArray(day.activities)) {
-              day.activities.forEach((activity: any, actIndex: number) => {
-                const activityHeight = 120; // Estimate height needed
-                
-                if (yPos + activityHeight > 750) {
-                  doc.addPage();
-                  yPos = 60;
-                }
-                
-                // Activity card background
-                const cardColor = actIndex % 3 === 0 ? colors.lightGreen : 
-                                 actIndex % 3 === 1 ? colors.lightGold : colors.background;
-                
-                doc.rect(60, yPos, doc.page.width - 120, 100)
-                   .fill(cardColor)
-                   .stroke(colors.lightBrown)
-                   .lineWidth(1);
-                
-                // Time badge
-                doc.rect(80, yPos + 10, 60, 20)
-                   .fill(colors.secondary)
-                   .stroke(colors.primary)
-                   .lineWidth(1);
-                
-                doc.fillColor('white')
-                   .fontSize(10)
-                   .font('Helvetica-Bold')
-                   .text(activity.time || '---', 85, yPos + 16);
-                
-                // Activity title
-                doc.fillColor(colors.darkText)
-                   .fontSize(14)
-                   .font('Helvetica-Bold')
-                   .text(activity.activity || 'Attivita', 160, yPos + 15, { width: doc.page.width - 220 });
-                
-                let actYPos = yPos + 35;
-                
-                // Location with icon-like prefix
-                if (activity.location) {
-                  doc.fillColor(colors.primary)
-                     .fontSize(10)
-                     .font('Helvetica-Bold')
-                     .text('LUOGO:', 80, actYPos);
-                  
-                  doc.fillColor(colors.lightText)
-                     .font('Helvetica')
-                     .text(activity.location, 125, actYPos, { width: doc.page.width - 185 });
-                  
-                  actYPos += 15;
-                }
-                
-                // Description
-                if (activity.description) {
-                  doc.fillColor(colors.lightText)
-                     .fontSize(9)
-                     .font('Helvetica')
-                     .text(activity.description, 80, actYPos, { width: doc.page.width - 140 });
-                  
-                  actYPos += 20;
-                }
-                
-                // Duration and notes in a single line if space allows
-                const infoLine = [];
-                if (activity.duration) infoLine.push(`Durata: ${activity.duration}`);
-                if (activity.notes) infoLine.push(`Note: ${activity.notes}`);
-                
-                if (infoLine.length > 0) {
-                  doc.fillColor(colors.secondary)
-                     .fontSize(8)
-                     .font('Helvetica-Oblique')
-                     .text(infoLine.join(' • '), 80, actYPos);
-                }
-                
-                yPos += 110;
-              });
-            }
-            
-            yPos += 20; // Space between days
-          });
-        }
-
-        // Elegant footer
-        if (yPos > 700) {
-          doc.addPage();
-          yPos = 60;
-        }
-        
-        // Footer separator
-        doc.rect(40, doc.page.height - 100, doc.page.width - 80, 2)
-           .fill(colors.secondary);
-        
-        doc.fillColor(colors.lightText)
-           .fontSize(9)
-           .font('Helvetica-Oblique')
-           .text('Generato automaticamente dal sistema di gestione itinerari', 
-                 40, doc.page.height - 80, { width: doc.page.width - 80, align: 'center' });
-        
-        doc.text(`Data di generazione: ${new Date().toLocaleDateString('it-IT')}`, 
-                 40, doc.page.height - 65, { width: doc.page.width - 80, align: 'center' });
-
-        doc.end();
-      });
-
-      const pdfBuffer = Buffer.concat(chunks);
-
-      // Send email with PDF attachment using email service
-      const emailResult = await sendItineraryPDF(
-        hotel!,
-        guestProfile,
-        itinerary,
-        pdfBuffer,
-        recipientEmail,
-        recipientName || guestProfile?.referenceName || 'Ospite'
-      );
-
-      if (emailResult.success) {
-        res.json({ 
-          success: true, 
-          message: "Email inviata con successo",
-        });
-      } else {
-        console.error('Email sending failed:', emailResult.error);
-        res.status(500).json({ 
-          message: "Errore nell'invio email", 
-          error: emailResult.error 
-        });
+      if (!hotel || !guestProfile) {
+        return res.status(404).json({ message: "Required data not found" });
       }
+
+      // Use the elegant spa-style PDF service which includes source labels
+      const pdfPath = await generateItineraryPDF(itinerary, hotel, guestProfile);
+
+      // Send PDF via email using elegant spa-style design
+      await sendItineraryPDF(recipientEmail, recipientName, itinerary, hotel, guestProfile, pdfPath);
+      
+      res.json({ message: "PDF inviato con successo via email" });
     } catch (error) {
-      console.error('Error sending email PDF:', error);
-      res.status(500).json({ message: "Failed to send email" });
+      console.error('Error sending PDF via email:', error);
+      res.status(500).json({ message: "Failed to send PDF via email" });
     }
   });
 
-  // Re-send preferences email
-  app.post("/api/hotels/:hotelId/guest-profiles/:profileId/resend-email", async (req, res) => {
+  // Guest profile routes
+
+  app.get("/api/guest-profiles/:hotelId", async (req, res) => {
     try {
-      const profile = await storage.getGuestProfile(req.params.profileId);
-      if (!profile) {
+      const guestProfiles = await storage.getGuestProfilesByHotel(req.params.hotelId);
+      res.json(guestProfiles);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch guest profiles" });
+    }
+  });
+
+  app.get("/api/guest-profile/:id", async (req, res) => {
+    try {
+      const guestProfile = await storage.getGuestProfile(req.params.id);
+      if (!guestProfile) {
         return res.status(404).json({ message: "Guest profile not found" });
       }
-      
-      const hotel = await storage.getHotel(req.params.hotelId);
-      if (!hotel) {
-        return res.status(404).json({ message: "Hotel not found" });
-      }
-
-      if (!profile.email) {
-        return res.status(400).json({ message: "No email address for this guest" });
-      }
-
-      // Crea sempre un nuovo token per il re-invio
-      const token = randomUUID();
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 30);
-      
-      try {
-        await storage.createGuestPreferencesToken({
-          token,
-          guestProfileId: profile.id,
-          emailSent: false,
-          completed: false,
-          expiresAt
-        });
-      } catch (tokenError) {
-        console.error('Error creating token:', tokenError);
-        return res.status(500).json({ message: "Error creating preferences token" });
-      }
-      
-      // Invia email
-      try {
-        const emailResult = await sendGuestPreferencesEmail(hotel, profile, token);
-        
-        if (emailResult.success) {
-          await storage.updateGuestPreferencesToken(token, { emailSent: true });
-          res.json({ 
-            message: "Email re-inviata con successo",
-            email: profile.email
-          });
-        } else {
-          const errorMessage = emailResult.error?.includes('Domain not verified') 
-            ? "Per inviare email è necessario verificare un dominio in Resend. Contatta l'amministratore del sistema."
-            : "Errore nell'invio dell'email: " + emailResult.error;
-          
-          res.status(500).json({ message: errorMessage });
-        }
-      } catch (emailError) {
-        console.error('Error sending email:', emailError);
-        res.status(500).json({ message: "Error sending email: " + (emailError as Error).message });
-      }
-      
+      res.json(guestProfile);
     } catch (error) {
-      console.error('Error resending email:', error);
-      res.status(500).json({ message: "Failed to resend email: " + (error as Error).message });
+      res.status(500).json({ message: "Failed to fetch guest profile" });
     }
   });
 
-  // Generate AI attractions for hotel
-  app.post("/api/hotels/:hotelId/generate-attractions", requireAuth({ userType: 'hotel' }), async (req, res) => {
+  app.post("/api/guest-profiles/:id/generate-itinerary", async (req, res) => {
     try {
-      // Verify user is generating attractions for their own hotel
-      const userId = (req as any).user.id;
-      if (req.params.hotelId !== userId) {
-        return res.status(403).json({ message: "Hotel Non Trovato" });
-      }
-      
-      const hotel = await storage.getHotel(req.params.hotelId);
-      if (!hotel) {
-        return res.status(404).json({ message: "Hotel non trovato" });
-      }
-
-      console.log(`Generating attractions for hotel: ${hotel.name} in ${hotel.city}, ${hotel.region}`);
-      
-      const attractionsResult = await findLocalAttractions(
-        hotel.city, 
-        hotel.region, 
-        { latitude: hotel.latitude || '', longitude: hotel.longitude || '' }
-      );
-
-      // Salva le attrazioni come "pending" per l'approvazione
-      const pendingAttractions = [];
-      for (const attraction of attractionsResult.attractions) {
-        const pendingAttraction = {
-          hotelId: req.params.hotelId,
-          name: attraction.name,
-          description: attraction.description,
-          category: attraction.category,
-          location: attraction.location,
-          duration: attraction.recommendedDuration,
-          priceRange: attraction.priceRange,
-          highlights: attraction.highlights,
-          attractionType: attraction.type,
-          estimatedDistance: attraction.estimatedDistance,
-          bestTimeToVisit: attraction.bestTimeToVisit,
-          searchArea: attractionsResult.searchArea,
-          approved: false,
-          rejected: false
-        };
-        
-        const saved = await storage.createPendingAttraction(pendingAttraction);
-        pendingAttractions.push(saved);
-      }
-
-      res.json({
-        message: `Trovate ${attractionsResult.totalFound} attrazioni per ${attractionsResult.searchArea}`,
-        searchArea: attractionsResult.searchArea,
-        totalFound: attractionsResult.totalFound,
-        pendingAttractions: pendingAttractions
-      });
-
-    } catch (error) {
-      console.error('Error generating attractions:', error);
-      res.status(500).json({ 
-        message: "Errore nella generazione delle attrazioni: " + (error as Error).message 
-      });
-    }
-  });
-
-  // Get pending attractions for approval
-  app.get("/api/hotels/:hotelId/pending-attractions", async (req, res) => {
-    try {
-      const pendingAttractions = await storage.getPendingAttractions(req.params.hotelId);
-      res.json(pendingAttractions);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch pending attractions" });
-    }
-  });
-
-  // Approve pending attraction
-  app.post("/api/hotels/:hotelId/pending-attractions/:attractionId/approve", async (req, res) => {
-    try {
-      const pendingAttraction = await storage.getPendingAttraction(req.params.attractionId);
-      if (!pendingAttraction) {
-        return res.status(404).json({ message: "Attrazione non trovata" });
-      }
-
-      // Mappa la categoria dell'attrazione pending a una categoria standardizzata
-      function mapToStandardCategory(category: string, attractionType: string, name: string, description: string): string {
-        const text = (category + " " + attractionType + " " + name + " " + description).toLowerCase();
-        
-        // Divertimento
-        if (text.includes("parco divertimenti") || text.includes("luna park") || 
-            text.includes("videogiochi") || text.includes("giochi")) {
-          return "divertimento";
-        }
-        
-        // Gastronomia/Degustazione (priorità alta per ristoranti)
-        if (text.includes("restaurant") || text.includes("ristorante") || text.includes("cucina") || 
-            text.includes("trattoria") || text.includes("osteria") || text.includes("pizzeria") ||
-            text.includes("food") || text.includes("gastronomia") || text.includes("cucina tradizionale")) {
-          return "gastronomia";
-        }
-        
-        if (text.includes("vino") || text.includes("cantina") || text.includes("degustazione") || 
-            text.includes("enogastronomia") || text.includes("vigneto") || text.includes("chianti") ||
-            text.includes("tasting") || text.includes("wine")) {
-          return "degustazione";
-        }
-        
-        // Cultura/Storia/Arte
-        if (text.includes("museo") || text.includes("galleria") || text.includes("palazzo") || 
-            text.includes("monument") || text.includes("chiesa") || text.includes("cattedrale") ||
-            text.includes("basilica") || text.includes("archeologico") || text.includes("storico") ||
-            text.includes("residenza storica") || text.includes("villa storica") || 
-            text.includes("arte") || text.includes("cultural")) {
-          
-          if (text.includes("storia") || text.includes("storico") || text.includes("archeologico") ||
-              text.includes("antico") || text.includes("romano") || text.includes("medievale") ||
-              text.includes("residenza storica")) {
-            return "storia";
-          }
-          return "cultura";
-        }
-        
-        // Natura
-        if (text.includes("nature") || text.includes("parco") || text.includes("giardino") || 
-            text.includes("natura") || text.includes("villa") || text.includes("bosco") || 
-            text.includes("lago") || text.includes("montagna") || text.includes("collina") ||
-            text.includes("lago naturale") || text.includes("parco naturale")) {
-          return "natura";
-        }
-        
-        // Avventura/Sport
-        if (text.includes("sport") || text.includes("avventura") || text.includes("outdoor") ||
-            text.includes("bicicletta") || text.includes("bike") || text.includes("trekking")) {
-          return "avventura";
-        }
-        
-        // Relax
-        if (text.includes("spa") || text.includes("terme") || text.includes("relax") || 
-            text.includes("benessere") || text.includes("wellness")) {
-          return "relax";
-        }
-        
-        // Famiglia
-        if (text.includes("famiglia") || text.includes("bambini") || text.includes("kids") || 
-            text.includes("family") || text.includes("zoo") || text.includes("acquario")) {
-          return "famiglia";
-        }
-        
-        // Shopping
-        if (text.includes("shopping") || text.includes("outlet") || text.includes("mercato") || 
-            text.includes("negozi") || text.includes("centro commerciale")) {
-          return "shopping";
-        }
-        
-        // Default: cultura
-        return "cultura";
-      }
-
-      // Converte l'attrazione pending in local experience
-      const smartCategory = mapToStandardCategory(
-        pendingAttraction.category, 
-        pendingAttraction.attractionType, 
-        pendingAttraction.name, 
-        pendingAttraction.description
-      );
-      
-
-      
-      const localExperience = {
-        hotelId: req.params.hotelId,
-        name: pendingAttraction.name,
-        category: smartCategory,
-        description: pendingAttraction.description,
-        location: pendingAttraction.location,
-        distance: pendingAttraction.estimatedDistance,
-        duration: pendingAttraction.duration,
-        priceRange: pendingAttraction.priceRange,
-        contactInfo: {},
-        openingHours: '',
-        seasonality: '',
-        targetAudience: [],
-        rating: '',
-        imageUrl: '',
-        isActive: true,
-        aiGenerated: true,
-        attractionType: pendingAttraction.attractionType,
-        estimatedDistance: pendingAttraction.estimatedDistance,
-        bestTimeToVisit: pendingAttraction.bestTimeToVisit,
-        highlights: pendingAttraction.highlights
-      };
-
-      const savedExperience = await storage.createLocalExperience(localExperience);
-      
-      // Marca l'attrazione pending come approvata
-      await storage.approvePendingAttraction(req.params.attractionId);
-
-      res.json({
-        message: "Attrazione approvata e aggiunta alle esperienze locali",
-        localExperience: savedExperience
-      });
-
-    } catch (error) {
-      console.error('Error approving attraction:', error);
-      res.status(500).json({ message: "Errore nell'approvazione dell'attrazione" });
-    }
-  });
-
-  // Reject pending attraction
-  app.post("/api/hotels/:hotelId/pending-attractions/:attractionId/reject", async (req, res) => {
-    try {
-      await storage.rejectPendingAttraction(req.params.attractionId);
-      res.json({ message: "Attrazione rifiutata" });
-    } catch (error) {
-      res.status(500).json({ message: "Errore nel rifiuto dell'attrazione" });
-    }
-  });
-
-  // Local Experiences
-  app.get("/api/hotels/:hotelId/local-experiences", async (req, res) => {
-    try {
-      // Use getAllLocalExperiencesByHotel to show both active and inactive for management
-      const experiences = await storage.getAllLocalExperiencesByHotel(req.params.hotelId);
-      res.json(experiences);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch local experiences" });
-    }
-  });
-
-  // Get local experiences with preference matching for specific guest
-  app.get("/api/hotels/:hotelId/local-experiences/matches/:guestId", async (req, res) => {
-    try {
-      const experiences = await storage.getAllLocalExperiencesByHotel(req.params.hotelId);
-      const guestProfile = await storage.getGuestProfile(req.params.guestId);
-      
+      const guestProfile = await storage.getGuestProfile(req.params.id);
       if (!guestProfile) {
         return res.status(404).json({ message: "Guest profile not found" });
       }
       
-      const matches = calculateExperienceMatches(guestProfile, experiences);
-      res.json({
-        guestProfile: {
-          id: guestProfile.id,
-          referenceName: guestProfile.referenceName,  
-          preferences: guestProfile.preferences || [],
-          type: guestProfile.type
-        },
-        matches
-      });
-    } catch (error) {
-      console.error('Error calculating experience matches:', error);
-      res.status(500).json({ message: "Failed to calculate experience matches" });
-    }
-  });
-
-  app.get("/api/local-experiences/:id", async (req, res) => {
-    try {
-      const experience = await storage.getLocalExperience(req.params.id);
-      if (!experience) {
-        return res.status(404).json({ message: "Local experience not found" });
+      // Check if guest has completed preferences
+      if (!guestProfile.preferencesCompleted) {
+        return res.status(400).json({ 
+          message: "Guest preferences not completed",
+          details: "L'ospite deve completare le preferenze prima di generare l'itinerario"
+        });
       }
-      res.json(experience);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch local experience" });
-    }
-  });
 
-  app.post("/api/local-experiences", requireAuth({ userType: 'hotel' }), async (req, res) => {
-    try {
-      // Verify the hotel ID in the request body matches the authenticated user
-      const userId = (req as any).user.id;
-      if (req.body.hotelId !== userId) {
-        return res.status(403).json({ message: "Hotel Non Trovato" });
-      }
-      
-      const validatedData = insertLocalExperienceSchema.parse(req.body);
-      const experience = await storage.createLocalExperience(validatedData);
-      res.status(201).json(experience);
-    } catch (error) {
-      res.status(400).json({ message: "Invalid local experience data", error: error instanceof Error ? error.message : String(error) });
-    }
-  });
-
-  app.put("/api/local-experiences/:id", async (req, res) => {
-    try {
-      const validatedData = insertLocalExperienceSchema.partial().parse(req.body);
-      const experience = await storage.updateLocalExperience(req.params.id, validatedData);
-      res.json(experience);
-    } catch (error) {
-      res.status(400).json({ message: "Invalid local experience data", error: error instanceof Error ? error.message : String(error) });
-    }
-  });
-
-  app.delete("/api/local-experiences/:id", async (req, res) => {
-    try {
-      await storage.deleteLocalExperience(req.params.id);
-      res.status(204).send();
-    } catch (error) {
-      res.status(500).json({ message: "Failed to delete local experience" });
-    }
-  });
-
-  // Itineraries
-  app.get("/api/hotels/:hotelId/itineraries", requireAuth({ userType: 'hotel' }), async (req, res) => {
-    try {
-      // Verify user is accessing their own hotel's itineraries
-      const userId = (req as any).user.id;
-      if (req.params.hotelId !== userId) {
-        return res.status(403).json({ message: "Hotel Non Trovato" });
-      }
-      
-      const itineraries = await storage.getItinerariesByHotel(req.params.hotelId);
-      res.json(itineraries);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch itineraries" });
-    }
-  });
-
-  app.get("/api/itineraries/:id", async (req, res) => {
-    try {
-      const itinerary = await storage.getItinerary(req.params.id);
-      if (!itinerary) {
-        return res.status(404).json({ message: "Itinerary not found" });
-      }
-      res.json(itinerary);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch itinerary" });
-    }
-  });
-
-  app.get("/api/itinerary/:uniqueUrl", async (req, res) => {
-    try {
-      const itinerary = await storage.getItineraryByUrl(req.params.uniqueUrl);
-      if (!itinerary) {
-        return res.status(404).json({ message: "Itinerary not found" });
-      }
-      res.json(itinerary);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch itinerary" });
-    }
-  });
-
-  app.post("/api/itineraries/generate", async (req, res) => {
-    try {
-      const { guestProfileId, hotelId, days } = req.body;
-      
-      // Get guest profile and hotel
-      const guestProfile = await storage.getGuestProfile(guestProfileId);
-      const hotel = await storage.getHotel(hotelId);
-      const experiences = await storage.getLocalExperiencesByHotel(hotelId);
-      
-      if (!guestProfile || !hotel) {
-        return res.status(404).json({ message: "Guest profile or hotel not found" });
+      const hotel = await storage.getHotel(guestProfile.hotelId);
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
       }
 
       // CHECK CREDITS BEFORE GENERATION
@@ -1655,26 +756,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Generate AI itinerary
-      const aiResponse = await generateItinerary(guestProfile, hotel, experiences, days);
+      const experiences = await storage.getLocalExperiencesByHotel(guestProfile.hotelId);
+      
+      // Generate guest-specific itinerary with preference matching
+      const itineraryData = await generateGuestSpecificItinerary(guestProfile, hotel, experiences);
       
       // Create unique URL
       const uniqueUrl = randomUUID();
       
       // Create itinerary
-      const itineraryData = {
-        hotelId,
-        guestProfileId,
-        title: aiResponse.title,
-        description: aiResponse.description,
-        days: aiResponse.days,
+      const newItinerary = {
+        hotelId: guestProfile.hotelId,
+        guestProfileId: guestProfile.id,
+        title: itineraryData.title,
+        description: itineraryData.description,
+        days: itineraryData.days,
         status: "active" as const,
         uniqueUrl,
-        aiPrompt: aiResponse.prompt,
-        aiResponse: aiResponse,
+        aiPrompt: itineraryData.prompt,
+        aiResponse: itineraryData,
       };
       
-      const itinerary = await storage.createItinerary(itineraryData);
+      const itinerary = await storage.createItinerary(newItinerary);
       
       // Generate QR Code
       const qrCodeUrl = await generateQRCode(uniqueUrl, hotel);
@@ -1707,290 +810,332 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/itineraries/:id/pdf", async (req, res) => {
+  app.put("/api/guest-profiles/:id", async (req, res) => {
     try {
-      const itinerary = await storage.getItinerary(req.params.id);
-      const hotel = await storage.getHotel(itinerary?.hotelId || "");
-      const guestProfile = await storage.getGuestProfile(itinerary?.guestProfileId || "");
-      
-      if (!itinerary || !hotel || !guestProfile) {
-        return res.status(404).json({ message: "Required data not found" });
-      }
-
-      const pdfUrl = await generateItineraryPDF(itinerary, hotel, guestProfile);
-      
-      // Update itinerary with PDF URL
-      const updatedItinerary = await storage.updateItinerary(itinerary.id, { pdfUrl });
-      
-      res.json({ pdfUrl });
+      const validatedData = insertGuestProfileSchema.omit({ id: true }).parse(req.body);
+      const guestProfile = await storage.updateGuestProfile(req.params.id, validatedData);
+      res.json(guestProfile);
     } catch (error) {
-      console.error("Error generating PDF:", error);
-      res.status(500).json({ message: "Failed to generate PDF", error: error instanceof Error ? error.message : String(error) });
+      res.status(400).json({ message: "Invalid guest profile data" });
     }
   });
 
-  app.delete("/api/itineraries/:id", async (req, res) => {
+  app.delete("/api/guest-profiles/:id", async (req, res) => {
     try {
-      await storage.deleteItinerary(req.params.id);
-      res.status(204).send();
+      await storage.deleteGuestProfile(req.params.id);
+      res.json({ message: "Guest profile deleted successfully" });
     } catch (error) {
-      res.status(500).json({ message: "Failed to delete itinerary" });
+      res.status(500).json({ message: "Failed to delete guest profile" });
     }
   });
 
-  // Guest Preferences Routes
+  // Guest preferences endpoint
   app.get("/api/guest-preferences/:token", async (req, res) => {
     try {
-      const tokenData = await storage.getGuestPreferencesToken(req.params.token);
-      if (!tokenData) {
-        return res.status(404).json({ message: "Token non valido o scaduto" });
-      }
-      
-      if (tokenData.expiresAt < new Date()) {
-        return res.status(410).json({ message: "Token scaduto" });
-      }
-      
-      if (tokenData.completed) {
-        return res.status(410).json({ message: "Preferenze già completate" });
-      }
-      
-      const guestProfile = await storage.getGuestProfile(tokenData.guestProfileId);
+      const guestProfile = await storage.getGuestProfileByToken(req.params.token);
       if (!guestProfile) {
-        return res.status(404).json({ message: "Profilo ospite non trovato" });
+        return res.status(404).json({ message: "Guest profile not found" });
       }
       
-      const hotel = await storage.getHotel(guestProfile.hotelId);
-      if (!hotel) {
-        return res.status(404).json({ message: "Hotel non trovato" });
+      // Check if token has expired (24 hours)
+      const tokenDate = new Date(guestProfile.tokenGeneratedAt!);
+      const now = new Date();
+      const hoursDiff = (now.getTime() - tokenDate.getTime()) / (1000 * 60 * 60);
+      
+      if (hoursDiff > 24) {
+        return res.status(410).json({ message: "Token expired", details: "Il link è scaduto. Contatta l'hotel per un nuovo link." });
       }
       
-      res.json({
-        guestProfile: {
-          referenceName: guestProfile.referenceName,
-          checkInDate: guestProfile.checkInDate,
-          checkOutDate: guestProfile.checkOutDate,
-          numberOfPeople: guestProfile.numberOfPeople,
-          type: guestProfile.type
-        },
-        hotel: {
-          name: hotel.name,
-          city: hotel.city,
-          region: hotel.region
-        },
-        token: req.params.token
-      });
+      res.json(guestProfile);
     } catch (error) {
-      res.status(500).json({ message: "Errore nel recupero dati" });
+      res.status(500).json({ message: "Failed to fetch guest profile" });
     }
   });
 
   app.post("/api/guest-preferences/:token", async (req, res) => {
     try {
-      const tokenData = await storage.getGuestPreferencesToken(req.params.token);
-      if (!tokenData) {
-        return res.status(404).json({ message: "Token non valido" });
+      const validatedData = guestPreferencesSchema.parse(req.body);
+      
+      // Find guest profile by token
+      const guestProfile = await storage.getGuestProfileByToken(req.params.token);
+      if (!guestProfile) {
+        return res.status(404).json({ message: "Guest profile not found" });
       }
       
-      if (tokenData.expiresAt < new Date()) {
-        return res.status(410).json({ message: "Token scaduto" });
+      // Check if token has expired (24 hours)
+      const tokenDate = new Date(guestProfile.tokenGeneratedAt!);
+      const now = new Date();
+      const hoursDiff = (now.getTime() - tokenDate.getTime()) / (1000 * 60 * 60);
+      
+      if (hoursDiff > 24) {
+        return res.status(410).json({ message: "Token expired", details: "Il link è scaduto. Contatta l'hotel per un nuovo link." });
       }
       
-      if (tokenData.completed) {
-        return res.status(410).json({ message: "Preferenze già completate" });
-      }
+      // Update guest profile with preferences using direct SQL query to include preferencesCompleted
+      await db.update(guestProfiles)
+        .set({
+          dietaryRestrictions: validatedData.dietaryRestrictions,
+          interests: validatedData.interests,
+          budgetRange: validatedData.budgetRange,
+          mobilityNeeds: validatedData.mobilityNeeds,
+          specialRequests: validatedData.specialRequests,
+          preferencesCompleted: true // This is the key field that was missing
+        })
+        .where(eq(guestProfiles.id, guestProfile.id));
       
-      console.log('Raw request body:', JSON.stringify(req.body, null, 2));
-      
-      try {
-        const validatedPreferences = guestPreferencesSchema.parse(req.body);
-        console.log('Validated preferences:', JSON.stringify(validatedPreferences, null, 2));
-      } catch (validationError) {
-        console.error('Validation error:', validationError);
-        throw validationError;
-      }
-      
-      const validatedPreferences = guestPreferencesSchema.parse(req.body);
-      
-      // Componi array delle preferenze complete
-      const allPreferences = [
-        ...validatedPreferences.preferences,
-        ...(validatedPreferences.otherPreferences ? [validatedPreferences.otherPreferences] : []),
-        ...(validatedPreferences.specialInterests ? [validatedPreferences.specialInterests] : [])
-      ].filter(Boolean);
-      
-      // Aggiungi restrizioni alimentari e bisogni di mobilità alle richieste speciali
-      let specialRequests = "";
-      if (validatedPreferences.dietaryRestrictions?.length) {
-        specialRequests += `Restrizioni alimentari: ${validatedPreferences.dietaryRestrictions.join(", ")}. `;
-      }
-      if (validatedPreferences.mobilityNeeds?.length) {
-        specialRequests += `Esigenze di mobilità: ${validatedPreferences.mobilityNeeds.join(", ")}. `;
-      }
-      
-      // Aggiorna il profilo ospite con le preferenze usando query diretta
-      console.log('Updating guest profile:', tokenData.guestProfileId);
-      console.log('Update data:', {
-        preferences: allPreferences,
-        specialRequests: specialRequests.trim() || undefined,
-        preferencesCompleted: true
-      });
-      
-      try {
-        const updateResult = await db.update(guestProfiles)
-          .set({
-            preferences: allPreferences,
-            specialRequests: specialRequests.trim() || undefined,
-            preferencesCompleted: true
-          })
-          .where(eq(guestProfiles.id, tokenData.guestProfileId));
-        
-        console.log('Database update result:', updateResult);
-      } catch (dbError) {
-        console.error('Database update error:', dbError);
-        throw dbError;
-      }
-      
-      // Marca il token come completato
-      await storage.updateGuestPreferencesToken(req.params.token, { completed: true });
-      
-      res.json({ message: "Preferenze salvate con successo!" });
+      res.json({ message: "Preferences saved successfully" });
     } catch (error) {
+      console.error("Error saving guest preferences:", error);
       res.status(400).json({ 
-        message: "Errore nel salvataggio delle preferenze", 
-        error: error instanceof Error ? error.message : String(error) 
+        message: "Invalid preferences data",
+        error: error instanceof Error ? error.message : String(error)
       });
     }
   });
 
-  // Dashboard stats
-  app.get("/api/hotels/:hotelId/stats", requireAuth({ userType: 'hotel' }), async (req, res) => {
+  // Local experiences routes
+
+  app.get("/api/local-experiences/:hotelId", async (req, res) => {
     try {
-      // Verify user is accessing their own hotel's stats
-      const userId = (req as any).user.id;
-      if (req.params.hotelId !== userId) {
-        return res.status(403).json({ message: "Hotel Non Trovato" });
-      }
-      
-      const stats = await storage.getHotelStats(req.params.hotelId);
-      res.json(stats);
+      const experiences = await storage.getLocalExperiencesByHotel(req.params.hotelId);
+      res.json(experiences);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch hotel stats" });
+      res.status(500).json({ message: "Failed to fetch local experiences" });
     }
   });
 
-  // Credit System Routes
-  
-  // Get hotel credit info
-  app.get("/api/hotels/:hotelId/credits", requireAuth({ userType: 'hotel' }), async (req, res) => {
+  app.post("/api/local-experiences", async (req, res) => {
     try {
-      // Verify user is accessing their own hotel's credits
-      const userId = (req as any).user.id;
-      if (req.params.hotelId !== userId) {
-        return res.status(403).json({ message: "Hotel Non Trovato" });
-      }
-      
-      const credits = await storage.getHotelCredits(req.params.hotelId);
-      res.json(credits);
+      const validatedData = insertLocalExperienceSchema.parse(req.body);
+      const experience = await storage.createLocalExperience(validatedData);
+      res.status(201).json(experience);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch credits" });
+      res.status(400).json({ message: "Invalid local experience data" });
     }
   });
 
-  // Purchase credits
-  app.post("/api/hotels/:hotelId/purchase-credits", async (req, res) => {
+  app.put("/api/local-experiences/:id", async (req, res) => {
     try {
-      const { packageType, packagePrice, creditsAmount } = req.body;
-      
-      // Get hotel information for email
+      const validatedData = insertLocalExperienceSchema.omit({ id: true }).parse(req.body);
+      const experience = await storage.updateLocalExperience(req.params.id, validatedData);
+      res.json(experience);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid local experience data" });
+    }
+  });
+
+  app.delete("/api/local-experiences/:id", async (req, res) => {
+    try {
+      await storage.deleteLocalExperience(req.params.id);
+      res.json({ message: "Local experience deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete local experience" });
+    }
+  });
+
+  // AI generation for local experiences
+  app.post("/api/hotels/:hotelId/local-experiences/generate", async (req, res) => {
+    try {
       const hotel = await storage.getHotel(req.params.hotelId);
       if (!hotel) {
         return res.status(404).json({ message: "Hotel not found" });
       }
+
+      const pendingAttractions = await findLocalAttractions(hotel);
       
+      const experiences = await Promise.all(
+        pendingAttractions.map(async (attraction) => {
+          const experience = attractionToLocalExperience(attraction, hotel.id);
+          return await storage.createLocalExperience(experience);
+        })
+      );
+
+      res.status(201).json(experiences);
+    } catch (error) {
+      console.error("Error generating local experiences:", error);
+      res.status(500).json({ message: "Failed to generate local experiences" });
+    }
+  });
+
+  // Local experience matching with guest preferences
+  app.get("/api/hotels/:hotelId/local-experiences/matches/:guestId", async (req, res) => {
+    try {
+      const experiences = await storage.getLocalExperiencesByHotel(req.params.hotelId);
+      const guestProfile = await storage.getGuestProfile(req.params.guestId);
+      
+      if (!guestProfile) {
+        return res.status(404).json({ message: "Guest profile not found" });
+      }
+
+      const matches = calculateExperienceMatches(experiences, guestProfile);
+      res.json(matches);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to calculate experience matches" });
+    }
+  });
+
+  // Hotel management routes
+
+  app.get("/api/hotels/:id", async (req, res) => {
+    try {
+      const hotel = await storage.getHotel(req.params.id);
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+      res.json(hotel);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch hotel" });
+    }
+  });
+
+  app.put("/api/hotels/:id", async (req, res) => {
+    try {
+      const validatedData = insertHotelSchema.omit({ id: true, password: true, mfaSecret: true, mfaEnabled: true, credits: true, creditsUsed: true }).parse(req.body);
+      const hotel = await storage.updateHotel(req.params.id, validatedData);
+      res.json(hotel);
+    } catch (error) {
+      console.error('Hotel update error:', error);
+      res.status(400).json({ message: "Invalid hotel data" });
+    }
+  });
+
+  app.get("/api/hotels/:id/setup-status", async (req, res) => {
+    try {
+      const hotel = await storage.getHotel(req.params.id);
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      const requiredFields = ['name', 'address', 'city', 'region', 'postalCode', 'phone'];
+      const missingFields = requiredFields.filter(field => !hotel[field]);
+      const isSetupComplete = missingFields.length === 0;
+
+      // Check if hotel has generated local experiences
+      const experiences = await storage.getLocalExperiencesByHotel(hotel.id);
+      const hasGeneratedExperiences = experiences.length > 0;
+
+      res.json({ 
+        isSetupComplete,
+        missingFields,
+        hasGeneratedExperiences,
+        setupInProgress: !isSetupComplete || !hasGeneratedExperiences
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to check setup status" });
+    }
+  });
+
+  app.get("/api/hotels/:id/credits", async (req, res) => {
+    try {
+      const credits = await storage.getHotelCredits(req.params.id);
+      res.json(credits);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch hotel credits" });
+    }
+  });
+
+  app.post("/api/hotels/:id/credits/purchase", async (req, res) => {
+    try {
+      const { packageType, amount, creditAmount } = req.body;
+      const hotel = await storage.getHotel(req.params.id);
+      
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
       const purchase = await storage.createCreditPurchase({
-        hotelId: req.params.hotelId,
+        hotelId: req.params.id,
         packageType,
-        packagePrice,
-        creditsAmount,
-        status: "pending",
-        bankTransferConfirmed: false
+        amount,
+        creditAmount,
+        status: "pending" as const
       });
 
-      // Send credit purchase instructions email
-      try {
-        const emailResult = await sendCreditPurchaseInstructions(
-          hotel,
-          packageType,
-          packagePrice,
-          creditsAmount,
-          purchase.id
-        );
-
-        if (!emailResult.success) {
-          console.warn('Failed to send credit purchase email:', emailResult.error);
-          // Don't fail the entire request if email fails
-        } else {
-          console.log('Credit purchase instructions email sent successfully');
-        }
-      } catch (emailError) {
-        console.error('Error sending credit purchase email:', emailError);
-        // Don't fail the entire request if email fails
-      }
+      // Send bank transfer instructions via email
+      await sendCreditPurchaseInstructions(
+        hotel.email,
+        hotel.name,
+        packageType,
+        amount,
+        creditAmount,
+        purchase.id
+      );
 
       res.status(201).json(purchase);
     } catch (error) {
-      console.error('Error creating credit purchase:', error);
       res.status(500).json({ message: "Failed to create credit purchase" });
     }
   });
 
-  // Get hotel credit purchases
-  app.get("/api/hotels/:hotelId/credit-purchases", async (req, res) => {
+  // Hotel logo upload
+  app.post("/api/hotels/:id/logo", logoUpload.single('logo'), async (req, res) => {
     try {
-      const purchases = await storage.getCreditPurchasesByHotel(req.params.hotelId);
-      res.json(purchases);
+      if (!req.file) {
+        return res.status(400).json({ message: "No logo file provided" });
+      }
+
+      const logoUrl = `/uploads/logos/${req.file.filename}`;
+      const hotel = await storage.updateHotel(req.params.id, { logoUrl });
+      
+      res.json({ logoUrl });
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch credit purchases" });
+      res.status(500).json({ message: "Failed to upload logo" });
     }
   });
 
-  // Auth routes
-  // Admin profile routes
-  app.get("/api/admin/profile/:adminId", async (req, res) => {
+  app.delete("/api/hotels/:id/logo", async (req, res) => {
     try {
-      const admin = await storage.getAdministrator(req.params.adminId);
-      if (!admin) {
-        return res.status(404).json({ message: "Administrator not found" });
+      const hotel = await storage.getHotel(req.params.id);
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      // Delete file if it exists
+      if (hotel.logoUrl) {
+        const filePath = path.join(process.cwd(), 'uploads', 'logos', path.basename(hotel.logoUrl));
+        try {
+          await fs.unlink(filePath);
+        } catch (error) {
+          console.log('File already deleted or does not exist');
+        }
+      }
+
+      // Update hotel record
+      const updatedHotel = await storage.updateHotel(req.params.id, { logoUrl: null });
+      res.json(updatedHotel);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete logo" });
+    }
+  });
+
+  // Hotel statistics
+  app.get("/api/hotels/:id/stats", async (req, res) => {
+    try {
+      const stats = await storage.getHotelStats(req.params.id);
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch hotel statistics" });
+    }
+  });
+
+  // Password management
+  app.post("/api/hotels/:hotelId/setup-password", async (req, res) => {
+    try {
+      const { password } = req.body;
+      
+      if (!password || password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
       }
       
-      res.json({
-        id: admin.id,
-        email: admin.email,
-        createdAt: admin.createdAt
-      });
+      await storage.updateHotelPassword(req.params.hotelId, password);
+      res.json({ message: "Password updated successfully" });
     } catch (error) {
-      console.error('Get admin profile error:', error);
-      res.status(500).json({ message: "Failed to get admin profile" });
+      console.error('Update hotel password error:', error);
+      res.status(500).json({ message: "Failed to update password" });
     }
   });
 
-  app.post("/api/admin/:adminId/update-email", async (req, res) => {
-    try {
-      const { email } = req.body;
-      
-      if (!email || !email.includes('@')) {
-        return res.status(400).json({ message: "Valid email required" });
-      }
-      
-      await storage.updateAdministratorEmail(req.params.adminId, email);
-      res.json({ message: "Email updated successfully" });
-    } catch (error) {
-      console.error('Update admin email error:', error);
-      res.status(500).json({ message: "Failed to update email" });
-    }
-  });
-
-  app.post("/api/admin/:adminId/update-password", async (req, res) => {
+  app.post("/api/admin/:adminId/setup-password", async (req, res) => {
     try {
       const { password } = req.body;
       
@@ -2104,13 +1249,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create guest profile
       const profile = await storage.createGuestProfile(validatedData);
+      
+      // Send preferences email if requested
+      if (validatedData.sendPreferencesEmail && validatedData.email) {
+        const hotel = await storage.getHotel(validatedData.hotelId);
+        if (hotel) {
+          await sendGuestPreferencesEmail(
+            validatedData.email,
+            validatedData.referenceName,
+            hotel.name,
+            profile.preferencesToken!
+          );
+        }
+      }
 
-      // Use 1 credit
-      await storage.useCredits(
-        validatedData.hotelId, 
-        1, 
-        `Inserimento ospite: ${profile.referenceName}`, 
-        profile.id
+      // Send QR email using the new API if hotel has credits for itinerary generation
+      if (credits.credits >= 2) { // Need at least 1 more credit for itinerary generation
+        console.log('Guest profile created with sufficient credits for itinerary generation');
+      }
+
+      // Log the new guest profile creation
+      console.log(
+        `👤 NUOVO OSPITE: ${profile.referenceName} creato per hotel ID ${profile.hotelId} (Guest Profile ID: ${profile.id})`
+      );
+
+      // Return profile with anonymized guest profile ID for external systems
+      const anonymizedProfile = {
+        ...profile,
+        id: profile.id.slice(0, 8) + '...' // Partial ID for logs/debugging
+      };
+
+      console.log(
+        `📧 Profilo ospite creato: ${anonymizedProfile.referenceName} (${anonymizedProfile.id})`
+      );
+      
+      // Send confirmation for actual creation including real profile ID
+      console.log(
+        `✅ PROFILO CREATO: Guest Profile ${profile.referenceName} salvato nel database con ID completo: ${
+          profile.id
+        }`
       );
 
       res.status(201).json(profile);
@@ -2160,3 +1337,4 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   return httpServer;
 }
+
