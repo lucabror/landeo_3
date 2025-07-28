@@ -164,8 +164,16 @@ export default function HotelSetup() {
       console.log("Mutation - URL:", url);
       console.log("Mutation - Data:", dataWithServices);
       
-      const res = await apiRequest(method, url, dataWithServices);
-      return res.json();
+      try {
+        const res = await apiRequest(method, url, dataWithServices);
+        console.log("Mutation - Response status:", res.status);
+        const result = await res.json();
+        console.log("Mutation - Response data:", result);
+        return result;
+      } catch (error) {
+        console.error("Mutation - API request failed:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast({
@@ -179,6 +187,7 @@ export default function HotelSetup() {
       setIsEditing(false); // Torna alla modalità read-only dopo il salvataggio
     },
     onError: (error: any) => {
+      console.error("🚨 Mutation error:", error);
       toast({
         title: "Errore",
         description: error.message || "Errore durante il salvataggio",
