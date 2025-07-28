@@ -16,6 +16,7 @@ import {
   guestProfiles
 } from "@shared/schema";
 import { eq } from "drizzle-orm";
+import { db } from "./db";
 import { generateItinerary } from "./services/openai";
 import { generateQRCode } from "./services/qr";
 import { generateItineraryPDF } from "./services/pdf";
@@ -1835,7 +1836,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       try {
-        const updateResult = await storage.db.update(guestProfiles)
+        const updateResult = await db.update(guestProfiles)
           .set({
             preferences: allPreferences,
             specialRequests: specialRequests.trim() || undefined,
