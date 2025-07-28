@@ -33,8 +33,12 @@ export function Sidebar() {
           <img 
             src={landeoLogo} 
             alt="Landeo" 
-            className="h-8 w-auto mb-2"
+            className="h-8 w-auto"
           />
+          <div className="w-full h-px bg-gray-200 my-2"></div>
+          <p className="text-xs text-gray-500 font-medium tracking-wide leading-tight">
+            Itinerari su misura, emozioni autentiche
+          </p>
 
         </div>
       </div>
