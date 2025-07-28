@@ -379,7 +379,7 @@ export const hotelSetupSchema = insertHotelSchema.extend({
   postalCode: z.string().min(1, "CAP richiesto"),
   phone: z.string().min(1, "Telefono richiesto"),
   email: z.string().email("Email non valida"),
-  services: z.array(z.string()).min(1, "Seleziona almeno un servizio offerto dall'hotel"),
+  services: z.array(z.string()).optional().default([]),
 });
 
 export const insertGuestProfileSchema = createInsertSchema(guestProfiles).omit({

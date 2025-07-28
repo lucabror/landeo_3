@@ -299,6 +299,10 @@ export default function HotelSetup() {
     console.log("🚀 Form validation errors:", form.formState.errors);
     console.log("🚀 Form is valid:", form.formState.isValid);
     
+    // Set services to selectedServices to pass validation
+    const dataWithServices = { ...data, services: selectedServices };
+    console.log("🚀 Data with services:", dataWithServices);
+    
     // Check if there are actual errors instead of relying on isValid
     const hasErrors = Object.keys(form.formState.errors).length > 0;
     if (hasErrors) {
@@ -307,7 +311,7 @@ export default function HotelSetup() {
     }
     
     console.log("✅ Form validation passed - proceeding with mutation");
-    mutation.mutate(data);
+    mutation.mutate(dataWithServices);
   };
 
   if (isLoading) {
