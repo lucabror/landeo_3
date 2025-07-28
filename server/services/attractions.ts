@@ -49,19 +49,19 @@ export async function findLocalAttractions(
     
     const prompt = `Sei un esperto di turismo locale in Italia. Trova le migliori attrazioni turistiche entro 50km da ${searchArea}.
 
-${!hotelCoordinates && hotelPostalCode ? `IMPORTANTE: L'hotel è localizzato a ${referencePoint} (CAP ${hotelPostalCode}). Trova attrazioni ESCLUSIVAMENTE entro un raggio massimo di 50km da ${referencePoint}. NON includere attrazioni di Roma centro, Napoli, o altre città principali che superano i 50km di distanza. Concentrati su attrazioni locali vicine a ${referencePoint} e nei paesi limitrofi dei Castelli Romani.` : hotelPostalCode ? `IMPORTANTE: L'area di riferimento è identificata dal CAP ${hotelPostalCode} che è un identificatore geografico preciso. Utilizza questo codice postale per localizzare esattamente l'area e trovare attrazioni nelle immediate vicinanze.` : ''}
+${!hotelCoordinates && hotelPostalCode ? `IMPORTANTE: L'hotel è stato inserito manualmente e l'unica informazione geografica precisa è il CAP ${hotelPostalCode}. Utilizza ESCLUSIVAMENTE questo codice postale per localizzare l'area e trovare attrazioni turistiche entro 50km. Per le distanze, usa "${referencePoint}" come punto di riferimento invece del CAP.` : hotelPostalCode ? `IMPORTANTE: L'area di riferimento è identificata dal CAP ${hotelPostalCode} che è un identificatore geografico preciso. Utilizza questo codice postale per localizzare esattamente l'area e trovare attrazioni nelle immediate vicinanze.` : ''}
 
-Includi attrazioni specificatamente nelle vicinanze di ${referencePoint} e zone limitrofe:
+Includi attrazioni specificatamente nelle vicinanze e zone limitrofe:
 - Ristoranti tipici e rinomati locali
 - Musei e siti culturali della zona
 - Mostre temporanee e permanenti regionali
-- Punti paesaggistici e naturali (laghi, parchi, riserve naturali dei Castelli Romani)
+- Punti paesaggistici e naturali (laghi, parchi, riserve naturali)
 - Luoghi per attività sportive locali
 - Monumenti e siti storici dell'area
 - Centri commerciali e negozi caratteristici regionali
 - Luoghi di intrattenimento della zona
 
-ESCLUSIVAMENTE attrazioni che si trovano effettivamente entro 50km da ${referencePoint}. Verifica attentamente le distanze reali.
+ESCLUSIVAMENTE attrazioni che si trovano effettivamente entro 50km dall'area di riferimento. Verifica attentamente le distanze reali e non includere attrazioni di grandi città lontane che superano i 50km.
 
 Per ogni attrazione, fornisci:
 - Nome preciso
