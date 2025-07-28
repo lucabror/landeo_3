@@ -30,11 +30,11 @@ export default function Pricing() {
       ]
     },
     {
-      name: "Pay-per-Use",
-      price: "1€",
-      period: "per itinerario generato",
-      description: "Paga solo quello che usi",
-      icon: Building,
+      name: "Pacchetti Prepagati",
+      price: "da 20€",
+      period: "pacchetti convenienti",
+      description: "Acquista crediti e risparmia",
+      icon: Crown,
       color: "border-amber-300",
       buttonColor: "bg-amber-700 hover:bg-amber-800",
       popular: true,
@@ -48,33 +48,16 @@ export default function Pricing() {
         "Analytics e statistiche",
         "Supporto prioritario",
         "Backup automatico",
-        "Sicurezza avanzata"
-      ],
-      limitations: []
-    },
-    {
-      name: "Pacchetti Prepagati",
-      price: "da 18€",
-      period: "pacchetti convenienti",
-      description: "Risparmia con i pacchetti crediti",
-      icon: Crown,
-      color: "border-purple-300",
-      buttonColor: "bg-purple-600 hover:bg-purple-700",
-      features: [
-        "Tutti i vantaggi Pay-per-Use",
-        "Sconto sul prezzo unitario",
+        "Sicurezza avanzata",
         "Crediti mai in scadenza",
         "Supporto telefonico",
-        "Onboarding personalizzato",
-        "Consulenza strategica",
-        "Report mensili dettagliati",
-        "Backup prioritario"
+        "Onboarding personalizzato"
       ],
       packages: [
-        { credits: 20, price: "18€", savings: "2€" },
-        { credits: 45, price: "40€", savings: "5€" },
-        { credits: 92, price: "80€", savings: "12€" },
-        { credits: 150, price: "120€", savings: "30€" }
+        { credits: 20, price: "20€", savings: "0€" },
+        { credits: 40, price: "40€", savings: "0€", popular: true },
+        { credits: 90, price: "85€", savings: "5€" },
+        { credits: 150, price: "140€", savings: "10€" }
       ]
     }
   ];
@@ -132,16 +115,16 @@ export default function Pricing() {
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             Semplice, Trasparente,<br />
-            <span className="text-amber-700">Solo quello che usi</span>
+            <span className="text-amber-700">Pacchetti convenienti</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Nessun canone fisso. Nessun costo nascosto. Paga solo per gli itinerari che generi 
-            e migliora subito l'esperienza dei tuoi ospiti.
+            Inizia gratis con 5 itinerari, poi acquista crediti in pacchetti convenienti. 
+            Nessun canone fisso, nessun costo nascosto.
           </p>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid lg:grid-cols-2 gap-8 mb-16">
           {pricingPlans.map((plan, index) => (
             <Card key={index} className={`relative ${plan.color} ${plan.popular ? 'ring-2 ring-amber-300 scale-105' : ''} hover:shadow-lg transition-all`}>
               {plan.popular && (
@@ -181,11 +164,14 @@ export default function Pricing() {
                     <h4 className="font-semibold text-gray-900 mb-3">Pacchetti Disponibili:</h4>
                     <div className="space-y-2">
                       {plan.packages.map((pkg, idx) => (
-                        <div key={idx} className="flex justify-between items-center p-2 bg-purple-50 rounded">
-                          <span className="text-sm font-medium">{pkg.credits} crediti</span>
+                        <div key={idx} className={`flex justify-between items-center p-3 rounded-lg ${pkg.popular ? 'bg-amber-50 border border-amber-200' : 'bg-gray-50'}`}>
+                          <div className="flex items-center">
+                            <span className="text-sm font-medium">{pkg.credits} crediti</span>
+                            {pkg.popular && <span className="ml-2 text-xs bg-amber-200 text-amber-800 px-2 py-1 rounded">Più Popolare</span>}
+                          </div>
                           <div className="text-right">
                             <span className="text-sm font-bold">{pkg.price}</span>
-                            <span className="text-xs text-green-600 ml-2">Risparmi {pkg.savings}</span>
+                            {pkg.savings !== "0€" && <span className="text-xs text-green-600 ml-2">Risparmi {pkg.savings}</span>}
                           </div>
                         </div>
                       ))}
@@ -193,9 +179,9 @@ export default function Pricing() {
                   </div>
                 )}
 
-                <Link href={index === 0 ? "/hotel-register" : "/hotel-register"}>
+                <Link href="/hotel-register">
                   <Button className={`w-full ${plan.buttonColor} text-white`}>
-                    {index === 0 ? "Inizia Gratis" : "Inizia Ora"}
+                    {index === 0 ? "Inizia Gratis" : "Acquista Crediti"}
                   </Button>
                 </Link>
               </CardContent>
