@@ -293,7 +293,7 @@ export default function LocalExperiences() {
 
   // Generate AI attractions mutation
   const generateAttractionsMutation = useMutation({
-    mutationFn: () => apiRequest("POST", `/api/hotels/${hotelId}/generate-attractions`),
+    mutationFn: () => apiRequest("POST", `/api/hotels/${hotelId}/local-experiences/generate`),
     onMutate: () => {
       // Show warning message during generation
       toast({
