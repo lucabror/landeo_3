@@ -2,7 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import multer from "multer";
 import path from "path";
-import fs from "fs";
+import fs from "fs/promises";
+import { createWriteStream, unlinkSync, existsSync, mkdirSync } from "fs";
 import { storage } from "./storage";
 import authRoutes from "./routes/auth";
 import hotelRegistrationRoutes from "./routes/hotel-registration";
@@ -56,8 +57,8 @@ function isValidFilename(filename: string): boolean {
 const logoStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadsDir = path.join(process.cwd(), 'uploads', 'logos');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
+    if (!existsSync(uploadsDir)) {
+      mkdirSync(uploadsDir, { recursive: true });
     }
     cb(null, uploadsDir);
   },
@@ -772,37 +773,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { recipientEmail, recipientName } = req.body;
       
-      console.log('Email PDF request:', { recipientEmail, recipientName, uniqueUrl: req.params.uniqueUrl });
+      console.log('📧 EMAIL PDF REQUEST:', { recipientEmail, recipientName, uniqueUrl: req.params.uniqueUrl });
+      
+      // Validate required fields
+      if (!recipientEmail || !recipientName) {
+        console.log('❌ Missing required fields:', { recipientEmail: !!recipientEmail, recipientName: !!recipientName });
+        return res.status(400).json({ message: "Email destinatario e nome sono obbligatori" });
+      }
+      
+      // Check RESEND_API_KEY
+      if (!process.env.RESEND_API_KEY) {
+        console.log('❌ RESEND_API_KEY non configurata');
+        return res.status(500).json({ message: "Servizio email non configurato" });
+      }
       
       const itinerary = await storage.getItineraryByUniqueUrl(req.params.uniqueUrl);
       if (!itinerary) {
+        console.log('❌ Itinerary non trovato:', req.params.uniqueUrl);
         return res.status(404).json({ message: "Itinerary not found" });
       }
+      console.log('✅ Itinerary trovato:', itinerary.title);
 
       const hotel = await storage.getHotel(itinerary.hotelId);
       const guestProfile = await storage.getGuestProfile(itinerary.guestProfileId);
       
       if (!hotel || !guestProfile) {
+        console.log('❌ Dati mancanti:', { hotel: !!hotel, guestProfile: !!guestProfile });
         return res.status(404).json({ message: "Required data not found" });
       }
+      console.log('✅ Hotel e guest profile trovati:', { hotel: hotel.name, guest: guestProfile.referenceName });
 
       // Generate PDF and get buffer directly
+      console.log('📄 Generazione PDF in corso...');
       const pdfPath = await generateItineraryPDF(itinerary, hotel, guestProfile);
+      console.log('✅ PDF generato:', pdfPath);
       
       // Read PDF file as buffer for email attachment
+      console.log('📖 Lettura file PDF...');
       const pdfBuffer = await fs.readFile(pdfPath);
+      console.log('✅ PDF letto, dimensione:', pdfBuffer.length, 'bytes');
 
       // Send PDF via email with correct parameter order
+      console.log('📤 Invio email in corso...');
       const emailResult = await sendItineraryPDF(hotel, guestProfile, itinerary, pdfBuffer, recipientEmail, recipientName);
+      console.log('📧 Risultato invio email:', emailResult);
       
       if (!emailResult.success) {
+        console.log('❌ Invio email fallito:', emailResult.error);
         return res.status(500).json({ message: emailResult.error || "Failed to send email" });
       }
       
+      console.log('✅ Email inviata con successo!');
       res.json({ message: "PDF inviato con successo via email" });
     } catch (error) {
-      console.error('Error sending PDF via email:', error);
-      res.status(500).json({ message: "Failed to send PDF via email" });
+      console.error('❌ ERRORE EMAIL PDF:', error);
+      res.status(500).json({ 
+        message: "Failed to send PDF via email",
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 
