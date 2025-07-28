@@ -75,8 +75,10 @@ export function decryptMfaSecret(encryptedSecret: string): string {
       decrypted += decipher.final('utf8');
       return decrypted;
     } else {
-      // Legacy format - still support old encrypted secrets temporarily
-      const decipher = crypto.createDecipher('aes-256-cbc', MFA_ENCRYPTION_KEY);
+      // Legacy format - migrate to secure format on next access
+      // Use a fixed IV derived from the encrypted data for legacy compatibility
+      const legacyIv = crypto.createHash('md5').update(encryptedSecret + MFA_ENCRYPTION_KEY).digest().subarray(0, 16);
+      const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(MFA_ENCRYPTION_KEY).subarray(0, 32), legacyIv);
       let decrypted = decipher.update(encryptedSecret, 'hex', 'utf8');
       decrypted += decipher.final('utf8');
       return decrypted;
