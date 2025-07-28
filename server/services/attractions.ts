@@ -152,13 +152,93 @@ Trova esattamente 20 attrazioni diverse e interessanti. Rispondi in formato JSON
   }
 }
 
+// Funzione per mappare le categorie AI alle categorie standardizzate
+function mapAIcategoryToStandard(aiCategory: string): string {
+  const categoryLower = aiCategory.toLowerCase();
+  
+  // Shopping
+  if (categoryLower.includes('shopping') || categoryLower.includes('svago') || 
+      categoryLower.includes('mercato') || categoryLower.includes('outlet') ||
+      categoryLower.includes('centro commerciale')) {
+    return 'shopping';
+  }
+  
+  // Sport/Avventura  
+  if (categoryLower.includes('sport') || categoryLower.includes('arrampicata') ||
+      categoryLower.includes('rafting') || categoryLower.includes('climbing') ||
+      categoryLower.includes('bike') || categoryLower.includes('palestra')) {
+    return 'sport';
+  }
+  
+  // Gastronomia
+  if (categoryLower.includes('cucina') || categoryLower.includes('ristorante') ||
+      categoryLower.includes('osteria') || categoryLower.includes('trattoria') ||
+      categoryLower.includes('gastronomia') || categoryLower.includes('mare')) {
+    return 'gastronomia';
+  }
+  
+  // Degustazione
+  if (categoryLower.includes('degustazione') || categoryLower.includes('vino') ||
+      categoryLower.includes('cantina') || categoryLower.includes('enoteca')) {
+    return 'degustazione';
+  }
+  
+  // Natura  
+  if (categoryLower.includes('natura') || categoryLower.includes('parco') ||
+      categoryLower.includes('giardino') || categoryLower.includes('lago') ||
+      categoryLower.includes('bosco') || categoryLower.includes('riserva')) {
+    return 'natura';
+  }
+  
+  // Storia/Cultura
+  if (categoryLower.includes('archeologico') || categoryLower.includes('sito') ||
+      categoryLower.includes('storico') || categoryLower.includes('romano') ||
+      categoryLower.includes('medievale') || categoryLower.includes('antico')) {
+    return 'storia';
+  }
+  
+  // Arte
+  if (categoryLower.includes('arte') || categoryLower.includes('galleria') ||
+      categoryLower.includes('pittura') || categoryLower.includes('scultura')) {
+    return 'arte';
+  }
+  
+  // Cultura (catch-all per musei/palazzi/basiliche)
+  if (categoryLower.includes('museo') || categoryLower.includes('palazzo') ||
+      categoryLower.includes('basilica') || categoryLower.includes('chiesa') ||
+      categoryLower.includes('cultura') || categoryLower.includes('duomo')) {
+    return 'cultura';
+  }
+  
+  // Famiglia
+  if (categoryLower.includes('famiglia') || categoryLower.includes('zoo') ||
+      categoryLower.includes('bambini') || categoryLower.includes('parco giochi')) {
+    return 'famiglia';
+  }
+  
+  // Relax
+  if (categoryLower.includes('terme') || categoryLower.includes('spa') ||
+      categoryLower.includes('relax') || categoryLower.includes('benessere')) {
+    return 'relax';
+  }
+  
+  // Divertimento
+  if (categoryLower.includes('divertimento') || categoryLower.includes('luna park') ||
+      categoryLower.includes('spettacolo') || categoryLower.includes('teatro')) {
+    return 'divertimento';
+  }
+  
+  // Default: cultura
+  return 'cultura';
+}
+
 // Funzione per convertire un'attrazione in formato LocalExperience
 export function attractionToLocalExperience(attraction: LocalAttraction, hotelId: string): any {
   return {
     hotelId,
     name: attraction.name,
     description: attraction.description,
-    category: attraction.category,
+    category: mapAIcategoryToStandard(attraction.category), // Usa mapping standardizzato
     location: attraction.location,
     distance: attraction.estimatedDistance, // Mappo a distance per compatibilità schema
     duration: attraction.recommendedDuration,
