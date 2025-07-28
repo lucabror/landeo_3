@@ -256,7 +256,7 @@ export default function Support() {
               <Mail className="mr-2 h-5 w-5" />
               borroluca@gmail.com
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+            <Button size="lg" variant="outline" className="border-white hover:bg-white/10 text-[#000000]">
               <Phone className="mr-2 h-5 w-5" />
               +39.328.30.93.519
             </Button>
