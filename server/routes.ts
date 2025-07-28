@@ -944,6 +944,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete all local experiences for a hotel
+  app.delete("/api/hotels/:hotelId/local-experiences", async (req, res) => {
+    try {
+      await storage.deleteAllLocalExperiences(req.params.hotelId);
+      res.json({ message: "All local experiences deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete all local experiences" });
+    }
+  });
+
   // AI generation for local experiences
   app.post("/api/hotels/:hotelId/local-experiences/generate", async (req, res) => {
     try {

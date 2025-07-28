@@ -308,6 +308,10 @@ export class DatabaseStorage implements IStorage {
     await db.delete(localExperiences).where(eq(localExperiences.id, id));
   }
 
+  async deleteAllLocalExperiences(hotelId: string): Promise<void> {
+    await db.delete(localExperiences).where(eq(localExperiences.hotelId, hotelId));
+  }
+
   // Itineraries
   async getItinerary(id: string): Promise<Itinerary | undefined> {
     const [itinerary] = await db.select().from(itineraries).where(eq(itineraries.id, id));
