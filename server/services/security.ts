@@ -345,7 +345,7 @@ export async function validateIpWhitelist(
     .where(eq(table.id, userId));
 
   if (!user || !user.ipWhitelist || user.ipWhitelist.length === 0) {
-    return false; // SECURITY FIX: Lista IP vuota = nessun accesso (era true)
+    return true; // TEMPORARY FIX: Allow access when no IP whitelist is configured
   }
 
   return user.ipWhitelist.includes(ipAddress);
