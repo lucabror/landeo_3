@@ -22,23 +22,15 @@ export default function Support() {
       title: "Email Support",
       description: "Supporto via email con risposta entro 24 ore",
       action: "Invia Email",
-      href: "mailto:support@aitour.it",
+      href: "mailto:borroluca@gmail.com",
       availability: "24/7"
     },
     {
       icon: Phone,
       title: "Supporto Telefonico",
       description: "Assistenza telefonica per clienti con pacchetti prepagati",
-      action: "Chiama Ora",
-      href: "tel:+390123456789",
-      availability: "Lun-Ven 9:00-18:00"
-    },
-    {
-      icon: MessageCircle,
-      title: "Chat Live",
-      description: "Chat in tempo reale con il nostro team tecnico",
-      action: "Avvia Chat",
-      href: "#",
+      action: "+39.328.30.93.519",
+      href: "tel:+393283093519",
       availability: "Lun-Ven 9:00-18:00"
     }
   ];
@@ -83,7 +75,7 @@ export default function Support() {
       questions: [
         {
           q: "Come funziona il sistema a crediti?",
-          a: "Ogni itinerario generato costa 1 credito (1€). Puoi acquistare crediti singolarmente o in pacchetti convenienti con sconti."
+          a: "Ogni itinerario generato costa 1 credito (1€). Puoi acquistare crediti in pacchetti convenienti con sconti."
         },
         {
           q: "I crediti hanno scadenza?",
@@ -109,6 +101,10 @@ export default function Support() {
         {
           q: "Gli ospiti non ricevono l'email con le preferenze",
           a: "Controlla che l'email dell'ospite sia corretta e verifica nella cartella spam. Puoi reinviare l'email dalla dashboard."
+        },
+        {
+          q: "Gli itinerari AI generati vanno ricontrollati?",
+          a: "Sì, per offrire ai tuoi ospiti un'esperienza di massima qualità è necessario ricontrollare manualmente gli itinerari generati e apportare modifiche se dovesse rendersi necessario. Il nostro algoritmo AI però generalmente offre itinerari impeccabili."
         }
       ]
     }
@@ -120,18 +116,6 @@ export default function Support() {
       title: "Video Tutorial",
       description: "Guida video completa per iniziare con AiTour",
       action: "Guarda Video"
-    },
-    {
-      icon: FileText,
-      title: "Documentazione",
-      description: "Manuale utente dettagliato con esempi pratici",
-      action: "Leggi Guida"
-    },
-    {
-      icon: HelpCircle,
-      title: "FAQ Complete",
-      description: "Tutte le domande frequenti con risposte dettagliate",
-      action: "Esplora FAQ"
     }
   ];
 
@@ -188,7 +172,7 @@ export default function Support() {
         </div>
 
         {/* Support Options */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
+        <div className="grid md:grid-cols-2 gap-8 mb-16">
           {supportOptions.map((option, index) => (
             <Card key={index} className="border-amber-100 hover:shadow-lg transition-shadow text-center">
               <CardHeader>
@@ -243,7 +227,7 @@ export default function Support() {
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">
             Risorse Utili
           </h2>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="flex justify-center">
             {resources.map((resource, index) => (
               <div key={index} className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -270,11 +254,11 @@ export default function Support() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-white text-amber-700 hover:bg-gray-50">
               <Mail className="mr-2 h-5 w-5" />
-              support@aitour.it
+              borroluca@gmail.com
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
               <Phone className="mr-2 h-5 w-5" />
-              +39 012 345 6789
+              +39.328.30.93.519
             </Button>
           </div>
         </div>

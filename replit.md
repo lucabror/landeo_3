@@ -251,6 +251,12 @@ Preferred communication style: Simple, everyday language.
   - Rimossi dal footer: voce "API" dal menu Prodotto e "Sicurezza" dal menu Azienda
   - Tutte le pagine includono logo AiTour con slogan e design coerente con landing page
   - Footer ora completamente funzionale con link attivi e navigazione completa
+- **2025-01-27**: Corretta struttura prezzi e pagina supporto
+  - Rimosso pacchetto "Pay-Per-Use" dalla pagina prezzi
+  - Solo prova gratuita + 4 pacchetti prepagati: 20€/20, 40€/40 (popolare), 85€/90, 140€/150
+  - Aggiornata pagina supporto: rimossa chat, email borroluca@gmail.com, tel +39.328.30.93.519
+  - Aggiunta FAQ "Gli itinerari AI generati vanno ricontrollati?" con risposta qualità
+  - Rimossa sezione documentazione e FAQ complete dalla pagina supporto
 
 ## System Architecture
 
