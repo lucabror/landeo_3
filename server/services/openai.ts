@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import type { GuestProfile, Hotel, LocalExperience } from "@shared/schema";
+import { calculateExperienceMatches } from './preference-matcher';
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ 
@@ -27,6 +28,7 @@ export async function generateItinerary(
       experienceId?: string;
       duration?: string;
       notes?: string;
+      source?: 'preference-matched' | 'hotel-suggested';
     }>;
   }>;
   prompt: string;
@@ -36,10 +38,19 @@ export async function generateItinerary(
   const stayDuration = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
   const actualDays = Math.min(requestedDays, stayDuration);
 
-  // Build the prompt for AI
-  const experiencesText = localExperiences.map(exp => 
-    `${exp.name} (${exp.category}) - ${exp.description} - Ubicazione: ${exp.location} - Distanza: ${exp.distance} - Durata: ${exp.duration} - Target: ${exp.targetAudience?.join(", ")}`
-  ).join("\n");
+  // Calculate preference matches for experiences
+  const experienceMatches = calculateExperienceMatches(guestProfile, localExperiences);
+  
+  // Build the prompt for AI with preference match information
+  const experiencesText = experienceMatches.map(match => {
+    const exp = match.experience;
+    const matchInfo = match.matchType === 'high' ? 'PREFERENZA TOP' : 
+                     match.matchType === 'medium' ? 'BUON MATCH' : 'STANDARD';
+    const preferenceList = match.matchingPreferences.length > 0 ? 
+                          ` [Match con: ${match.matchingPreferences.join(", ")}]` : '';
+    
+    return `${exp.name} (${exp.category}) - ${matchInfo}${preferenceList} - ${exp.description} - Ubicazione: ${exp.location} - Distanza: ${exp.distance} - Durata: ${exp.duration} - Target: ${exp.targetAudience?.join(", ")}`;
+  }).join("\n");
 
   const prompt = `
 Crea un itinerario personalizzato per ${actualDays} giorno/i per ospiti dell'hotel "${hotel.name}" situato a ${hotel.city}, ${hotel.region}.
@@ -64,6 +75,10 @@ ISTRUZIONI:
 4. Fornisci orari realistici e descrizioni dettagliate
 5. Considera distanze e tempi di spostamento
 6. Includi raccomandazioni per pasti e pause
+7. IMPORTANTE: Per ogni attività, specifica SEMPRE il campo "source":
+   - "preference-matched" per attività che corrispondono alle esperienze locali marcate come "PREFERENZA TOP" o "BUON MATCH"
+   - "hotel-suggested" per tutte le altre attività (standard, generiche, o aggiunte dall'AI)
+8. ASSICURATI che ogni attività abbia il campo "source" valorizzato con uno dei due valori sopra
 
 Rispondi SOLO in formato JSON valido con questa struttura:
 {
@@ -81,7 +96,8 @@ Rispondi SOLO in formato JSON valido con questa struttura:
           "description": "Descrizione dettagliata",
           "experienceId": "id_esperienza_se_applicabile",
           "duration": "2 ore",
-          "notes": "Note aggiuntive"
+          "notes": "Note aggiuntive",
+          "source": "preference-matched"
         }
       ]
     }
@@ -109,12 +125,21 @@ Rispondi SOLO in formato JSON valido con questa struttura:
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
     
-    // Validate and format dates
+    // Validate and format dates and ensure source field
     for (let i = 0; i < result.days.length; i++) {
       const dayDate = new Date(checkInDate);
       dayDate.setDate(dayDate.getDate() + i);
       result.days[i].date = dayDate.toISOString().split('T')[0];
       result.days[i].day = i + 1;
+      
+      // Ensure all activities have a source field
+      if (result.days[i].activities) {
+        result.days[i].activities.forEach((activity: any) => {
+          if (!activity.source) {
+            activity.source = 'hotel-suggested'; // Default fallback
+          }
+        });
+      }
     }
 
     return {

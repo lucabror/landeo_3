@@ -196,8 +196,24 @@ export async function generateItineraryPDF(
                  .fillColor(colors.textBlack)
                  .text(activity.activity, columnX, columnY + 3);
 
-              // Activity description with readable gray text
-              let descriptionY = columnY + 18;
+              // Source label (preference-matched vs hotel-suggested)
+              let labelY = columnY + 15;
+              if (activity.source === 'preference-matched') {
+                doc.font('Helvetica-Bold')
+                   .fontSize(7)
+                   .fillColor('#16a34a')
+                   .text('🎯 Scelta sulle tue preferenze', columnX, labelY);
+                labelY += 10;
+              } else if (activity.source === 'hotel-suggested') {
+                doc.font('Helvetica-Bold')
+                   .fontSize(7)
+                   .fillColor('#2563eb')
+                   .text('🏨 Suggerita dall\'hotel', columnX, labelY);
+                labelY += 10;
+              }
+
+              // Activity description with readable gray text  
+              let descriptionY = labelY + 3;
               if (activity.description) {
                 doc.font('Helvetica')
                    .fontSize(8)

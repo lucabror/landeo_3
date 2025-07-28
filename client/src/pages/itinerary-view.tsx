@@ -441,11 +441,23 @@ export default function ItineraryView() {
                                       </>
                                     )}
                                   </div>
-                                  {activity.experienceId && (
-                                    <Badge variant="outline" className="mt-2 text-xs">
-                                      Esperienza Locale
-                                    </Badge>
-                                  )}
+                                  <div className="flex flex-wrap gap-2 mt-2">
+                                    {activity.experienceId && (
+                                      <Badge variant="outline" className="text-xs">
+                                        Esperienza Locale
+                                      </Badge>
+                                    )}
+                                    {activity.source === 'preference-matched' && (
+                                      <Badge className="text-xs bg-green-100 text-green-800 border-green-200">
+                                        🎯 Scelta sulle tue preferenze
+                                      </Badge>
+                                    )}
+                                    {activity.source === 'hotel-suggested' && (
+                                      <Badge className="text-xs bg-blue-100 text-blue-800 border-blue-200">
+                                        🏨 Suggerita dall'hotel
+                                      </Badge>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
 
