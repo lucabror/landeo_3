@@ -69,7 +69,7 @@ function DashboardContent() {
   });
 
   // Fetch hotel setup status
-  const { data: setupStatus } = useQuery({
+  const { data: setupStatus = { isComplete: false, hasLocalExperiences: false } } = useQuery({
     queryKey: [`/api/hotels/${hotelId}/setup-status`],
   });
 
@@ -85,10 +85,7 @@ function DashboardContent() {
   };
 
   return (
-    <div className="flex">
-      <Sidebar />
-      
-      <div className="flex-1 p-8 bg-gray-50 min-h-screen">
+      <div className="flex-1 p-8 bg-gray-50 min-h-screen ml-64">
         {/* Header */}
         <div className="mb-8">
           <h2 className="dashboard-title text-3xl text-gray-900 mb-2">
@@ -100,7 +97,7 @@ function DashboardContent() {
         </div>
 
         {/* Hotel Setup Status Banner */}
-        {setupStatus && !setupStatus.isComplete && (
+        {setupStatus && !(setupStatus as any)?.isComplete && (
           <Alert className="mb-6 border-amber-200 bg-amber-50">
             <AlertCircle className="h-5 w-5 text-amber-600" />
             <AlertDescription className="flex items-center justify-between w-full">
@@ -121,7 +118,7 @@ function DashboardContent() {
         )}
 
         {/* Local Experiences Setup Banner */}
-        {setupStatus && setupStatus.isComplete && !setupStatus.hasLocalExperiences && (
+        {setupStatus && (setupStatus as any)?.isComplete && !(setupStatus as any)?.hasLocalExperiences && (
           <Alert className="mb-6 border-blue-200 bg-blue-50">
             <MapPin className="h-5 w-5 text-blue-600" />
             <AlertDescription className="flex items-center justify-between w-full">
@@ -142,7 +139,7 @@ function DashboardContent() {
         )}
 
         {/* Credit Banner */}
-        {creditInfo.credits <= 5 && (
+        {(creditInfo as any)?.credits <= 5 && (
           <Card className="bg-orange-50 border-orange-200 mb-8">
             <CardContent className="flex items-center justify-between p-6">
               <div className="flex items-center gap-4">
@@ -152,11 +149,11 @@ function DashboardContent() {
                 <div>
                   <h3 className="font-semibold text-orange-900">Crediti in esaurimento</h3>
                   <p className="text-sm text-orange-700">
-                    Hai solo {creditInfo.credits} crediti rimasti. Acquista più crediti per continuare ad aggiungere ospiti.
+                    Hai solo {(creditInfo as any)?.credits} crediti rimasti. Acquista più crediti per continuare ad aggiungere ospiti.
                   </p>
                 </div>
               </div>
-              <CreditPurchaseDialog hotelId={MOCK_HOTEL_ID} currentCredits={creditInfo.credits}>
+              <CreditPurchaseDialog hotelId={MOCK_HOTEL_ID} currentCredits={(creditInfo as any)?.credits || 0}>
                 <Button className="bg-orange-600 hover:bg-orange-700">
                   Acquista Crediti
                 </Button>
@@ -176,9 +173,9 @@ function DashboardContent() {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Crediti Disponibili</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {creditInfo.credits}
+                    {(creditInfo as any)?.credits || 0}
                   </p>
-                  {creditInfo.credits <= 5 && (
+                  {(creditInfo as any)?.credits <= 5 && (
                     <Badge variant="destructive" className="text-xs mt-1">In esaurimento!</Badge>
                   )}
                 </div>
@@ -433,7 +430,6 @@ function DashboardContent() {
           />
         )}
       </div>
-    </div>
   );
 }
 
