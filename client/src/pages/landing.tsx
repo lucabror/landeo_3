@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
+import aiTourLogo from "../assets/aitour-logo.png";
 import { 
   MapPin, 
   Users, 
@@ -29,15 +30,11 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-700 to-amber-800 rounded-xl flex items-center justify-center">
-                <Hotel className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-amber-800 bg-clip-text text-transparent">
-                  ItineraItalia
-                </h1>
-                <p className="text-xs text-amber-700">Powered by AI</p>
-              </div>
+              <img 
+                src={aiTourLogo} 
+                alt="AiTour" 
+                className="h-12 w-auto"
+              />
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/login">
@@ -71,7 +68,7 @@ export default function Landing() {
                 </span>
               </h1>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                La prima piattaforma per Hotel Italiani che genera itinerari personalizzati per gli ospiti tramite l'AI e automatizza l'esperienza di soggiorno con tecnologia all'avanguardia.
+                La prima piattaforma AiTour per Hotel Italiani che genera itinerari personalizzati per gli ospiti tramite l'AI e automatizza l'esperienza di soggiorno con tecnologia all'avanguardia.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/hotel-register">
@@ -550,7 +547,7 @@ export default function Landing() {
                 <div className="w-8 h-8 bg-gradient-to-br from-amber-600 to-amber-700 rounded-lg flex items-center justify-center">
                   <Hotel className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold">ItineraItalia</span>
+                <span className="text-xl font-bold">AiTour</span>
               </div>
               <p className="text-gray-400 text-sm">
                 La piattaforma AI per l'hospitality italiana. Made with ❤️ in Italy.
@@ -585,7 +582,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2025 ItineraItalia. Tutti i diritti riservati.</p>
+            <p>&copy; 2025 AiTour. Tutti i diritti riservati.</p>
           </div>
         </div>
       </footer>

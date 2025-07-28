@@ -130,7 +130,7 @@ export default function Login({ userType }: LoginProps) {
       
       toast({
         title: "Accesso completato",
-        description: "Benvenuto nella piattaforma Itinera",
+        description: "Benvenuto nella piattaforma AiTour",
       });
       
       // Use regular routing instead of forced redirect

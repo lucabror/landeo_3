@@ -133,7 +133,7 @@ export default function DiscoverMore() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-amber-800 bg-clip-text text-transparent">
-                  ItineraItalia
+                  AiTour
                 </h1>
                 <p className="text-sm text-gray-600">AI per l'Ospitalità Italiana</p>
               </div>
@@ -164,7 +164,7 @@ export default function DiscoverMore() {
           <h1 className="text-5xl font-bold text-gray-900 mb-6">
             Perché gli Hotel di Successo
             <span className="block bg-gradient-to-r from-amber-700 to-amber-800 bg-clip-text text-transparent">
-              Scelgono ItineraItalia
+              Scelgono AiTour
             </span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
@@ -348,7 +348,7 @@ export default function DiscoverMore() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                <h3 className="text-xl font-bold mb-3">Prima di ItineraItalia</h3>
+                <h3 className="text-xl font-bold mb-3">Prima di AiTour</h3>
                 <ul className="space-y-2 text-blue-100">
                   <li>• Staff sovraccarico di richieste informazioni</li>
                   <li>• Consigli generici e non personalizzati</li>
@@ -357,7 +357,7 @@ export default function DiscoverMore() {
                 </ul>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
-                <h3 className="text-xl font-bold mb-3">Dopo 3 mesi con ItineraItalia</h3>
+                <h3 className="text-xl font-bold mb-3">Dopo 3 mesi con AiTour</h3>
                 <ul className="space-y-2 text-green-200">
                   <li>• +40% soddisfazione ospiti</li>
                   <li>• +25% recensioni positive</li>
@@ -392,7 +392,7 @@ export default function DiscoverMore() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Quanto costa realmente utilizzare ItineraItalia?</CardTitle>
+                <CardTitle>Quanto costa realmente utilizzare AiTour?</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
@@ -449,7 +449,7 @@ export default function DiscoverMore() {
             Pronto a Trasformare l'Esperienza dei Tuoi Ospiti?
           </h2>
           <p className="text-xl text-amber-100 mb-8">
-            Unisciti a oltre 500 hotel che hanno già scelto ItineraItalia per distinguersi dalla concorrenza
+            Unisciti a oltre 500 hotel che hanno già scelto AiTour per distinguersi dalla concorrenza
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/hotel-register">

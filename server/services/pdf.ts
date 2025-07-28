@@ -268,7 +268,7 @@ export async function generateItineraryPDF(
       doc.font('Helvetica')
          .fontSize(7)
          .fillColor(colors.textLight)
-         .text('ItineraItalia - Itinerari Personalizzati con AI', 0, footerY + 18, { 
+         .text('AiTour - Itinerari Personalizzati con AI', 0, footerY + 18, { 
            align: 'center', 
            width: doc.page.width 
          });

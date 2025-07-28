@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import aiTourLogo from "../assets/aitour-logo.png";
 import { 
   LayoutDashboard, 
   Hotel, 
@@ -27,6 +28,13 @@ export function Sidebar() {
 
   return (
     <div className="w-64 bg-white shadow-sm h-screen sticky top-0 border-r border-gray-200 flex flex-col">
+      <div className="p-6 border-b border-gray-200 mb-6">
+        <img 
+          src={aiTourLogo} 
+          alt="AiTour" 
+          className="h-8 w-auto"
+        />
+      </div>
       <div className="p-6 flex-1">
         <div className="space-y-1">
           {navigation.map((item) => {
