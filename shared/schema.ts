@@ -184,6 +184,7 @@ export const itineraries = pgTable("itineraries", {
       experienceId?: string;
       duration?: string;
       notes?: string;
+      source?: 'preference-matched' | 'hotel-suggested';
     }>;
   }>>(),
   status: text("status").notNull().default("draft"), // draft, active, completed
