@@ -1004,11 +1004,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update guest profile with preferences using direct SQL query to include preferencesCompleted
       await db.update(guestProfiles)
         .set({
-          dietaryRestrictions: validatedData.dietaryRestrictions,
-          interests: validatedData.interests,
-          budgetRange: validatedData.budgetRange,
-          mobilityNeeds: validatedData.mobilityNeeds,
-          specialRequests: validatedData.specialRequests,
+          preferences: validatedData.preferences, // CRITICAL: Save the main preferences array
+          specialRequests: validatedData.specialInterests || validatedData.otherPreferences || "",
           preferencesCompleted: true // This is the key field that was missing
         })
         .where(eq(guestProfiles.id, guestProfile.id));
