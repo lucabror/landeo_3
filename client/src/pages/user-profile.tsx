@@ -280,7 +280,7 @@ export default function UserProfile() {
           <p className="text-gray-600">Gestisci le tue informazioni di accesso</p>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/">
+          <Link href="/dashboard">
             <Button variant="outline">
               Torna alla Dashboard
             </Button>

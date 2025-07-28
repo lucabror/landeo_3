@@ -1827,13 +1827,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Aggiorna il profilo ospite con le preferenze usando query diretta
-      await storage.db.update(guestProfiles)
-        .set({
-          preferences: allPreferences,
-          specialRequests: specialRequests.trim() || undefined,
-          preferencesCompleted: true
-        })
-        .where(eq(guestProfiles.id, tokenData.guestProfileId));
+      console.log('Updating guest profile:', tokenData.guestProfileId);
+      console.log('Update data:', {
+        preferences: allPreferences,
+        specialRequests: specialRequests.trim() || undefined,
+        preferencesCompleted: true
+      });
+      
+      try {
+        const updateResult = await storage.db.update(guestProfiles)
+          .set({
+            preferences: allPreferences,
+            specialRequests: specialRequests.trim() || undefined,
+            preferencesCompleted: true
+          })
+          .where(eq(guestProfiles.id, tokenData.guestProfileId));
+        
+        console.log('Database update result:', updateResult);
+      } catch (dbError) {
+        console.error('Database update error:', dbError);
+        throw dbError;
+      }
       
       // Marca il token come completato
       await storage.updateGuestPreferencesToken(req.params.token, { completed: true });
