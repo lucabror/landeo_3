@@ -941,10 +941,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Hotel not found" });
       }
 
-      const pendingAttractions = await findLocalAttractions(hotel);
+      // Check if hotel has valid coordinates, if not try to get them via geocoding
+      let coordinates = null;
+      if (hotel.latitude && hotel.longitude && hotel.latitude !== '' && hotel.longitude !== '') {
+        coordinates = { latitude: hotel.latitude, longitude: hotel.longitude };
+      } else {
+        // Try to get coordinates using geocoding service
+        try {
+          const { geocodeHotel } = await import('./services/geocoding');
+          const geocodedHotel = await geocodeHotel(`${hotel.name} ${hotel.city} ${hotel.region}`);
+          if (geocodedHotel && geocodedHotel.latitude && geocodedHotel.longitude) {
+            coordinates = { 
+              latitude: geocodedHotel.latitude, 
+              longitude: geocodedHotel.longitude 
+            };
+            // Update hotel with found coordinates for future use
+            await storage.updateHotel(hotel.id, {
+              latitude: geocodedHotel.latitude,
+              longitude: geocodedHotel.longitude
+            });
+          }
+        } catch (geocodeError) {
+          console.log('Could not geocode hotel coordinates, proceeding with city/region only');
+        }
+      }
+
+      const pendingAttractions = await findLocalAttractions(
+        hotel.city, 
+        hotel.region, 
+        coordinates
+      );
       
       const experiences = await Promise.all(
-        pendingAttractions.map(async (attraction) => {
+        pendingAttractions.attractions.map(async (attraction) => {
           const experience = attractionToLocalExperience(attraction, hotel.id);
           return await storage.createLocalExperience(experience);
         })
