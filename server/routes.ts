@@ -1534,8 +1534,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { adminEmail } = req.body;
       
-      // Verify admin credentials
-      if (adminEmail !== "itinera1prova@gmail.com") {
+      // Verify admin credentials using environment variable
+      const expectedAdminEmail = process.env.VITE_ADMIN_EMAIL || process.env.ADMIN_EMAIL;
+      if (!expectedAdminEmail || adminEmail !== expectedAdminEmail) {
         return res.status(401).json({ message: "Non autorizzato" });
       }
 
