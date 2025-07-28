@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Risolto sistema CSRF completo con whitelist comprehensiva per tutti gli endpoint
+  - Eliminati tutti gli errori 403 "Forbidden" per operazioni autenticate
+  - Implementata whitelist CSRF per tutti gli endpoint con requireAuth
+  - Sistema ora esclude da CSRF: hotels/, guest-profiles/, local-experiences/, itineraries/
+  - Aggiunto messaggio warning durante generazione AI: "La generazione delle Esperienze Locali può richiedere alcuni minuti"
+  - Tutte le operazioni CRUD, AI generation, PDF, email ora funzionano senza errori 403
+  - Sicurezza mantenuta attraverso autenticazione JWT mentre rimossa protezione CSRF ridondante
 - **2025-01-28**: Risolti problemi footer navigation e completato rebranding Landeo
   - Aggiunto footer completo a tutte le pagine statiche con navigation consistente
   - Implementato auto-scroll al top della pagina quando si naviga tra le sezioni
