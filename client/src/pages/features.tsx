@@ -90,9 +90,10 @@ export default function Features() {
                   <img 
                     src={landeoLogo} 
                     alt="Landeo" 
-                    className="h-12 w-auto mb-1"
+                    className="h-12 w-auto"
                   />
-                  <p className="text-xs text-amber-700 font-medium italic">
+                  <div className="w-full h-px bg-gray-200 my-2"></div>
+                  <p className="text-xs text-amber-700 font-medium tracking-wide">
                     Itinerari su misura, emozioni autentiche
                   </p>
                 </div>
