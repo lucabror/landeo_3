@@ -2098,7 +2098,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin endpoint to delete a hotel completely
-  app.delete("/api/admin/hotels/:hotelId", async (req, res) => {
+  app.delete("/api/admin/hotels/:hotelId", requireAuth({ userType: 'admin' }), async (req, res) => {
     try {
       const { adminEmail } = req.body;
       

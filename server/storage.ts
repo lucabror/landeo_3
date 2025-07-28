@@ -115,7 +115,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createHotel(insertHotel: InsertHotel): Promise<Hotel> {
-    const [hotel] = await db.insert(hotels).values(insertHotel).returning();
+    const [hotel] = await db.insert(hotels).values([insertHotel]).returning();
     return hotel;
   }
 
@@ -149,16 +149,30 @@ export class DatabaseStorage implements IStorage {
     // 3. Delete all pending attractions for this hotel
     await db.delete(pendingAttractions).where(eq(pendingAttractions.hotelId, id));
     
-    // 4. Delete all guest profiles for this hotel
+    // 4. Get all guest profiles for this hotel and delete their tokens
+    const hotelGuestProfiles = await db
+      .select({ id: guestProfiles.id })
+      .from(guestProfiles)
+      .where(eq(guestProfiles.hotelId, id));
+    
+    // Delete guest preferences tokens for all guest profiles
+    if (hotelGuestProfiles.length > 0) {
+      const guestProfileIds = hotelGuestProfiles.map(p => p.id);
+      for (const guestProfileId of guestProfileIds) {
+        await db.delete(guestPreferencesTokens).where(eq(guestPreferencesTokens.guestProfileId, guestProfileId));
+      }
+    }
+    
+    // 5. Delete all guest profiles for this hotel
     await db.delete(guestProfiles).where(eq(guestProfiles.hotelId, id));
     
-    // 5. Delete security sessions for the hotel manager (by hotel ID)
+    // 6. Delete security sessions for the hotel manager (by hotel ID)
     await db.delete(securitySessions).where(eq(securitySessions.userId, id));
     
-    // 6. Delete security logs for the hotel manager (by hotel ID)
+    // 7. Delete security logs for the hotel manager (by hotel ID)
     await db.delete(securityLogs).where(eq(securityLogs.userId, id));
     
-    // 7. Delete email verifications for the hotel manager (by email)
+    // 8. Delete email verifications for the hotel manager (by email)
     // Find the user with the same email as the hotel
     const userWithEmail = await db
       .select({ id: users.id })
@@ -176,13 +190,13 @@ export class DatabaseStorage implements IStorage {
       await db.delete(users).where(eq(users.id, userId));
     }
     
-    // 8. First get all credit purchases for this hotel
+    // 9. First get all credit purchases for this hotel
     const hotelCreditPurchases = await db
       .select({ id: creditPurchases.id })
       .from(creditPurchases)
       .where(eq(creditPurchases.hotelId, id));
     
-    // 9. Delete credit transactions that reference these purchases
+    // 10. Delete credit transactions that reference these purchases
     if (hotelCreditPurchases.length > 0) {
       const purchaseIds = hotelCreditPurchases.map(p => p.id);
       for (const purchaseId of purchaseIds) {
@@ -190,13 +204,13 @@ export class DatabaseStorage implements IStorage {
       }
     }
     
-    // 10. Delete remaining credit transactions for this hotel
+    // 11. Delete remaining credit transactions for this hotel
     await db.delete(creditTransactions).where(eq(creditTransactions.hotelId, id));
     
-    // 11. Delete all credit purchases for this hotel (after all transactions are deleted)
+    // 12. Delete all credit purchases for this hotel (after all transactions are deleted)
     await db.delete(creditPurchases).where(eq(creditPurchases.hotelId, id));
     
-    // 12. Finally delete the hotel itself
+    // 13. Finally delete the hotel itself
     await db.delete(hotels).where(eq(hotels.id, id));
   }
 
@@ -297,6 +311,8 @@ export class DatabaseStorage implements IStorage {
     return this.getItineraryByUrl(uniqueUrl);
   }
 
+
+
   async createItinerary(insertItinerary: InsertItinerary): Promise<Itinerary> {
     const [itinerary] = await db.insert(itineraries).values(insertItinerary).returning();
     return itinerary;
@@ -331,13 +347,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(itineraries.createdAt));
   }
 
-  async getItineraryByUniqueUrl(uniqueUrl: string): Promise<Itinerary | undefined> {
-    const [itinerary] = await db
-      .select()
-      .from(itineraries)
-      .where(eq(itineraries.uniqueUrl, uniqueUrl));
-    return itinerary || undefined;
-  }
+
 
 
 
@@ -562,7 +572,7 @@ export class DatabaseStorage implements IStorage {
 
   async useCredits(hotelId: string, amount: number, description: string, guestProfileId?: string): Promise<boolean> {
     const hotel = await this.getHotel(hotelId);
-    if (!hotel || hotel.credits < amount) {
+    if (!hotel || (hotel.credits || 0) < amount) {
       return false;
     }
 
