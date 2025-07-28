@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation, Link } from "wouter";
-import { Shield, Lock, Eye, EyeOff } from "lucide-react";
+import { Shield, Lock, Eye, EyeOff, Check, X } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import landeoLogo from "@assets/landeo def_1753695256255.png";
 
@@ -21,8 +21,24 @@ const loginSchema = z.object({
   password: z.string().min(8, "La password deve essere di almeno 8 caratteri"),
 });
 
+// Password requirements
+const passwordRequirements = {
+  minLength: 8,
+  hasUppercase: /[A-Z]/,
+  hasLowercase: /[a-z]/,
+  hasNumber: /\d/,
+  hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/
+};
+
+const passwordSchema = z.string()
+  .min(passwordRequirements.minLength, `Minimo ${passwordRequirements.minLength} caratteri`)
+  .refine(val => passwordRequirements.hasUppercase.test(val), "Almeno una lettera maiuscola")
+  .refine(val => passwordRequirements.hasLowercase.test(val), "Almeno una lettera minuscola")
+  .refine(val => passwordRequirements.hasNumber.test(val), "Almeno un numero")
+  .refine(val => passwordRequirements.hasSpecialChar.test(val), "Almeno un carattere speciale (!@#$%^&*)");
+
 const setupPasswordSchema = z.object({
-  password: z.string().min(8, "La password deve essere di almeno 8 caratteri"),
+  password: passwordSchema,
   confirmPassword: z.string(),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Le password non coincidono",
@@ -58,6 +74,11 @@ export default function Login({ userType }: LoginProps) {
   const [hotelId, setHotelId] = useState<string>('');
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [showPassword, setShowPassword] = useState(false);
+  const [setupPassword, setSetupPassword] = useState("");
+
+  // Check password requirements
+  const checkRequirement = (requirement: RegExp, value: string) => requirement.test(value);
+  const checkLength = (value: string) => value.length >= passwordRequirements.minLength;
   
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -505,11 +526,55 @@ export default function Login({ userType }: LoginProps) {
                       <FormItem>
                         <FormLabel>Nuova Password</FormLabel>
                         <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="minimo 8 caratteri"
-                            {...field}
-                          />
+                          <div className="space-y-2">
+                            <div className="relative">
+                              <Input
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Crea una password sicura"
+                                {...field}
+                                onChange={(e) => {
+                                  field.onChange(e);
+                                  setSetupPassword(e.target.value);
+                                }}
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                onClick={() => setShowPassword(!showPassword)}
+                              >
+                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </Button>
+                            </div>
+                            
+                            {/* Password Requirements */}
+                            <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                              <p className="text-sm font-medium text-gray-700">Requisiti password:</p>
+                              <div className="space-y-1">
+                                <div className={`flex items-center gap-2 text-xs ${checkLength(setupPassword) ? 'text-green-600' : 'text-gray-500'}`}>
+                                  {checkLength(setupPassword) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                                  <span>Almeno 8 caratteri</span>
+                                </div>
+                                <div className={`flex items-center gap-2 text-xs ${checkRequirement(passwordRequirements.hasUppercase, setupPassword) ? 'text-green-600' : 'text-gray-500'}`}>
+                                  {checkRequirement(passwordRequirements.hasUppercase, setupPassword) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                                  <span>Una lettera maiuscola (A-Z)</span>
+                                </div>
+                                <div className={`flex items-center gap-2 text-xs ${checkRequirement(passwordRequirements.hasLowercase, setupPassword) ? 'text-green-600' : 'text-gray-500'}`}>
+                                  {checkRequirement(passwordRequirements.hasLowercase, setupPassword) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                                  <span>Una lettera minuscola (a-z)</span>
+                                </div>
+                                <div className={`flex items-center gap-2 text-xs ${checkRequirement(passwordRequirements.hasNumber, setupPassword) ? 'text-green-600' : 'text-gray-500'}`}>
+                                  {checkRequirement(passwordRequirements.hasNumber, setupPassword) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                                  <span>Un numero (0-9)</span>
+                                </div>
+                                <div className={`flex items-center gap-2 text-xs ${checkRequirement(passwordRequirements.hasSpecialChar, setupPassword) ? 'text-green-600' : 'text-gray-500'}`}>
+                                  {checkRequirement(passwordRequirements.hasSpecialChar, setupPassword) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                                  <span>Un carattere speciale (!@#$%^&*)</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
