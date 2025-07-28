@@ -129,7 +129,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Hotel geocoding endpoint
-  app.post("/api/hotels/geocode", async (req, res) => {
+  app.post("/api/hotels/geocode", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
       const { name, city, region } = req.body;
       
