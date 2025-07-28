@@ -61,13 +61,31 @@ function Router() {
       <Route path="/hotel-setup" component={HotelSetup} />
 
       {/* Guest profiles management */}
-      <Route path="/guest-profiles" component={GuestProfiles} />
+      <Route path="/guest-profiles">
+        {() => (
+          <ProtectedRoute requiredRole="hotel">
+            <GuestProfiles />
+          </ProtectedRoute>
+        )}
+      </Route>
 
       {/* Local experiences management */}
-      <Route path="/local-experiences" component={LocalExperiences} />
+      <Route path="/local-experiences">
+        {() => (
+          <ProtectedRoute requiredRole="hotel">
+            <LocalExperiences />
+          </ProtectedRoute>
+        )}
+      </Route>
 
       {/* Itineraries management */}
-      <Route path="/itineraries" component={Itineraries} />
+      <Route path="/itineraries">
+        {() => (
+          <ProtectedRoute requiredRole="hotel">
+            <Itineraries />
+          </ProtectedRoute>
+        )}
+      </Route>
 
       {/* Public itinerary view (for guests) */}
       <Route path="/itinerary/:uniqueUrl" component={ItineraryView} />
