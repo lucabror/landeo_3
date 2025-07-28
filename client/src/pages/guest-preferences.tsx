@@ -30,70 +30,56 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { guestPreferencesSchema, type GuestPreferences } from "@shared/schema";
 
+// SISTEMA SEMPLIFICATO: Preferenze dirette che corrispondono alle categorie delle esperienze
 const PREFERENCE_CATEGORIES = [
   {
-    title: "Storia & Cultura",
+    title: "Storia e Cultura",
     icon: Camera,
     color: "bg-blue-50 text-blue-700 border-blue-200",
     preferences: [
+      "Storia e monumenti",
+      "Musei e arte", 
       "Chiese e luoghi sacri",
-      "Musei e gallerie d'arte", 
-      "Monumenti storici",
-      "Siti archeologici",
-      "Architettura storica",
-      "Borghi medievali",
-      "Palazzi e ville storiche",
-      "Arte e cultura locale"
+      "Borghi e architettura"
     ]
   },
   {
-    title: "Gastronomia",
+    title: "Cibo e Vino",
     icon: Utensils,
     color: "bg-orange-50 text-orange-700 border-orange-200",
     preferences: [
-      "Ristoranti tradizionali",
-      "Cucina tipica locale",
-      "Wine tasting",
-      "Cantine e vigneti",
-      "Mercati locali",
-      "Esperienze culinarie"
+      "Ristoranti tipici",
+      "Vino e degustazioni",
+      "Cucina locale"
     ]
   },
   {
-    title: "Natura & Outdoor",
+    title: "Natura e Outdoor",
     icon: TreePine,
     color: "bg-green-50 text-green-700 border-green-200",
     preferences: [
-      "Parchi naturali",
-      "Trekking e passeggiate",
-      "Laghi e panorami",
-      "Giardini botanici",
-      "Attività all'aperto",
-      "Natura e relax"
+      "Parchi e natura",
+      "Passeggiate e trekking",
+      "Laghi e panorami"
     ]
   },
   {
-    title: "Sport & Famiglia",
+    title: "Sport e Famiglia",
     icon: Mountain,
     color: "bg-red-50 text-red-700 border-red-200",
     preferences: [
       "Attività sportive",
       "Attività per famiglie",
-      "Percorsi ciclabili",
-      "Sport acquatici",
-      "Avventura e divertimento"
+      "Ciclismo e bicicletta"
     ]
   },
   {
-    title: "Shopping & Relax",
+    title: "Relax e Shopping",
     icon: ShoppingBag,
     color: "bg-pink-50 text-pink-700 border-pink-200",
     preferences: [
-      "Shopping locale",
-      "Centri benessere",
-      "Relax e spa",
-      "Artigianato tipico",
-      "Luoghi tranquilli"
+      "Relax e benessere",
+      "Shopping e acquisti"
     ]
   }
 ];
