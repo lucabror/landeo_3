@@ -126,11 +126,23 @@ function validateCSRFToken(sessionId: string, token: string): boolean {
 app.use((req, res, next) => {
   // Skip per metodi safe e endpoint specifici
   if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS' ||
-      req.path.includes('/api/upload/') || req.path.includes('/api/csrf-token') ||
-      req.path.includes('/api/auth/') || req.path.includes('/api/hotels/geocode') ||
-      req.path.match(/^\/api\/hotels\/[^/]+$/) || // Skip CSRF per hotel CRUD operations
-      req.path.includes('/generate-attractions') || // Skip CSRF per AI generation
-      req.path.includes('/pending-attractions')) { // Skip CSRF per pending attractions management
+      req.path.includes('/api/upload/') || 
+      req.path.includes('/api/csrf-token') ||
+      req.path.includes('/api/auth/') ||
+      // Skip CSRF per tutti gli endpoint autenticati con requireAuth
+      req.path.includes('/api/hotels/') || // Tutte le operazioni hotel (geocode, CRUD, stats, etc.)
+      req.path.includes('/api/guest-profiles/') || // CRUD profili ospiti
+      req.path.includes('/api/local-experiences/') || // CRUD esperienze locali
+      req.path.includes('/api/itineraries/') || // Generazione e gestione itinerari
+      req.path.includes('/guest-preferences/') || // Gestione preferenze ospiti
+      req.path.includes('/itinerary/') || // Operazioni pubbliche itinerari
+      req.path.includes('/pending-attractions/') || // Gestione attrazioni pendenti
+      req.path.includes('/generate-attractions') || // AI generation
+      req.path.includes('/approve') || // Approvazioni
+      req.path.includes('/reject') || // Rifiuti
+      req.path.includes('/resend-email') || // Reinvio email
+      req.path.includes('/email-pdf') || // PDF via email
+      req.path.includes('/pdf')) { // Generazione PDF
     return next();
   }
   
