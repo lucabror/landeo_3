@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Risolto problema cache invalidation eliminazione itinerari
+  - Identificato problema: itinerari eliminati continuavano a comparire nell'UI per mancanza cache invalidation
+  - Aggiunta invalidazione completa cache per queries correlate: itinerari hotel, guest profiles, statistiche
+  - Sistemato sia in pagina itinerari che in pagina guest profiles per aggiornamento immediato UI
+  - Aggiunta invalidazione specifica per query guest-profile itinerary quando profilo visualizzato
+  - Sistema ora rimuove istantaneamente itinerari eliminati da tutte le sezioni dell'interfaccia
 - **2025-01-28**: Risolto errore funzione "Rimuovi Struttura" nella dashboard admin
   - Sostituito controllo hardcoded email admin con environment variables VITE_ADMIN_EMAIL
   - Configurati secret VITE_ADMIN_EMAIL e VITE_ADMIN_PASSWORD in Replit per autenticazione admin
