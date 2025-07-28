@@ -14,7 +14,7 @@ import {
   Users,
   HeadphonesIcon
 } from "lucide-react";
-import aiTourLogo from "../assets/aitour-logo.png";
+import landeoLogo from "@assets/landeo def_1753695256255.png";
 
 export default function Contact() {
   const contactInfo = [
@@ -89,8 +89,8 @@ export default function Contact() {
               <div className="flex items-center space-x-3">
                 <div className="flex flex-col">
                   <img 
-                    src={aiTourLogo} 
-                    alt="AiTour" 
+                    src={landeoLogo} 
+                    alt="Landeo" 
                     className="h-12 w-auto mb-1"
                   />
                   <p className="text-xs text-amber-700 font-medium italic">

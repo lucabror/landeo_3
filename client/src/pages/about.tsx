@@ -11,7 +11,7 @@ import {
   Calendar,
   Lightbulb
 } from "lucide-react";
-import aiTourLogo from "../assets/aitour-logo.png";
+import landeoLogo from "@assets/landeo def_1753695256255.png";
 
 export default function About() {
   const values = [
@@ -40,7 +40,7 @@ export default function About() {
   const timeline = [
     {
       year: "2024",
-      title: "Nascita di AiTour",
+      title: "Nascita di Landeo",
       description: "L'idea nasce dall'esperienza diretta nel settore dell'ospitalità italiana e dalla necessità di personalizzare l'esperienza degli ospiti."
     },
     {
@@ -51,12 +51,12 @@ export default function About() {
     {
       year: "2025",
       title: "Lancio Ufficiale",
-      description: "AiTour debutta sul mercato italiano con una missione chiara: rivoluzionare l'ospitalità attraverso l'intelligenza artificiale."
+      description: "Landeo debutta sul mercato italiano con una missione chiara: rivoluzionare l'ospitalità attraverso l'intelligenza artificiale."
     },
     {
       year: "Futuro",
       title: "Espansione Europea",
-      description: "Piani per espandere AiTour in tutta Europa, portando l'eccellenza dell'ospitalità italiana ovunque."
+      description: "Piani per espandere Landeo in tutta Europa, portando l'eccellenza dell'ospitalità italiana ovunque."
     }
   ];
 
@@ -72,13 +72,10 @@ export default function About() {
               <div className="flex items-center space-x-3">
                 <div className="flex flex-col">
                   <img 
-                    src={aiTourLogo} 
-                    alt="AiTour" 
+                    src={landeoLogo} 
+                    alt="Landeo" 
                     className="h-12 w-auto mb-1"
                   />
-                  <p className="text-xs text-amber-700 font-medium italic">
-                    Itinerari su misura, emozioni autentiche
-                  </p>
                 </div>
               </div>
             </Link>
@@ -109,7 +106,7 @@ export default function About() {
             <span className="text-amber-700">ospitalità italiana</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            AiTour nasce dalla passione per l'ospitalità italiana e dalla visione di un futuro 
+            Landeo nasce dalla passione per l'ospitalità italiana e dalla visione di un futuro 
             dove la tecnologia AI amplifica l'autenticità e la personalizzazione dell'esperienza ospite.
           </p>
         </div>
@@ -207,7 +204,7 @@ export default function About() {
         {/* Stats Section */}
         <div className="bg-white rounded-2xl p-8 mb-16 border border-amber-100">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">
-            AiTour in Numeri
+            Landeo in Numeri
           </h2>
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
@@ -235,7 +232,7 @@ export default function About() {
             Unisciti alla Rivoluzione dell'Ospitalità
           </h2>
           <p className="text-xl mb-8 text-amber-100">
-            Diventa parte della storia di AiTour e trasforma il tuo hotel in un'esperienza indimenticabile.
+            Diventa parte della storia di Landeo e trasforma il tuo hotel in un'esperienza indimenticabile.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/hotel-register">

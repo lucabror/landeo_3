@@ -1,4 +1,4 @@
-# Replit.md - AiTour Hotel Management System
+# Replit.md - Landeo Hotel Management System
 
 ## Overview
 
@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Rebranding completo da AiTour a Landeo
+  - Sostituito logo AiTour con nuovo logo Landeo fornito dall'utente
+  - Aggiornati tutti i riferimenti testuali da "AiTour" a "Landeo" nell'applicazione
+  - Rimosso slogan "Itinerari su misura, emozioni autentiche" dal logo
+  - Mantenute proporzioni originali del logo senza stretching
+  - Aggiornato colore pulsante "Contattaci" nella pagina Chi Siamo con text-[#961d1d]
 - **2025-01-27**: Risolto bug autenticazione cross-contamination tra hotel manager e super admin
   - Identificato problema: localStorage conteneva dati di autenticazione misti (admin autenticato come hotel e viceversa)
   - Aggiunto pulizia completa localStorage prima di ogni nuovo login per prevenire cross-contamination

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import aiTourLogo from "../assets/aitour-logo.png";
+import landeoLogo from "@assets/landeo def_1753695256255.png";
 import { 
   MapPin, 
   Users, 
@@ -32,13 +32,11 @@ export default function Landing() {
             <div className="flex items-center space-x-3">
               <div className="flex flex-col">
                 <img 
-                  src={aiTourLogo} 
-                  alt="AiTour" 
+                  src={landeoLogo} 
+                  alt="Landeo" 
                   className="h-12 w-auto mb-1"
                 />
-                <p className="text-xs text-amber-700 font-medium italic">
-                  Itinerari su misura, emozioni autentiche
-                </p>
+
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -73,7 +71,7 @@ export default function Landing() {
                 </span>
               </h1>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                La prima piattaforma AiTour per Hotel Italiani che genera itinerari personalizzati per gli ospiti tramite l'AI e automatizza l'esperienza di soggiorno con tecnologia all'avanguardia.
+                La prima piattaforma Landeo per Hotel Italiani che genera itinerari personalizzati per gli ospiti tramite l'AI e automatizza l'esperienza di soggiorno con tecnologia all'avanguardia.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/hotel-register">
@@ -553,7 +551,7 @@ export default function Landing() {
                   <Hotel className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xl font-bold">AiTour</span>
+                  <span className="text-xl font-bold">Landeo</span>
                   <span className="text-xs text-gray-400 font-medium italic">
                     Itinerari su misura, emozioni autentiche
                   </span>
@@ -588,7 +586,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2025 AiTour. Tutti i diritti riservati.</p>
+            <p>&copy; 2025 Landeo. Tutti i diritti riservati.</p>
           </div>
         </div>
       </footer>
