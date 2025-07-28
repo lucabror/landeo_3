@@ -393,6 +393,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Resend guest preferences email
+  app.post("/api/hotels/:hotelId/guest-profiles/:id/resend-email", requireAuth({ userType: 'hotel' }), async (req, res) => {
+    try {
+      // Verify user is accessing their own hotel's guest profile
+      const userId = (req as any).user.id;
+      if (req.params.hotelId !== userId) {
+        return res.status(403).json({ message: "Hotel Non Trovato" });
+      }
+
+      const profile = await storage.getGuestProfile(req.params.id);
+      if (!profile) {
+        return res.status(404).json({ message: "Guest profile not found" });
+      }
+
+      // Verify the profile belongs to the hotel
+      if (profile.hotelId !== req.params.hotelId) {
+        return res.status(403).json({ message: "Profile does not belong to this hotel" });
+      }
+
+      if (!profile.email) {
+        return res.status(400).json({ message: "Guest profile has no email address" });
+      }
+
+      const hotel = await storage.getHotel(profile.hotelId);
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      try {
+        // Create a new token for preferences (in case the old one expired)
+        const token = randomUUID();
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 30);
+        
+        await storage.createGuestPreferencesToken({
+          token,
+          guestProfileId: profile.id,
+          emailSent: false,
+          completed: false,
+          expiresAt
+        });
+        
+        // Send email with new token
+        const emailResult = await sendGuestPreferencesEmail(hotel, profile, token);
+        
+        if (emailResult.success) {
+          await storage.updateGuestPreferencesToken(token, { emailSent: true });
+          console.log(`Email preferenze re-inviata a ${profile.email} per ospite ${profile.referenceName}`);
+          res.json({ message: "Email re-inviata con successo", token });
+        } else {
+          console.error('Errore reinvio email:', emailResult.error);
+          res.status(500).json({ 
+            message: "Errore nell'invio dell'email", 
+            error: emailResult.error 
+          });
+        }
+      } catch (emailError) {
+        console.error('Errore reinvio email preferenze:', emailError);
+        res.status(500).json({ 
+          message: "Errore nell'invio dell'email", 
+          error: emailError instanceof Error ? emailError.message : String(emailError)
+        });
+      }
+    } catch (error) {
+      console.error('Error in resend email endpoint:', error);
+      res.status(500).json({ message: "Failed to resend email" });
+    }
+  });
+
   // Get itineraries for specific guest profile
   app.get("/api/guest-profiles/:id/itinerary", async (req, res) => {
     try {
