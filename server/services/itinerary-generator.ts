@@ -169,9 +169,9 @@ ${dates.map((date, index) => `    {
               
               console.log(`Experience match found: ${!!matchedExperience}, matchType: ${matchedExperience?.matchType}`);
               
-              if (matchedExperience && matchedExperience.matchType === 'high') {
+              if (matchedExperience && (matchedExperience.matchType === 'high' || matchedExperience.matchType === 'medium')) {
                 activity.source = 'preference-matched';
-                console.log(`✓ Marked as preference-matched: ${activity.activity}`);
+                console.log(`✓ Marked as preference-matched: ${activity.activity} (${matchedExperience.matchType} match)`);
               } else {
                 activity.source = 'hotel-suggested';
                 console.log(`✓ Marked as hotel-suggested: ${activity.activity}`);

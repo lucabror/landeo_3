@@ -1,53 +1,46 @@
 import type { GuestProfile, LocalExperience } from "@shared/schema";
 
-// Mapping dalle preferenze degli ospiti alle categorie delle esperienze
+// Mapping ottimizzato delle preferenze per massimizzare matching con esperienze disponibili
 const PREFERENCE_TO_CATEGORY_MAP: Record<string, string[]> = {
-  // Cultura & Arte
+  // Storia & Cultura (65% delle esperienze) - mapping molto dettagliato
+  "Chiese e luoghi sacri": ["cultura", "storia"],
   "Musei e gallerie d'arte": ["cultura", "storia"],
-  "Monumenti storici": ["storia", "cultura"],
-  "Architettura": ["storia", "cultura"],
-  "Arte contemporanea": ["cultura"],
-  "Siti archeologici": ["storia", "cultura"],
-  "Chiese e luoghi sacri": ["storia", "cultura"],
+  "Monumenti storici": ["cultura", "storia"],
+  "Siti archeologici": ["cultura", "storia"],
+  "Architettura antica": ["cultura", "storia"],
+  "Borghi medievali": ["cultura", "storia"],
+  "Palazzi storici": ["cultura", "storia"],
+  "Templi e santuari": ["cultura", "storia"],
+  "Ville storiche": ["cultura", "storia"],
+  "Centro storico": ["cultura", "storia"],
   
-  // Gastronomia
-  "Ristoranti tradizionali": ["gastronomia"],
-  "Street food locale": ["gastronomia"],
+  // Gastronomia & Ristoranti
+  "Ristoranti tradizionali": ["gastronomia", "cultura"],
+  "Cucina tipica locale": ["gastronomia", "cultura"],
+  "Wine tasting": ["gastronomia"],
+  "Cantine e vigneti": ["gastronomia"],
   "Mercati e prodotti tipici": ["gastronomia"],
   "Cooking class": ["gastronomia"],
-  "Wine tasting": ["degustazione", "gastronomia"],
-  "Cantine e vigneti": ["degustazione", "gastronomia"],
   
-  // Natura & Outdoor
+  // Natura & Parchi (25% delle esperienze)
   "Parchi naturali": ["natura"],
-  "Trekking e escursioni": ["natura", "avventura"],
-  "Spiagge e mare": ["natura"],
-  "Montagna": ["natura", "avventura"],
-  "Giardini botanici": ["natura"],
-  "Attività outdoor": ["natura", "avventura"],
+  "Parchi regionali": ["natura"],
+  "Trekking e escursioni": ["natura"],
+  "Giardini e ville": ["natura", "cultura"],
+  "Laghi e panorami": ["natura"],
+  "Attività outdoor": ["natura"],
   
-  // Relax & Benessere
-  "Spa e centri benessere": ["relax"],
-  "Terme": ["relax"],
-  "Yoga e meditazione": ["relax"],
-  "Massaggi": ["relax"],
-  "Relax in natura": ["relax", "natura"],
-  "Luoghi tranquilli": ["relax"],
+  // Sport & Attività (5% delle esperienze)
+  "Piste ciclabili": ["sport", "natura"],
+  "Escursioni a piedi": ["sport", "natura"],
+  "Sport acquatici": ["sport", "natura"],
+  "Attività per famiglie": ["sport", "famiglia"],
+  "Percorsi sportivi": ["sport", "natura"],
   
-  // Intrattenimento
-  "Concerti e musica live": ["divertimento"],
-  "Teatro e spettacoli": ["cultura", "divertimento"],
-  "Vita notturna": ["divertimento"],
-  "Festival ed eventi": ["divertimento"],
-  "Cinema": ["divertimento"],
-  "Discoteche e bar": ["divertimento"],
-  
-  // Famiglie
-  "Attività per bambini": ["famiglia"],
-  "Attività per famiglie": ["famiglia"],
-  "Parchi giochi": ["famiglia"],
-  "Zoo e acquari": ["famiglia"],
-  "Attività educative": ["famiglia", "cultura"]
+  // Shopping (5% delle esperienze)
+  "Shopping locale": ["shopping"],
+  "Mercatini": ["shopping", "cultura"],
+  "Artigianato locale": ["shopping", "cultura"]
 };
 
 export interface ExperienceMatch {
@@ -110,11 +103,15 @@ export function calculateExperienceMatches(
         }
       }
       
-      // Match speciale per parole chiave comuni
-      const commonWords = ['museo', 'arte', 'storia', 'natura', 'parco', 'ristorante', 'cibo', 'vino', 'relax', 'spa'];
+      // Match speciale per parole chiave comuni (ampliate per maggiori match)
+      const commonWords = [
+        'museo', 'arte', 'storia', 'natura', 'parco', 'ristorante', 'cibo', 'vino',
+        'chiesa', 'santuario', 'tempio', 'villa', 'palazzo', 'borgo', 'centro',
+        'archeologico', 'storico', 'culturale', 'tradizionale', 'locale'
+      ];
       for (const word of commonWords) {
         if (preference.toLowerCase().includes(word) && searchText.includes(word)) {
-          matchScore += 8;
+          matchScore += 10; // Aumentato da 8 a 10 per più match
         }
       }
     }

@@ -32,81 +32,58 @@ import { guestPreferencesSchema, type GuestPreferences } from "@shared/schema";
 
 const PREFERENCE_CATEGORIES = [
   {
-    title: "Cultura & Arte",
+    title: "Storia & Cultura (La maggior parte delle nostre esperienze)",
     icon: Camera,
     color: "bg-blue-50 text-blue-700 border-blue-200",
     preferences: [
-      "Musei e gallerie d'arte",
+      "Chiese e luoghi sacri",
+      "Musei e gallerie d'arte", 
       "Monumenti storici",
-      "Architettura",
-      "Arte contemporanea",
       "Siti archeologici",
-      "Chiese e luoghi sacri"
+      "Architettura antica",
+      "Borghi medievali",
+      "Palazzi storici",
+      "Templi e santuari",
+      "Ville storiche",
+      "Centro storico"
     ]
   },
   {
-    title: "Gastronomia",
+    title: "Gastronomia & Ristoranti",
     icon: Utensils,
     color: "bg-orange-50 text-orange-700 border-orange-200",
     preferences: [
       "Ristoranti tradizionali",
-      "Street food locale",
-      "Mercati e prodotti tipici",
-      "Cooking class",
+      "Cucina tipica locale",
       "Wine tasting",
-      "Cantine e vigneti"
+      "Cantine e vigneti",
+      "Mercati e prodotti tipici",
+      "Cooking class"
     ]
   },
   {
-    title: "Natura & Outdoor",
+    title: "Natura & Parchi",
     icon: TreePine,
     color: "bg-green-50 text-green-700 border-green-200",
     preferences: [
       "Parchi naturali",
+      "Parchi regionali",
       "Trekking e escursioni",
-      "Spiagge e mare",
-      "Montagna",
-      "Giardini botanici",
+      "Giardini e ville",
+      "Laghi e panorami",
       "Attività outdoor"
     ]
   },
   {
-    title: "Relax & Benessere",
-    icon: Waves,
-    color: "bg-cyan-50 text-cyan-700 border-cyan-200",
+    title: "Sport & Attività",
+    icon: Mountain,
+    color: "bg-red-50 text-red-700 border-red-200",
     preferences: [
-      "Spa e centri benessere",
-      "Terme",
-      "Yoga e meditazione",
-      "Massaggi",
-      "Relax in natura",
-      "Luoghi tranquilli"
-    ]
-  },
-  {
-    title: "Intrattenimento",
-    icon: Music,
-    color: "bg-purple-50 text-purple-700 border-purple-200",
-    preferences: [
-      "Concerti e musica live",
-      "Teatro e spettacoli",
-      "Vita notturna",
-      "Festival ed eventi",
-      "Cinema",
-      "Discoteche e bar"
-    ]
-  },
-  {
-    title: "Shopping",
-    icon: ShoppingBag,
-    color: "bg-pink-50 text-pink-700 border-pink-200",
-    preferences: [
-      "Centri commerciali",
-      "Boutique locali",
-      "Mercatini e vintage",
-      "Artigianato locale",
-      "Souvenir tipici",
-      "Outlet e shopping"
+      "Piste ciclabili",
+      "Escursioni a piedi",
+      "Sport acquatici",
+      "Attività per famiglie",
+      "Percorsi sportivi"
     ]
   }
 ];
