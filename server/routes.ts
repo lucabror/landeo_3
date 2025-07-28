@@ -748,6 +748,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { recipientEmail, recipientName } = req.body;
       
+      console.log('Email PDF request:', { recipientEmail, recipientName, uniqueUrl: req.params.uniqueUrl });
+      
       const itinerary = await storage.getItineraryByUniqueUrl(req.params.uniqueUrl);
       if (!itinerary) {
         return res.status(404).json({ message: "Itinerary not found" });
@@ -760,11 +762,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Required data not found" });
       }
 
-      // Use the elegant spa-style PDF service which includes source labels
+      // Generate PDF and get buffer directly
       const pdfPath = await generateItineraryPDF(itinerary, hotel, guestProfile);
+      
+      // Read PDF file as buffer for email attachment
+      const fs = require('fs');
+      const pdfBuffer = fs.readFileSync(pdfPath);
 
-      // Send PDF via email using elegant spa-style design
-      await sendItineraryPDF(recipientEmail, recipientName, itinerary, hotel, guestProfile, pdfPath);
+      // Send PDF via email with correct parameter order
+      const emailResult = await sendItineraryPDF(hotel, guestProfile, itinerary, pdfBuffer, recipientEmail, recipientName);
+      
+      if (!emailResult.success) {
+        return res.status(500).json({ message: emailResult.error || "Failed to send email" });
+      }
       
       res.json({ message: "PDF inviato con successo via email" });
     } catch (error) {
