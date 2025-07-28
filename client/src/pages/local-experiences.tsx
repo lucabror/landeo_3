@@ -1013,7 +1013,7 @@ export default function LocalExperiences() {
                   Nessuna esperienza locale
                 </h3>
                 <p className="text-gray-500 mb-6 max-w-sm mx-auto">
-                  Inizia aggiungendo le prime esperienze locali per i tuoi ospiti, oppure usa l'AI per generare suggerimenti automatici.
+                  Inizia aggiungendo manualmente le prime attrazioni Locali per i tuoi ospiti oppure usa l'AI per generare automaticamente suggerimenti di attrazioni locali entro 50km dal tuo hotel!
                 </p>
                 <div className="flex gap-2 justify-center">
                   <Button 
