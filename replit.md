@@ -10,6 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-28**: Risolto conflitto dipendenze vite/types/node per deployment
+  - Aggiornato @types/node da versione 20.16.11 a ^20.19.9
+  - Risolto peer dependency conflict: vite@7.0.6 richiedeva @types/node ^20.19.0 || >=22.12.0
+  - Deployment ora funziona correttamente senza errori di installazione packages
+  - Sistema build verificato e compatibile con tutte le dipendenze esistenti
 - **2025-01-28**: Risolto vulnerabilità crittografica MFA - sostituiti createCipher/createDecipher deprecati
   - Identificata vulnerabilità: createCipher genera stesso IV ad ogni crittografia, permettendo pattern analysis  
   - Sostituiti crypto.createCipher/createDecipher con createCipheriv/createDecipheriv sicuri
