@@ -128,7 +128,8 @@ app.use((req, res, next) => {
   if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS' ||
       req.path.includes('/api/upload/') || req.path.includes('/api/csrf-token') ||
       req.path.includes('/api/auth/') || req.path.includes('/api/hotels/geocode') ||
-      req.path.match(/^\/api\/hotels\/[^/]+$/)) { // Skip CSRF per hotel CRUD operations
+      req.path.match(/^\/api\/hotels\/[^/]+$/) || // Skip CSRF per hotel CRUD operations
+      req.path.includes('/generate-attractions')) { // Skip CSRF per AI generation
     return next();
   }
   
