@@ -530,7 +530,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const localExperiences = await storage.getLocalExperiencesByHotel(guestProfile.hotelId);
+      // For AI generation, get only ACTIVE experiences
+      const localExperiences = await storage.getLocalExperiencesByHotel(guestProfile.hotelId, true);
 
       // Keep existing itineraries but create new one (for chronological view)
       // No longer delete existing itineraries to maintain history
@@ -1053,7 +1054,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get local experiences by hotel - Main endpoint
   app.get("/api/hotels/:hotelId/local-experiences", async (req, res) => {
     try {
-      const experiences = await storage.getLocalExperiencesByHotel(req.params.hotelId);
+      // For management interface, return ALL experiences (active and inactive)
+      const experiences = await storage.getLocalExperiencesByHotel(req.params.hotelId, false);
       res.json(experiences);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch local experiences" });
@@ -1063,7 +1065,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Legacy endpoint for compatibility
   app.get("/api/local-experiences/:hotelId", async (req, res) => {
     try {
-      const experiences = await storage.getLocalExperiencesByHotel(req.params.hotelId);
+      // For management interface, return ALL experiences (active and inactive)
+      const experiences = await storage.getLocalExperiencesByHotel(req.params.hotelId, false);
       res.json(experiences);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch local experiences" });
@@ -1209,7 +1212,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log(`Calculating matches for hotel ${req.params.hotelId}, guest ${req.params.guestId}`);
       
-      const experiences = await storage.getLocalExperiencesByHotel(req.params.hotelId);
+      // For matching, get ALL experiences (both active and inactive)
+      const experiences = await storage.getLocalExperiencesByHotel(req.params.hotelId, false);
       console.log(`Found ${experiences.length} experiences for hotel`);
       
       const guestProfile = await storage.getGuestProfile(req.params.guestId);
