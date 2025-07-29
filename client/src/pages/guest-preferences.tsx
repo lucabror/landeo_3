@@ -33,57 +33,63 @@ import { guestPreferencesSchema, type GuestPreferences } from "@shared/schema";
 import { LANDEO_CATEGORIES } from "@shared/categories";
 
 // PREFERENZE EMAIL = CATEGORIE ESPERIENZE LOCALI (corrispondenza 1:1)
-const PREFERENCE_CATEGORIES = [
+const createPreferenceCategories = (language: 'it' | 'en') => [
   {
-    title: "Storia e Cultura",
+    title: language === 'it' ? "Storia e Cultura" : "History and Culture",
     icon: Camera,
     color: "bg-blue-50 text-blue-700 border-blue-200",
     preferences: LANDEO_CATEGORIES.filter(cat => 
       ['museo', 'sito_archeologico', 'monumento_storico', 'chiesa', 'borgo_storico', 'evento_culturale'].includes(cat.value)
-    ).map(cat => cat.emailText)
+    ).map(cat => cat.emailText[language])
   },
   {
-    title: "Gastronomia",
+    title: language === 'it' ? "Gastronomia" : "Food and Wine",
     icon: Utensils,
     color: "bg-orange-50 text-orange-700 border-orange-200",
     preferences: LANDEO_CATEGORIES.filter(cat => 
       ['ristorante_tipico', 'cantina_enoteca', 'mercato_bottega'].includes(cat.value)
-    ).map(cat => cat.emailText)
+    ).map(cat => cat.emailText[language])
   },
   {
-    title: "Natura e Outdoor",
+    title: language === 'it' ? "Natura e Outdoor" : "Nature and Outdoor",
     icon: TreePine,
     color: "bg-green-50 text-green-700 border-green-200",
     preferences: LANDEO_CATEGORIES.filter(cat => 
       ['parco_naturale', 'trekking_escursione', 'lago_spiaggia', 'giardino_botanico'].includes(cat.value)
-    ).map(cat => cat.emailText)
+    ).map(cat => cat.emailText[language])
   },
   {
-    title: "Sport e Benessere",
+    title: language === 'it' ? "Sport e Benessere" : "Sports and Wellness",
     icon: Mountain,
     color: "bg-red-50 text-red-700 border-red-200",
     preferences: LANDEO_CATEGORIES.filter(cat => 
       ['sport_avventura', 'cicloturismo', 'centro_termale'].includes(cat.value)
-    ).map(cat => cat.emailText)
+    ).map(cat => cat.emailText[language])
   },
   {
-    title: "Artigianato e Divertimento",
+    title: language === 'it' ? "Artigianato e Divertimento" : "Crafts and Entertainment",
     icon: ShoppingBag,
     color: "bg-pink-50 text-pink-700 border-pink-200",
     preferences: LANDEO_CATEGORIES.filter(cat => 
       ['laboratorio_artigianale', 'shopping_locale', 'locali_divertimento', 'esperienza_unica'].includes(cat.value)
-    ).map(cat => cat.emailText)
+    ).map(cat => cat.emailText[language])
   }
 ];
 
-const DIETARY_RESTRICTIONS = [
+const createDietaryRestrictions = (language: 'it' | 'en') => language === 'it' ? [
   "Vegetariano", "Vegano", "Senza glutine", "Senza lattosio",
   "Allergico ai frutti di mare", "Allergico alle noci", "Halal", "Kosher"
+] : [
+  "Vegetarian", "Vegan", "Gluten-free", "Lactose-free",
+  "Seafood allergy", "Nut allergy", "Halal", "Kosher"
 ];
 
-const MOBILITY_NEEDS = [
+const createMobilityNeeds = (language: 'it' | 'en') => language === 'it' ? [
   "Accessibilità carrozzina", "Supporto mobilità ridotta", "Ascensore necessario",
   "Percorsi brevi", "Trasporto privato", "Guida con auto"
+] : [
+  "Wheelchair accessibility", "Reduced mobility support", "Elevator required",
+  "Short routes", "Private transport", "Guided car tours"
 ];
 
 interface GuestPreferencesPageProps {
@@ -115,8 +121,13 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
   });
 
   // Determine language from guest data
-  const language = guestData?.guestProfile?.emailLanguage || 'it';
+  const language = (guestData?.guestProfile?.emailLanguage || 'it') as 'it' | 'en';
   const isEnglish = language === 'en';
+  
+  // Create language-specific content
+  const PREFERENCE_CATEGORIES = createPreferenceCategories(language);
+  const DIETARY_RESTRICTIONS = createDietaryRestrictions(language);
+  const MOBILITY_NEEDS = createMobilityNeeds(language);
 
   // Submit mutation
   const submitMutation = useMutation({
@@ -127,14 +138,18 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
     onSuccess: () => {
       setIsSubmitted(true);
       toast({
-        title: "Perfetto!",
-        description: "Le tue preferenze sono state salvate con successo.",
+        title: isEnglish ? "Perfect!" : "Perfetto!",
+        description: isEnglish 
+          ? "Your preferences have been saved successfully."
+          : "Le tue preferenze sono state salvate con successo.",
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Errore",
-        description: error.message || "Errore nel salvataggio delle preferenze",
+        title: isEnglish ? "Error" : "Errore",
+        description: error.message || (isEnglish 
+          ? "Error saving preferences"
+          : "Errore nel salvataggio delle preferenze"),
         variant: "destructive",
       });
     },
@@ -151,8 +166,10 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
   const handleSubmit = () => {
     if (selectedPreferences.length < 3) {
       toast({
-        title: "Selezione insufficiente",
-        description: "Seleziona almeno 3-4 preferenze per personalizzare correttamente il tuo itinerario.",
+        title: isEnglish ? "Insufficient selection" : "Selezione insufficiente",
+        description: isEnglish 
+          ? "Select at least 3-4 preferences to properly personalize your itinerary."
+          : "Seleziona almeno 3-4 preferenze per personalizzare correttamente il tuo itinerario.",
         variant: "destructive"
       });
       return;
@@ -281,10 +298,13 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Star className="h-5 w-5 mr-2" />
-                Le tue preferenze di viaggio
+                {isEnglish ? "Your travel preferences" : "Le tue preferenze di viaggio"}
               </CardTitle>
               <p className="text-gray-600">
-                Seleziona tutto ciò che ti interessa per ricevere suggerimenti personalizzati
+                {isEnglish 
+                  ? "Select everything that interests you to receive personalized suggestions"
+                  : "Seleziona tutto ciò che ti interessa per ricevere suggerimenti personalizzati"
+                }
               </p>
             </CardHeader>
             <CardContent>
@@ -320,10 +340,13 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Utensils className="h-5 w-5 mr-2" />
-                Restrizioni alimentari
+                {isEnglish ? "Dietary restrictions" : "Restrizioni alimentari"}
               </CardTitle>
               <p className="text-gray-600">
-                Aiutaci a suggerirti i ristoranti giusti
+                {isEnglish 
+                  ? "Help us suggest the right restaurants for you"
+                  : "Aiutaci a suggerirti i ristoranti giusti"
+                }
               </p>
             </CardHeader>
             <CardContent>
@@ -352,10 +375,13 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Car className="h-5 w-5 mr-2" />
-                Esigenze di mobilità
+                {isEnglish ? "Mobility needs" : "Esigenze di mobilità"}
               </CardTitle>
               <p className="text-gray-600">
-                Selezione facoltativa per suggerirti esperienze accessibili
+                {isEnglish 
+                  ? "Optional selection to suggest accessible experiences"
+                  : "Selezione facoltativa per suggerirti esperienze accessibili"
+                }
               </p>
             </CardHeader>
             <CardContent>
@@ -382,16 +408,21 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
           {/* Additional Fields */}
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Altre preferenze</CardTitle>
+              <CardTitle>
+                {isEnglish ? "Additional preferences" : "Altre preferenze"}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="otherPreferences">
-                  Altre preferenze specifiche
+                  {isEnglish ? "Other specific preferences" : "Altre preferenze specifiche"}
                 </Label>
                 <Textarea
                   id="otherPreferences"
-                  placeholder="Es: Preferisco attività mattutine, adoro i panorami, mi piacciono i posti poco turistici..."
+                  placeholder={isEnglish 
+                    ? "e.g.: I prefer morning activities, I love scenic views, I like less touristy places..."
+                    : "Es: Preferisco attività mattutine, adoro i panorami, mi piacciono i posti poco turistici..."
+                  }
                   {...form.register("otherPreferences")}
                   className="mt-1"
                 />
@@ -399,11 +430,14 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
               
               <div>
                 <Label htmlFor="specialInterests">
-                  Interessi particolari o hobby
+                  {isEnglish ? "Special interests or hobbies" : "Interessi particolari o hobby"}
                 </Label>
                 <Textarea
                   id="specialInterests"
-                  placeholder="Es: Fotografia, birdwatching, collezionismo, lettura, sport specifici..."
+                  placeholder={isEnglish 
+                    ? "e.g.: Photography, birdwatching, collecting, reading, specific sports..."
+                    : "Es: Fotografia, birdwatching, collezionismo, lettura, sport specifici..."
+                  }
                   {...form.register("specialInterests")}
                   className="mt-1"
                 />
@@ -424,24 +458,30 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
                   {submitMutation.isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Salvataggio...
+                      {isEnglish ? "Saving..." : "Salvataggio..."}
                     </>
                   ) : (
                     <>
                       <CheckCircle2 className="h-4 w-4 mr-2" />
-                      Salva le mie preferenze
+                      {isEnglish ? "Save my preferences" : "Salva le mie preferenze"}
                     </>
                   )}
                 </Button>
                 
                 {selectedPreferences.length === 0 && (
                   <p className="text-red-500 text-sm mt-2">
-                    Seleziona almeno una preferenza per continuare
+                    {isEnglish 
+                      ? "Select at least one preference to continue"
+                      : "Seleziona almeno una preferenza per continuare"
+                    }
                   </p>
                 )}
                 
                 <p className="text-gray-500 text-sm mt-4">
-                  Il tuo itinerario personalizzato sarà creato in base a queste preferenze
+                  {isEnglish 
+                    ? "Your personalized itinerary will be created based on these preferences"
+                    : "Il tuo itinerario personalizzato sarà creato in base a queste preferenze"
+                  }
                 </p>
               </div>
             </CardContent>

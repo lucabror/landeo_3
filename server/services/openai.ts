@@ -16,7 +16,9 @@ function calculateExperienceMatches(guestProfile: GuestProfile, localExperiences
   return localExperiences.map(experience => {
     // Find category match
     const categoryInfo = LANDEO_CATEGORIES.find(cat => cat.value === experience.category);
-    const categoryEmailText = categoryInfo?.emailText || '';
+    // Use the guest's language preference to get the right text - fallback to Italian if no language specified
+    const language = (guestProfile.emailLanguage || 'it') as 'it' | 'en';
+    const categoryEmailText = categoryInfo?.emailText[language] || '';
     
     // Check if experience category matches guest preferences
     const matchingPreferences = guestPreferences.filter(pref => 

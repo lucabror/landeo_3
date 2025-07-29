@@ -29,8 +29,8 @@ export async function generateLocalExperiences(hotel: Hotel): Promise<InsertLoca
     // Note: In a full implementation, you'd update the hotel record here
   }
 
-  // Crea la lista delle 20 categorie per il prompt
-  const categoriesList = LANDEO_CATEGORIES.map(cat => cat.label).join('\n');
+  // Crea la lista delle 20 categorie per il prompt (sempre in italiano per AI)
+  const categoriesList = LANDEO_CATEGORIES.map(cat => cat.label.it).join('\n');
 
   const enhancedPrompt = `Sei un esperto di turismo italiano con conoscenza approfondita delle attrazioni locali. 
 
@@ -114,7 +114,7 @@ Genera 18-25 attrazioni diverse, assicurandoti di:
   }
 }
 
-function parseMarkdownToExperiences(markdownContent: string, hotelId: number): InsertLocalExperience[] {
+function parseMarkdownToExperiences(markdownContent: string, hotelId: string): InsertLocalExperience[] {
   const experiences: InsertLocalExperience[] = [];
   
   // Estrae le righe della tabella (esclude header e separatore)
@@ -147,8 +147,8 @@ function parseMarkdownToExperiences(markdownContent: string, hotelId: number): I
         
         // Trova la categoria corrispondente nel sistema Landeo
         const landeaCategory = LANDEO_CATEGORIES.find(cat => 
-          cat.label.includes(categoryNumber.toString()) && 
-          cat.label.toLowerCase().includes(categoryName.toLowerCase())
+          cat.label.it.includes(categoryNumber.toString()) && 
+          cat.label.it.toLowerCase().includes(categoryName.toLowerCase())
         );
 
         if (!landeaCategory) {
@@ -166,11 +166,11 @@ function parseMarkdownToExperiences(markdownContent: string, hotelId: number): I
           category: landeaCategory.value,
           description: descrizione,
           location: nome, // Use attraction name as location  
-          distanceKm,
+          distance: `${distanceKm} km`,
           whyRecommended: perche
         });
 
-        console.log(`✓ Aggiunta: ${nome} (${landeaCategory.label}) - ${distanceKm}km`);
+        console.log(`✓ Aggiunta: ${nome} (${landeaCategory.label.it}) - ${distanceKm}km`);
       }
     } catch (error) {
       console.warn(`Errore parsing riga: ${line}`, error);
@@ -188,7 +188,7 @@ export function mapAIcategoryToStandard(aiCategory: string): string {
   // Cerca corrispondenza diretta nel sistema Landeo
   const directMatch = LANDEO_CATEGORIES.find(cat => 
     categoryLower.includes(cat.value) || 
-    categoryLower.includes(cat.label.toLowerCase())
+    categoryLower.includes(cat.label.it.toLowerCase())
   );
   
   if (directMatch) {
@@ -235,14 +235,19 @@ async function enhanceExperiencesWithGeolocation(
       // and calculate precise distances here
       
       // For now, validate that distances are reasonable
-      if (experience.distanceKm > 50) {
-        console.warn(`⚠️ Distanza oltre limite per ${experience.name}: ${experience.distanceKm}km`);
-        experience.distanceKm = Math.min(experience.distanceKm, 50);
-      }
-      
-      if (experience.distanceKm < 1) {
-        console.warn(`⚠️ Distanza troppo vicina per ${experience.name}: ${experience.distanceKm}km`);
-        experience.distanceKm = Math.max(experience.distanceKm, 1);
+      if (experience.distance) {
+        const distanceMatch = experience.distance.match(/(\d+)/);
+        const distanceKm = distanceMatch ? parseInt(distanceMatch[1]) : 0;
+        
+        if (distanceKm > 50) {
+          console.warn(`⚠️ Distanza oltre limite per ${experience.name}: ${distanceKm}km`);
+          experience.distance = `${Math.min(distanceKm, 50)} km`;
+        }
+        
+        if (distanceKm < 1) {
+          console.warn(`⚠️ Distanza troppo vicina per ${experience.name}: ${distanceKm}km`);
+          experience.distance = `${Math.max(distanceKm, 1)} km`;
+        }
       }
       
     } catch (error) {
