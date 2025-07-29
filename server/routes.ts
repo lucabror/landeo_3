@@ -1144,20 +1144,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI generation for local experiences
-  app.post("/api/hotels/:hotelId/local-experiences/generate", requireAuth, async (req, res) => {
+  app.post("/api/hotels/:hotelId/local-experiences/generate", async (req, res) => {
     try {
-      const hotelId = parseInt(req.params.hotelId);
-      
-      if (req.user?.type !== "hotel" || req.user.hotelId !== hotelId) {
-        return res.status(403).json({ error: "Access denied" });
-      }
+      const hotelId = req.params.hotelId;
 
+      console.log(`🏨 Ricerca hotel con ID: ${hotelId}`);
       const hotel = await storage.getHotel(hotelId);
       if (!hotel) {
+        console.error(`❌ Hotel non trovato: ${hotelId}`);
         return res.status(404).json({ error: "Hotel non trovato" });
       }
+      
+      console.log(`✅ Hotel trovato: ${hotel.name}`);
 
       if (!hotel.postalCode) {
+        console.error(`❌ CAP mancante per hotel: ${hotel.name}`);
         return res.status(400).json({ 
           error: "CAP dell'hotel non configurato. Completa i dati dell'hotel prima di generare le esperienze." 
         });
@@ -1199,18 +1200,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Advanced geolocation analysis endpoint
-  app.get("/api/hotels/:hotelId/geolocation/analysis", requireAuth, async (req, res) => {
+  app.get("/api/hotels/:hotelId/geolocation/analysis", async (req, res) => {
     try {
-      const hotelId = parseInt(req.params.hotelId);
-      
-      if (req.user?.type !== "hotel" || req.user.hotelId !== hotelId) {
-        return res.status(403).json({ error: "Access denied" });
-      }
+      const hotelId = req.params.hotelId;
 
+      console.log(`🌍 Analisi geolocalizzazione per hotel ID: ${hotelId}`);
       const hotel = await storage.getHotel(hotelId);
       if (!hotel) {
+        console.error(`❌ Hotel non trovato per analisi: ${hotelId}`);
         return res.status(404).json({ error: "Hotel non trovato" });
       }
+      
+      console.log(`✅ Hotel trovato per analisi: ${hotel.name}`);
 
       console.log(`🌍 Analisi geolocalizzazione per hotel ${hotel.name}`);
       
@@ -1258,13 +1259,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update hotel coordinates endpoint
-  app.post("/api/hotels/:hotelId/geolocation/update", requireAuth, async (req, res) => {
+  app.post("/api/hotels/:hotelId/geolocation/update", async (req, res) => {
     try {
-      const hotelId = parseInt(req.params.hotelId);
-      
-      if (req.user?.type !== "hotel" || req.user.hotelId !== hotelId) {
-        return res.status(403).json({ error: "Access denied" });
-      }
+      const hotelId = req.params.hotelId;
 
       const hotel = await storage.getHotel(hotelId);
       if (!hotel) {

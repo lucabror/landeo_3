@@ -38,7 +38,7 @@ export class GeolocationService {
       
       const query = searchParts.join(', ');
       
-      console.log(`Geocoding: ${query}`);
+      console.log(`🌍 Geocoding: ${query}`);
       
       const url = `${this.NOMINATIM_BASE_URL}/search?` + new URLSearchParams({
         q: query,
@@ -48,6 +48,8 @@ export class GeolocationService {
         addressdetails: '1'
       });
 
+      console.log(`🔗 URL geocoding: ${url}`);
+
       const response = await fetch(url, {
         headers: {
           'User-Agent': this.USER_AGENT
@@ -55,10 +57,12 @@ export class GeolocationService {
       });
 
       if (!response.ok) {
-        throw new Error(`Geocoding API error: ${response.status}`);
+        console.error(`❌ Geocoding API error: ${response.status} ${response.statusText}`);
+        return null;
       }
 
       const data = await response.json() as any[];
+      console.log(`📊 Risposta geocoding:`, data?.length ? `${data.length} risultati` : 'nessun risultato');
       
       if (data && data.length > 0) {
         const result = data[0];
@@ -67,15 +71,15 @@ export class GeolocationService {
           longitude: parseFloat(result.lon)
         };
         
-        console.log(`✓ Coordinates found for ${query}: ${coordinates.latitude}, ${coordinates.longitude}`);
+        console.log(`✅ Coordinate trovate per ${query}: ${coordinates.latitude}, ${coordinates.longitude}`);
         return coordinates;
       }
 
-      console.warn(`No coordinates found for: ${query}`);
+      console.warn(`⚠️ Nessuna coordinata trovata per: ${query}`);
       return null;
 
     } catch (error) {
-      console.error('Geocoding error:', error);
+      console.error('❌ Errore geocoding:', error);
       return null;
     }
   }

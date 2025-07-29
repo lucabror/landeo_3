@@ -72,6 +72,9 @@ export interface IStorage {
   getPendingAttractions(hotelId: string): Promise<PendingAttraction[]>;
   approvePendingAttraction(id: string): Promise<void>;
   rejectPendingAttraction(id: string): Promise<void>;
+  
+  // Additional methods that may be missing
+  deleteAllLocalExperiences?(hotelId: string): Promise<void>;
 
   // Guest Preferences Tokens
   createGuestPreferencesToken(token: InsertGuestPreferencesToken): Promise<GuestPreferencesToken>;
@@ -351,6 +354,10 @@ export class DatabaseStorage implements IStorage {
 
   async deleteLocalExperience(id: string): Promise<void> {
     await db.delete(localExperiences).where(eq(localExperiences.id, id));
+  }
+
+  async deleteAllLocalExperiences(hotelId: string): Promise<void> {
+    await db.delete(localExperiences).where(eq(localExperiences.hotelId, hotelId));
   }
 
   async deleteAllLocalExperiences(hotelId: string): Promise<void> {

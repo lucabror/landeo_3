@@ -69,6 +69,8 @@ Genera 18-25 attrazioni diverse, assicurandoti di:
   console.log(`🤖 Generazione AI attrazioni per ${locationContext.referencePoint}...`);
   
   try {
+    console.log("📝 Prompt inviato ad OpenAI:", enhancedPrompt.substring(0, 200) + "...");
+    
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -81,17 +83,22 @@ Genera 18-25 attrazioni diverse, assicurandoti di:
           content: enhancedPrompt
         }
       ],
-      temperature: 0.8, // Slightly higher for more creative authentic suggestions
-      max_tokens: 3000 // Increased for more comprehensive results
+      temperature: 0.8,
+      max_tokens: 3000
     });
+    
+    console.log("✅ Risposta OpenAI ricevuta");
 
     const markdownContent = response.choices[0].message.content;
     if (!markdownContent) {
       throw new Error("Nessuna risposta da OpenAI");
     }
 
-    console.log("📝 Risposta AI ricevuta, parsing avanzato in corso...");
+    console.log("📝 Risposta AI ricevuta, lunghezza:", markdownContent.length, "caratteri");
+    console.log("🔍 Prime 500 caratteri:", markdownContent.substring(0, 500));
+    
     const experiences = parseMarkdownToExperiences(markdownContent, hotel.id);
+    console.log(`🎯 Estratte ${experiences.length} esperienze dal parsing`);
     
     // Add geolocation validation and enhancement if coordinates are available
     if (locationContext.coordinates) {
@@ -158,6 +165,7 @@ function parseMarkdownToExperiences(markdownContent: string, hotelId: number): I
           name: nome,
           category: landeaCategory.value,
           description: descrizione,
+          location: nome, // Use attraction name as location  
           distanceKm,
           whyRecommended: perche
         });

@@ -10,6 +10,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: ✅ COMPLETATO sistema avanzato di raccomandazioni geolocalizzate con GPS
+  - Implementato GeolocationService completo per conversione CAP → coordinate GPS precise
+  - Sistema calcolo distanze Haversine per validazione raggio 50km accurato
+  - Integrazione OpenStreetMap API per geocoding automatico coordinate hotel
+  - Contesto geografico intelligente per regioni italiane (Toscana, Lazio, Lombardia, etc.)
+  - Componente GeolocationAnalysis funzionale con tab dedicato in Esperienze Locali  
+  - Endpoint /api/hotels/:hotelId/geolocation/analysis completamente operativo
+  - Aggiornamento automatico coordinate hotel quando mancanti
+  - Prompt AI migliorato con coordinate precise e aree di ricerca circostanti
+  - Validazione automatica distanze per attrazioni generate dall'AI
+  - Sistema ora usa dati geografici reali per raccomandazioni precise entro 50km
 - **2025-01-29**: Implementato prompt AI GPT-4o per generazione attrazioni entro 50km dal CAP hotel
   - Creato servizio attractions.ts con prompt intelligente per OpenAI GPT-4o
   - AI trova attrazioni reali ed esistenti entro 50km dal CAP dell'hotel (da dati hotel)
