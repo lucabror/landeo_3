@@ -1,0 +1,95 @@
+📄 Termini e Condizioni di Utilizzo della Piattaforma “Landeo”
+Ultimo aggiornamento: [inserire data]
+
+Benvenuto su Landeo, una piattaforma web che consente la generazione di itinerari turistici personalizzati tramite Intelligenza Artificiale per strutture ricettive italiane.
+
+Utilizzando la piattaforma, accetti integralmente i seguenti Termini e Condizioni.
+
+1. Oggetto del Servizio
+Landeo è una piattaforma digitale che consente:
+
+la generazione di itinerari turistici personalizzati tramite AI,
+
+la gestione di profili ospiti,
+
+l’invio di PDF e QR code con itinerari personalizzati,
+
+l’automazione di comunicazioni via email agli ospiti.
+
+Il servizio è rivolto a strutture ricettive registrate (hotel, resort, agriturismi, B&B ecc.) operanti in Italia.
+
+2. Registrazione e Utilizzo
+La registrazione è gratuita. Ogni nuovo utente riceve 5 crediti gratuiti all’attivazione. Ogni itinerario generato consuma 1 credito.
+
+L’utente che utilizza la piattaforma deve:
+
+rappresentare legalmente una struttura ricettiva,
+
+fornire dati veritieri e completi,
+
+custodire con riservatezza le credenziali di accesso.
+
+3. Limitazione di Responsabilità
+3.1 Accuratezza dei Contenuti Generati
+La piattaforma utilizza modelli di Intelligenza Artificiale (OpenAI GPT) per generare consigli e itinerari. Landeo non garantisce l’accuratezza o l’idoneità dei contenuti proposti.
+
+È obbligo esclusivo della struttura ricettiva controllare manualmente ogni itinerario generato prima di consegnarlo all’ospite, apportando modifiche ove necessario.
+
+3.2 Esonero da Responsabilità
+Landeo non è responsabile per danni, disservizi, ritardi, controversie o insoddisfazioni derivanti da:
+
+uso improprio della piattaforma,
+
+informazioni errate fornite dall’hotel,
+
+contenuti non verificati,
+
+attività proposte non idonee o pericolose.
+
+4. Interruzione o Modifica del Servizio
+Landeo si riserva il diritto di:
+
+modificare, sospendere o interrompere il servizio, anche senza preavviso,
+
+rimborsare i crediti non utilizzati in caso di cessazione permanente.
+
+Non è previsto alcun indennizzo o risarcimento oltre al rimborso dei crediti non utilizzati.
+
+5. Proprietà Intellettuale
+Tutti i contenuti, il design, il codice, il marchio e le interfacce della piattaforma sono protetti da copyright.
+È vietata ogni riproduzione, distribuzione, modifica o uso non autorizzato.
+
+6. Trattamento dei Dati Personali
+Titolare del Trattamento Dati:
+Dr. Luca Borro – Via di Contrada Comune 159, 00049 Velletri (RM), Tel.: +39 328 30 93 519.
+
+Il trattamento dei dati personali avviene nel rispetto del Regolamento (UE) 2016/679 (GDPR).
+La struttura ricettiva è responsabile dei dati inseriti (es. dati ospiti e preferenze) e si impegna a ottenere il consenso necessario dagli ospiti.
+
+Per maggiori dettagli, si rimanda alla Informativa Privacy.
+
+7. Prezzi e Crediti
+I crediti sono acquistabili in pacchetti prepagati.
+
+Ogni credito equivale a 1 itinerario generato (1 €).
+
+I crediti non hanno scadenza, salvo comunicazioni contrarie.
+
+Il pagamento avviene tramite bonifico bancario.
+
+Non è previsto alcun canone fisso o obbligo di rinnovo.
+
+8. Foro Competente
+Per ogni controversia relativa all’interpretazione o all’esecuzione dei presenti Termini, è competente in via esclusiva il Foro di Roma (Italia).
+
+9. Contatti
+Per qualsiasi richiesta o comunicazione:
+
+Commerciale: info@landeo.it
+
+Supporto tecnico: supporto@landeo.it
+
+Telefono (clienti premium): +39.328.30.93.519
+
+10. Accettazione
+L’utilizzo della piattaforma implica l’accettazione completa e incondizionata dei presenti Termini e Condizioni. In caso contrario, l’utilizzo del servizio non sarà consentito.
