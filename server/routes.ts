@@ -1143,12 +1143,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI generation for local experiences - TEMPORANEAMENTE DISABILITATO
-  app.post("/api/hotels/:hotelId/local-experiences/generate", async (req, res) => {
-    res.status(503).json({ 
-      message: "Generazione AI temporaneamente non disponibile - sezione in ricostruzione",
-      code: "SERVICE_UNAVAILABLE" 
-    });
+  // AI generation for local experiences
+  app.post("/api/hotels/:hotelId/local-experiences/generate", requireAuth, async (req, res) => {
+    try {
+      const hotelId = parseInt(req.params.hotelId);
+      
+      if (req.user?.type !== "hotel" || req.user.hotelId !== hotelId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const hotel = await storage.getHotel(hotelId);
+      if (!hotel) {
+        return res.status(404).json({ error: "Hotel non trovato" });
+      }
+
+      if (!hotel.postalCode) {
+        return res.status(400).json({ 
+          error: "CAP dell'hotel non configurato. Completa i dati dell'hotel prima di generare le esperienze." 
+        });
+      }
+
+      console.log(`Generazione esperienze AI per hotel ${hotel.name} (CAP: ${hotel.postalCode})`);
+      
+      // Importa il servizio generazione attrazioni
+      const { generateLocalExperiences } = await import("./services/attractions");
+      const experiences = await generateLocalExperiences(hotel);
+      
+      if (experiences.length === 0) {
+        return res.status(400).json({ 
+          error: "Nessuna esperienza generata. Verifica la configurazione dell'hotel." 
+        });
+      }
+
+      // Salva le esperienze nel database
+      const savedExperiences = [];
+      for (const experience of experiences) {
+        const saved = await storage.createLocalExperience(experience);
+        savedExperiences.push(saved);
+      }
+
+      console.log(`✓ Generate e salvate ${savedExperiences.length} esperienze locali`);
+      
+      res.json({ 
+        success: true, 
+        count: savedExperiences.length,
+        experiences: savedExperiences 
+      });
+
+    } catch (error) {
+      console.error("Errore generazione esperienze AI:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Errore nella generazione delle esperienze" 
+      });
+    }
   });
 
   // Local experience matching with guest preferences

@@ -10,6 +10,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: Implementato prompt AI GPT-4o per generazione attrazioni entro 50km dal CAP hotel
+  - Creato servizio attractions.ts con prompt intelligente per OpenAI GPT-4o
+  - AI trova attrazioni reali ed esistenti entro 50km dal CAP dell'hotel (da dati hotel)
+  - Ogni attrazione viene inserita nella categoria opportuna dopo attenta valutazione dell'AI
+  - Output in tabelle Markdown con colonne: Nome, Categoria, Distanza, Descrizione, Perché consigliata
+  - Sistema di parsing automatico da Markdown a database con mapping categorie AI → Landeo
+  - Endpoint /api/hotels/:hotelId/local-experiences/generate riattivato e funzionale
+  - Controllo obbligatorio CAP hotel configurato prima della generazione
 - **2025-01-29**: Definite inequivocabilmente le 20 categorie standard Landeo
   - Categorie numerate da 1 a 20: Museo, Sito Archeologico, Monumento Storico, Chiesa o Luogo Religioso, Borgo Storico, Evento Culturale, Ristorante Tipico, Cantina/Enoteca, Mercato o Bottega Locale, Laboratorio Artigianale, Parco Naturale, Trekking/Escursione, Lago/Spiaggia, Giardino Botanico/Storico, Sport Avventura/Outdoor, Cicloturismo, Centro Termale/SPA, Shopping Locale, Locali/Divertimento, Esperienza Unica del Territorio
   - Corrispondenza perfetta: stesse categorie identiche nella generazione AI e nelle email preferenze ospiti
