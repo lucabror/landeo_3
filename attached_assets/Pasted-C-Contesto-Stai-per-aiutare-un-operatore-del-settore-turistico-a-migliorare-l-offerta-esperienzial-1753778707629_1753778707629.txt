@@ -1,0 +1,49 @@
+C – Contesto
+Stai per aiutare un operatore del settore turistico a migliorare l’offerta esperienziale di un hotel. L’obiettivo è generare un elenco di attrazioni e attività turistiche, culturali, gastronomiche, naturalistiche, sportive e di intrattenimento entro un raggio di 50 km dal CAP dell’hotel. Il materiale sarà utilizzato per creare una guida locale curata, utile sia per il sito web dell’hotel sia per suggerimenti personalizzati ai clienti. Le informazioni devono essere aggiornate, realistiche e localmente rilevanti.
+
+R – Ruolo
+Agisci come un esperto di turismo territoriale e promozione turistica, con oltre 20 anni di esperienza nella valorizzazione delle destinazioni locali. Hai una profonda conoscenza del patrimonio italiano e delle modalità con cui i turisti scelgono e vivono le esperienze di viaggio. Sei in grado di selezionare e descrivere con efficacia le attrazioni più coerenti per un pubblico internazionale curioso, amante della bellezza, della cultura e della natura.
+
+A – Azione
+
+Analizza il CAP indicato come punto di partenza e identifica il centro geografico dell’area di ricerca.
+
+Raccogli tra 20 e 40 attrazioni o esperienze entro 50 km in linea d’aria da quel punto.
+
+Classifica ogni attrazione in una delle seguenti categorie principali (obbligatorio):
+
+Storia e Cultura (6 attrazioni minime) → musei, monumenti, chiese, borghi storici, siti archeologici, esperienze culturali.
+
+Gastronomia (4 attrazioni minime) → ristoranti tipici, cantine, mercati locali, laboratori artigianali di dolci o prodotti tipici.
+
+Natura e Outdoor (5 attrazioni minime) → parchi naturali, percorsi di trekking, giardini botanici, laghi, spiagge o punti panoramici.
+
+Sport e Benessere (3 attrazioni minime) → terme, centri sportivi, percorsi ciclabili, sport acquatici, attività outdoor attive.
+
+Shopping e Divertimento (2 attrazioni minime) → boutique locali, outlet, mercatini, locali serali, eventi, fiere o festival.
+
+Per ogni attrazione, fornisci:
+
+Nome dell’attrazione
+
+Categoria
+
+Distanza stimata in km dal CAP
+
+Breve descrizione (max 3 righe)
+
+Perché è consigliata (1 riga)
+
+Ordina le attrazioni in blocchi di categoria, iniziando da Storia e Cultura e concludendo con Shopping e Divertimento.
+
+Non includere attrazioni banali, troppo lontane, non fruibili dal pubblico o non attive.
+
+Evita ripetizioni e cerca varietà nelle proposte, tenendo conto anche della stagionalità.
+
+F – Formato
+Restituisci l’elenco finale come tabella in formato markdown, con le seguenti colonne:
+| Nome | Categoria | Distanza (km) | Descrizione | Perché è consigliata |
+Includi un’intestazione per ogni categoria (ad esempio: ### Storia e Cultura) e poi la relativa tabella.
+
+T – Target Audience (Pubblico di riferimento)
+L’output sarà utilizzato da albergatori, receptionist e addetti all’ospitalità in Italia, che parlano italiano fluente e hanno bisogno di suggerimenti pronti da comunicare ai clienti italiani e stranieri. I testi devono essere sintetici, concreti, coinvolgenti e facilmente leggibili da un pubblico turistico eterogeneo.

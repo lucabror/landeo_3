@@ -47,136 +47,84 @@ export async function findLocalAttractions(
       referencePoint = hotelCity || 'hotel';
     }
     
-    const prompt = `Sei un esperto di turismo locale in Italia. Trova le migliori attrazioni turistiche entro 50km da ${searchArea}.
+    const prompt = `CONTESTO: Stai aiutando un operatore del settore turistico a migliorare l'offerta esperienziale di un hotel. L'obiettivo è generare un elenco di attrazioni e attività turistiche, culturali, gastronomiche, naturalistiche, sportive e di intrattenimento entro un raggio di 50 km dal ${hotelPostalCode ? `CAP ${hotelPostalCode}` : `punto geografico ${searchArea}`} dell'hotel.
 
-${!hotelCoordinates && hotelPostalCode ? `IMPORTANTE: L'hotel è stato inserito manualmente e l'unica informazione geografica precisa è il CAP ${hotelPostalCode}. Utilizza ESCLUSIVAMENTE questo codice postale per localizzare l'area e trovare attrazioni turistiche entro 50km. Per le distanze, usa "${referencePoint}" come punto di riferimento invece del CAP.` : hotelPostalCode ? `IMPORTANTE: L'area di riferimento è identificata dal CAP ${hotelPostalCode} che è un identificatore geografico preciso. Utilizza questo codice postale per localizzare esattamente l'area e trovare attrazioni nelle immediate vicinanze.` : ''}
+RUOLO: Agisci come un esperto di turismo territoriale e promozione turistica, con oltre 20 anni di esperienza nella valorizzazione delle destinazioni locali. Hai una profonda conoscenza del patrimonio italiano e delle modalità con cui i turisti scelgono e vivono le esperienze di viaggio.
 
-CATEGORIE OBBLIGATORIE - Scegli SOLO UNA di queste 15 categorie per ogni attrazione:
+AZIONE:
+1. Analizza il ${hotelPostalCode ? `CAP ${hotelPostalCode}` : `punto geografico ${searchArea}`} come punto di partenza e identifica il centro geografico dell'area di ricerca.
 
-STORIA E CULTURA (5 categorie):
-1. "musei" - SOLO musei, gallerie d'arte, collezioni artistiche
-2. "monumenti" - SOLO monumenti storici, castelli, palazzi antichi, rovine
-3. "chiese" - SOLO chiese, santuari, basiliche, luoghi sacri
-4. "borghi" - SOLO borghi medievali, centri storici, quartieri antichi
-5. "archeologia" - SOLO scavi archeologici, siti antichi, aree archeologiche
+2. Raccogli esattamente 20 attrazioni o esperienze entro 50 km in linea d'aria da quel punto.
 
-GASTRONOMIA (3 categorie):
-6. "ristoranti" - SOLO ristoranti, trattorie, osterie tradizionali
-7. "vino" - SOLO cantine, wine bar, aziende vinicole, degustazioni vino
-8. "mercati" - SOLO mercati locali, sagre, fiere gastronomiche
+3. Classifica ogni attrazione in una delle seguenti categorie principali (OBBLIGATORIO):
 
-NATURA E PAESAGGI (4 categorie):
-9. "parchi" - SOLO parchi nazionali, riserve naturali, oasi
-10. "trekking" - SOLO sentieri di montagna, percorsi escursionistici
-11. "laghi" - SOLO laghi, fiumi, cascate, specchi d'acqua naturali
-12. "giardini" - SOLO giardini botanici, ville con parco, orti
+STORIA E CULTURA (6 attrazioni minime):
+- "musei" → musei, gallerie d'arte, collezioni artistiche
+- "monumenti" → monumenti storici, castelli, palazzi antichi, fortezze  
+- "chiese" → chiese, santuari, basiliche, luoghi sacri
+- "borghi" → borghi medievali, centri storici, quartieri antichi
+- "archeologia" → scavi archeologici, siti antichi, aree archeologiche
+- "cultura" → teatri, concerti, eventi culturali, festival
 
-ATTIVITÀ (2 categorie):
-13. "sport" - SOLO impianti sportivi, palestre all'aperto, campi da gioco
-14. "ciclismo" - SOLO piste ciclabili, noleggio bici, tour in bicicletta
+GASTRONOMIA (4 attrazioni minime):
+- "ristoranti" → ristoranti tipici, trattorie, osterie tradizionali
+- "vino" → cantine, wine bar, aziende vinicole, degustazioni
+- "mercati" → mercati locali, sagre, fiere gastronomiche
+- "dolci" → pasticcerie, gelaterie, laboratori artigianali dolci
 
-COMMERCIO (1 categoria):
-15. "shopping" - SOLO negozi tipici, mercatini, botteghe artigiane
+NATURA E OUTDOOR (5 attrazioni minime):
+- "parchi" → parchi naturali, riserve naturali, oasi, aree protette
+- "trekking" → percorsi di trekking, sentieri escursionistici, passeggiate
+- "laghi" → laghi, fiumi, cascate, specchi d'acqua naturali, punti panoramici
+- "giardini" → giardini botanici, ville con parco, orti storici
+- "spiagge" → spiagge, stabilimenti balneari, attività marine, costa
 
-REGOLE FERREE PER LA CATEGORIZZAZIONE - OGNI TIPO HA LA SUA CATEGORIA:
+SPORT E BENESSERE (3 attrazioni minime):
+- "sport" → attività sportive, impianti sportivi, campi da gioco
+- "ciclismo" → percorsi ciclabili, bike tours, cicloturismo, noleggio bici
+- "terme" → terme, spa, centri benessere, trattamenti rilassanti
 
-NATURA:
-- LAGHI, fiumi, cascate, specchi d'acqua → categoria "laghi"
-- PARCHI nazionali, riserve naturali, oasi → categoria "parchi" 
-- SENTIERI di montagna, percorsi trekking → categoria "trekking"
-- GIARDINI botanici, ville con parco → categoria "giardini"
+SHOPPING E DIVERTIMENTO (2 attrazioni minime):
+- "shopping" → boutique locali, outlet, mercatini, botteghe artigiane
+- "divertimento" → locali serali, eventi, fiere, festival, vita notturna
 
-STORIA E CULTURA:
-- MUSEI, gallerie d'arte, pinacoteche → categoria "musei"
-- CASTELLI, palazzi storici, fortezze, monumenti → categoria "monumenti"
-- CHIESE, basiliche, santuari, conventi → categoria "chiese"
-- BORGHI medievali, centri storici → categoria "borghi"
-- SCAVI archeologici, rovine antiche → categoria "archeologia"
-
-GASTRONOMIA:
-- RISTORANTI, trattorie, osterie → categoria "ristoranti"
-- CANTINE, wine bar, aziende vinicole → categoria "vino"
-- MERCATI locali, sagre, fiere gastronomiche → categoria "mercati"
-
-ATTIVITÀ:
-- IMPIANTI sportivi, campi da gioco → categoria "sport"
-- PISTE ciclabili, noleggio bici → categoria "ciclismo"
-- NEGOZI tipici, botteghe artigiane → categoria "shopping"
-
-OGNI attrazione deve avere ESATTAMENTE la categoria che corrisponde al suo tipo principale.
-Distribuisci le 20 attrazioni tra tutte le 15 categorie (almeno 1 per categoria).
-
-Per ogni attrazione, fornisci:
-- Nome preciso
-- Tipo (restaurant/museum/exhibition/nature/sport/monument/shopping/entertainment/other)
-- Descrizione coinvolgente (2-3 frasi)
-- Posizione specifica
-- Distanza stimata da ${referencePoint} (USA SEMPRE "${referencePoint}" e MAI il codice postale)
-- Categoria (USA SOLO UNA delle 15 categorie sopra elencate)
+4. Per ogni attrazione, fornisci:
+- Nome dell'attrazione (preciso e reale)
+- Categoria (USA SOLO UNA delle 20 categorie sopra elencate)
+- Distanza stimata in km dal ${referencePoint} (USA SEMPRE "${referencePoint}" come riferimento)
+- Breve descrizione (max 3 righe, coinvolgente)
+- Perché è consigliata (1 riga, motivazione specifica)
+- Tipo per sistema (restaurant/museum/exhibition/nature/sport/monument/shopping/entertainment/other)
 - 3-4 punti salienti
 - Durata consigliata della visita
 - Fascia di prezzo (gratuito/economico/medio/costoso)
 - Momento migliore per visitare
 
-ESEMPI DI CATEGORIZZAZIONE CORRETTA PER OGNI TIPO:
+REGOLE FERREE:
+- NON includere attrazioni banali, troppo lontane, non fruibili dal pubblico o non attive
+- Evita ripetizioni e cerca varietà nelle proposte
+- Tieni conto della stagionalità
+- Ogni categoria deve avere ALMENO il numero minimo di attrazioni indicato
+- Distribuisci le 20 attrazioni coprendo tutte le 20 categorie possibili
+- La categoria DEVE corrispondere esattamente al tipo principale dell'attrazione
 
-NATURA:
-✅ "Lago di Bracciano" → "laghi" (NON "parchi" o "monumenti")
-✅ "Cascate delle Marmore" → "laghi" (NON "parchi" o "trekking")
-✅ "Parco Nazionale del Circeo" → "parchi" (NON "laghi" o "trekking")
-✅ "Sentiero degli Dei" → "trekking" (NON "parchi" o "sport")
-✅ "Giardini di Villa d'Este" → "giardini" (NON "parchi" o "monumenti")
+TARGET AUDIENCE: Albergatori, receptionist e addetti all'ospitalità in Italia, che parlano italiano fluente e hanno bisogno di suggerimenti pronti da comunicare ai clienti italiani e stranieri.
 
-STORIA E CULTURA:
-✅ "Museo Etrusco" → "musei" (NON "archeologia" o "monumenti")
-✅ "Castello Odescalchi" → "monumenti" (NON "musei" o "borghi")
-✅ "Basilica di San Pietro" → "chiese" (NON "monumenti" o "archeologia")
-✅ "Borgo di Calcata" → "borghi" (NON "monumenti" o "archeologia")
-✅ "Scavi di Pompei" → "archeologia" (NON "musei" o "monumenti")
+${!hotelCoordinates && hotelPostalCode ? `IMPORTANTE: L'hotel è stato inserito manualmente e l'unica informazione geografica precisa è il CAP ${hotelPostalCode}. Utilizza ESCLUSIVAMENTE questo codice postale per localizzare l'area e trovare attrazioni turistiche entro 50km. Per le distanze, usa "${referencePoint}" come punto di riferimento invece del CAP.` : hotelPostalCode ? `IMPORTANTE: L'area di riferimento è identificata dal CAP ${hotelPostalCode} nella zona di ${hotelCity}, ${hotelRegion}. Utilizza questo codice postale per localizzare esattamente l'area e trovare attrazioni nelle immediate vicinanze.` : ''}
 
-GASTRONOMIA:
-✅ "Trattoria da Mario" → "ristoranti" (NON "mercati")
-✅ "Cantina Frascati" → "vino" (NON "ristoranti")
-✅ "Mercato di Campo de' Fiori" → "mercati" (NON "shopping")
-
-ATTIVITÀ:
-✅ "Stadio Olimpico" → "sport" (NON "monumenti")
-✅ "Pista ciclabile Appia Antica" → "ciclismo" (NON "trekking")
-✅ "Bottega artigiana ceramica" → "shopping" (NON "mercati")
-
-CONTROLLO FINALE OBBLIGATORIO:
-Prima di assegnare ogni categoria, chiediti:
-1. "Questa attrazione è principalmente un LAGO/FIUME?" → categoria "laghi"
-2. "Questa attrazione è principalmente un MUSEO/GALLERIA?" → categoria "musei"  
-3. "Questa attrazione è principalmente un CASTELLO/PALAZZO?" → categoria "monumenti"
-4. "Questa attrazione è principalmente una CHIESA/BASILICA?" → categoria "chiese"
-5. "Questa attrazione è principalmente un BORGO/CENTRO STORICO?" → categoria "borghi"
-6. "Questa attrazione è principalmente uno SCAVO/SITO ARCHEOLOGICO?" → categoria "archeologia"
-7. "Questa attrazione è principalmente un RISTORANTE/TRATTORIA?" → categoria "ristoranti"
-8. "Questa attrazione è principalmente una CANTINA/WINE BAR?" → categoria "vino"
-9. "Questa attrazione è principalmente un MERCATO/FIERA?" → categoria "mercati"
-10. "Questa attrazione è principalmente un PARCO NATURALE?" → categoria "parchi"
-11. "Questa attrazione è principalmente un SENTIERO/PERCORSO?" → categoria "trekking"
-12. "Questa attrazione è principalmente un GIARDINO BOTANICO?" → categoria "giardini"
-13. "Questa attrazione è principalmente un IMPIANTO SPORTIVO?" → categoria "sport"
-14. "Questa attrazione è principalmente una PISTA CICLABILE?" → categoria "ciclismo"
-15. "Questa attrazione è principalmente un NEGOZIO/BOTTEGA?" → categoria "shopping"
-
-NON INVENTARE categorie diverse dalle 15 elencate.
-La categoria DEVE corrispondere al tipo principale dell'attrazione.
-
-Trova esattamente 20 attrazioni diverse e interessanti distribuite tra le 15 categorie. Rispondi in formato JSON con questa struttura:
+Trova esattamente 20 attrazioni diverse e interessanti distribuite tra le 20 categorie. Rispondi in formato JSON con questa struttura:
 
 {
   "attractions": [
     {
-      "name": "Nome attrazione",
-      "type": "tipo",
-      "description": "Descrizione coinvolgente",
+      "name": "Nome attrazione reale",
+      "category": "categoria specifica",
+      "type": "tipo sistema",
+      "description": "Descrizione coinvolgente max 3 righe",
       "location": "Indirizzo o zona specifica",
       "estimatedDistance": "X km da ${referencePoint}",
-      "category": "Categoria dettagliata",
-      "highlights": ["Punto 1", "Punto 2", "Punto 3"],
+      "whyRecommended": "Perché è consigliata (1 riga)",
+      "highlights": ["Punto 1", "Punto 2", "Punto 3", "Punto 4"],
       "recommendedDuration": "1-2 ore",
       "priceRange": "economico",
       "bestTimeToVisit": "Mattina/Pomeriggio/Sera/Tutto il giorno"
