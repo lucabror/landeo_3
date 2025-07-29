@@ -4,6 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { 
   Mail, 
   Phone, 
@@ -15,7 +22,65 @@ import {
 import landeoLogo from "@assets/landeo def_1753695256255.png";
 import Footer from "@/components/footer";
 
+const contactFormSchema = z.object({
+  firstName: z.string().min(2, "Il nome deve avere almeno 2 caratteri"),
+  lastName: z.string().min(2, "Il cognome deve avere almeno 2 caratteri"),
+  email: z.string().email("Email non valida"),
+  hotelName: z.string().optional(),
+  phone: z.string().optional(),
+  message: z.string().min(10, "Il messaggio deve avere almeno 10 caratteri")
+});
+
+type ContactFormData = z.infer<typeof contactFormSchema>;
+
 export default function Contact() {
+  const { toast } = useToast();
+  
+  const form = useForm<ContactFormData>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      hotelName: "",
+      phone: "",
+      message: ""
+    }
+  });
+
+  const sendEmailMutation = useMutation({
+    mutationFn: async (data: ContactFormData) => {
+      // Combino nome e cognome + aggiungo info hotel nel messaggio
+      const fullName = `${data.firstName} ${data.lastName}`;
+      const enhancedMessage = `${data.message}${data.hotelName ? `\n\nHotel: ${data.hotelName}` : ''}${data.phone ? `\nTelefono: ${data.phone}` : ''}`;
+      
+      return await apiRequest("/api/contact/send-support", "POST", {
+        name: fullName,
+        email: data.email,
+        subject: "Richiesta informazioni Landeo",
+        message: enhancedMessage
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Messaggio inviato con successo",
+        description: "Ti contatteremo presto all'indirizzo email che hai fornito."
+      });
+      form.reset();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore nell'invio",
+        description: error.message || "Si è verificato un errore. Riprova più tardi.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const onSubmit = (data: ContactFormData) => {
+    sendEmailMutation.mutate(data);
+  };
+
   const contactInfo = [
     {
       icon: Mail,
@@ -123,58 +188,113 @@ export default function Contact() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <form className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Nome *
-                      </label>
-                      <Input placeholder="Il tuo nome" />
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="firstName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nome *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Il tuo nome" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="lastName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Cognome *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Il tuo cognome" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Cognome *
-                      </label>
-                      <Input placeholder="Il tuo cognome" />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email *
-                    </label>
-                    <Input type="email" placeholder="tua@email.com" />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nome Hotel
-                    </label>
-                    <Input placeholder="Nome del tuo hotel" />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Telefono
-                    </label>
-                    <Input placeholder="+39 123 456 7890" />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Messaggio *
-                    </label>
-                    <Textarea 
-                      placeholder="Raccontaci del tuo hotel e di come possiamo aiutarti..."
-                      rows={5}
+                    
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email *</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="tua@email.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
-                  
-                  <Button className="w-full bg-amber-700 hover:bg-amber-800 text-white">
-                    <Send className="mr-2 h-4 w-4" />
-                    Invia Messaggio
-                  </Button>
-                </form>
+                    
+                    <FormField
+                      control={form.control}
+                      name="hotelName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nome Hotel</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Nome del tuo hotel" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Telefono</FormLabel>
+                          <FormControl>
+                            <Input placeholder="+39 123 456 7890" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="message"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Messaggio *</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Raccontaci del tuo hotel e di come possiamo aiutarti..."
+                              rows={5}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-amber-700 hover:bg-amber-800 text-white"
+                      disabled={sendEmailMutation.isPending}
+                    >
+                      {sendEmailMutation.isPending ? (
+                        "Invio in corso..."
+                      ) : (
+                        <>
+                          <Send className="mr-2 h-4 w-4" />
+                          Invia Messaggio
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </Form>
               </CardContent>
             </Card>
           </div>
