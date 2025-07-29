@@ -10,6 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: ✅ RISOLTO problema PDF non generato dalla pagina itinerario
+  - Identificato problema: res.sendFile causava errori di path duplicato con percorsi assoluti
+  - Sostituito res.sendFile con fs.readFile + res.send per invio diretto buffer PDF
+  - Rimosso import duplicato generateItinerary che causava errori di compilazione TypeScript
+  - Endpoint /api/itinerary/:uniqueUrl/download-pdf ora funziona correttamente per download PDF
 - **2025-01-29**: ✅ RISOLTO problema pagina preferenze ospiti che richiede refresh browser
   - Identificato problema: query preferences usava staleTime: Infinity causando cache persistente
   - Aggiunto staleTime: 0 e refetchOnMount: true per query preferenze ospiti
