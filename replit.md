@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: Integrato prompt professionale C.R.A.F.T. per generazione AI esperienze locali
+  - Sostituito vecchio prompt confuso (185 righe) con struttura professionale chiara
+  - Allineate tutte le 20 categorie LANDEO_CATEGORIES nel prompt AI (prima erano solo 15)
+  - Aggiunto campo "whyRecommended" per ogni attrazione generata
+  - Sistema email preferenze già configurato per matching perfetto con categorie esperienze
+  - Integrati dinamicamente dati hotel (CAP, città, regione, coordinate) nel prompt
 - **2025-01-29**: Allineati prezzi pacchetti crediti tra dashboard hotel e pagina pricing
   - Aggiornati prezzi in CreditPurchaseDialog per essere identici a quelli in /pricing
   - Pacchetto Base: 20€/20 crediti, Standard: 40€/40 crediti, Premium: 85€/90 crediti, Enterprise: 140€/150 crediti
