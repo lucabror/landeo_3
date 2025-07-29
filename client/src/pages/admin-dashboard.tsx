@@ -43,6 +43,17 @@ interface CreditPurchase {
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "";
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "";
 
+// Helper function for package info
+function getPackageInfo(packageType: string) {
+  const packages = {
+    basic: { name: "Basic 20€", color: "bg-blue-100 text-blue-800" },
+    standard: { name: "Standard 40€", color: "bg-purple-100 text-purple-800" },
+    premium: { name: "Premium 85€", color: "bg-amber-100 text-amber-800" },
+    business: { name: "Business 140€", color: "bg-green-100 text-green-800" }
+  };
+  return packages[packageType as keyof typeof packages] || { name: packageType, color: "bg-gray-100 text-gray-800" };
+}
+
 function AdminDashboardContent() {
   const [selectedHotelId, setSelectedHotelId] = useState<string>("");
   const [creditAdjustment, setCreditAdjustment] = useState({ amount: 0, description: "" });
@@ -51,6 +62,7 @@ function AdminDashboardContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHotel, setSelectedHotel] = useState<Hotel | null>(null);
   const [hotelDetailModal, setHotelDetailModal] = useState(false);
+  const [purchaseHistoryModal, setPurchaseHistoryModal] = useState(false);
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const { toast } = useToast();
@@ -70,6 +82,12 @@ function AdminDashboardContent() {
   // Fetch pending purchases
   const { data: pendingPurchases = [], isLoading: purchasesLoading } = useQuery({
     queryKey: ["/api/admin/pending-purchases"],
+  });
+
+  // Fetch purchase history for selected hotel
+  const { data: hotelPurchaseHistory = [] } = useQuery({
+    queryKey: ["/api/admin/hotels", selectedHotel?.id, "purchases"],
+    enabled: !!selectedHotel?.id && purchaseHistoryModal,
   });
 
   // Approve purchase mutation
@@ -527,6 +545,18 @@ function AdminDashboardContent() {
                     <Eye className="h-4 w-4 mr-1" />
                     Dettagli
                   </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="text-blue-600 border-blue-600"
+                    onClick={() => {
+                      setSelectedHotel(hotel);
+                      setPurchaseHistoryModal(true);
+                    }}
+                  >
+                    <CreditCard className="h-4 w-4 mr-1" />
+                    Storico Bonifici
+                  </Button>
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button size="sm" variant="outline">
@@ -752,6 +782,137 @@ function AdminDashboardContent() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setHotelDetailModal(false)}>
+              Chiudi
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Purchase History Modal */}
+      <Dialog open={purchaseHistoryModal} onOpenChange={setPurchaseHistoryModal}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Storico Bonifici - {selectedHotel?.name}</DialogTitle>
+            <DialogDescription>
+              Tutti gli acquisti crediti effettuati dall'hotel con dettaglio stato
+            </DialogDescription>
+          </DialogHeader>
+          {selectedHotel && (
+            <div className="space-y-4">
+              {hotelPurchaseHistory.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <CreditCard className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                  <p>Nessun acquisto crediti effettuato</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {hotelPurchaseHistory.map((purchase: CreditPurchase) => {
+                    const packageInfo = getPackageInfo(purchase.packageType);
+                    const statusColors = {
+                      pending: "bg-orange-50 border-orange-200 text-orange-700",
+                      approved: "bg-green-50 border-green-200 text-green-700",
+                      rejected: "bg-red-50 border-red-200 text-red-700"
+                    };
+                    const statusLabels = {
+                      pending: "In Attesa",
+                      approved: "Approvato",
+                      rejected: "Rifiutato"
+                    };
+                    
+                    return (
+                      <Card key={purchase.id} className={`${statusColors[purchase.status as keyof typeof statusColors]} border-l-4`}>
+                        <CardContent className="p-4">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <Badge className={packageInfo.color}>{packageInfo.name}</Badge>
+                                <Badge variant={purchase.status === 'approved' ? 'default' : purchase.status === 'rejected' ? 'destructive' : 'secondary'}>
+                                  {statusLabels[purchase.status as keyof typeof statusLabels]}
+                                </Badge>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                <div>
+                                  <p className="font-medium">💰 Importo</p>
+                                  <p>€{purchase.packagePrice}</p>
+                                </div>
+                                <div>
+                                  <p className="font-medium">🎯 Crediti</p>
+                                  <p>{purchase.creditsAmount} crediti</p>
+                                </div>
+                                <div>
+                                  <p className="font-medium">📅 Data Richiesta</p>
+                                  <p>{new Date(purchase.createdAt).toLocaleDateString('it-IT', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}</p>
+                                </div>
+                                {purchase.processedAt && (
+                                  <div>
+                                    <p className="font-medium">⏰ Data Elaborazione</p>
+                                    <p>{new Date(purchase.processedAt).toLocaleDateString('it-IT', {
+                                      day: '2-digit',
+                                      month: '2-digit',
+                                      year: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}</p>
+                                  </div>
+                                )}
+                                {purchase.processedBy && (
+                                  <div>
+                                    <p className="font-medium">👤 Elaborato da</p>
+                                    <p>{purchase.processedBy}</p>
+                                  </div>
+                                )}
+                                {purchase.notes && (
+                                  <div className="md:col-span-3">
+                                    <p className="font-medium">📝 Note</p>
+                                    <p className="text-gray-600">{purchase.notes}</p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+              
+              {/* Summary Statistics */}
+              {hotelPurchaseHistory.length > 0 && (
+                <Card className="bg-gray-50">
+                  <CardContent className="p-4">
+                    <h4 className="font-medium mb-3">📊 Riepilogo Acquisti</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                      <div className="text-center">
+                        <p className="font-medium text-green-700">✅ Approvati</p>
+                        <p className="text-lg font-bold">{hotelPurchaseHistory.filter(p => p.status === 'approved').length}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="font-medium text-orange-700">⏳ In Attesa</p>
+                        <p className="text-lg font-bold">{hotelPurchaseHistory.filter(p => p.status === 'pending').length}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="font-medium text-red-700">❌ Rifiutati</p>
+                        <p className="text-lg font-bold">{hotelPurchaseHistory.filter(p => p.status === 'rejected').length}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="font-medium text-blue-700">💰 Totale Crediti</p>
+                        <p className="text-lg font-bold">{hotelPurchaseHistory.filter(p => p.status === 'approved').reduce((sum, p) => sum + p.creditsAmount, 0)}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPurchaseHistoryModal(false)}>
               Chiudi
             </Button>
           </DialogFooter>

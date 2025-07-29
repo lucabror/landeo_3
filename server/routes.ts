@@ -1364,6 +1364,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin: Get all credit purchases for a specific hotel
+  app.get("/api/admin/hotels/:hotelId/purchases", requireAuth({ userType: 'admin' }), async (req, res) => {
+    try {
+      const purchases = await storage.getAllCreditPurchasesByHotel(req.params.hotelId);
+      res.json(purchases);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch hotel credit purchases" });
+    }
+  });
+
   // Hotel logo upload
   app.post("/api/hotels/:id/logo", logoUpload.single('logo'), async (req, res) => {
     try {

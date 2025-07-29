@@ -541,6 +541,13 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(creditPurchases.createdAt));
   }
 
+  async getAllCreditPurchasesByHotel(hotelId: string): Promise<CreditPurchase[]> {
+    return await db.select()
+      .from(creditPurchases)
+      .where(eq(creditPurchases.hotelId, hotelId))
+      .orderBy(desc(creditPurchases.createdAt));
+  }
+
   async getPendingCreditPurchases(): Promise<(CreditPurchase & { hotel: Hotel })[]> {
     const results = await db.select({
       id: creditPurchases.id,
