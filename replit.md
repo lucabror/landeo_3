@@ -10,6 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: ✅ AGGIORNATA pagina Termini e Condizioni con testo legale ufficiale
+  - Sostituito completamente contenuto pagina con testo ufficiale fornito dall'utente
+  - Aggiunto link "Informativa Privacy" che reindirizza alla pagina Privacy di Landeo
+  - Implementato design pulito con formattazione appropriata per documento legale
+  - Mantenuto header e footer consistenti con design Landeo
 - **2025-01-29**: ✅ RISOLTO problema PDF non generato dalla pagina itinerario
   - Identificato problema: res.sendFile causava errori di path duplicato con percorsi assoluti
   - Sostituito res.sendFile con fs.readFile + res.send per invio diretto buffer PDF
