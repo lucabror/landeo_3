@@ -78,15 +78,33 @@ ATTIVITÀ (2 categorie):
 COMMERCIO (1 categoria):
 15. "shopping" - SOLO negozi tipici, mercatini, botteghe artigiane
 
-REGOLE FERREE PER LA CATEGORIZZAZIONE:
-- Un LAGO va SEMPRE in categoria "laghi", MAI in altre categorie
-- Un MUSEO va SEMPRE in categoria "musei", MAI in "monumenti"
-- Un RISTORANTE va SEMPRE in categoria "ristoranti", MAI in "mercati"
-- Un PARCO NATURALE va SEMPRE in categoria "parchi", MAI in "giardini"
-- Una CHIESA va SEMPRE in categoria "chiese", MAI in "monumenti"
-- Ogni attrazione ha UNA SOLA categoria che corrisponde perfettamente al suo tipo principale
-- Distribuisci le 20 attrazioni tra tutte le categorie (almeno 1 per categoria)
-- ESCLUSIVAMENTE attrazioni reali entro 50km dall'area specificata
+REGOLE FERREE PER LA CATEGORIZZAZIONE - OGNI TIPO HA LA SUA CATEGORIA:
+
+NATURA:
+- LAGHI, fiumi, cascate, specchi d'acqua → categoria "laghi"
+- PARCHI nazionali, riserve naturali, oasi → categoria "parchi" 
+- SENTIERI di montagna, percorsi trekking → categoria "trekking"
+- GIARDINI botanici, ville con parco → categoria "giardini"
+
+STORIA E CULTURA:
+- MUSEI, gallerie d'arte, pinacoteche → categoria "musei"
+- CASTELLI, palazzi storici, fortezze, monumenti → categoria "monumenti"
+- CHIESE, basiliche, santuari, conventi → categoria "chiese"
+- BORGHI medievali, centri storici → categoria "borghi"
+- SCAVI archeologici, rovine antiche → categoria "archeologia"
+
+GASTRONOMIA:
+- RISTORANTI, trattorie, osterie → categoria "ristoranti"
+- CANTINE, wine bar, aziende vinicole → categoria "vino"
+- MERCATI locali, sagre, fiere gastronomiche → categoria "mercati"
+
+ATTIVITÀ:
+- IMPIANTI sportivi, campi da gioco → categoria "sport"
+- PISTE ciclabili, noleggio bici → categoria "ciclismo"
+- NEGOZI tipici, botteghe artigiane → categoria "shopping"
+
+OGNI attrazione deve avere ESATTAMENTE la categoria che corrisponde al suo tipo principale.
+Distribuisci le 20 attrazioni tra tutte le 15 categorie (almeno 1 per categoria).
 
 Per ogni attrazione, fornisci:
 - Nome preciso
@@ -100,21 +118,52 @@ Per ogni attrazione, fornisci:
 - Fascia di prezzo (gratuito/economico/medio/costoso)
 - Momento migliore per visitare
 
-ESEMPI DI CATEGORIZZAZIONE CORRETTA:
-✅ "Lago di Bracciano" → categoria: "laghi" (NON "monumenti" o "parchi")
-✅ "Museo Etrusco" → categoria: "musei" (NON "archeologia" o "monumenti")
-✅ "Castello Odescalchi" → categoria: "monumenti" (NON "musei" o "borghi")
-✅ "Basilica di San Pietro" → categoria: "chiese" (NON "monumenti" o "archeologia")
-✅ "Borgo di Calcata" → categoria: "borghi" (NON "monumenti" o "archeologia")
-✅ "Trattoria da Mario" → categoria: "ristoranti" (NON "mercati")
-✅ "Parco dei Monti Cimini" → categoria: "parchi" (NON "trekking" o "laghi")
+ESEMPI DI CATEGORIZZAZIONE CORRETTA PER OGNI TIPO:
 
-ATTENZIONE FINALE:
-- Ogni attrazione DEVE avere la categoria che corrisponde ESATTAMENTE al suo tipo principale
-- Non inventare categorie diverse dalle 15 elencate
-- Un lago NON può essere categorizzato come "monumenti" o "eventi culturali"
-- Una chiesa NON può essere categorizzata come "musei" o "archeologia"
-- Verifica SEMPRE che categoria scelta corrisponda al nome e tipo dell'attrazione
+NATURA:
+✅ "Lago di Bracciano" → "laghi" (NON "parchi" o "monumenti")
+✅ "Cascate delle Marmore" → "laghi" (NON "parchi" o "trekking")
+✅ "Parco Nazionale del Circeo" → "parchi" (NON "laghi" o "trekking")
+✅ "Sentiero degli Dei" → "trekking" (NON "parchi" o "sport")
+✅ "Giardini di Villa d'Este" → "giardini" (NON "parchi" o "monumenti")
+
+STORIA E CULTURA:
+✅ "Museo Etrusco" → "musei" (NON "archeologia" o "monumenti")
+✅ "Castello Odescalchi" → "monumenti" (NON "musei" o "borghi")
+✅ "Basilica di San Pietro" → "chiese" (NON "monumenti" o "archeologia")
+✅ "Borgo di Calcata" → "borghi" (NON "monumenti" o "archeologia")
+✅ "Scavi di Pompei" → "archeologia" (NON "musei" o "monumenti")
+
+GASTRONOMIA:
+✅ "Trattoria da Mario" → "ristoranti" (NON "mercati")
+✅ "Cantina Frascati" → "vino" (NON "ristoranti")
+✅ "Mercato di Campo de' Fiori" → "mercati" (NON "shopping")
+
+ATTIVITÀ:
+✅ "Stadio Olimpico" → "sport" (NON "monumenti")
+✅ "Pista ciclabile Appia Antica" → "ciclismo" (NON "trekking")
+✅ "Bottega artigiana ceramica" → "shopping" (NON "mercati")
+
+CONTROLLO FINALE OBBLIGATORIO:
+Prima di assegnare ogni categoria, chiediti:
+1. "Questa attrazione è principalmente un LAGO/FIUME?" → categoria "laghi"
+2. "Questa attrazione è principalmente un MUSEO/GALLERIA?" → categoria "musei"  
+3. "Questa attrazione è principalmente un CASTELLO/PALAZZO?" → categoria "monumenti"
+4. "Questa attrazione è principalmente una CHIESA/BASILICA?" → categoria "chiese"
+5. "Questa attrazione è principalmente un BORGO/CENTRO STORICO?" → categoria "borghi"
+6. "Questa attrazione è principalmente uno SCAVO/SITO ARCHEOLOGICO?" → categoria "archeologia"
+7. "Questa attrazione è principalmente un RISTORANTE/TRATTORIA?" → categoria "ristoranti"
+8. "Questa attrazione è principalmente una CANTINA/WINE BAR?" → categoria "vino"
+9. "Questa attrazione è principalmente un MERCATO/FIERA?" → categoria "mercati"
+10. "Questa attrazione è principalmente un PARCO NATURALE?" → categoria "parchi"
+11. "Questa attrazione è principalmente un SENTIERO/PERCORSO?" → categoria "trekking"
+12. "Questa attrazione è principalmente un GIARDINO BOTANICO?" → categoria "giardini"
+13. "Questa attrazione è principalmente un IMPIANTO SPORTIVO?" → categoria "sport"
+14. "Questa attrazione è principalmente una PISTA CICLABILE?" → categoria "ciclismo"
+15. "Questa attrazione è principalmente un NEGOZIO/BOTTEGA?" → categoria "shopping"
+
+NON INVENTARE categorie diverse dalle 15 elencate.
+La categoria DEVE corrispondere al tipo principale dell'attrazione.
 
 Trova esattamente 20 attrazioni diverse e interessanti distribuite tra le 15 categorie. Rispondi in formato JSON con questa struttura:
 
