@@ -188,12 +188,7 @@ export default function CreditPurchaseDialog({ hotelId, currentCredits, children
                           <span>Ospiti inseribili:</span>
                           <span>{pkg.credits} ospiti</span>
                         </div>
-                        {bonusCredits > 0 && (
-                          <div className="flex justify-between text-green-600 font-semibold">
-                            <span>Risparmio:</span>
-                            <span>€{(bonusCredits * 1.25).toFixed(0)}</span>
-                          </div>
-                        )}
+                        
                       </div>
                     </CardContent>
                   </Card>
