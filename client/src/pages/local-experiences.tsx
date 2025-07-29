@@ -72,13 +72,13 @@ const CATEGORY_CONFIGS = {
   "esperienza_unica": { label: "Esperienza Unica del Territorio", icon: Sparkles, color: "bg-indigo-100 text-indigo-700" }
 };
 
-const CATEGORIES = [
-  { value: "terme", label: "Terme e Benessere", icon: Heart, color: "bg-teal-100 text-teal-700" },
-  
-  // Shopping e Divertimento (2 categorie)
-  { value: "shopping", label: "Shopping e Artigianato", icon: Building, color: "bg-gray-100 text-gray-700" },
-  { value: "divertimento", label: "Divertimento e Spettacoli", icon: Music, color: "bg-purple-100 text-purple-700" }
-];
+// Create categories array from LANDEO_CATEGORIES for the dropdown
+const CATEGORIES = LANDEO_CATEGORIES.map(cat => ({
+  value: cat.value,
+  label: cat.label.it, // Use Italian labels
+  icon: CATEGORY_CONFIGS[cat.value]?.icon || Building,
+  color: CATEGORY_CONFIGS[cat.value]?.color || "bg-gray-100 text-gray-700"
+}));
 
 const TARGET_AUDIENCES = [
   "famiglia", "coppia", "singolo", "gruppo_lavoro", "anziani"

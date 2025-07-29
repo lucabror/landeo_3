@@ -10,6 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: ✅ RISOLTO problema dropdown categorie in creazione esperienza manuale
+  - Sostituito array CATEGORIES limitato con tutte le 20 categorie LANDEO_CATEGORIES
+  - Dropdown "Aggiungi Esperienza" ora mostra tutte le categorie disponibili per selezione manuale
+  - Categorie manuali ora allineate perfettamente con quelle usate dall'AI per generazione automatica
+  - Sistema garantisce coerenza completa tra creazione manuale e generazione AI delle esperienze
 - **2025-01-29**: ✅ MIGLIORATA visualizzazione esperienze locali con informazioni complete
   - Aggiunto luogo dell'attrazione con icona MapPin blu e testo in grassetto
   - Migliorata visualizzazione distanza dal CAP hotel con icona MapPin verde
