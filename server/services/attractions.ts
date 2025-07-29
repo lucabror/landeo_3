@@ -51,38 +51,42 @@ export async function findLocalAttractions(
 
 ${!hotelCoordinates && hotelPostalCode ? `IMPORTANTE: L'hotel è stato inserito manualmente e l'unica informazione geografica precisa è il CAP ${hotelPostalCode}. Utilizza ESCLUSIVAMENTE questo codice postale per localizzare l'area e trovare attrazioni turistiche entro 50km. Per le distanze, usa "${referencePoint}" come punto di riferimento invece del CAP.` : hotelPostalCode ? `IMPORTANTE: L'area di riferimento è identificata dal CAP ${hotelPostalCode} che è un identificatore geografico preciso. Utilizza questo codice postale per localizzare esattamente l'area e trovare attrazioni nelle immediate vicinanze.` : ''}
 
-CATEGORIE OBBLIGATORIE - Trova attrazioni SOLO in queste 15 categorie:
+CATEGORIE OBBLIGATORIE - Scegli SOLO UNA di queste 15 categorie per ogni attrazione:
 
 STORIA E CULTURA (5 categorie):
-1. "musei" - Musei, gallerie d'arte, collezioni artistiche
-2. "monumenti" - Monumenti, siti storici, architettura antica  
-3. "chiese" - Chiese, santuari, luoghi religiosi
-4. "borghi" - Borghi storici, centri medievali
-5. "archeologia" - Scavi, rovine antiche, siti archeologici
+1. "musei" - SOLO musei, gallerie d'arte, collezioni artistiche
+2. "monumenti" - SOLO monumenti storici, castelli, palazzi antichi, rovine
+3. "chiese" - SOLO chiese, santuari, basiliche, luoghi sacri
+4. "borghi" - SOLO borghi medievali, centri storici, quartieri antichi
+5. "archeologia" - SOLO scavi archeologici, siti antichi, aree archeologiche
 
 GASTRONOMIA (3 categorie):
-6. "ristoranti" - Ristoranti tradizionali, cucina tipica regionale
-7. "vino" - Cantine, wine tasting, degustazioni enologiche
-8. "mercati" - Mercati rionali, prodotti locali, gastronomia di strada
+6. "ristoranti" - SOLO ristoranti, trattorie, osterie tradizionali
+7. "vino" - SOLO cantine, wine bar, aziende vinicole, degustazioni vino
+8. "mercati" - SOLO mercati locali, sagre, fiere gastronomiche
 
-NATURA E OUTDOOR (4 categorie):
-9. "parchi" - Parchi nazionali, riserve naturali, aree protette
-10. "trekking" - Sentieri escursionistici, passeggiate naturalistiche
-11. "laghi" - Laghi, vedute panoramiche, belvedere naturali
-12. "giardini" - Giardini botanici, orti storici, parchi urbani
+NATURA E PAESAGGI (4 categorie):
+9. "parchi" - SOLO parchi nazionali, riserve naturali, oasi
+10. "trekking" - SOLO sentieri di montagna, percorsi escursionistici
+11. "laghi" - SOLO laghi, fiumi, cascate, specchi d'acqua naturali
+12. "giardini" - SOLO giardini botanici, ville con parco, orti
 
-SPORT (2 categorie):
-13. "sport" - Sport all'aria aperta, attività fisiche
-14. "ciclismo" - Piste ciclabili, bike tours, cicloturismo
+ATTIVITÀ (2 categorie):
+13. "sport" - SOLO impianti sportivi, palestre all'aperto, campi da gioco
+14. "ciclismo" - SOLO piste ciclabili, noleggio bici, tour in bicicletta
 
-SHOPPING (1 categoria):
-15. "shopping" - Negozi tipici, artigianato locale, botteghe storiche
+COMMERCIO (1 categoria):
+15. "shopping" - SOLO negozi tipici, mercatini, botteghe artigiane
 
-REGOLE FERREE:
-- Utilizza ESCLUSIVAMENTE queste 15 categorie nel campo "category"
+REGOLE FERREE PER LA CATEGORIZZAZIONE:
+- Un LAGO va SEMPRE in categoria "laghi", MAI in altre categorie
+- Un MUSEO va SEMPRE in categoria "musei", MAI in "monumenti"
+- Un RISTORANTE va SEMPRE in categoria "ristoranti", MAI in "mercati"
+- Un PARCO NATURALE va SEMPRE in categoria "parchi", MAI in "giardini"
+- Una CHIESA va SEMPRE in categoria "chiese", MAI in "monumenti"
+- Ogni attrazione ha UNA SOLA categoria che corrisponde perfettamente al suo tipo principale
 - Distribuisci le 20 attrazioni tra tutte le categorie (almeno 1 per categoria)
-- ESCLUSIVAMENTE attrazioni che si trovano effettivamente entro 50km dall'area di riferimento
-- Verifica attentamente le distanze reali
+- ESCLUSIVAMENTE attrazioni reali entro 50km dall'area specificata
 
 Per ogni attrazione, fornisci:
 - Nome preciso
@@ -95,6 +99,22 @@ Per ogni attrazione, fornisci:
 - Durata consigliata della visita
 - Fascia di prezzo (gratuito/economico/medio/costoso)
 - Momento migliore per visitare
+
+ESEMPI DI CATEGORIZZAZIONE CORRETTA:
+✅ "Lago di Bracciano" → categoria: "laghi" (NON "monumenti" o "parchi")
+✅ "Museo Etrusco" → categoria: "musei" (NON "archeologia" o "monumenti")
+✅ "Castello Odescalchi" → categoria: "monumenti" (NON "musei" o "borghi")
+✅ "Basilica di San Pietro" → categoria: "chiese" (NON "monumenti" o "archeologia")
+✅ "Borgo di Calcata" → categoria: "borghi" (NON "monumenti" o "archeologia")
+✅ "Trattoria da Mario" → categoria: "ristoranti" (NON "mercati")
+✅ "Parco dei Monti Cimini" → categoria: "parchi" (NON "trekking" o "laghi")
+
+ATTENZIONE FINALE:
+- Ogni attrazione DEVE avere la categoria che corrisponde ESATTAMENTE al suo tipo principale
+- Non inventare categorie diverse dalle 15 elencate
+- Un lago NON può essere categorizzato come "monumenti" o "eventi culturali"
+- Una chiesa NON può essere categorizzata come "musei" o "archeologia"
+- Verifica SEMPRE che categoria scelta corrisponda al nome e tipo dell'attrazione
 
 Trova esattamente 20 attrazioni diverse e interessanti distribuite tra le 15 categorie. Rispondi in formato JSON con questa struttura:
 
