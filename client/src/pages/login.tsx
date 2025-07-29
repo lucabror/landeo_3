@@ -347,7 +347,7 @@ export default function Login({ userType }: LoginProps) {
               alt="Landeo" 
               className="h-16 w-auto mx-auto mb-2"
             />
-            <p className="text-xs text-amber-700 font-medium italic">
+            <p className="text-amber-700 tracking-wide whitespace-nowrap text-[17px] font-light">
               Itinerari su misura
             </p>
           </div>

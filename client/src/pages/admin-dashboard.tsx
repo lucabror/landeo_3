@@ -286,7 +286,7 @@ function AdminDashboardContent() {
               alt="Landeo" 
               className="h-12 w-auto mb-2"
             />
-            <p className="text-xs text-amber-700 font-medium italic">
+            <p className="text-amber-700 tracking-wide whitespace-nowrap text-[17px] font-light">
               Itinerari su misura
             </p>
           </div>

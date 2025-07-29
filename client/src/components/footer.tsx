@@ -15,9 +15,8 @@ export default function Footer() {
                     alt="Landeo" 
                     className="h-10 w-auto block"
                   />
-                  <div className="w-full h-px bg-gray-600 my-2"></div>
-                  <p className="text-xs text-amber-300 font-medium tracking-wide whitespace-nowrap">
-                    Itinerari su misura, emozioni autentiche
+                  <p className="text-amber-300 tracking-wide whitespace-nowrap text-[15px] font-light">
+                    Itinerari su misura
                   </p>
                 </div>
               </div>

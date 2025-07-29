@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: ✅ AGGIORNATO slogan aziendale da "Itinerari su misura, emozioni autentiche" a "Itinerari su misura"
+  - Rimossa linea di separazione sotto il logo in tutte le pagine
+  - Applicato nuovo styling: text-[17px] font-light per header pagine principali
+  - Aggiornati tutti i componenti: landing, login, contact, support, about, terms, privacy, admin-dashboard
+  - Footer utilizza text-[15px] font-light per consistenza visiva
+  - Mantenuto colore amber-700 per coerenza con brand Landeo
 - **2025-01-29**: ✅ IMPLEMENTATI form di supporto e contatto che inviano email a borroluca@gmail.com
   - Pagina Support: sostituito semplice link con form completo (nome, email, oggetto, messaggio)
   - Pagina Contact: trasformato form statico in form funzionale con validazione Zod

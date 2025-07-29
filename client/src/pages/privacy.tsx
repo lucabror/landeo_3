@@ -105,8 +105,7 @@ export default function Privacy() {
                     alt="Landeo" 
                     className="h-12 w-auto block"
                   />
-                  <div className="w-full h-px bg-gray-200 my-2"></div>
-                  <p className="text-xs text-amber-700 font-medium tracking-wide whitespace-nowrap">
+                  <p className="text-amber-700 tracking-wide whitespace-nowrap text-[17px] font-light">
                     Itinerari su misura
                   </p>
                 </div>
