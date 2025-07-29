@@ -10,12 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-- **2025-01-29**: ✅ IMPLEMENTATO form di supporto completo che invia email a borroluca@gmail.com
-  - Sostituito semplice link "Invia Email" con form di contatto professionale
-  - Campi del form: nome, email, oggetto, messaggio con validazione Zod completa
-  - Endpoint API /api/contact/send-support per gestione invio email via SendGrid
-  - Email formattata professionalmente con design Landeo e reply-to dell'utente
-  - Funzione sendSupportEmail nel servizio email per invio automatico al supporto
+- **2025-01-29**: ✅ IMPLEMENTATI form di supporto e contatto che inviano email a borroluca@gmail.com
+  - Pagina Support: sostituito semplice link con form completo (nome, email, oggetto, messaggio)
+  - Pagina Contact: trasformato form statico in form funzionale con validazione Zod
+  - Entrambi i form utilizzano endpoint API /api/contact/send-support per invio email via SendGrid
+  - Email formattate professionalmente con design Landeo e reply-to dell'utente mittente
+  - Form Contact include campi aggiuntivi: nome hotel, telefono per richieste commerciali
+  - Funzione sendSupportEmail centralizzata nel servizio email per gestione unificata
 - **2025-01-29**: ✅ AGGIORNATA pagina Termini e Condizioni con testo legale ufficiale
   - Sostituito completamente contenuto pagina con testo ufficiale fornito dall'utente
   - Aggiunto link "Informativa Privacy" che reindirizza alla pagina Privacy di Landeo
