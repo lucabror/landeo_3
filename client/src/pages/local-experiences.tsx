@@ -1057,20 +1057,21 @@ export default function LocalExperiences() {
                         
                         <div className="space-y-2 text-xs text-gray-500">
                           <div className="flex items-center">
-                            <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
-                            <span className="truncate">{experience.location}</span>
+                            <MapPin className="h-3 w-3 mr-1 flex-shrink-0 text-blue-600" />
+                            <span className="truncate font-medium">{experience.location}</span>
                           </div>
                           
                           {experience.distance && (
                             <div className="flex items-center">
-                              <Clock className="h-3 w-3 mr-1 flex-shrink-0" />
-                              <span>{experience.distance}</span>
+                              <MapPin className="h-3 w-3 mr-1 flex-shrink-0 text-green-600" />
+                              <span className="font-medium">{experience.distance}</span>
+                              <span className="ml-1 text-gray-400">dal CAP hotel</span>
                             </div>
                           )}
                           
                           {experience.duration && (
                             <div className="flex items-center">
-                              <Clock className="h-3 w-3 mr-1 flex-shrink-0" />
+                              <Clock className="h-3 w-3 mr-1 flex-shrink-0 text-purple-600" />
                               <span>{experience.duration}</span>
                             </div>
                           )}

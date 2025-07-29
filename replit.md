@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: ✅ MIGLIORATA visualizzazione esperienze locali con informazioni complete
+  - Aggiunto luogo dell'attrazione con icona MapPin blu e testo in grassetto
+  - Migliorata visualizzazione distanza dal CAP hotel con icona MapPin verde
+  - Aggiunta etichetta esplicativa "dal CAP hotel" per chiarezza
+  - Differenziazione visiva: luogo (blu), distanza (verde), durata (viola)
+  - Informazioni ora chiaramente leggibili e ben organizzate nelle card esperienze
 - **2025-01-29**: ✅ COMPLETATO supporto multilingue end-to-end per intero sistema itinerari
   - Implementati template multilingui per prompt OpenAI in italiano e inglese
   - Sistema genera itinerari nella lingua dell'ospite basata su emailLanguage del guest profile  
