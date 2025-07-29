@@ -45,6 +45,8 @@ import type { InsertLocalExperience } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
 
 import { LANDEO_CATEGORIES } from "@shared/categories";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import GeolocationAnalysis from "@/components/GeolocationAnalysis";
 
 const CATEGORIES = [
   // Storia e Cultura (6 categorie)
@@ -492,8 +494,23 @@ export default function LocalExperiences() {
               Gestisci le esperienze e attività locali convenzionate con l'hotel
             </p>
           </div>
+        </div>
+
+        <Tabs defaultValue="experiences" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsTrigger value="experiences" className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              Gestione Esperienze
+            </TabsTrigger>
+            <TabsTrigger value="geolocation" className="flex items-center gap-2">
+              <Target className="h-4 w-4" />
+              Analisi Geolocalizzazione
+            </TabsTrigger>
+          </TabsList>
           
-          <div className="flex gap-2">
+          <TabsContent value="experiences" className="space-y-6">
+            <div className="flex gap-2">
+
 
             <Button 
               onClick={() => generateAttractionsMutation.mutate()}
@@ -803,7 +820,6 @@ export default function LocalExperiences() {
             </DialogContent>
             </Dialog>
           </div>
-        </div>
 
         {/* Pending Attractions Section */}
         {pendingAttractions.length > 0 && (
@@ -1136,6 +1152,12 @@ export default function LocalExperiences() {
             )}
           </>
         )}
+          </TabsContent>
+          
+          <TabsContent value="geolocation" className="space-y-6">
+            <GeolocationAnalysis />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

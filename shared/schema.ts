@@ -72,7 +72,14 @@ export const localExperiences = pgTable("local_experiences", {
   rating: text("rating"),
   imageUrl: text("image_url"),
   isActive: boolean("is_active").default(true),
-  // Nuovi campi per il sistema AI
+  // AI enhanced fields
+  distanceKm: integer("distance_km"), // Distance from hotel in kilometers
+  whyRecommended: text("why_recommended"), // AI explanation for recommendation
+  // Enhanced geolocation fields
+  experienceLatitude: text("experience_latitude"),
+  experienceLongitude: text("experience_longitude"),
+  geoAccuracy: text("geo_accuracy"), // 'high', 'medium', 'low'
+  lastGeoUpdate: timestamp("last_geo_update"),
   aiGenerated: boolean("ai_generated").default(false),
   attractionType: text("attraction_type"),
   estimatedDistance: text("estimated_distance"),
