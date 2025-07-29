@@ -2,6 +2,16 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { 
   HelpCircle, 
   Mail, 
@@ -11,21 +21,59 @@ import {
   Video,
   Search,
   Clock,
-  CheckCircle
+  CheckCircle,
+  Send
 } from "lucide-react";
 import landeoLogo from "@assets/landeo def_1753695256255.png";
 import Footer from "@/components/footer";
 
+const contactFormSchema = z.object({
+  name: z.string().min(2, "Il nome deve avere almeno 2 caratteri"),
+  email: z.string().email("Email non valida"),
+  subject: z.string().min(5, "L'oggetto deve avere almeno 5 caratteri"),
+  message: z.string().min(10, "Il messaggio deve avere almeno 10 caratteri")
+});
+
+type ContactFormData = z.infer<typeof contactFormSchema>;
+
 export default function Support() {
-  const supportOptions = [
-    {
-      icon: Mail,
-      title: "Email Support",
-      description: "Supporto via email con risposta entro 24 ore",
-      action: "Invia Email",
-      href: "mailto:borroluca@gmail.com",
-      availability: "24/7"
+  const { toast } = useToast();
+  
+  const form = useForm<ContactFormData>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      subject: "",
+      message: ""
+    }
+  });
+
+  const sendEmailMutation = useMutation({
+    mutationFn: async (data: ContactFormData) => {
+      return await apiRequest("/api/contact/send-support", "POST", data);
     },
+    onSuccess: () => {
+      toast({
+        title: "Email inviata con successo",
+        description: "Ti risponderemo entro 24 ore all'indirizzo che hai fornito."
+      });
+      form.reset();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore nell'invio",
+        description: error.message || "Si è verificato un errore. Riprova più tardi.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const onSubmit = (data: ContactFormData) => {
+    sendEmailMutation.mutate(data);
+  };
+
+  const supportOptions = [
     {
       icon: Phone,
       title: "Supporto Telefonico",
@@ -173,8 +221,105 @@ export default function Support() {
           </p>
         </div>
 
-        {/* Support Options */}
+        {/* Contact Form and Support Options */}
         <div className="grid md:grid-cols-2 gap-8 mb-16">
+          {/* Email Contact Form */}
+          <Card className="border-amber-100 hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mail className="w-8 h-8 text-amber-700" />
+              </div>
+              <CardTitle className="text-xl text-gray-900 text-center">Email Support</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 mb-4 text-center">Supporto via email con risposta entro 24 ore</p>
+              <div className="flex items-center justify-center mb-6">
+                <Clock className="w-4 h-4 text-gray-500 mr-2" />
+                <span className="text-sm text-gray-600">24/7</span>
+              </div>
+              
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nome</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Il tuo nome" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="La tua email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="subject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Oggetto</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Oggetto del messaggio" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Messaggio</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Descrivici il tuo problema o la tua domanda..."
+                            className="min-h-[100px]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-amber-700 hover:bg-amber-800 text-white"
+                    disabled={sendEmailMutation.isPending}
+                  >
+                    {sendEmailMutation.isPending ? (
+                      "Invio in corso..."
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Invia Messaggio
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+
+          {/* Phone Support */}
           {supportOptions.map((option, index) => (
             <Card key={index} className="border-amber-100 hover:shadow-lg transition-shadow text-center">
               <CardHeader>
@@ -189,9 +334,11 @@ export default function Support() {
                   <Clock className="w-4 h-4 text-gray-500 mr-2" />
                   <span className="text-sm text-gray-600">{option.availability}</span>
                 </div>
-                <Button className="w-full bg-amber-700 hover:bg-amber-800 text-white">
-                  {option.action}
-                </Button>
+                <a href={option.href}>
+                  <Button className="w-full bg-amber-700 hover:bg-amber-800 text-white">
+                    {option.action}
+                  </Button>
+                </a>
               </CardContent>
             </Card>
           ))}
