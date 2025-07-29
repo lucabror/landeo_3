@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: Implementato prompt AI semplificato con format Markdown e 20 categorie numerate
+  - Sostituito prompt C.R.A.F.T. complesso con versione diretta e precisa fornita dall'utente
+  - Nuovo formato: 20 categorie numerate (1. Museo, 2. Sito Archeologico, etc.) invece di gruppi
+  - Output cambiato da JSON a tabelle Markdown con colonne: Nome, Categoria, Distanza, Descrizione, Perché consigliata
+  - Aggiunto sistema parsing Markdown con mapping automatico categorie AI → categorie sistema
+  - Mantenuto modello gpt-4o per compatibilità e integrazione dati hotel (CAP, città) nel prompt
+  - Sistema garantisce assegnazione univoca: ogni attrazione in UNA SOLA categoria delle 20 ammesse
 - **2025-01-29**: Integrato prompt professionale C.R.A.F.T. per generazione AI esperienze locali
   - Sostituito vecchio prompt confuso (185 righe) con struttura professionale chiara
   - Allineate tutte le 20 categorie LANDEO_CATEGORIES nel prompt AI (prima erano solo 15)

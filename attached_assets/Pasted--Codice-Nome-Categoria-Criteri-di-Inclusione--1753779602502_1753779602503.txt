@@ -1,0 +1,22 @@
+| Codice | Nome Categoria                  | Criteri di Inclusione                                                                   | Esclude                                  |
+| ------ | ------------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------- |
+| 1      | Museo                           | Musei pubblici o privati, visitabili, con esposizioni permanenti                        | Gallerie commerciali                     |
+| 2      | Sito Archeologico               | Scavi, rovine, necropoli, aree romane/etrusche ecc.                                     | Castelli, monumenti medievali            |
+| 3      | Monumento Storico               | Castelli, torri, palazzi storici, monumenti nazionali                                   | Chiese                                   |
+| 4      | Chiesa o Luogo Religioso        | Cattedrali, basiliche, pievi, santuari                                                  | Edifici storici senza funzione religiosa |
+| 5      | Borgo Storico                   | Piccoli centri storici abitati con rilevanza architettonica o culturale                 | Città moderne                            |
+| 6      | Evento Culturale                | Festival, rievocazioni, mostre temporanee, stagioni teatrali                            | Musei, monumenti permanenti              |
+| 7      | Ristorante Tipico               | Cucina regionale autentica, locali premiati, o segnalati in guide gastronomiche         | Fast food, locali generici               |
+| 8      | Cantina / Enoteca               | Cantine visitabili, degustazioni, enoteche di vini locali                               | Bar                                      |
+| 9      | Mercato o Bottega Locale        | Mercati storici, botteghe artigiane legate al cibo o ai prodotti tipici                 | Supermercati, negozi generici            |
+| 10     | Laboratorio Artigianale         | Laboratori aperti al pubblico: ceramica, dolci tipici, cioccolato, tessuti              | Negozi che solo vendono                  |
+| 11     | Parco Naturale                  | Riserve, parchi nazionali, oasi WWF, aree protette                                      | Giardini urbani                          |
+| 12     | Trekking / Escursione           | Percorsi a piedi o in natura segnalati e accessibili al pubblico                        | Escursioni in bici                       |
+| 13     | Lago / Spiaggia                 | Laghi balneabili, spiagge interne o marine accessibili                                  | Fiumi non balneabili                     |
+| 14     | Giardino Botanico / Storico     | Giardini con valenza botanica o architettonica                                          | Aree verdi urbane anonime                |
+| 15     | Sport Avventura / Outdoor       | Equitazione, arrampicata, kayak, parapendio, vela, sci, ciaspolate                      | Trekking standard                        |
+| 16     | Cicloturismo                    | Percorsi ciclabili attrezzati, piste segnalate, noleggio bici                           | Escursioni a piedi                       |
+| 17     | Centro Termale / SPA            | Stabilimenti termali naturali o wellness center con acque certificate                   | Centri estetici generici                 |
+| 18     | Shopping Locale                 | Boutique di design, artigianato locale, mercatini dell’antiquariato                     | Centri commerciali generici              |
+| 19     | Locali / Divertimento           | Locali notturni, eventi musicali, cinema storici                                        | Festival culturali                       |
+| 20     | Esperienza Unica del Territorio | Attività esperienziali specifiche del luogo (es. caccia al tartufo, raccolta zafferano) | Attività generiche non identitarie       |

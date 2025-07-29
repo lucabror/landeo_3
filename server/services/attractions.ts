@@ -22,6 +22,88 @@ interface AttractionSearchResult {
   totalFound: number;
 }
 
+// Map delle categorie dal prompt alle categorie standard del sistema
+const categoryMapping: Record<string, string> = {
+  'Museo': 'musei',
+  'Sito Archeologico': 'archeologia',
+  'Monumento Storico': 'monumenti',
+  'Chiesa o Luogo Religioso': 'chiese',
+  'Borgo Storico': 'borghi',
+  'Evento Culturale': 'cultura',
+  'Ristorante Tipico': 'ristoranti',
+  'Cantina / Enoteca': 'vino',
+  'Mercato o Bottega Locale': 'mercati',
+  'Laboratorio Artigianale': 'mercati',
+  'Parco Naturale': 'parchi',
+  'Trekking / Escursione': 'trekking',
+  'Lago / Spiaggia': 'laghi',
+  'Giardino Botanico / Storico': 'giardini',
+  'Sport Avventura / Outdoor': 'sport',
+  'Cicloturismo': 'ciclismo',
+  'Centro Termale / SPA': 'terme',
+  'Shopping Locale': 'shopping',
+  'Locali / Divertimento': 'divertimento',
+  'Esperienza Unica del Territorio': 'cultura'
+};
+
+// Parsing della tabella Markdown generata dall'AI
+function parseMarkdownTable(markdownContent: string, hotelCity: string | null, hotelRegion: string | null): LocalAttraction[] {
+  const attractions: LocalAttraction[] = [];
+  const lines = markdownContent.split('\n');
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    // Skip header lines and separators
+    if (!line.includes('|') || line.includes('---') || line.includes('Nome') || line.includes('Categoria')) {
+      continue;
+    }
+    
+    // Parse table row: | Nome | Categoria | Distanza (km) | Descrizione | Perché è consigliata |
+    const columns = line.split('|').map(col => col.trim()).filter(col => col);
+    
+    if (columns.length >= 5) {
+      const name = columns[0];
+      const categoryFromAI = columns[1];
+      const distance = columns[2];
+      const description = columns[3];
+      const whyRecommended = columns[4];
+      
+      // Map AI category to system category
+      const mappedCategory = categoryMapping[categoryFromAI] || 'cultura';
+      
+      // Determine type based on category
+      let type: 'restaurant' | 'museum' | 'exhibition' | 'nature' | 'sport' | 'monument' | 'shopping' | 'entertainment' | 'other' = 'other';
+      if (['musei', 'archeologia', 'monumenti', 'chiese', 'borghi'].includes(mappedCategory)) {
+        type = 'museum';
+      } else if (['ristoranti', 'vino', 'mercati'].includes(mappedCategory)) {
+        type = 'restaurant';
+      } else if (['parchi', 'trekking', 'laghi', 'giardini'].includes(mappedCategory)) {
+        type = 'nature';
+      } else if (['sport', 'ciclismo', 'terme'].includes(mappedCategory)) {
+        type = 'sport';
+      } else if (['shopping', 'divertimento'].includes(mappedCategory)) {
+        type = 'entertainment';
+      }
+      
+      attractions.push({
+        name,
+        type,
+        description,
+        location: `${hotelCity}, ${hotelRegion}`,
+        estimatedDistance: distance,
+        category: mappedCategory,
+        highlights: [whyRecommended],
+        recommendedDuration: '1-2 ore',
+        priceRange: 'medio',
+        bestTimeToVisit: 'Tutto il giorno'
+      });
+    }
+  }
+  
+  return attractions.slice(0, 40); // Max 40 attrazioni
+}
+
 export async function findLocalAttractions(
   hotelCity: string | null, 
   hotelRegion: string | null, 
@@ -49,79 +131,41 @@ export async function findLocalAttractions(
     }
     
     const prompt = `
-C – Contesto
-Sei incaricato di costruire una guida territoriale di altissimo livello per l'hotel "${hotel?.name || 'Hotel'}" situato in ${hotelCity}, ${hotelRegion}, Italia (CAP ${hotelPostalCode}). Il compito è raccogliere tra 20 e 40 attrazioni uniche entro 50 km in linea d'aria dal CAP dell'hotel. Ogni attrazione dovrà essere assegnata a una categoria tematica specifica, rispettando criteri rigorosi di coerenza: nessuna attrazione può rientrare in una categoria sbagliata o essere generica. Il materiale sarà usato per scopi editoriali, commerciali e promozionali.
+Contesto:
+Sei un esperto in promozione turistica territoriale e hospitality. Devi trovare tra 20 e 40 attrazioni realmente esistenti entro un raggio di 50 km dal CAP ${hotelPostalCode} nella città di ${hotelCity}, in Italia. Ogni attrazione deve essere assegnata a UNA SOLA categoria tra le 20 elencate sotto. Non ci devono essere ambiguità. Nessuna attrazione può appartenere a più di una categoria.
 
-R – Ruolo
-Assumi il ruolo di un esperto senior in valorizzazione turistica territoriale, con 20+ anni di esperienza nella promozione del patrimonio artistico, culturale, gastronomico e naturalistico italiano. Sei anche consulente per DMO, enti regionali e operatori dell'hospitality di fascia medio-alta. La tua competenza unisce precisione categoriale, sensibilità narrativa e attenzione all'esperienza reale del turista.
+Categorie ammesse:
+1. Museo
+2. Sito Archeologico
+3. Monumento Storico
+4. Chiesa o Luogo Religioso
+5. Borgo Storico
+6. Evento Culturale
+7. Ristorante Tipico
+8. Cantina / Enoteca
+9. Mercato o Bottega Locale
+10. Laboratorio Artigianale
+11. Parco Naturale
+12. Trekking / Escursione
+13. Lago / Spiaggia
+14. Giardino Botanico / Storico
+15. Sport Avventura / Outdoor
+16. Cicloturismo
+17. Centro Termale / SPA
+18. Shopping Locale
+19. Locali / Divertimento
+20. Esperienza Unica del Territorio
 
-A – Azione
-Prendi come punto di riferimento il CAP ${hotelPostalCode} dell'hotel, considerandolo centro del raggio di 50 km.
+Per ogni attrazione fornisci:
+- Nome dell'attrazione
+- Categoria (esattamente come da lista sopra)
+- Distanza approssimativa in km dal CAP ${hotelPostalCode}
+- Breve descrizione (max 3 righe)
+- Motivo per cui è consigliata (max 1 riga)
 
-Identifica da 20 a 40 punti di interesse verificabili e realmente accessibili che siano perfettamente coerenti con una delle seguenti 5 macrocategorie, ciascuna con sotto-categorie e numero minimo di risultati:
-
-🎨 **Storia e Cultura (min. 6)**
-Sotto-categorie: musei, monumenti, chiese, borghi, archeologia, cultura
-Requisito: solo attrazioni che offrono valore storico o culturale verificabile e ufficialmente riconosciuto (es. sito UNESCO, vincolo MiBACT)
-
-🍷 **Gastronomia (min. 4)**
-Sotto-categorie: ristoranti, vino, mercati, dolci
-Requisito: ogni attrazione deve offrire un'esperienza gastronomica reale, non solo "presenza di un ristorante"
-
-🌿 **Natura e Outdoor (min. 5)**
-Sotto-categorie: parchi, trekking, laghi, giardini, spiagge
-Requisito: ogni luogo deve essere fruibile all'aperto, con valore naturalistico specifico
-
-🧘 **Sport e Benessere (min. 3)**
-Sotto-categorie: sport, ciclismo, terme
-Requisito: attività praticabili da turisti non professionisti in visita breve
-
-🛍️ **Shopping e Divertimento (min. 2)**
-Sotto-categorie: shopping, divertimento
-Requisito: il luogo deve essere un punto di aggregazione e intrattenimento, non generico
-
-CATEGORIE ESATTE DA UTILIZZARE:
-- musei, monumenti, chiese, borghi, archeologia, cultura
-- ristoranti, vino, mercati, dolci
-- parchi, trekking, laghi, giardini, spiagge
-- sport, ciclismo, terme
-- shopping, divertimento
-
-Per ogni attrazione includi:
-- Nome specifico
-- Categoria esatta come da elenco sopra
-- Distanza stimata in km da ${referencePoint}
-- Descrizione coinvolgente (massimo 3 righe, con linguaggio evocativo ma oggettivo)
-- Motivo per cui è consigliata (1 riga con focus esperienziale)
-
-REGOLE FERREE:
-- Ogni attrazione deve comparire solo in una categoria e non può essere duplicata
-- Non inserire attrazioni chiuse, non accessibili al pubblico, dubbie o non documentabili
-- Cura l'equilibrio tematico: il risultato finale deve essere armonico e utile per una guida turistica concreta
-- NO attrazioni generiche (es: "centro storico", "piazza principale")
-
-${!hotelCoordinates && hotelPostalCode ? `IMPORTANTE: L'hotel è stato inserito manualmente e l'unica informazione geografica precisa è il CAP ${hotelPostalCode}. Utilizza ESCLUSIVAMENTE questo codice postale per localizzare l'area e trovare attrazioni turistiche entro 50km. Per le distanze, usa "${referencePoint}" come punto di riferimento invece del CAP.` : hotelPostalCode ? `IMPORTANTE: L'area di riferimento è identificata dal CAP ${hotelPostalCode} nella zona di ${hotelCity}, ${hotelRegion}. Utilizza questo codice postale per localizzare esattamente l'area e trovare attrazioni nelle immediate vicinanze.` : ''}
-
-{
-  "attractions": [
-    {
-      "name": "Nome attrazione reale",
-      "category": "categoria specifica",
-      "type": "museum|restaurant|nature|sport|shopping|entertainment|monument|other",
-      "description": "Descrizione coinvolgente max 3 righe",
-      "location": "Indirizzo o zona specifica",
-      "estimatedDistance": "X km da ${referencePoint}",
-      "whyRecommended": "Perché è consigliata (1 riga)",
-      "highlights": ["Punto 1", "Punto 2", "Punto 3", "Punto 4"],
-      "recommendedDuration": "1-2 ore",
-      "priceRange": "gratuito|economico|medio|costoso",
-      "bestTimeToVisit": "Mattina|Pomeriggio|Sera|Tutto il giorno"
-    }
-  ]
-}
-
-T – Target Audience
-Albergatori, receptionist, travel designer e content creator italiani che desiderano creare esperienze su misura per ospiti italiani e stranieri, amanti della cultura, dell'enogastronomia, della natura e dell'autenticità. Il tono deve essere ispirazionale ma concreto, facile da comunicare oralmente a un cliente o da inserire in una brochure.`;
+Restituisci il risultato in formato Markdown, ordinando le attrazioni per categoria (dal punto 1 al 20) e usando tabelle con queste colonne:
+| Nome | Categoria | Distanza (km) | Descrizione | Perché è consigliata |
+`;
 
     console.log(`Searching for attractions near ${searchArea}`);
     console.log(`Reference point for distances: ${referencePoint}`);
@@ -131,41 +175,25 @@ Albergatori, receptionist, travel designer e content creator italiani che deside
       messages: [
         {
           role: "system",
-          content: "Sei un esperto di turismo locale in Italia. Rispondi sempre in italiano e fornisci informazioni accurate e aggiornate sulle attrazioni turistiche."
+          content: "Sei un esperto di turismo locale in Italia. Rispondi sempre in italiano e fornisci informazioni accurate e aggiornate sulle attrazioni turistiche. Rispondi SEMPRE in formato Markdown usando tabelle."
         },
         {
           role: "user",
           content: prompt
         }
       ],
-      response_format: { type: "json_object" },
       temperature: 0.7,
       max_tokens: 4000
     });
 
-    const result = JSON.parse(response.choices[0].message.content || '{}');
+    const markdownContent = response.choices[0].message.content || '';
     
-    if (!result.attractions || !Array.isArray(result.attractions)) {
-      throw new Error('Formato risposta OpenAI non valido');
+    if (!markdownContent.includes('|')) {
+      throw new Error('Formato risposta OpenAI non valido - expected Markdown table');
     }
 
-    // Valida e pulisce i dati
-    const validatedAttractions: LocalAttraction[] = result.attractions
-      .slice(0, 20) // Assicura max 20 attrazioni
-      .map((attraction: any) => ({
-        name: attraction.name || 'Attrazione sconosciuta',
-        type: ['restaurant', 'museum', 'exhibition', 'nature', 'sport', 'monument', 'shopping', 'entertainment', 'other']
-          .includes(attraction.type) ? attraction.type : 'other',
-        description: attraction.description || 'Descrizione non disponibile',
-        location: attraction.location || `${hotelCity}, ${hotelRegion}`,
-        estimatedDistance: attraction.estimatedDistance || 'Distanza non specificata',
-        category: attraction.category || 'Generale',
-        highlights: Array.isArray(attraction.highlights) ? attraction.highlights.slice(0, 4) : [],
-        recommendedDuration: attraction.recommendedDuration || '1-2 ore',
-        priceRange: ['gratuito', 'economico', 'medio', 'costoso']
-          .includes(attraction.priceRange) ? attraction.priceRange : 'medio',
-        bestTimeToVisit: attraction.bestTimeToVisit || 'Tutto il giorno'
-      }));
+    // Parse delle tabelle Markdown per estrarre le attrazioni
+    const validatedAttractions: LocalAttraction[] = parseMarkdownTable(markdownContent, hotelCity, hotelRegion);
 
     console.log(`Found ${validatedAttractions.length} attractions for ${searchArea}`);
 
