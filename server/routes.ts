@@ -22,10 +22,10 @@ import { generateItinerary } from "./services/openai";
 import { generateQRCode } from "./services/qr";
 import { generateItineraryPDF } from "./services/pdf";
 import { enrichHotelData, isValidItalianLocation } from "./services/geocoding";
-import { findLocalAttractions, attractionToLocalExperience } from "./services/attractions";
+// Attractions service temporaneo rimosso per ricostruzione
 import { sendGuestPreferencesEmail, sendCreditPurchaseInstructions, sendItineraryPDF } from "./services/email";
 import { generateGuestSpecificItinerary } from "./services/itinerary-generator";
-import { calculateExperienceMatches } from "./services/preference-matcher";
+// Preference matcher temporaneamente rimosso per ricostruzione
 import { requireAuth } from "./services/security";
 import { randomUUID } from "crypto";
 import QRCode from "qrcode";
@@ -1143,101 +1143,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI generation for local experiences
+  // AI generation for local experiences - TEMPORANEAMENTE DISABILITATO
   app.post("/api/hotels/:hotelId/local-experiences/generate", async (req, res) => {
-    try {
-      const hotel = await storage.getHotel(req.params.hotelId);
-      if (!hotel) {
-        return res.status(404).json({ message: "Hotel not found" });
-      }
-
-      console.log(`Generating attractions for hotel: ${hotel.name} in ${hotel.city}, ${hotel.region}, CAP: ${hotel.postalCode}`);
-      console.log(`Hotel coordinates: lat=${hotel.latitude}, lon=${hotel.longitude}`);
-
-      // Check if hotel has minimum required location data
-      if (!hotel.city || !hotel.region || !hotel.postalCode) {
-        console.error(`Hotel ${hotel.name} missing city, region, or postal code data`);
-        return res.status(400).json({ message: "Hotel must have city, region, and postal code to generate local experiences" });
-      }
-
-      // Check if hotel has valid coordinates, if not try to get them via geocoding
-      let coordinates = null;
-      if (hotel.latitude && hotel.longitude && hotel.latitude !== '' && hotel.longitude !== '') {
-        coordinates = { latitude: hotel.latitude, longitude: hotel.longitude };
-        console.log('Using existing hotel coordinates');
-      } else {
-        console.log('Hotel coordinates missing, attempting geocoding...');
-        // Try to get coordinates using geocoding service
-        try {
-          const { geocodeHotel } = await import('./services/geocoding');
-          const geocodedHotel = await geocodeHotel(`${hotel.name} ${hotel.postalCode} ${hotel.city} ${hotel.region}`);
-          if (geocodedHotel && geocodedHotel.latitude && geocodedHotel.longitude) {
-            coordinates = { 
-              latitude: geocodedHotel.latitude, 
-              longitude: geocodedHotel.longitude 
-            };
-            console.log(`Geocoding successful: lat=${coordinates.latitude}, lon=${coordinates.longitude}`);
-            // Update hotel with found coordinates for future use
-            await storage.updateHotel(hotel.id, {
-              latitude: geocodedHotel.latitude,
-              longitude: geocodedHotel.longitude
-            });
-          } else {
-            console.log('Geocoding returned no results');
-          }
-        } catch (geocodeError) {
-          console.log('Geocoding failed:', geocodeError);
-          console.log('Proceeding with city/region only for AI generation');
-        }
-      }
-
-      // Decide generation strategy based on whether hotel has precise coordinates
-      let pendingAttractions;
-      if (coordinates) {
-        // Hotel geolocalizzato: usa posizione precisa
-        console.log(`Hotel geolocalizzato - usando coordinate precise: lat=${coordinates.latitude}, lon=${coordinates.longitude}`);
-        pendingAttractions = await findLocalAttractions(
-          hotel.city, 
-          hotel.region, 
-          coordinates,
-          hotel.postalCode,
-          { name: hotel.name }
-        );
-      } else {
-        // Hotel inserito manualmente: usa solo CAP per generare attrazioni entro 50km, ma passa città per reference
-        console.log(`Hotel inserito manualmente - usando solo CAP ${hotel.postalCode} per generare attrazioni entro 50km`);
-        pendingAttractions = await findLocalAttractions(
-          hotel.city, // Passa città per riferimento nelle distanze
-          hotel.region, // Passa regione per riferimento nelle distanze
-          null, // Non passare coordinate
-          hotel.postalCode, // Solo CAP
-          { name: hotel.name }
-        );
-      }
-      
-      console.log(`Found ${pendingAttractions.attractions.length} attractions`);
-      
-      const experiences = await Promise.all(
-        pendingAttractions.attractions.map(async (attraction, index) => {
-          try {
-            const experience = attractionToLocalExperience(attraction, hotel.id);
-            console.log(`Creating experience ${index + 1}: ${experience.name}`);
-            const created = await storage.createLocalExperience(experience);
-            console.log(`Successfully created experience: ${created.name}`);
-            return created;
-          } catch (error) {
-            console.error(`Failed to create experience ${index + 1} (${attraction.name}):`, error);
-            throw error;
-          }
-        })
-      );
-
-      console.log(`Created ${experiences.length} local experiences`);
-      res.status(201).json(experiences);
-    } catch (error) {
-      console.error("Error generating local experiences:", error);
-      res.status(500).json({ message: "Failed to generate local experiences: " + (error instanceof Error ? error.message : String(error)) });
-    }
+    res.status(503).json({ 
+      message: "Generazione AI temporaneamente non disponibile - sezione in ricostruzione",
+      code: "SERVICE_UNAVAILABLE" 
+    });
   });
 
   // Local experience matching with guest preferences
@@ -1259,7 +1170,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Guest preferences:`, guestProfile.preferences);
 
       // Fixed parameter order: guestProfile first, then experiences
-      const matches = calculateExperienceMatches(guestProfile, experiences);
+      // Matching temporaneamente disabilitato durante ricostruzione
+      const matches = { matches: [], coverage: 0 };
       console.log(`Calculated ${matches.length} matches`);
       
       res.json({ matches });

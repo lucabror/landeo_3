@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import type { Hotel, GuestProfile, LocalExperience } from "@shared/schema";
 import { storage } from "../storage";
 import { randomUUID } from "crypto";
-import { calculateExperienceMatches } from './preference-matcher';
+// Preference matcher temporaneamente rimosso
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -29,20 +29,14 @@ export async function generateGuestSpecificItinerary(
     dates.push(currentDate.toISOString().split('T')[0]);
   }
 
-  // Calculate preference matches for intelligent selection
-  const experienceMatches = calculateExperienceMatches(guestProfile, localExperiences);
+  // Matching temporaneamente disabilitato durante ricostruzione
+  const experienceMatches: any[] = [];
   
-  console.log('=== MATCHING ANALYSIS ===');
+  console.log('=== MATCHING ANALYSIS - TEMPORANEAMENTE DISABILITATO ===');
   console.log(`Guest preferences: ${guestProfile.preferences?.join(', ') || 'None'}`);
-  experienceMatches.forEach(match => {
-    console.log(`${match.experience.name} (${match.experience.category}): ${match.matchType} match (score: ${match.matchScore})`);
-    if (match.matchingPreferences.length > 0) {
-      console.log(`  → Matches: ${match.matchingPreferences.join(', ')}`);
-    }
-  });
 
-  // Separate experiences by match quality
-  const highMatchExperiences = experienceMatches.filter(m => m.matchType === 'high');
+  // Separazione esperienze temporaneamente disabilitata
+  const highMatchExperiences: any[] = [];
   const mediumMatchExperiences = experienceMatches.filter(m => m.matchType === 'medium');
   const lowMatchExperiences = experienceMatches.filter(m => m.matchType === 'low');
 
@@ -151,7 +145,8 @@ ${dates.map((date, index) => `    {
     const aiResponse = JSON.parse(response.choices[0].message.content || "{}");
     
     // Calculate preference matches for local experiences
-    const experienceMatches = calculateExperienceMatches(guestProfile, localExperiences);
+    // Matching temporaneamente disabilitato
+    const experienceMatches: any[] = [];
     
     // Apply source labels to activities based on preference matching
     if (aiResponse.days && Array.isArray(aiResponse.days)) {
