@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import type { GuestProfile, Hotel, LocalExperience } from "@shared/schema";
-import { calculateExperienceMatches } from './preference-matcher';
+import { LANDEO_CATEGORIES } from "@shared/categories";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ 
@@ -8,6 +8,38 @@ const openai = new OpenAI({
     throw new Error('OPENAI_API_KEY environment variable is required');
   })()
 });
+
+// Simple preference matching function
+function calculateExperienceMatches(guestProfile: GuestProfile, localExperiences: LocalExperience[]) {
+  const guestPreferences = guestProfile.preferences || [];
+  
+  return localExperiences.map(experience => {
+    // Find category match
+    const categoryInfo = LANDEO_CATEGORIES.find(cat => cat.value === experience.category);
+    const categoryEmailText = categoryInfo?.emailText || '';
+    
+    // Check if experience category matches guest preferences
+    const matchingPreferences = guestPreferences.filter(pref => 
+      categoryEmailText.toLowerCase().includes(pref.toLowerCase()) ||
+      experience.name.toLowerCase().includes(pref.toLowerCase()) ||
+      experience.description.toLowerCase().includes(pref.toLowerCase())
+    );
+    
+    // Determine match type
+    let matchType: 'high' | 'medium' | 'low' = 'low';
+    if (matchingPreferences.length >= 2) {
+      matchType = 'high';
+    } else if (matchingPreferences.length === 1) {
+      matchType = 'medium';
+    }
+    
+    return {
+      experience,
+      matchType,
+      matchingPreferences
+    };
+  });
+}
 
 export async function generateItinerary(
   guestProfile: GuestProfile,
@@ -42,7 +74,7 @@ export async function generateItinerary(
   const experienceMatches = calculateExperienceMatches(guestProfile, localExperiences);
   
   // Build the prompt for AI with preference match information
-  const experiencesText = experienceMatches.map(match => {
+  const experiencesText = experienceMatches.map((match: any) => {
     const exp = match.experience;
     const matchInfo = match.matchType === 'high' ? 'PREFERENZA TOP' : 
                      match.matchType === 'medium' ? 'BUON MATCH' : 'STANDARD';
@@ -68,17 +100,18 @@ PROFILO OSPITI:
 ESPERIENZE LOCALI DISPONIBILI:
 ${experiencesText}
 
-ISTRUZIONI:
+ISTRUZIONI OBBLIGATORIE:
 1. Crea un itinerario che rispecchi il profilo degli ospiti e le loro preferenze
-2. Includi sia esperienze locali disponibili che attività generiche appropriate per la zona
-3. Bilancia cultura, gastronomia, natura e relax in base al tipo di ospite
-4. Fornisci orari realistici e descrizioni dettagliate
-5. Considera distanze e tempi di spostamento
-6. Includi raccomandazioni per pasti e pause
-7. IMPORTANTE: Per ogni attività, specifica SEMPRE il campo "source":
-   - "preference-matched" per attività che corrispondono alle esperienze locali marcate come "PREFERENZA TOP" o "BUON MATCH"
-   - "hotel-suggested" per tutte le altre attività (standard, generiche, o aggiunte dall'AI)
-8. ASSICURATI che ogni attività abbia il campo "source" valorizzato con uno dei due valori sopra
+2. USA ESCLUSIVAMENTE le esperienze locali fornite sopra - NON inventare o aggiungere attività generiche
+3. Se non ci sono abbastanza esperienze per riempire tutti i giorni, ripeti le migliori o crea variazioni orarie
+4. Bilancia le esperienze in base al matching: priorità a "PREFERENZA TOP", poi "BUON MATCH", infine "STANDARD"
+5. Fornisci orari realistici e descrizioni dettagliate per ogni esperienza fornita
+6. Considera distanze e tempi di spostamento tra le esperienze elencate
+7. Includi solo pause e pasti tra le esperienze, mai attività inventate
+8. IMPORTANTE: Per ogni attività, specifica SEMPRE il campo "source":
+   - "preference-matched" per esperienze marcate come "PREFERENZA TOP" o "BUON MATCH"
+   - "hotel-suggested" per esperienze marcate come "STANDARD"
+9. VINCOLO ASSOLUTO: Non aggiungere mai attività non presenti nella lista "ESPERIENZE LOCALI DISPONIBILI"
 
 Rispondi SOLO in formato JSON valido con questa struttura:
 {

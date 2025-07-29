@@ -24,7 +24,7 @@ import { generateItineraryPDF } from "./services/pdf";
 import { enrichHotelData, isValidItalianLocation } from "./services/geocoding";
 // Attractions service temporaneo rimosso per ricostruzione
 import { sendGuestPreferencesEmail, sendCreditPurchaseInstructions, sendItineraryPDF } from "./services/email";
-import { generateGuestSpecificItinerary } from "./services/itinerary-generator";
+import { generateItinerary } from "./services/openai";
 // Preference matcher temporaneamente rimosso per ricostruzione
 import { requireAuth } from "./services/security";
 import { randomUUID } from "crypto";
@@ -556,7 +556,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // No longer delete existing itineraries to maintain history
 
       // Generate new itinerary using AI
-      const itinerary = await generateGuestSpecificItinerary(hotel, guestProfile, localExperiences);
+      const stayDuration = Math.ceil(
+        (new Date(guestProfile.checkOutDate).getTime() - new Date(guestProfile.checkInDate).getTime()) 
+        / (1000 * 60 * 60 * 24)
+      );
+      const itinerary = await generateItinerary(guestProfile, hotel, localExperiences, stayDuration);
       
       // DEDUCT 1 CREDIT FROM HOTEL AFTER SUCCESSFUL GENERATION
       const updatedCredits = hotel.credits - 1;
@@ -916,7 +920,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const experiences = await storage.getLocalExperiencesByHotel(guestProfile.hotelId);
       
       // Generate guest-specific itinerary with preference matching
-      const itineraryData = await generateGuestSpecificItinerary(guestProfile, hotel, experiences);
+      const stayDuration = Math.ceil(
+        (new Date(guestProfile.checkOutDate).getTime() - new Date(guestProfile.checkInDate).getTime()) 
+        / (1000 * 60 * 60 * 24)
+      );
+      const itineraryData = await generateItinerary(guestProfile, hotel, experiences, stayDuration);
       
       // Create unique URL
       const uniqueUrl = randomUUID();
