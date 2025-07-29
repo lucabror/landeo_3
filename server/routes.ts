@@ -1085,11 +1085,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/local-experiences/:id", async (req, res) => {
     try {
-      const validatedData = insertLocalExperienceSchema.omit({ id: true }).parse(req.body);
+      // For partial updates (like toggle), use partial validation
+      const validatedData = insertLocalExperienceSchema.omit({ id: true }).partial().parse(req.body);
       const experience = await storage.updateLocalExperience(req.params.id, validatedData);
       res.json(experience);
     } catch (error) {
-      res.status(400).json({ message: "Invalid local experience data" });
+      console.error('Local experience update error:', error);
+      res.status(400).json({ 
+        message: "Invalid local experience data",
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 
