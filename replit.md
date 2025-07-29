@@ -10,6 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: Definite inequivocabilmente le 20 categorie standard Landeo
+  - Categorie numerate da 1 a 20: Museo, Sito Archeologico, Monumento Storico, Chiesa o Luogo Religioso, Borgo Storico, Evento Culturale, Ristorante Tipico, Cantina/Enoteca, Mercato o Bottega Locale, Laboratorio Artigianale, Parco Naturale, Trekking/Escursione, Lago/Spiaggia, Giardino Botanico/Storico, Sport Avventura/Outdoor, Cicloturismo, Centro Termale/SPA, Shopping Locale, Locali/Divertimento, Esperienza Unica del Territorio
+  - Corrispondenza perfetta: stesse categorie identiche nella generazione AI e nelle email preferenze ospiti
+  - Sistema azzerato completamente: database pulito, servizi rimossi, pronto per ricostruzione step-by-step
+  - Struttura semplificata senza mapping complessi o categorie legacy
 - **2025-01-29**: Implementato prompt AI semplificato con format Markdown e 20 categorie numerate
   - Sostituito prompt C.R.A.F.T. complesso con versione diretta e precisa fornita dall'utente
   - Nuovo formato: 20 categorie numerate (1. Museo, 2. Sito Archeologico, etc.) invece di gruppi

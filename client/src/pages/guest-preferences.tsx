@@ -39,7 +39,7 @@ const PREFERENCE_CATEGORIES = [
     icon: Camera,
     color: "bg-blue-50 text-blue-700 border-blue-200",
     preferences: LANDEO_CATEGORIES.filter(cat => 
-      ['musei', 'monumenti', 'chiese', 'borghi', 'archeologia', 'cultura'].includes(cat.value)
+      ['museo', 'sito_archeologico', 'monumento_storico', 'chiesa', 'borgo_storico', 'evento_culturale'].includes(cat.value)
     ).map(cat => cat.emailText)
   },
   {
@@ -47,7 +47,7 @@ const PREFERENCE_CATEGORIES = [
     icon: Utensils,
     color: "bg-orange-50 text-orange-700 border-orange-200",
     preferences: LANDEO_CATEGORIES.filter(cat => 
-      ['ristoranti', 'vino', 'mercati', 'dolci'].includes(cat.value)
+      ['ristorante_tipico', 'cantina_enoteca', 'mercato_bottega'].includes(cat.value)
     ).map(cat => cat.emailText)
   },
   {
@@ -55,7 +55,7 @@ const PREFERENCE_CATEGORIES = [
     icon: TreePine,
     color: "bg-green-50 text-green-700 border-green-200",
     preferences: LANDEO_CATEGORIES.filter(cat => 
-      ['parchi', 'trekking', 'laghi', 'giardini', 'spiagge'].includes(cat.value)
+      ['parco_naturale', 'trekking_escursione', 'lago_spiaggia', 'giardino_botanico'].includes(cat.value)
     ).map(cat => cat.emailText)
   },
   {
@@ -63,15 +63,15 @@ const PREFERENCE_CATEGORIES = [
     icon: Mountain,
     color: "bg-red-50 text-red-700 border-red-200",
     preferences: LANDEO_CATEGORIES.filter(cat => 
-      ['sport', 'ciclismo', 'terme'].includes(cat.value)
+      ['sport_avventura', 'cicloturismo', 'centro_termale'].includes(cat.value)
     ).map(cat => cat.emailText)
   },
   {
-    title: "Shopping e Divertimento",
+    title: "Artigianato e Divertimento",
     icon: ShoppingBag,
     color: "bg-pink-50 text-pink-700 border-pink-200",
     preferences: LANDEO_CATEGORIES.filter(cat => 
-      ['shopping', 'divertimento'].includes(cat.value)
+      ['laboratorio_artigianale', 'shopping_locale', 'locali_divertimento', 'esperienza_unica'].includes(cat.value)
     ).map(cat => cat.emailText)
   }
 ];
