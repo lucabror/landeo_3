@@ -558,10 +558,7 @@ export class DatabaseStorage implements IStorage {
     })
     .from(creditPurchases)
     .innerJoin(hotels, eq(creditPurchases.hotelId, hotels.id))
-    .where(and(
-      eq(creditPurchases.status, "pending"),
-      eq(creditPurchases.bankTransferConfirmed, true)
-    ))
+    .where(eq(creditPurchases.status, "pending"))
     .orderBy(desc(creditPurchases.createdAt));
     
     return results.map(result => ({

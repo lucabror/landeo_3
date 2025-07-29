@@ -106,26 +106,7 @@ function DashboardContent() {
     queryKey: ["/api/hotels", hotelId, "purchases"],
   });
 
-  // Confirm bank transfer mutation
-  const confirmTransferMutation = useMutation({
-    mutationFn: async (purchaseId: string) => {
-      await apiRequest("POST", `/api/hotels/${hotelId}/purchases/${purchaseId}/confirm-transfer`);
-    },
-    onSuccess: () => {
-      toast({
-        title: "Successo",
-        description: "Bonifico confermato! Il tuo acquisto sarà elaborato dal nostro team.",
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "purchases"] });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Errore",
-        description: error.message || "Errore durante la conferma del bonifico",
-        variant: "destructive",
-      });
-    },
-  });
+
 
   // Fetch hotel setup status
   const { data: setupStatus = { isComplete: false, hasLocalExperiences: false } } = useQuery({
@@ -222,18 +203,18 @@ function DashboardContent() {
         )}
 
         {/* Pending Credit Purchases */}
-        {Array.isArray(creditPurchases) && creditPurchases.filter((p: any) => p.status === 'pending' && !p.bankTransferConfirmed).length > 0 && (
+        {Array.isArray(creditPurchases) && creditPurchases.filter((p: any) => p.status === 'pending').length > 0 && (
           <Card className="bg-blue-50 border-blue-200 mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-blue-900">
-                <Banknote className="h-5 w-5" />
-                Acquisti Crediti in Attesa
+                <Clock className="h-5 w-5" />
+                Ordini Crediti in Elaborazione
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {creditPurchases
-                  .filter((p: any) => p.status === 'pending' && !p.bankTransferConfirmed)
+                  .filter((p: any) => p.status === 'pending')
                   .map((purchase: any) => (
                     <div key={purchase.id} className="flex items-center justify-between p-4 bg-white border border-blue-200 rounded-lg">
                       <div>
@@ -250,19 +231,20 @@ function DashboardContent() {
                           Ordinato il {new Date(purchase.createdAt).toLocaleDateString('it-IT')}
                         </p>
                       </div>
-                      <Button
-                        onClick={() => confirmTransferMutation.mutate(purchase.id)}
-                        disabled={confirmTransferMutation.isPending}
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
-                        {confirmTransferMutation.isPending ? "Confermando..." : "Conferma Bonifico"}
-                      </Button>
+                      <div className="text-right">
+                        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                          In Elaborazione
+                        </Badge>
+                        <p className="text-xs text-gray-500 mt-1">
+                          In attesa di approvazione
+                        </p>
+                      </div>
                     </div>
                   ))
                 }
                 <div className="text-sm text-blue-800 bg-blue-100 p-3 rounded-md">
-                  💡 <strong>Dopo il bonifico:</strong> Clicca su "Conferma Bonifico" per notificare il nostro team. 
-                  I crediti saranno aggiunti al tuo account entro 24 ore dalla verifica.
+                  ℹ️ <strong>Processo di attivazione:</strong> I tuoi crediti saranno attivati entro 24 ore dall'approvazione dell'amministratore. 
+                  Riceverai una conferma via email.
                 </div>
               </div>
             </CardContent>
