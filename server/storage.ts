@@ -325,12 +325,18 @@ export class DatabaseStorage implements IStorage {
     return experience;
   }
 
-  async getLocalExperiencesByHotel(hotelId: string): Promise<LocalExperience[]> {
-    // Returns only ACTIVE experiences for AI itinerary generation
+  async getLocalExperiencesByHotel(hotelId: string, activeOnly: boolean = false): Promise<LocalExperience[]> {
+    const conditions = [eq(localExperiences.hotelId, hotelId)];
+    
+    // Add isActive condition only when activeOnly is true (for AI itinerary generation)
+    if (activeOnly) {
+      conditions.push(eq(localExperiences.isActive, true));
+    }
+    
     return await db
       .select()
       .from(localExperiences)
-      .where(and(eq(localExperiences.hotelId, hotelId), eq(localExperiences.isActive, true)))
+      .where(and(...conditions))
       .orderBy(desc(localExperiences.createdAt));
   }
 
