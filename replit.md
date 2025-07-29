@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: ✅ RISOLTO problema visualizzazione pagina "Itinerari Generati"
+  - Identificata causa principale: endpoint /api/hotels/:hotelId/itineraries mancante nel backend
+  - Implementato endpoint corretto con autenticazione e controlli sicurezza
+  - Confermato che pagina frontend gestisce correttamente array vuoti con messaggio informativo
+  - Verificato: non esistono itinerari nel database, sistema funziona correttamente
+  - Soluzione per utente: generare itinerario da guest profile "Gerardina Trovato" con preferenze completate
 - **2025-01-29**: ✅ RISOLTO problema itinerari non visualizzati in guest profiles
   - Identificato problema autenticazione: sessionToken scaduto/non valido causa errori 401
   - Modificato sistema generazione itinerari per usare ESCLUSIVAMENTE esperienze locali dal database hotel
