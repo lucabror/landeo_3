@@ -1200,7 +1200,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           hotel.city, 
           hotel.region, 
           coordinates,
-          hotel.postalCode
+          hotel.postalCode,
+          { name: hotel.name }
         );
       } else {
         // Hotel inserito manualmente: usa solo CAP per generare attrazioni entro 50km, ma passa città per reference
@@ -1209,7 +1210,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           hotel.city, // Passa città per riferimento nelle distanze
           hotel.region, // Passa regione per riferimento nelle distanze
           null, // Non passare coordinate
-          hotel.postalCode // Solo CAP
+          hotel.postalCode, // Solo CAP
+          { name: hotel.name }
         );
       }
       

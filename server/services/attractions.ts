@@ -26,7 +26,8 @@ export async function findLocalAttractions(
   hotelCity: string | null, 
   hotelRegion: string | null, 
   hotelCoordinates?: { latitude: string; longitude: string } | null,
-  hotelPostalCode?: string
+  hotelPostalCode?: string,
+  hotel?: { name: string }
 ): Promise<AttractionSearchResult> {
   try {
     // Determina l'area di ricerca in base ai parametri disponibili
@@ -47,90 +48,80 @@ export async function findLocalAttractions(
       referencePoint = hotelCity || 'hotel';
     }
     
-    const prompt = `CONTESTO: Stai aiutando un operatore del settore turistico a migliorare l'offerta esperienziale di un hotel. L'obiettivo è generare un elenco di attrazioni e attività turistiche, culturali, gastronomiche, naturalistiche, sportive e di intrattenimento entro un raggio di 50 km dal ${hotelPostalCode ? `CAP ${hotelPostalCode}` : `punto geografico ${searchArea}`} dell'hotel.
+    const prompt = `
+C – Contesto
+Sei incaricato di costruire una guida territoriale di altissimo livello per l'hotel "${hotel?.name || 'Hotel'}" situato in ${hotelCity}, ${hotelRegion}, Italia (CAP ${hotelPostalCode}). Il compito è raccogliere tra 20 e 40 attrazioni uniche entro 50 km in linea d'aria dal CAP dell'hotel. Ogni attrazione dovrà essere assegnata a una categoria tematica specifica, rispettando criteri rigorosi di coerenza: nessuna attrazione può rientrare in una categoria sbagliata o essere generica. Il materiale sarà usato per scopi editoriali, commerciali e promozionali.
 
-RUOLO: Agisci come un esperto di turismo territoriale e promozione turistica, con oltre 20 anni di esperienza nella valorizzazione delle destinazioni locali. Hai una profonda conoscenza del patrimonio italiano e delle modalità con cui i turisti scelgono e vivono le esperienze di viaggio.
+R – Ruolo
+Assumi il ruolo di un esperto senior in valorizzazione turistica territoriale, con 20+ anni di esperienza nella promozione del patrimonio artistico, culturale, gastronomico e naturalistico italiano. Sei anche consulente per DMO, enti regionali e operatori dell'hospitality di fascia medio-alta. La tua competenza unisce precisione categoriale, sensibilità narrativa e attenzione all'esperienza reale del turista.
 
-AZIONE:
-1. Analizza il ${hotelPostalCode ? `CAP ${hotelPostalCode}` : `punto geografico ${searchArea}`} come punto di partenza e identifica il centro geografico dell'area di ricerca.
+A – Azione
+Prendi come punto di riferimento il CAP ${hotelPostalCode} dell'hotel, considerandolo centro del raggio di 50 km.
 
-2. Raccogli esattamente 20 attrazioni o esperienze entro 50 km in linea d'aria da quel punto.
+Identifica da 20 a 40 punti di interesse verificabili e realmente accessibili che siano perfettamente coerenti con una delle seguenti 5 macrocategorie, ciascuna con sotto-categorie e numero minimo di risultati:
 
-3. Classifica ogni attrazione in una delle seguenti categorie principali (OBBLIGATORIO):
+🎨 **Storia e Cultura (min. 6)**
+Sotto-categorie: musei, monumenti, chiese, borghi, archeologia, cultura
+Requisito: solo attrazioni che offrono valore storico o culturale verificabile e ufficialmente riconosciuto (es. sito UNESCO, vincolo MiBACT)
 
-STORIA E CULTURA (6 attrazioni minime):
-- "musei" → musei, gallerie d'arte, collezioni artistiche
-- "monumenti" → monumenti storici, castelli, palazzi antichi, fortezze  
-- "chiese" → chiese, santuari, basiliche, luoghi sacri
-- "borghi" → borghi medievali, centri storici, quartieri antichi
-- "archeologia" → scavi archeologici, siti antichi, aree archeologiche
-- "cultura" → teatri, concerti, eventi culturali, festival
+🍷 **Gastronomia (min. 4)**
+Sotto-categorie: ristoranti, vino, mercati, dolci
+Requisito: ogni attrazione deve offrire un'esperienza gastronomica reale, non solo "presenza di un ristorante"
 
-GASTRONOMIA (4 attrazioni minime):
-- "ristoranti" → ristoranti tipici, trattorie, osterie tradizionali
-- "vino" → cantine, wine bar, aziende vinicole, degustazioni
-- "mercati" → mercati locali, sagre, fiere gastronomiche
-- "dolci" → pasticcerie, gelaterie, laboratori artigianali dolci
+🌿 **Natura e Outdoor (min. 5)**
+Sotto-categorie: parchi, trekking, laghi, giardini, spiagge
+Requisito: ogni luogo deve essere fruibile all'aperto, con valore naturalistico specifico
 
-NATURA E OUTDOOR (5 attrazioni minime):
-- "parchi" → parchi naturali, riserve naturali, oasi, aree protette
-- "trekking" → percorsi di trekking, sentieri escursionistici, passeggiate
-- "laghi" → laghi, fiumi, cascate, specchi d'acqua naturali, punti panoramici
-- "giardini" → giardini botanici, ville con parco, orti storici
-- "spiagge" → spiagge, stabilimenti balneari, attività marine, costa
+🧘 **Sport e Benessere (min. 3)**
+Sotto-categorie: sport, ciclismo, terme
+Requisito: attività praticabili da turisti non professionisti in visita breve
 
-SPORT E BENESSERE (3 attrazioni minime):
-- "sport" → attività sportive, impianti sportivi, campi da gioco
-- "ciclismo" → percorsi ciclabili, bike tours, cicloturismo, noleggio bici
-- "terme" → terme, spa, centri benessere, trattamenti rilassanti
+🛍️ **Shopping e Divertimento (min. 2)**
+Sotto-categorie: shopping, divertimento
+Requisito: il luogo deve essere un punto di aggregazione e intrattenimento, non generico
 
-SHOPPING E DIVERTIMENTO (2 attrazioni minime):
-- "shopping" → boutique locali, outlet, mercatini, botteghe artigiane
-- "divertimento" → locali serali, eventi, fiere, festival, vita notturna
+CATEGORIE ESATTE DA UTILIZZARE:
+- musei, monumenti, chiese, borghi, archeologia, cultura
+- ristoranti, vino, mercati, dolci
+- parchi, trekking, laghi, giardini, spiagge
+- sport, ciclismo, terme
+- shopping, divertimento
 
-4. Per ogni attrazione, fornisci:
-- Nome dell'attrazione (preciso e reale)
-- Categoria (USA SOLO UNA delle 20 categorie sopra elencate)
-- Distanza stimata in km dal ${referencePoint} (USA SEMPRE "${referencePoint}" come riferimento)
-- Breve descrizione (max 3 righe, coinvolgente)
-- Perché è consigliata (1 riga, motivazione specifica)
-- Tipo per sistema (restaurant/museum/exhibition/nature/sport/monument/shopping/entertainment/other)
-- 3-4 punti salienti
-- Durata consigliata della visita
-- Fascia di prezzo (gratuito/economico/medio/costoso)
-- Momento migliore per visitare
+Per ogni attrazione includi:
+- Nome specifico
+- Categoria esatta come da elenco sopra
+- Distanza stimata in km da ${referencePoint}
+- Descrizione coinvolgente (massimo 3 righe, con linguaggio evocativo ma oggettivo)
+- Motivo per cui è consigliata (1 riga con focus esperienziale)
 
 REGOLE FERREE:
-- NON includere attrazioni banali, troppo lontane, non fruibili dal pubblico o non attive
-- Evita ripetizioni e cerca varietà nelle proposte
-- Tieni conto della stagionalità
-- Ogni categoria deve avere ALMENO il numero minimo di attrazioni indicato
-- Distribuisci le 20 attrazioni coprendo tutte le 20 categorie possibili
-- La categoria DEVE corrispondere esattamente al tipo principale dell'attrazione
-
-TARGET AUDIENCE: Albergatori, receptionist e addetti all'ospitalità in Italia, che parlano italiano fluente e hanno bisogno di suggerimenti pronti da comunicare ai clienti italiani e stranieri.
+- Ogni attrazione deve comparire solo in una categoria e non può essere duplicata
+- Non inserire attrazioni chiuse, non accessibili al pubblico, dubbie o non documentabili
+- Cura l'equilibrio tematico: il risultato finale deve essere armonico e utile per una guida turistica concreta
+- NO attrazioni generiche (es: "centro storico", "piazza principale")
 
 ${!hotelCoordinates && hotelPostalCode ? `IMPORTANTE: L'hotel è stato inserito manualmente e l'unica informazione geografica precisa è il CAP ${hotelPostalCode}. Utilizza ESCLUSIVAMENTE questo codice postale per localizzare l'area e trovare attrazioni turistiche entro 50km. Per le distanze, usa "${referencePoint}" come punto di riferimento invece del CAP.` : hotelPostalCode ? `IMPORTANTE: L'area di riferimento è identificata dal CAP ${hotelPostalCode} nella zona di ${hotelCity}, ${hotelRegion}. Utilizza questo codice postale per localizzare esattamente l'area e trovare attrazioni nelle immediate vicinanze.` : ''}
-
-Trova esattamente 20 attrazioni diverse e interessanti distribuite tra le 20 categorie. Rispondi in formato JSON con questa struttura:
 
 {
   "attractions": [
     {
       "name": "Nome attrazione reale",
       "category": "categoria specifica",
-      "type": "tipo sistema",
+      "type": "museum|restaurant|nature|sport|shopping|entertainment|monument|other",
       "description": "Descrizione coinvolgente max 3 righe",
       "location": "Indirizzo o zona specifica",
       "estimatedDistance": "X km da ${referencePoint}",
       "whyRecommended": "Perché è consigliata (1 riga)",
       "highlights": ["Punto 1", "Punto 2", "Punto 3", "Punto 4"],
       "recommendedDuration": "1-2 ore",
-      "priceRange": "economico",
-      "bestTimeToVisit": "Mattina/Pomeriggio/Sera/Tutto il giorno"
+      "priceRange": "gratuito|economico|medio|costoso",
+      "bestTimeToVisit": "Mattina|Pomeriggio|Sera|Tutto il giorno"
     }
   ]
-}`;
+}
+
+T – Target Audience
+Albergatori, receptionist, travel designer e content creator italiani che desiderano creare esperienze su misura per ospiti italiani e stranieri, amanti della cultura, dell'enogastronomia, della natura e dell'autenticità. Il tono deve essere ispirazionale ma concreto, facile da comunicare oralmente a un cliente o da inserire in una brochure.`;
 
     console.log(`Searching for attractions near ${searchArea}`);
     console.log(`Reference point for distances: ${referencePoint}`);

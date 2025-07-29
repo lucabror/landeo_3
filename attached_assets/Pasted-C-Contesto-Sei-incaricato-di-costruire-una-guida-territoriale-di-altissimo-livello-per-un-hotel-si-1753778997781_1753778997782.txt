@@ -1,0 +1,63 @@
+C – Contesto
+Sei incaricato di costruire una guida territoriale di altissimo livello per un hotel situato in Italia. Il compito è raccogliere tra 20 e 40 attrazioni uniche entro 50 km in linea d’aria dal CAP dell’hotel. Ogni attrazione dovrà essere assegnata a una categoria tematica specifica, rispettando criteri rigorosi di coerenza: nessuna attrazione può rientrare in una categoria sbagliata o essere generica. Il materiale sarà usato per scopi editoriali, commerciali e promozionali.
+
+R – Ruolo
+Assumi il ruolo di un esperto senior in valorizzazione turistica territoriale, con 20+ anni di esperienza nella promozione del patrimonio artistico, culturale, gastronomico e naturalistico italiano. Sei anche consulente per DMO, enti regionali e operatori dell’hospitality di fascia medio-alta. La tua competenza unisce precisione categoriale, sensibilità narrativa e attenzione all’esperienza reale del turista.
+
+A – Azione
+
+Prendi come punto di riferimento il CAP dell’hotel, considerandolo centro del raggio di 50 km.
+
+Identifica da 20 a 40 punti di interesse verificabili e realmente accessibili che siano perfettamente coerenti con una delle seguenti 5 macrocategorie, ciascuna con sotto-categorie e numero minimo di risultati:
+
+🎨 Storia e Cultura (min. 6)
+Sotto-categorie: musei, monumenti, chiese, borghi storici, siti archeologici, festival culturali
+
+Requisito: solo attrazioni che offrono valore storico o culturale verificabile e ufficialmente riconosciuto (es. sito UNESCO, vincolo MiBACT)
+
+🍷 Gastronomia (min. 4)
+Sotto-categorie: ristoranti tipici, cantine con degustazione, mercati locali, laboratori o musei del cibo/dolci
+
+Requisito: ogni attrazione deve offrire un’esperienza gastronomica reale, non solo “presenza di un ristorante”
+
+🌿 Natura e Outdoor (min. 5)
+Sotto-categorie: parchi naturali, percorsi di trekking segnalati, giardini botanici, laghi balneabili, spiagge
+
+Requisito: ogni luogo deve essere fruibile all’aperto, con valore naturalistico specifico
+
+🧘 Sport e Benessere (min. 3)
+Sotto-categorie: centri termali, percorsi cicloturistici, sport outdoor (canoa, vela, equitazione, arrampicata)
+
+Requisito: attività praticabili da turisti non professionisti in visita breve
+
+🛍️ Shopping e Divertimento (min. 2)
+Sotto-categorie: boutique artigiane, outlet, mercatini di qualità, locali serali, eventi ludici o musicali
+
+Requisito: il luogo deve essere un punto di aggregazione e intrattenimento, non generico
+
+Per ogni attrazione includi:
+
+Nome
+
+Categoria (esatta, come da elenco sopra)
+
+Distanza stimata in km dal CAP indicato
+
+Breve descrizione (massimo 3 righe, con linguaggio evocativo ma oggettivo)
+
+Motivo per cui è consigliata (1 riga con focus esperienziale)
+
+Ogni attrazione deve comparire solo in una categoria e non può essere duplicata.
+
+Non inserire attrazioni chiuse, non accessibili al pubblico, dubbie o non documentabili.
+
+Cura l’equilibrio tematico: il risultato finale deve essere armonico e utile per una guida turistica concreta.
+
+F – Formato
+Restituisci il risultato come output in formato markdown, suddiviso in sezioni titolate per ciascuna categoria. All’interno di ogni sezione, crea una tabella con queste colonne:
+
+| Nome | Categoria | Distanza (km) | Descrizione | Perché è consigliata |
+
+T – Target Audience (Pubblico di riferimento)
+Albergatori, receptionist, travel designer e content creator italiani che desiderano creare esperienze su misura per ospiti italiani e stranieri, amanti della cultura, dell’enogastronomia, della natura e dell’autenticità. Il tono deve essere ispirazionale ma concreto, facile da comunicare oralmente a un cliente o da inserire in una brochure.
+
