@@ -578,7 +578,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         (new Date(guestProfile.checkOutDate).getTime() - new Date(guestProfile.checkInDate).getTime()) 
         / (1000 * 60 * 60 * 24)
       );
-      const itinerary = await generateItinerary(guestProfile, hotel, localExperiences, stayDuration);
+      const aiItinerary = await generateItinerary(guestProfile, hotel, localExperiences, stayDuration);
+      
+      // CREATE AND SAVE ITINERARY IN DATABASE
+      const crypto = require('crypto');
+      const uniqueUrl = crypto.randomBytes(16).toString('hex');
+      
+      const itineraryData = {
+        hotelId: guestProfile.hotelId,
+        guestProfileId: guestProfile.id,
+        title: aiItinerary.title,
+        description: aiItinerary.description,
+        days: aiItinerary.days,
+        status: "active" as const,
+        uniqueUrl: uniqueUrl,
+        aiPrompt: aiItinerary.prompt,
+        aiResponse: aiItinerary
+      };
+      
+      const savedItinerary = await storage.createItinerary(itineraryData);
+      console.log(`✅ ITINERARIO SALVATO: ${savedItinerary.title} (ID: ${savedItinerary.id}) per ospite ${guestProfile.referenceName}`);
       
       // DEDUCT 1 CREDIT FROM HOTEL AFTER SUCCESSFUL GENERATION
       const updatedCredits = hotel.credits - 1;
@@ -592,7 +611,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`🎯 CREDITO SCALATO: Hotel ${hotel.name} - Crediti rimanenti: ${updatedCredits} (utilizzati: ${updatedCreditsUsed})`);
       
       res.json({
-        ...itinerary,
+        ...savedItinerary,
         creditInfo: {
           creditsDeducted: 1,
           creditsRemaining: updatedCredits,
