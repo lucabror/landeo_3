@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: ✅ RISOLTO problema itinerari non visualizzati in guest profiles
+  - Identificato problema autenticazione: sessionToken scaduto/non valido causa errori 401
+  - Modificato sistema generazione itinerari per usare ESCLUSIVAMENTE esperienze locali dal database hotel
+  - Rimosso sistema duplicato e integrato matching preferenze diretto nel servizio OpenAI
+  - Aggiunto pulsante "Effettua nuovo login" per gestire sessioni scadute
+  - Sistema ora genera itinerari usando solo le 20 esperienze generate dall'AI e salvate dall'hotel
+  - Vincolo assoluto implementato: "Non aggiungere mai attività non presenti nella lista esperienze locali"
 - **2025-01-29**: ✅ COMPLETATO sistema avanzato di raccomandazioni geolocalizzate con GPS
   - Implementato GeolocationService completo per conversione CAP → coordinate GPS precise
   - Sistema calcolo distanze Haversine per validazione raggio 50km accurato
