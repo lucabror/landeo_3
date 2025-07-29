@@ -24,7 +24,7 @@ const CREDIT_PACKAGES: CreditPackage[] = [
   {
     type: "basic",
     name: "Pacchetto Base",
-    price: 25,
+    price: 20,
     credits: 20,
     icon: CreditCard,
     color: "bg-blue-100 text-blue-800 border-blue-200",
@@ -33,21 +33,21 @@ const CREDIT_PACKAGES: CreditPackage[] = [
   {
     type: "standard", 
     name: "Pacchetto Standard",
-    price: 50,
-    credits: 45,
+    price: 40,
+    credits: 40,
     icon: Star,
     color: "bg-green-100 text-green-800 border-green-200",
     popular: true,
-    description: "Il più conveniente - 5 crediti bonus!"
+    description: "Il più conveniente!"
   },
   {
     type: "premium",
     name: "Pacchetto Premium", 
     price: 85,
-    credits: 92,
+    credits: 90,
     icon: Crown,
     color: "bg-purple-100 text-purple-800 border-purple-200",
-    description: "Massimo risparmio - 17 crediti bonus!"
+    description: "Massimo risparmio - 5 crediti bonus!"
   },
   {
     type: "enterprise",
@@ -56,7 +56,7 @@ const CREDIT_PACKAGES: CreditPackage[] = [
     credits: 150,
     icon: Banknote,
     color: "bg-amber-100 text-amber-800 border-amber-200", 
-    description: "Per grandi volumi - 35 crediti bonus!"
+    description: "Per grandi volumi - 10 crediti bonus!"
   }
 ];
 
