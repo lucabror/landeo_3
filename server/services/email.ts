@@ -339,6 +339,48 @@ export async function sendGuestPreferencesEmail(
   }
 }
 
+// Multilingual templates for PDF itinerary emails
+const PDF_EMAIL_TEMPLATES = {
+  it: {
+    title: 'Il tuo Itinerario Personalizzato',
+    greeting: (name: string) => `Caro/a <strong>${name}</strong>`,
+    mainText: (hotelName: string) => `Siamo entusiasti di condividere con te il tuo <strong>itinerario personalizzato</strong> per il soggiorno presso ${hotelName}!`,
+    readyForStay: 'Pronti per un soggiorno indimenticabile',
+    stayDetails: 'Dettagli del Soggiorno',
+    period: 'Periodo:',
+    itinerary: 'Itinerario:',
+    people: 'Persone:',
+    howToUse: 'Come Utilizzare il Tuo Itinerario',
+    howToUseText: 'L\'itinerario completo è allegato in formato PDF. Puoi:',
+    print: 'Stamparlo per averlo sempre con te',
+    save: 'Salvarlo sul telefone per accesso offline',
+    share: 'Condividerlo con i tuoi compagni di viaggio',
+    support: 'Se hai domande o necessiti di modifiche all\'itinerario, non esitare a contattarci. Il nostro team è sempre a disposizione per rendere il tuo soggiorno perfetto!',
+    farewell: 'Buon viaggio!',
+    team: 'Team',
+    generated: 'Questo itinerario è stato generato automaticamente in base alle tue preferenze'
+  },
+  en: {
+    title: 'Your Personalized Itinerary',
+    greeting: (name: string) => `Dear <strong>${name}</strong>`,
+    mainText: (hotelName: string) => `We're excited to share your <strong>personalized itinerary</strong> for your stay at ${hotelName}!`,
+    readyForStay: 'Ready for an unforgettable stay',
+    stayDetails: 'Stay Details',
+    period: 'Period:',
+    itinerary: 'Itinerary:',
+    people: 'People:',
+    howToUse: 'How to Use Your Itinerary',
+    howToUseText: 'The complete itinerary is attached as a PDF. You can:',
+    print: 'Print it to have it always with you',
+    save: 'Save it on your phone for offline access',
+    share: 'Share it with your travel companions',
+    support: 'If you have questions or need changes to the itinerary, don\'t hesitate to contact us. Our team is always available to make your stay perfect!',
+    farewell: 'Have a great trip!',
+    team: 'Team',
+    generated: 'This itinerary was automatically generated based on your preferences'
+  }
+};
+
 export async function sendItineraryPDF(
   hotel: Hotel,
   guestProfile: any,
@@ -353,8 +395,13 @@ export async function sendItineraryPDF(
   }
 
   try {
-    const checkinDate = guestProfile?.checkInDate ? new Date(guestProfile.checkInDate).toLocaleDateString('it-IT') : 'N/A';
-    const checkoutDate = guestProfile?.checkOutDate ? new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT') : 'N/A';
+    // Determine language from guest profile
+    const language = (guestProfile?.emailLanguage || 'it') as 'it' | 'en';
+    const template = PDF_EMAIL_TEMPLATES[language];
+    const locale = language === 'it' ? 'it-IT' : 'en-US';
+    
+    const checkinDate = guestProfile?.checkInDate ? new Date(guestProfile.checkInDate).toLocaleDateString(locale) : 'N/A';
+    const checkoutDate = guestProfile?.checkOutDate ? new Date(guestProfile.checkOutDate).toLocaleDateString(locale) : 'N/A';
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -362,7 +409,7 @@ export async function sendItineraryPDF(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Il tuo Itinerario Personalizzato - ${hotel.name}</title>
+  <title>${template.title} - ${hotel.name}</title>
   <style>
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8f9fa; }
     .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -378,44 +425,44 @@ export async function sendItineraryPDF(
   <div class="container">
     <div class="header">
       <div class="logo">${hotel.name}</div>
-      <h1>🗺️ Il tuo Itinerario Personalizzato</h1>
-      <p>Pronti per un soggiorno indimenticabile</p>
+      <h1>🗺️ ${template.title}</h1>
+      <p>${template.readyForStay}</p>
     </div>
     
     <div class="content">
-      <p>Caro/a <strong>${recipientName}</strong>,</p>
+      <p>${template.greeting(recipientName)},</p>
       
-      <p>Siamo entusiasti di condividere con te il tuo <strong>itinerario personalizzato</strong> per il soggiorno presso ${hotel.name}!</p>
+      <p>${template.mainText(hotel.name)}</p>
       
       <div class="itinerary-details">
-        <h3>📋 Dettagli del Soggiorno</h3>
+        <h3>📋 ${template.stayDetails}</h3>
         <ul>
-          <li><strong>Periodo:</strong> ${checkinDate} - ${checkoutDate}</li>
-          <li><strong>Itinerario:</strong> ${itinerary.title}</li>
-          <li><strong>Persone:</strong> ${guestProfile?.numberOfPeople || 'N/A'}</li>
+          <li><strong>${template.period}</strong> ${checkinDate} - ${checkoutDate}</li>
+          <li><strong>${template.itinerary}</strong> ${itinerary.title}</li>
+          <li><strong>${template.people}</strong> ${guestProfile?.numberOfPeople || 'N/A'}</li>
         </ul>
       </div>
       
       <div class="highlight">
-        <h3>📱 Come Utilizzare il Tuo Itinerario</h3>
-        <p>L'itinerario completo è allegato in formato PDF. Puoi:</p>
+        <h3>📱 ${template.howToUse}</h3>
+        <p>${template.howToUseText}</p>
         <ul>
-          <li>🖨️ <strong>Stamparlo</strong> per averlo sempre con te</li>
-          <li>📱 <strong>Salvarlo sul telefono</strong> per accesso offline</li>
-          <li>🔗 <strong>Condividerlo</strong> con i tuoi compagni di viaggio</li>
+          <li>🖨️ <strong>${template.print}</strong></li>
+          <li>📱 <strong>${template.save}</strong></li>
+          <li>🔗 <strong>${template.share}</strong></li>
         </ul>
       </div>
       
-      <p>Se hai domande o necessiti di modifiche all'itinerario, non esitare a contattarci. Il nostro team è sempre a disposizione per rendere il tuo soggiorno perfetto!</p>
+      <p>${template.support}</p>
       
-      <p>Buon viaggio!<br>
-      <strong>Team ${hotel.name}</strong></p>
+      <p>${template.farewell}<br>
+      <strong>${template.team} ${hotel.name}</strong></p>
     </div>
     
     <div class="footer">
       <p>${hotel.city}, ${hotel.region}<br>
       📧 ${hotel.email} | 📞 ${hotel.phone}</p>
-      <p>Questo itinerario è stato generato automaticamente in base alle tue preferenze</p>
+      <p>${template.generated}</p>
     </div>
   </div>
 </body>
@@ -424,7 +471,7 @@ export async function sendItineraryPDF(
     const { data, error } = await resend.emails.send({
       from: `${hotel.name} <onboarding@resend.dev>`,
       to: [recipientEmail],
-      subject: `🗺️ Il tuo Itinerario Personalizzato - ${hotel.name}`,
+      subject: `🗺️ ${template.title} - ${hotel.name}`,
       html: htmlContent,
       attachments: [{
         filename: `Itinerario_${itinerary.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
