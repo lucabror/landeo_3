@@ -312,12 +312,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/guest-profiles/:id", async (req, res) => {
+  app.get("/api/guest-profiles/:id", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
       const profile = await storage.getGuestProfile(req.params.id);
       if (!profile) {
         return res.status(404).json({ message: "Guest profile not found" });
       }
+
+      // Verify user can access this guest profile (belongs to their hotel)
+      const userId = (req as any).user.id;
+      if (profile.hotelId !== userId) {
+        return res.status(403).json({ message: "Hotel Non Trovato" });
+      }
+
       res.json(profile);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch guest profile" });
@@ -464,8 +471,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get itineraries for specific guest profile
-  app.get("/api/guest-profiles/:id/itinerary", async (req, res) => {
+  app.get("/api/guest-profiles/:id/itinerary", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
+      // First get guest profile to verify hotel ownership
+      const guestProfile = await storage.getGuestProfile(req.params.id);
+      if (!guestProfile) {
+        return res.status(404).json({ message: "Guest profile not found" });
+      }
+
+      // Verify user can access this guest profile (belongs to their hotel)
+      const userId = (req as any).user.id;
+      if (guestProfile.hotelId !== userId) {
+        return res.status(403).json({ message: "Hotel Non Trovato" });
+      }
+
       const itineraries = await storage.getItinerariesByGuestProfile(req.params.id);
       res.json(itineraries);
     } catch (error) {
@@ -846,12 +865,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/guest-profile/:id", async (req, res) => {
+  app.get("/api/guest-profile/:id", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
       const guestProfile = await storage.getGuestProfile(req.params.id);
       if (!guestProfile) {
         return res.status(404).json({ message: "Guest profile not found" });
       }
+
+      // Verify user can access this guest profile (belongs to their hotel)
+      const userId = (req as any).user.id;
+      if (guestProfile.hotelId !== userId) {
+        return res.status(403).json({ message: "Hotel Non Trovato" });
+      }
+
       res.json(guestProfile);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch guest profile" });
@@ -1549,7 +1575,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Modify guest profile creation to use credits
-  app.post("/api/guest-profiles", async (req, res) => {
+  app.post("/api/guest-profiles", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
       const validatedData = insertGuestProfileSchema.parse(req.body);
       
