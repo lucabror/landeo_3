@@ -145,8 +145,10 @@ export default function CreditPurchaseDialog({ hotelId, currentCredits, children
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {CREDIT_PACKAGES.map((pkg) => {
                 const Icon = pkg.icon;
-                const baseCredits = pkg.price / 1.25; // 1.25€ per credit base price
-                const bonusCredits = pkg.credits - baseCredits;
+                // Calculate bonus credits based on actual package structure
+                let bonusCredits = 0;
+                if (pkg.type === 'premium') bonusCredits = 5; // 85€ for 90 credits = 5 bonus
+                if (pkg.type === 'enterprise') bonusCredits = 10; // 140€ for 150 credits = 10 bonus
                 
                 return (
                   <Card 
