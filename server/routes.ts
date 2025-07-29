@@ -470,6 +470,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all itineraries for a hotel
+  app.get("/api/hotels/:hotelId/itineraries", requireAuth({ userType: 'hotel' }), async (req, res) => {
+    try {
+      const { hotelId } = req.params;
+      
+      // Verify the hotel ID matches the authenticated user's hotel
+      if ((req as any).user.type === 'hotel' && (req as any).user.id !== hotelId) {
+        return res.status(403).json({ error: 'Non autorizzato per questo hotel' });
+      }
+      
+      const itineraries = await storage.getItinerariesByHotel(hotelId);
+      res.json(itineraries);
+    } catch (error) {
+      console.error('Errore recupero itinerari hotel:', error);
+      res.status(500).json({ error: 'Errore interno del server' });
+    }
+  });
+
   // Get itineraries for specific guest profile
   app.get("/api/guest-profiles/:id/itinerary", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
