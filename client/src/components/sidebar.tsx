@@ -41,7 +41,7 @@ export function Sidebar() {
           />
           <div className="w-full h-px bg-gray-200 my-2"></div>
           <p className="text-xs text-gray-500 font-medium tracking-wide leading-tight whitespace-nowrap">
-            Itinerari su misura, emozioni autentiche
+            Itinerari su misura per gli ospiti
           </p>
         </div>
       </div>
