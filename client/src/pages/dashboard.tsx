@@ -212,7 +212,7 @@ function DashboardContent() {
                   </p>
                 </div>
               </div>
-              <CreditPurchaseDialog hotelId={MOCK_HOTEL_ID} currentCredits={(creditInfo as any)?.credits || 0}>
+              <CreditPurchaseDialog hotelId={hotelId} currentCredits={(creditInfo as any)?.credits || 0}>
                 <Button className="bg-orange-600 hover:bg-orange-700">
                   Acquista Crediti
                 </Button>

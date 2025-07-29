@@ -1292,35 +1292,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/hotels/:id/credits/purchase", async (req, res) => {
+  app.post("/api/hotels/:id/purchase-credits", async (req, res) => {
     try {
+      console.log('💳 CREDIT PURCHASE REQUEST:', { 
+        hotelId: req.params.id, 
+        body: req.body 
+      });
+      
       const { packageType, amount, creditAmount } = req.body;
       const hotel = await storage.getHotel(req.params.id);
       
       if (!hotel) {
+        console.log('❌ Hotel not found:', req.params.id);
         return res.status(404).json({ message: "Hotel not found" });
       }
 
-      const purchase = await storage.createCreditPurchase({
+      console.log('🏨 Hotel found:', hotel.name);
+
+      const purchaseData = {
         hotelId: req.params.id,
         packageType,
         packagePrice: amount,
         creditsAmount: creditAmount,
         status: "pending" as const
-      });
+      };
+      
+      console.log('📦 Creating purchase with data:', purchaseData);
+      const purchase = await storage.createCreditPurchase(purchaseData);
+      console.log('✅ Purchase created:', purchase.id);
 
       // Send bank transfer instructions via email
-      await sendCreditPurchaseInstructions(
-        hotel.email,
-        hotel.name,
-        packageType,
-        amount,
-        creditAmount,
-        purchase.id
-      );
+      console.log('📧 Sending email instructions...');
+      try {
+        await sendCreditPurchaseInstructions(
+          hotel.email,
+          hotel.name,
+          packageType,
+          amount,
+          creditAmount,
+          purchase.id
+        );
+        console.log('✅ Email sent successfully');
+      } catch (emailError) {
+        console.log('⚠️ Email failed but purchase created:', emailError);
+      }
 
       res.status(201).json(purchase);
     } catch (error) {
+      console.error('❌ CREDIT PURCHASE ERROR:', error);
       res.status(500).json({ message: "Failed to create credit purchase" });
     }
   });
