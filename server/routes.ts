@@ -538,28 +538,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Generate itinerary for specific guest profile
   app.post("/api/guest-profiles/:id/generate-itinerary", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
+      console.log(`🚀 INIZIO GENERAZIONE ITINERARIO per guest profile ${req.params.id}`);
+      
       const guestProfile = await storage.getGuestProfile(req.params.id);
       if (!guestProfile) {
+        console.log(`❌ Guest profile ${req.params.id} non trovato`);
         return res.status(404).json({ message: "Guest profile not found" });
       }
+      console.log(`✅ Guest profile trovato: ${guestProfile.referenceName}`);
       
       // Verify user is generating itinerary for their own hotel's guest
       const userId = (req as any).user.id;
       if (guestProfile.hotelId !== userId) {
+        console.log(`❌ Hotel mismatch: ${guestProfile.hotelId} !== ${userId}`);
         return res.status(403).json({ message: "Hotel Non Trovato" });
       }
 
       if (!guestProfile.preferencesCompleted) {
+        console.log(`❌ Preferenze non completate per ${guestProfile.referenceName}`);
         return res.status(400).json({ message: "Guest preferences must be completed before generating itinerary" });
       }
+      console.log(`✅ Preferenze completate per ${guestProfile.referenceName}`);
 
       const hotel = await storage.getHotel(guestProfile.hotelId);
       if (!hotel) {
+        console.log(`❌ Hotel ${guestProfile.hotelId} non trovato`);
         return res.status(404).json({ message: "Hotel not found" });
       }
+      console.log(`✅ Hotel trovato: ${hotel.name} (Crediti: ${hotel.credits})`);
 
       // CHECK CREDITS BEFORE GENERATION
       if (hotel.credits <= 0) {
+        console.log(`❌ Crediti insufficienti: ${hotel.credits}`);
         return res.status(402).json({ 
           message: "Credits insufficient", 
           details: "L'hotel non ha crediti sufficienti per generare un itinerario. Acquista crediti per continuare.",
@@ -569,16 +579,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // For AI generation, get only ACTIVE experiences
       const localExperiences = await storage.getLocalExperiencesByHotel(guestProfile.hotelId, true);
+      console.log(`✅ Esperienze locali caricate: ${localExperiences.length} attive`);
 
-      // Keep existing itineraries but create new one (for chronological view)
-      // No longer delete existing itineraries to maintain history
+      if (localExperiences.length === 0) {
+        console.log(`❌ Nessuna esperienza locale attiva trovata per hotel ${hotel.name}`);
+        return res.status(400).json({ 
+          message: "No local experiences found", 
+          details: "L'hotel deve avere almeno una esperienza locale attiva per generare itinerari." 
+        });
+      }
 
       // Generate new itinerary using AI
       const stayDuration = Math.ceil(
         (new Date(guestProfile.checkOutDate).getTime() - new Date(guestProfile.checkInDate).getTime()) 
         / (1000 * 60 * 60 * 24)
       );
+      console.log(`🧠 Chiamata AI per generazione itinerario (${stayDuration} giorni)...`);
+      
       const aiItinerary = await generateItinerary(guestProfile, hotel, localExperiences, stayDuration);
+      console.log(`✅ AI ha generato itinerario: "${aiItinerary.title}" con ${aiItinerary.days?.length || 0} giorni`);
       
       // CREATE AND SAVE ITINERARY IN DATABASE
       const crypto = require('crypto');
@@ -596,6 +615,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         aiResponse: aiItinerary
       };
       
+      console.log(`💾 Tentativo di salvare itinerario nel database...`);
       const savedItinerary = await storage.createItinerary(itineraryData);
       console.log(`✅ ITINERARIO SALVATO: ${savedItinerary.title} (ID: ${savedItinerary.id}) per ospite ${guestProfile.referenceName}`);
       
@@ -603,6 +623,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedCredits = hotel.credits - 1;
       const updatedCreditsUsed = (hotel.creditsUsed || 0) + 1;
       
+      console.log(`💳 Aggiornamento crediti hotel...`);
       await storage.updateHotel(hotel.id, { 
         credits: updatedCredits,
         creditsUsed: updatedCreditsUsed
@@ -619,7 +640,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
     } catch (error) {
-      console.error('Error generating itinerary:', error);
+      console.error('❌ ERRORE GENERAZIONE ITINERARIO:', error);
+      console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
       res.status(500).json({ message: "Failed to generate itinerary", error: error instanceof Error ? error.message : String(error) });
     }
   });
