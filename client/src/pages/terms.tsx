@@ -49,7 +49,7 @@ export default function Terms() {
             </h1>
             
             <p className="text-center text-gray-600 mb-8">
-              <strong>Ultimo aggiornamento:</strong> [inserire data]
+              <strong>Ultimo aggiornamento:</strong> 29 Luglio 2025 ore 18:05
             </p>
 
             <p className="text-lg text-gray-700 mb-8">
