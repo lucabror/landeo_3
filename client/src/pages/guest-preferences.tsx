@@ -118,6 +118,9 @@ export default function GuestPreferencesPage({ token }: GuestPreferencesPageProp
   const { data: guestData, isLoading, error } = useQuery({
     queryKey: ["/api/guest-preferences", token],
     retry: false,
+    staleTime: 0, // Never use stale data for preference tokens
+    refetchOnMount: true, // Always refetch when component mounts
+    refetchOnWindowFocus: false, // But don't refetch on every focus
   });
 
   // Determine language from guest data

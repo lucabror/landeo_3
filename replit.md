@@ -10,6 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: ✅ RISOLTO problema pagina preferenze ospiti che richiede refresh browser
+  - Identificato problema: query preferences usava staleTime: Infinity causando cache persistente
+  - Aggiunto staleTime: 0 e refetchOnMount: true per query preferenze ospiti
+  - Pagina preferenze ora si carica immediatamente dopo click su link email
+  - Eliminata necessità di refresh manuale del browser per visualizzare form preferenze
 - **2025-01-29**: ✅ RISOLTO problema dropdown categorie in creazione esperienza manuale
   - Sostituito array CATEGORIES limitato con tutte le 20 categorie LANDEO_CATEGORIES
   - Dropdown "Aggiungi Esperienza" ora mostra tutte le categorie disponibili per selezione manuale
