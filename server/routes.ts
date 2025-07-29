@@ -1198,6 +1198,118 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Advanced geolocation analysis endpoint
+  app.get("/api/hotels/:hotelId/geolocation/analysis", requireAuth, async (req, res) => {
+    try {
+      const hotelId = parseInt(req.params.hotelId);
+      
+      if (req.user?.type !== "hotel" || req.user.hotelId !== hotelId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const hotel = await storage.getHotel(hotelId);
+      if (!hotel) {
+        return res.status(404).json({ error: "Hotel non trovato" });
+      }
+
+      console.log(`🌍 Analisi geolocalizzazione per hotel ${hotel.name}`);
+      
+      // Import geolocation service
+      const { getRecommendedSearchAreas } = await import("./services/attractions");
+      const { GeolocationService } = await import("./services/geolocation");
+      
+      const searchAreas = await getRecommendedSearchAreas(hotel);
+      const locationContext = await GeolocationService.getLocationContext(
+        hotel.postalCode!,
+        hotel.city,
+        hotel.region
+      );
+
+      res.json({
+        hotel: {
+          name: hotel.name,
+          postalCode: hotel.postalCode,
+          city: hotel.city,
+          region: hotel.region,
+          currentCoordinates: hotel.latitude && hotel.longitude ? {
+            latitude: parseFloat(hotel.latitude),
+            longitude: parseFloat(hotel.longitude)
+          } : null
+        },
+        geolocation: {
+          ...locationContext,
+          searchAreas,
+          recommendedRadius: "50km",
+          geoStatus: locationContext.coordinates ? "available" : "needs_geocoding"
+        },
+        suggestions: {
+          updateCoordinates: !hotel.latitude || !hotel.longitude,
+          enhanceLocalExperiences: true,
+          precisionLevel: locationContext.coordinates ? "high" : "postal_code_only"
+        }
+      });
+
+    } catch (error) {
+      console.error("Errore analisi geolocalizzazione:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Errore nell'analisi geolocalizzazione" 
+      });
+    }
+  });
+
+  // Update hotel coordinates endpoint
+  app.post("/api/hotels/:hotelId/geolocation/update", requireAuth, async (req, res) => {
+    try {
+      const hotelId = parseInt(req.params.hotelId);
+      
+      if (req.user?.type !== "hotel" || req.user.hotelId !== hotelId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const hotel = await storage.getHotel(hotelId);
+      if (!hotel) {
+        return res.status(404).json({ error: "Hotel non trovato" });
+      }
+
+      console.log(`📍 Aggiornamento coordinate per hotel ${hotel.name}`);
+      
+      const { GeolocationService } = await import("./services/geolocation");
+      
+      const coordinates = await GeolocationService.getCoordinatesFromPostalCode(
+        hotel.postalCode!,
+        hotel.city,
+        hotel.region
+      );
+
+      if (!coordinates) {
+        return res.status(400).json({ 
+          error: "Impossibile determinare le coordinate per questo hotel" 
+        });
+      }
+
+      // Update hotel with new coordinates
+      const updatedHotel = await storage.updateHotel(hotelId, {
+        latitude: coordinates.latitude.toString(),
+        longitude: coordinates.longitude.toString()
+      });
+
+      console.log(`✅ Coordinate aggiornate: ${coordinates.latitude}, ${coordinates.longitude}`);
+
+      res.json({
+        success: true,
+        coordinates,
+        hotel: updatedHotel,
+        message: "Coordinate aggiornate con successo"
+      });
+
+    } catch (error) {
+      console.error("Errore aggiornamento coordinate:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Errore nell'aggiornamento coordinate" 
+      });
+    }
+  });
+
   // Local experience matching with guest preferences
   app.get("/api/hotels/:hotelId/local-experiences/matches/:guestId", async (req, res) => {
     try {
