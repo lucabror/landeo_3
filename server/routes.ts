@@ -600,7 +600,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`✅ AI ha generato itinerario: "${aiItinerary.title}" con ${aiItinerary.days?.length || 0} giorni`);
       
       // CREATE AND SAVE ITINERARY IN DATABASE
-      const crypto = require('crypto');
+      const crypto = await import('crypto');
       const uniqueUrl = crypto.randomBytes(16).toString('hex');
       
       const itineraryData = {
