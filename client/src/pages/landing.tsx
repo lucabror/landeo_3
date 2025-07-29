@@ -36,8 +36,7 @@ export default function Landing() {
                   alt="Landeo" 
                   className="h-12 w-auto block"
                 />
-                <div className="w-full h-px bg-gray-200 my-2"></div>
-                <p className="text-amber-700 tracking-wide whitespace-nowrap text-[17px] font-light mt-[-8px] mb-[-8px]">
+                <p className="text-amber-700 tracking-wide whitespace-nowrap text-[17px] font-light">
                   Itinerari su misura
                 </p>
               </div>
@@ -543,8 +542,8 @@ export default function Landing() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xl font-bold">Landeo</span>
-                  <span className="text-xs text-gray-400 font-medium italic">
-                    Itinerari su misura, emozioni autentiche
+                  <span className="text-xs text-gray-400 font-light">
+                    Itinerari su misura
                   </span>
                 </div>
               </div>
