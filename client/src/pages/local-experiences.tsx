@@ -48,31 +48,31 @@ import { LANDEO_CATEGORIES } from "@shared/categories";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GeolocationAnalysis from "@/components/GeolocationAnalysis";
 
+// Mapping delle categorie Landeo con icone e colori per il frontend
+const CATEGORY_CONFIGS = {
+  "museo": { label: "Museo", icon: Camera, color: "bg-blue-100 text-blue-700" },
+  "sito_archeologico": { label: "Sito Archeologico", icon: Sparkles, color: "bg-amber-100 text-amber-700" },
+  "monumento_storico": { label: "Monumento Storico", icon: Building, color: "bg-blue-100 text-blue-700" },
+  "chiesa": { label: "Chiesa o Luogo Religioso", icon: Heart, color: "bg-blue-100 text-blue-700" },
+  "borgo_storico": { label: "Borgo Storico", icon: Camera, color: "bg-amber-100 text-amber-700" },
+  "evento_culturale": { label: "Evento Culturale", icon: Music, color: "bg-blue-100 text-blue-700" },
+  "ristorante_tipico": { label: "Ristorante Tipico", icon: Utensils, color: "bg-green-100 text-green-700" },
+  "cantina_enoteca": { label: "Cantina / Enoteca", icon: Wine, color: "bg-purple-100 text-purple-700" },
+  "mercato_bottega": { label: "Mercato o Bottega Locale", icon: Building, color: "bg-green-100 text-green-700" },
+  "laboratorio_artigianale": { label: "Laboratorio Artigianale", icon: Target, color: "bg-yellow-100 text-yellow-700" },
+  "parco_naturale": { label: "Parco Naturale", icon: TreePine, color: "bg-emerald-100 text-emerald-700" },
+  "trekking_escursione": { label: "Trekking / Escursione", icon: Mountain, color: "bg-emerald-100 text-emerald-700" },
+  "lago_spiaggia": { label: "Lago / Spiaggia", icon: Waves, color: "bg-cyan-100 text-cyan-700" },
+  "giardino_botanico": { label: "Giardino Botanico / Storico", icon: TreePine, color: "bg-green-100 text-green-700" },
+  "sport_avventura": { label: "Sport Avventura / Outdoor", icon: Mountain, color: "bg-red-100 text-red-700" },
+  "cicloturismo": { label: "Cicloturismo", icon: Mountain, color: "bg-orange-100 text-orange-700" },
+  "centro_termale": { label: "Centro Termale / SPA", icon: Waves, color: "bg-blue-100 text-blue-700" },
+  "shopping_locale": { label: "Shopping Locale", icon: Building, color: "bg-gray-100 text-gray-700" },
+  "locali_divertimento": { label: "Locali / Divertimento", icon: Music, color: "bg-purple-100 text-purple-700" },
+  "esperienza_unica": { label: "Esperienza Unica del Territorio", icon: Sparkles, color: "bg-indigo-100 text-indigo-700" }
+};
+
 const CATEGORIES = [
-  // Storia e Cultura (6 categorie)
-  { value: "musei", label: "Musei e Arte", icon: Camera, color: "bg-blue-100 text-blue-700" },
-  { value: "monumenti", label: "Monumenti Storici", icon: Building, color: "bg-blue-100 text-blue-700" },
-  { value: "chiese", label: "Chiese e Santuari", icon: Heart, color: "bg-blue-100 text-blue-700" },
-  { value: "borghi", label: "Borghi Medievali", icon: Camera, color: "bg-amber-100 text-amber-700" },
-  { value: "archeologia", label: "Siti Archeologici", icon: Sparkles, color: "bg-amber-100 text-amber-700" },
-  { value: "cultura", label: "Eventi Culturali", icon: Music, color: "bg-blue-100 text-blue-700" },
-  
-  // Gastronomia (4 categorie)
-  { value: "ristoranti", label: "Ristoranti Tipici", icon: Utensils, color: "bg-green-100 text-green-700" },
-  { value: "vino", label: "Vino e Cantine", icon: Wine, color: "bg-purple-100 text-purple-700" },
-  { value: "mercati", label: "Mercati Locali", icon: Building, color: "bg-green-100 text-green-700" },
-  { value: "dolci", label: "Dolci e Pasticcerie", icon: Heart, color: "bg-pink-100 text-pink-700" },
-  
-  // Natura e Outdoor (5 categorie)
-  { value: "parchi", label: "Parchi Naturali", icon: TreePine, color: "bg-emerald-100 text-emerald-700" },
-  { value: "trekking", label: "Trekking e Passeggiate", icon: Mountain, color: "bg-emerald-100 text-emerald-700" },
-  { value: "laghi", label: "Laghi e Panorami", icon: Waves, color: "bg-cyan-100 text-cyan-700" },
-  { value: "giardini", label: "Giardini Botanici", icon: TreePine, color: "bg-green-100 text-green-700" },
-  { value: "spiagge", label: "Spiagge e Mare", icon: Waves, color: "bg-cyan-100 text-cyan-700" },
-  
-  // Sport e Attività (3 categorie)
-  { value: "sport", label: "Attività Sportive", icon: Mountain, color: "bg-red-100 text-red-700" },
-  { value: "ciclismo", label: "Ciclismo", icon: Mountain, color: "bg-orange-100 text-orange-700" },
   { value: "terme", label: "Terme e Benessere", icon: Heart, color: "bg-teal-100 text-teal-700" },
   
   // Shopping e Divertimento (2 categorie)
@@ -468,7 +468,11 @@ export default function LocalExperiences() {
   };
 
   const getCategoryConfig = (category: string) => {
-    return CATEGORIES.find(c => c.value === category) || CATEGORIES[0];
+    return CATEGORY_CONFIGS[category as keyof typeof CATEGORY_CONFIGS] || {
+      label: "Categoria Sconosciuta",
+      icon: Building,
+      color: "bg-gray-100 text-gray-700"
+    };
   };
 
   const toggleTargetAudience = (audience: string) => {
