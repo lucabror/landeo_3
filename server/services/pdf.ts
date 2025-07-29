@@ -5,6 +5,38 @@ import { createWriteStream } from "fs";
 import path from "path";
 import { Readable } from "stream";
 
+// Multilingual PDF templates
+const PDF_TEMPLATES = {
+  it: {
+    personalizedItinerary: 'ITINERARIO PERSONALIZZATO',
+    guest: 'OSPITE',
+    stay: 'SOGGIORNO',
+    people: 'persone',
+    checkin: 'Check-in:',
+    checkout: 'Check-out:',
+    yourItinerary: 'IL TUO ITINERARIO',
+    day: 'GIORNO',
+    preferenceMatched: 'Scelta sulle tue preferenze',
+    hotelSuggested: 'Suggerita dall\'hotel',
+    poweredBy: 'Landeo - Powered by AI',
+    generatedOn: 'Generato il'
+  },
+  en: {
+    personalizedItinerary: 'PERSONALIZED ITINERARY',
+    guest: 'GUEST',
+    stay: 'STAY',
+    people: 'people',
+    checkin: 'Check-in:',
+    checkout: 'Check-out:',
+    yourItinerary: 'YOUR ITINERARY',
+    day: 'DAY',
+    preferenceMatched: 'Based on your preferences',
+    hotelSuggested: 'Hotel recommendation',
+    poweredBy: 'Landeo - Powered by AI',
+    generatedOn: 'Generated on'
+  }
+};
+
 export async function generateItineraryPDF(
   itinerary: Itinerary,
   hotel: Hotel,
@@ -12,6 +44,9 @@ export async function generateItineraryPDF(
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
     try {
+      // Determine language from guest profile
+      const language = (guestProfile.emailLanguage || 'it') as 'it' | 'en';
+      const template = PDF_TEMPLATES[language];
       // Create directory if it doesn't exist
       const uploadsDir = path.join(process.cwd(), 'uploads', 'pdfs');
       await fs.mkdir(uploadsDir, { recursive: true });
@@ -66,7 +101,7 @@ export async function generateItineraryPDF(
       doc.font('Helvetica')
          .fontSize(11)
          .fillColor(colors.mediumText)
-         .text('ITINERARIO PERSONALIZZATO', 60, 95, { 
+         .text(template.personalizedItinerary, 60, 95, { 
            width: doc.page.width - 120, 
            align: 'center'
          });
@@ -93,7 +128,7 @@ export async function generateItineraryPDF(
       doc.font('Helvetica-Bold')
          .fontSize(12)
          .fillColor(colors.primaryTeal)
-         .text('OSPITE', leftMargin + 15, yPosition + 15);
+         .text(template.guest, leftMargin + 15, yPosition + 15);
          
       doc.font('Helvetica-Bold')
          .fontSize(11)
@@ -103,7 +138,7 @@ export async function generateItineraryPDF(
       doc.font('Helvetica')
          .fontSize(9)
          .fillColor(colors.mediumText)
-         .text(`${guestProfile.type} • ${guestProfile.numberOfPeople} persone`, leftMargin + 15, yPosition + 50);
+         .text(`${guestProfile.type} • ${guestProfile.numberOfPeople} ${template.people}`, leftMargin + 15, yPosition + 50);
       
       // Right column - Stay details  
       const rightColX = leftMargin + 220;
@@ -114,17 +149,18 @@ export async function generateItineraryPDF(
       doc.font('Helvetica-Bold')
          .fontSize(12)
          .fillColor(colors.primaryTeal)
-         .text('SOGGIORNO', rightColX + 15, yPosition + 15);
+         .text(template.stay, rightColX + 15, yPosition + 15);
          
       if (guestProfile.checkInDate && guestProfile.checkOutDate) {
-        const checkIn = new Date(guestProfile.checkInDate).toLocaleDateString('it-IT');
-        const checkOut = new Date(guestProfile.checkOutDate).toLocaleDateString('it-IT');
+        const locale = language === 'it' ? 'it-IT' : 'en-US';
+        const checkIn = new Date(guestProfile.checkInDate).toLocaleDateString(locale);
+        const checkOut = new Date(guestProfile.checkOutDate).toLocaleDateString(locale);
         
         doc.font('Helvetica')
            .fontSize(9)
            .fillColor(colors.mediumText)
-           .text(`Check-in: ${checkIn}`, rightColX + 15, yPosition + 35)
-           .text(`Check-out: ${checkOut}`, rightColX + 15, yPosition + 50);
+           .text(`${template.checkin} ${checkIn}`, rightColX + 15, yPosition + 35)
+           .text(`${template.checkout} ${checkOut}`, rightColX + 15, yPosition + 50);
       }
       
       yPosition += 100;
@@ -133,7 +169,7 @@ export async function generateItineraryPDF(
       doc.font('Helvetica-Bold')
          .fontSize(18)
          .fillColor(colors.primaryTeal)
-         .text(itinerary.title || 'IL TUO ITINERARIO', leftMargin, yPosition, { 
+         .text(itinerary.title || template.yourItinerary, leftMargin, yPosition, { 
            width: rightMargin - leftMargin, 
            align: 'center'
          });
@@ -159,14 +195,15 @@ export async function generateItineraryPDF(
           doc.font('Helvetica-Bold')
              .fontSize(14)
              .fillColor(colors.primaryTeal)
-             .text(`GIORNO ${dayIndex + 1}`, leftMargin + 15, yPosition + 12);
+             .text(`${template.day} ${dayIndex + 1}`, leftMargin + 15, yPosition + 12);
           
           // Day date
           if (day.date) {
+            const locale = language === 'it' ? 'it-IT' : 'en-US';
             doc.font('Helvetica')
                .fontSize(10)
                .fillColor(colors.mediumText)
-               .text(new Date(day.date).toLocaleDateString('it-IT', { 
+               .text(new Date(day.date).toLocaleDateString(locale, { 
                  weekday: 'long', 
                  day: 'numeric',
                  month: 'long'
@@ -205,12 +242,12 @@ export async function generateItineraryPDF(
                 doc.font('Helvetica')
                    .fontSize(8)
                    .fillColor(colors.primaryTeal)
-                   .text('• Scelta sulle tue preferenze', leftMargin + 15, yPosition + 28);
+                   .text(`• ${template.preferenceMatched}`, leftMargin + 15, yPosition + 28);
               } else if (activity.source === 'hotel-suggested') {
                 doc.font('Helvetica')
                    .fontSize(8)
                    .fillColor(colors.lightTeal)
-                   .text('• Suggerita dall\'hotel', leftMargin + 15, yPosition + 28);
+                   .text(`• ${template.hotelSuggested}`, leftMargin + 15, yPosition + 28);
               }
 
               // Description
@@ -268,14 +305,15 @@ export async function generateItineraryPDF(
            .text(`${hotel.city}, ${hotel.region}`, leftMargin, footerY + 26);
         
         // Generation date
-        doc.text(`Generato il ${new Date().toLocaleDateString('it-IT')}`, 
+        const locale = language === 'it' ? 'it-IT' : 'en-US';
+        doc.text(`${template.generatedOn} ${new Date().toLocaleDateString(locale)}`, 
                  rightMargin - 120, footerY + 12);
         
         // Branding
         doc.font('Helvetica')
            .fontSize(8)
            .fillColor(colors.lightText)
-           .text('Powered by Landeo - AI Itinerari Personalizzati', leftMargin, footerY + 38, { 
+           .text(template.poweredBy, leftMargin, footerY + 38, { 
              width: rightMargin - leftMargin,
              align: 'center' 
            });

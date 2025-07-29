@@ -10,6 +10,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: ✅ COMPLETATO supporto multilingue completo per generazione itinerari AI
+  - Implementati template multilingui per prompt OpenAI in italiano e inglese
+  - Sistema genera itinerari nella lingua dell'ospite basata su emailLanguage del guest profile  
+  - PDF itinerari ora completamente tradotti: header, sezioni, etichette attività, footer
+  - Servizio OpenAI utilizza matching preferenze multilingue per esperienze locali
+  - Sistema end-to-end: email preferenze → compilazione → generazione itinerario → PDF nella stessa lingua
+  - Template inglesi: "PERSONALIZED ITINERARY", "YOUR ITINERARY", "Based on your preferences"
+  - Sistema precedenza linguistica: emailLanguage dell'ospite (it/en) con fallback su italiano
 - **2025-01-29**: ✅ RISOLTO problema visualizzazione pagina "Itinerari Generati"
   - Identificata causa principale: endpoint /api/hotels/:hotelId/itineraries mancante nel backend
   - Implementato endpoint corretto con autenticazione e controlli sicurezza
