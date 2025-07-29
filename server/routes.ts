@@ -1325,8 +1325,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('📧 Sending email instructions...');
       try {
         await sendCreditPurchaseInstructions(
-          hotel.email,
-          hotel.name,
+          hotel,
           packageType,
           packagePrice,
           creditsAmount,
