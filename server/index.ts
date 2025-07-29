@@ -6,6 +6,13 @@ import crypto from "crypto";
 import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import securityRoutes from "./routes/security";
+import { 
+  securityRateLimit, 
+  authRateLimit,
+  securityMiddlewareStack,
+  securityErrorHandler 
+} from "./middleware/security-middleware";
 
 const app = express();
 
@@ -99,7 +106,7 @@ app.use((req, res, next) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: options.sameSite || 'strict'
     };
-    return originalCookie.call(this, name, value, secureOptions) as any;
+    return originalCookie.call(this, name, value, secureOptions);
   };
   next();
 });
@@ -188,6 +195,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// Applica middleware di sicurezza del database
+app.use('/api', ...securityMiddlewareStack());
+
+// Registra routes di sicurezza
+securityRoutes(app);
+
 (async () => {
   const server = await registerRoutes(app);
 
@@ -213,6 +226,9 @@ app.use((req, res, next) => {
       console.error(err);
     }
   });
+
+  // Gestione errori di sicurezza
+  app.use(securityErrorHandler);
 
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route

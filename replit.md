@@ -10,6 +10,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: Implementato sistema di sicurezza completo del database con PostgreSQL e Drizzle ORM
+  - Creato DatabaseSecurity layer con protezione SQL injection, rate limiting, input sanitization
+  - Implementato SecureStorage wrapper per tutte le operazioni CRUD con audit logging
+  - Aggiunto middleware security stack con headers sicurezza, validazione input, monitoring salute DB
+  - Creati endpoints sicurezza: /api/security/health, /api/security/report, /api/security/lockdown
+  - Sistema encryption/decryption per dati sensibili (password, MFA secret, session token)
+  - Protezione timeout query, limite risultati, monitoring attività sospette
+  - Rate limiting separato per auth (5 richieste/15min) e API generale (100 richieste/15min)
+  - Audit logging completo per operazioni sensibili con IP tracking e timestamp
+  - Error handling sicuro che non espone dettagli tecnici in production
 - **2025-01-29**: Completato sistema di storico bonifici completo per hotel e super admin
   - Dashboard super admin: aggiunto pulsante "Storico Bonifici" per ogni hotel con modal dettagliato
   - Dashboard hotel: creata pagina dedicata "Storico Acquisti" accessibile dal menu laterale
