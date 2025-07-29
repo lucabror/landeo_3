@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: Completato sistema di storico bonifici nella dashboard super admin
+  - Aggiunto pulsante "Storico Bonifici" per ogni hotel nella dashboard admin
+  - Creato modal dettagliato con tutti gli acquisti crediti dell'hotel (approvati, rifiutati, in attesa)
+  - Implementato endpoint API dedicato /api/admin/hotels/:hotelId/purchases per recuperare storico completo
+  - Visualizzazione completa: importo, crediti, date richiesta/elaborazione, stato, note admin, chi ha elaborato
+  - Statistiche riassuntive con conteggio per stato e totale crediti approvati
+  - Sistema email automatico per istruzioni bonifico completamente funzionale con SendGrid
 - **2025-01-28**: Risolto aggiornamento real-time preferenze ospiti e pagina bianca dopo refresh
   - Problema 1: dashboard non aggiornava schede profilo quando ospite compilava preferenze via email
   - Soluzione: aggiunto auto-refresh ogni 5 secondi per query guest-profiles per catturare modifiche preferenze
