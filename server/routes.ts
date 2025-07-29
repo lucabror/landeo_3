@@ -1299,7 +1299,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         body: req.body 
       });
       
-      const { packageType, amount, creditAmount } = req.body;
+      const { packageType, packagePrice, creditsAmount } = req.body;
       const hotel = await storage.getHotel(req.params.id);
       
       if (!hotel) {
@@ -1312,8 +1312,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const purchaseData = {
         hotelId: req.params.id,
         packageType,
-        packagePrice: amount,
-        creditsAmount: creditAmount,
+        packagePrice,
+        creditsAmount,
         status: "pending" as const
       };
       
@@ -1328,8 +1328,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           hotel.email,
           hotel.name,
           packageType,
-          amount,
-          creditAmount,
+          packagePrice,
+          creditsAmount,
           purchase.id
         );
         console.log('✅ Email sent successfully');
