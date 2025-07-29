@@ -348,7 +348,7 @@ export default function Login({ userType }: LoginProps) {
               className="h-16 w-auto mx-auto mb-2"
             />
             <p className="text-xs text-amber-700 font-medium italic">
-              Itinerari su misura, emozioni autentiche
+              Itinerari su misura
             </p>
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">

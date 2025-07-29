@@ -184,7 +184,7 @@ export default function Support() {
                   />
                   <div className="w-full h-px bg-gray-200 my-2"></div>
                   <p className="text-xs text-amber-700 font-medium tracking-wide whitespace-nowrap">
-                    Itinerari su misura, emozioni autentiche
+                    Itinerari su misura
                   </p>
                 </div>
               </div>

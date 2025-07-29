@@ -287,7 +287,7 @@ function AdminDashboardContent() {
               className="h-12 w-auto mb-2"
             />
             <p className="text-xs text-amber-700 font-medium italic">
-              Itinerari su misura, emozioni autentiche
+              Itinerari su misura
             </p>
           </div>
           <div>

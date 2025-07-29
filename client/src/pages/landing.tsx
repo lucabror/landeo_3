@@ -37,8 +37,8 @@ export default function Landing() {
                   className="h-12 w-auto block"
                 />
                 <div className="w-full h-px bg-gray-200 my-2"></div>
-                <p className="text-xs text-amber-700 font-medium tracking-wide whitespace-nowrap">
-                  Itinerari su misura, emozioni autentiche
+                <p className="text-amber-700 tracking-wide whitespace-nowrap text-[17px] font-light mt-[-8px] mb-[-8px]">
+                  Itinerari su misura
                 </p>
               </div>
             </div>
