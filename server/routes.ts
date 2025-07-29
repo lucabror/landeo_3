@@ -1304,8 +1304,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const purchase = await storage.createCreditPurchase({
         hotelId: req.params.id,
         packageType,
-        amount,
-        creditAmount,
+        packagePrice: amount,
+        creditsAmount: creditAmount,
         status: "pending" as const
       });
 
@@ -1322,6 +1322,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(purchase);
     } catch (error) {
       res.status(500).json({ message: "Failed to create credit purchase" });
+    }
+  });
+
+  // Confirm bank transfer by hotel
+  app.post("/api/hotels/:hotelId/purchases/:purchaseId/confirm-transfer", requireAuth({ userType: 'hotel' }), async (req, res) => {
+    try {
+      await storage.confirmBankTransfer(req.params.purchaseId);
+      res.json({ message: "Bank transfer confirmed successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to confirm bank transfer" });
+    }
+  });
+
+  // Get hotel's credit purchases
+  app.get("/api/hotels/:hotelId/purchases", requireAuth({ userType: 'hotel' }), async (req, res) => {
+    try {
+      const purchases = await storage.getCreditPurchasesByHotel(req.params.hotelId);
+      res.json(purchases);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch purchases" });
     }
   });
 

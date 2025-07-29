@@ -558,13 +558,22 @@ export class DatabaseStorage implements IStorage {
     })
     .from(creditPurchases)
     .innerJoin(hotels, eq(creditPurchases.hotelId, hotels.id))
-    .where(eq(creditPurchases.status, "pending"))
+    .where(and(
+      eq(creditPurchases.status, "pending"),
+      eq(creditPurchases.bankTransferConfirmed, true)
+    ))
     .orderBy(desc(creditPurchases.createdAt));
     
     return results.map(result => ({
       ...result,
       hotel: result.hotel
     }));
+  }
+
+  async confirmBankTransfer(purchaseId: string): Promise<void> {
+    await db.update(creditPurchases)
+      .set({ bankTransferConfirmed: true })
+      .where(eq(creditPurchases.id, purchaseId));
   }
 
   async approveCreditPurchase(purchaseId: string, adminEmail: string, notes?: string): Promise<void> {

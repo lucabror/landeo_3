@@ -23,7 +23,8 @@ import {
   AlertCircle,
   CheckCircle,
   Sparkles,
-  Trash2
+  Trash2,
+  Banknote
 } from "lucide-react";
 import CreditPurchaseDialog from "@/components/credit-purchase-dialog";
 import { ProtectedRoute, useAuth } from "@/hooks/use-auth";
@@ -98,6 +99,32 @@ function DashboardContent() {
   const { data: creditInfo = { credits: 0, totalCredits: 0, creditsUsed: 0 } } = useQuery({
     queryKey: ["/api/hotels", hotelId, "credits"],
     refetchInterval: 3000, // Auto-refresh every 3 seconds
+  });
+
+  // Fetch hotel credit purchases
+  const { data: creditPurchases = [] } = useQuery({
+    queryKey: ["/api/hotels", hotelId, "purchases"],
+  });
+
+  // Confirm bank transfer mutation
+  const confirmTransferMutation = useMutation({
+    mutationFn: async (purchaseId: string) => {
+      await apiRequest("POST", `/api/hotels/${hotelId}/purchases/${purchaseId}/confirm-transfer`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Successo",
+        description: "Bonifico confermato! Il tuo acquisto sarà elaborato dal nostro team.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "purchases"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore",
+        description: error.message || "Errore durante la conferma del bonifico",
+        variant: "destructive",
+      });
+    },
   });
 
   // Fetch hotel setup status
@@ -190,6 +217,54 @@ function DashboardContent() {
                   Acquista Crediti
                 </Button>
               </CreditPurchaseDialog>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Pending Credit Purchases */}
+        {Array.isArray(creditPurchases) && creditPurchases.filter((p: any) => p.status === 'pending' && !p.bankTransferConfirmed).length > 0 && (
+          <Card className="bg-blue-50 border-blue-200 mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-blue-900">
+                <Banknote className="h-5 w-5" />
+                Acquisti Crediti in Attesa
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {creditPurchases
+                  .filter((p: any) => p.status === 'pending' && !p.bankTransferConfirmed)
+                  .map((purchase: any) => (
+                    <div key={purchase.id} className="flex items-center justify-between p-4 bg-white border border-blue-200 rounded-lg">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">
+                          {purchase.packageType === 'basic' && 'Pacchetto Base'}
+                          {purchase.packageType === 'standard' && 'Pacchetto Standard'}
+                          {purchase.packageType === 'premium' && 'Pacchetto Premium'}
+                          {purchase.packageType === 'enterprise' && 'Pacchetto Enterprise'}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          €{purchase.packagePrice} per {purchase.creditsAmount} crediti
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Ordinato il {new Date(purchase.createdAt).toLocaleDateString('it-IT')}
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => confirmTransferMutation.mutate(purchase.id)}
+                        disabled={confirmTransferMutation.isPending}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        {confirmTransferMutation.isPending ? "Confermando..." : "Conferma Bonifico"}
+                      </Button>
+                    </div>
+                  ))
+                }
+                <div className="text-sm text-blue-800 bg-blue-100 p-3 rounded-md">
+                  💡 <strong>Dopo il bonifico:</strong> Clicca su "Conferma Bonifico" per notificare il nostro team. 
+                  I crediti saranno aggiunti al tuo account entro 24 ore dalla verifica.
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}
