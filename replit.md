@@ -10,6 +10,10 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: Allineati prezzi pacchetti crediti tra dashboard hotel e pagina pricing
+  - Aggiornati prezzi in CreditPurchaseDialog per essere identici a quelli in /pricing
+  - Pacchetto Base: 20€/20 crediti, Standard: 40€/40 crediti, Premium: 85€/90 crediti, Enterprise: 140€/150 crediti
+  - Rimossi bonus crediti eccessivi per mantenere coerenza con pricing pubblico
 - **2025-01-29**: Aggiunta voce "Assistenza" al menu laterale dashboard hotel
   - Nuovo menu item con icona LifeBuoy (salvagente) che porta alla pagina contatti del sito
   - Posizionato tra "Storico Acquisti" e "Profilo Utente" per facile accesso al supporto
