@@ -83,8 +83,8 @@ export default function CreditPurchaseDialog({ hotelId, currentCredits, children
     },
     onSuccess: (data) => {
       console.log("Purchase success:", data);
-      queryClient.invalidateQueries({ queryKey: [`/api/hotels/${hotelId}/credits`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/hotels/${hotelId}/credit-purchases`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "credits"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "purchases"] });
       setIsOpen(false);
       setSelectedPackage(null);
       toast({
