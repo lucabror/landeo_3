@@ -25,6 +25,7 @@ import ResetPasswordPage from "@/pages/reset-password";
 import GuestPreferencesPage from "@/pages/guest-preferences";
 import AdminDashboard from "@/pages/admin-dashboard";
 import UserProfile from "@/pages/user-profile";
+import PurchaseHistory from "@/pages/purchase-history";
 import HotelLogin from "@/pages/hotel-login";
 import AdminLogin from "@/pages/admin-login";
 import AdminProfile from "@/pages/admin-profile";
@@ -97,6 +98,15 @@ function Router() {
 
       {/* User profile */}
       <Route path="/profile" component={UserProfile} />
+
+      {/* Purchase history */}
+      <Route path="/purchase-history">
+        {() => (
+          <ProtectedRoute requiredRole="hotel">
+            <PurchaseHistory />
+          </ProtectedRoute>
+        )}
+      </Route>
 
       {/* Universal Login */}
       <Route path="/login" component={UniversalLogin} />
