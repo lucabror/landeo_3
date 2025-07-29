@@ -99,8 +99,21 @@ export default function GuestProfiles() {
   
   if (!user) {
     return <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
+      <div className="text-center space-y-4">
         <p className="text-gray-600">Caricamento autenticazione...</p>
+        <div className="text-sm text-gray-500">
+          <p>Se il caricamento non termina, la tua sessione potrebbe essere scaduta.</p>
+          <Button 
+            onClick={() => {
+              localStorage.clear();
+              window.location.href = '/login';
+            }}
+            variant="outline"
+            className="mt-2"
+          >
+            Effettua nuovo login
+          </Button>
+        </div>
       </div>
     </div>;
   }
