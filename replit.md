@@ -10,6 +10,9 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: Aggiunta voce "Assistenza" al menu laterale dashboard hotel
+  - Nuovo menu item con icona LifeBuoy (salvagente) che porta alla pagina contatti del sito
+  - Posizionato tra "Storico Acquisti" e "Profilo Utente" per facile accesso al supporto
 - **2025-01-29**: Implementato sistema di sicurezza completo del database con PostgreSQL e Drizzle ORM
   - Creato DatabaseSecurity layer con protezione SQL injection, rate limiting, input sanitization
   - Implementato SecureStorage wrapper per tutte le operazioni CRUD con audit logging
