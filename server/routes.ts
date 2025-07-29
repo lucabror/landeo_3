@@ -22,9 +22,7 @@ import { generateItinerary } from "./services/openai";
 import { generateQRCode } from "./services/qr";
 import { generateItineraryPDF } from "./services/pdf";
 import { enrichHotelData, isValidItalianLocation } from "./services/geocoding";
-// Attractions service temporaneo rimosso per ricostruzione
 import { sendGuestPreferencesEmail, sendCreditPurchaseInstructions, sendItineraryPDF } from "./services/email";
-import { generateItinerary } from "./services/openai";
 // Preference matcher temporaneamente rimosso per ricostruzione
 import { requireAuth } from "./services/security";
 import { randomUUID } from "crypto";
@@ -843,8 +841,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="Itinerario-${guestProfile.referenceName || 'Guest'}.pdf"`);
       
-      // Send the file
-      res.sendFile(pdfPath, { root: process.cwd() });
+      // Read and send the PDF file directly
+      const pdfBuffer = await fs.readFile(pdfPath);
+      res.send(pdfBuffer);
     } catch (error) {
       console.error('Error generating itinerary PDF:', error);
       res.status(500).json({ message: "Failed to generate itinerary PDF" });
