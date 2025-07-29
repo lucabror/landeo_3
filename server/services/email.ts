@@ -665,3 +665,90 @@ export async function sendCreditPurchaseInstructions(
     return {success: false, error: error.message || 'Email sending failed'};
   }
 }
+
+export async function sendSupportEmail({
+  name,
+  email,
+  subject,
+  message
+}: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}): Promise<boolean> {
+  try {
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Richiesta di Supporto - ${subject}</title>
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #f8fafc;">
+  <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
+    
+    <!-- Header -->
+    <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 30px; text-align: center;">
+      <h1 style="margin: 0; font-size: 24px; font-weight: 700;">Richiesta di Supporto</h1>
+      <p style="margin: 8px 0 0 0; font-size: 16px; opacity: 0.9;">Landeo - Supporto Clienti</p>
+    </div>
+    
+    <!-- Content -->
+    <div style="padding: 30px;">
+      <div style="background: #f8fafc; border-left: 4px solid #f59e0b; padding: 20px; margin-bottom: 25px; border-radius: 0 8px 8px 0;">
+        <h2 style="margin: 0 0 10px 0; color: #1f2937; font-size: 18px;">Oggetto:</h2>
+        <p style="margin: 0; font-size: 16px; font-weight: 600; color: #374151;">${subject}</p>
+      </div>
+      
+      <div style="margin-bottom: 25px;">
+        <h3 style="color: #1f2937; font-size: 16px; margin-bottom: 10px;">Informazioni Contatto:</h3>
+        <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb;">
+          <p style="margin: 0 0 8px 0;"><strong>Nome:</strong> ${name}</p>
+          <p style="margin: 0;"><strong>Email:</strong> ${email}</p>
+        </div>
+      </div>
+      
+      <div style="margin-bottom: 25px;">
+        <h3 style="color: #1f2937; font-size: 16px; margin-bottom: 10px;">Messaggio:</h3>
+        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
+          <p style="margin: 0; line-height: 1.7; color: #374151; white-space: pre-wrap;">${message}</p>
+        </div>
+      </div>
+      
+      <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; text-align: center;">
+        <p style="margin: 0; font-size: 14px; color: #6b7280;">
+          Questa email è stata inviata tramite il modulo di supporto di Landeo<br>
+          <strong>Data invio:</strong> ${new Date().toLocaleString('it-IT')}
+        </p>
+      </div>
+    </div>
+    
+  </div>
+</body>
+</html>`;
+
+    const { data, error } = await resend.emails.send({
+      from: 'Supporto Landeo <support@resend.dev>',
+      to: ['borroluca@gmail.com'],
+      replyTo: email,
+      subject: `[SUPPORTO] ${subject}`,
+      html: htmlContent,
+    });
+
+    if (error) {
+      console.error('Errore invio email supporto:', error);
+      return false;
+    }
+
+    if (data?.id) {
+      console.log(`Email supporto inviata con successo. ID: ${data.id}`);
+      return true;
+    }
+
+    return false;
+  } catch (error: any) {
+    console.error('Errore invio email supporto:', error);
+    return false;
+  }
+}

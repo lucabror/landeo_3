@@ -22,7 +22,7 @@ import { generateItinerary } from "./services/openai";
 import { generateQRCode } from "./services/qr";
 import { generateItineraryPDF } from "./services/pdf";
 import { enrichHotelData, isValidItalianLocation } from "./services/geocoding";
-import { sendGuestPreferencesEmail, sendCreditPurchaseInstructions, sendItineraryPDF } from "./services/email";
+import { sendGuestPreferencesEmail, sendCreditPurchaseInstructions, sendItineraryPDF, sendSupportEmail } from "./services/email";
 // Preference matcher temporaneamente rimosso per ricostruzione
 import { requireAuth } from "./services/security";
 import { randomUUID } from "crypto";
@@ -847,6 +847,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error generating itinerary PDF:', error);
       res.status(500).json({ message: "Failed to generate itinerary PDF" });
+    }
+  });
+
+  // Send support contact email
+  app.post("/api/contact/send-support", async (req, res) => {
+    try {
+      const { name, email, subject, message } = req.body;
+      
+      if (!name || !email || !subject || !message) {
+        return res.status(400).json({ message: "Tutti i campi sono obbligatori" });
+      }
+      
+      if (!process.env.SENDGRID_API_KEY) {
+        return res.status(500).json({ message: "Servizio email non configurato" });
+      }
+      
+      // Send email to support
+      const emailSuccess = await sendSupportEmail({
+        name,
+        email,
+        subject,
+        message
+      });
+      
+      if (emailSuccess) {
+        res.json({ message: "Email inviata con successo" });
+      } else {
+        res.status(500).json({ message: "Errore nell'invio dell'email" });
+      }
+    } catch (error) {
+      console.error('Error sending support email:', error);
+      res.status(500).json({ message: "Errore del server" });
     }
   });
 
