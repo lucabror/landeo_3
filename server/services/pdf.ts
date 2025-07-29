@@ -284,8 +284,17 @@ export async function generateItineraryPDF(
       // Finalize the PDF without adding unnecessary pages
       doc.end();
 
-      stream.on('finish', () => {
-        resolve(`/uploads/pdfs/${fileName}`);
+      stream.on('finish', async () => {
+        try {
+          // Verify file exists and is readable before resolving
+          await fs.access(filePath);
+          const stats = await fs.stat(filePath);
+          console.log('✅ PDF file written successfully:', filePath, 'Size:', stats.size, 'bytes');
+          resolve(filePath); // Return the full absolute path instead of relative
+        } catch (verifyError) {
+          console.error('❌ PDF file verification failed:', verifyError);
+          reject(new Error(`PDF file not accessible: ${verifyError.message}`));
+        }
       });
 
       stream.on('error', (error: Error) => {
