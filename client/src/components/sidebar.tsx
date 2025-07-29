@@ -12,7 +12,8 @@ import {
   QrCode,
   User,
   LogOut,
-  Banknote
+  Banknote,
+  LifeBuoy
 } from "lucide-react";
 
 const navigation = [
@@ -21,6 +22,7 @@ const navigation = [
   { name: "Profili Ospiti", href: "/guest-profiles", icon: Users },
   { name: "Esperienze Locali", href: "/local-experiences", icon: MapPin },
   { name: "Storico Acquisti", href: "/purchase-history", icon: Banknote },
+  { name: "Assistenza", href: "/contact", icon: LifeBuoy },
   { name: "Profilo Utente", href: "/profile", icon: User },
 ];
 
