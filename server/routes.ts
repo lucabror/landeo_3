@@ -996,6 +996,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+
   // Send support contact email
   app.post("/api/contact/send-support", async (req, res) => {
     try {
@@ -1731,7 +1732,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send notification to super-admin
       console.log('📧 Sending notification to super-admin...');
       try {
-        const { sendBankTransferNotification } = await import('../services/email.js');
+        const { sendBankTransferNotification } = await import('./services/email.js');
         const notificationResult = await sendBankTransferNotification(hotel, {
           id: purchase.id,
           packageType: purchase.packageType,

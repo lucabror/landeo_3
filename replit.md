@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-07-30**: ✅ IMPLEMENTATO SISTEMA NOTIFICA EMAIL SUPER-ADMIN per conferme bonifici
+  - Creata funzione sendBankTransferNotification utilizzando Resend API
+  - Email automatiche professionali inviate a borroluca@gmail.com e info@landeo.it
+  - Template HTML elegante con dettagli completi hotel e ordine crediti
+  - Sistema include rate limiting per prevenire spam di notifiche
+  - Integrato nell'endpoint confirm-transfer per attivazione automatica
+  - TESTATO e CONFERMATO: notifiche funzionanti al 100% (Email ID verificati)
 - **2025-07-30**: ✅ RISOLTO COMPLETAMENTE pulsante "Aggiorna Esperienza" Esperienze Locali
   - Corretto import mancante DialogDescription (causava errore critico "ReferenceError")
   - Risolto errore ".map is not a function" con controllo sicurezza Array.isArray

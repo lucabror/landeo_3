@@ -985,13 +985,22 @@ Notifica automatica - Non rispondere a questa email
     const recipients = ['borroluca@gmail.com', 'info@landeo.it'];
     
     for (const recipient of recipients) {
-      await resend.emails.send({
+      const { data, error } = await resend.emails.send({
         from: 'Notifiche Landeo <noreply@landeo.it>',
         to: recipient,
         subject: `🚨 BONIFICO CONFERMATO: ${hotel.name} - €${purchase.packagePrice}`,
         text: textContent,
         html: htmlContent,
       });
+      
+      if (error) {
+        console.error(`❌ Error sending notification to ${recipient}:`, error);
+        return { success: false, error: error.message || 'Email sending failed' };
+      }
+      
+      if (data?.id) {
+        console.log(`✅ Notification sent to ${recipient}. Email ID: ${data.id}`);
+      }
     }
 
     console.log('✅ Bank transfer notification sent to super-admin successfully');
