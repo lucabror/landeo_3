@@ -28,7 +28,7 @@ export class GooglePlacesService {
     }
 
     try {
-      // Use Text Search to find hotels
+      // Use Places API Text Search
       const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query + " hotel")}&type=lodging&key=${this.apiKey}`;
       
       const response = await fetch(searchUrl);
@@ -36,6 +36,18 @@ export class GooglePlacesService {
 
       if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
         console.error('Google Places API error:', data.status, data.error_message);
+        
+        // If API key is blocked, provide helpful error message
+        if (data.status === 'REQUEST_DENIED' && data.error_message?.includes('legacy API')) {
+          console.error('Google Places API key configuration issue. Please enable Places API (New) in Google Cloud Console.');
+          return [];
+        }
+        
+        if (data.status === 'REQUEST_DENIED' && data.error_message?.includes('referer')) {
+          console.error('Google Places API key has HTTP referrer restrictions. Please configure it for server-side use.');
+          return [];
+        }
+        
         return [];
       }
 
@@ -104,7 +116,7 @@ export class GooglePlacesService {
       }
 
       return {
-        placeId,
+        placeId: placeId,
         name: place.name || '',
         formattedAddress: place.formatted_address || '',
         city,
@@ -121,4 +133,8 @@ export class GooglePlacesService {
       return null;
     }
   }
+
+
 }
+
+export const googlePlacesService = new GooglePlacesService();
