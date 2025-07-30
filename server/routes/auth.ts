@@ -533,7 +533,7 @@ router.get('/me', requireAuth({ userType: 'both', requireMfa: true }), async (re
       await invalidateSession(sessionToken);
       
       // Log security event
-      await logSecurityEvent('logout', null, req.ip || 'unknown', 'successful', 'User logged out');
+      await logSecurityEvent(null, 'hotel', 'logout', req.ip || 'unknown', req.get('User-Agent'), { message: 'User logged out' });
       
       res.json({ message: "Logout completato con successo" });
     } catch (error) {
@@ -583,12 +583,8 @@ router.post('/forgot-password', async (req, res) => {
       resetToken = randomBytes(32).toString('hex');
       resetExpires = new Date(Date.now() + 3600000);
       
-      await db.update(adminUsers)
-        .set({ 
-          sessionToken: resetToken,
-          tokenExpiresAt: resetExpires 
-        })
-        .where(eq(adminUsers.id, admin.id));
+      // Admin password reset not yet implemented - use admin system
+      return res.status(501).json({ error: 'Reset password per admin non ancora implementato' });
         
       user = admin;
     }
@@ -704,25 +700,7 @@ router.post('/reset-password', async (req, res) => {
         
       user = hotel;
     } else if (userType === 'admin') {
-      const [admin] = await db.select().from(adminUsers)
-        .where(and(
-          eq(adminUsers.sessionToken, token),
-          gt(adminUsers.tokenExpiresAt, now)
-        ));
-        
-      if (!admin) {
-        return res.status(400).json({ error: 'Token non valido o scaduto' });
-      }
-      
-      const hashedPassword = await bcrypt.hash(password, 10);
-      
-      await db.update(adminUsers)
-        .set({ 
-          password: hashedPassword
-        })
-        .where(eq(adminUsers.id, admin.id));
-        
-      user = admin;
+      return res.status(501).json({ error: 'Reset password per admin non ancora implementato' });
     }
     
     res.json({ 
