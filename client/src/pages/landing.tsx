@@ -72,15 +72,16 @@ export default function Landing() {
                 </span>
               </h1>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">La prima piattaforma per Hotel Italiani che genera itinerari personalizzati per gli ospiti tramite l'AI e automatizza l'esperienza di soggiorno con tecnologia all'avanguardia.</p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col gap-4">
                 <Link href="/hotel-register">
-                  <Button size="lg" className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900 text-lg px-8">
-                    Inizia Gratis 5 itinerari gratuiti
+                  <Button size="lg" className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900 text-lg px-8 w-full sm:w-auto">
+                    <span className="hidden sm:inline">Inizia Gratis 5 itinerari gratuiti</span>
+                    <span className="sm:hidden">Inizia Gratis</span>
                     <ChevronRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
                 <Link href="/discover-more">
-                  <Button size="lg" variant="outline" className="border-stone-300 text-amber-800 hover:bg-stone-50 text-lg px-8">
+                  <Button size="lg" variant="outline" className="border-stone-300 text-amber-800 hover:bg-stone-50 text-lg px-8 w-full sm:w-auto">
                     Scopri di Più
                   </Button>
                 </Link>
@@ -518,14 +519,14 @@ export default function Landing() {
           <p className="text-xl text-amber-100 mb-8">
             Unisciti a centinaia di hotel italiani che stanno già offrendo esperienze straordinarie ai loro ospiti.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col gap-4 justify-center">
             <Link href="/hotel-register">
-              <Button size="lg" className="bg-white text-amber-700 hover:bg-gray-50 text-lg px-8">
+              <Button size="lg" className="bg-white text-amber-700 hover:bg-gray-50 text-lg px-8 w-full sm:w-auto">
                 Registrazione Gratuita
                 <ChevronRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-amber-700 text-lg px-8 bg-transparent">
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-amber-700 text-lg px-8 bg-transparent w-full sm:w-auto">
               Prenota Demo
             </Button>
           </div>
