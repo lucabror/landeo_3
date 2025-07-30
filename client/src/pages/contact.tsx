@@ -57,7 +57,7 @@ export default function Contact() {
       const fullName = `${data.firstName} ${data.lastName}`;
       const enhancedMessage = `${data.message}${data.hotelName ? `\n\nHotel: ${data.hotelName}` : ''}${data.phone ? `\nTelefono: ${data.phone}` : ''}`;
       
-      return await apiRequest("/api/contact/send-support", "POST", {
+      return await apiRequest("POST", "/api/contact/send-support", {
         name: fullName,
         email: data.email,
         subject: "Richiesta informazioni Landeo",

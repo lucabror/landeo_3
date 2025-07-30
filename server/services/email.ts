@@ -1102,7 +1102,7 @@ export async function sendSupportEmail({
 
     const { data, error } = await resend.emails.send({
       from: 'Supporto Landeo <supporto@landeo.it>',
-      to: ['borroluca@gmail.com'],
+      to: ['info@landeo.it'],
       replyTo: sanitizedEmail,
       subject: `[SUPPORTO] ${sanitizedSubject}`,
       html: htmlContent,

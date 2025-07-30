@@ -54,7 +54,7 @@ export default function Support() {
 
   const sendEmailMutation = useMutation({
     mutationFn: async (data: ContactFormData) => {
-      return await apiRequest("/api/contact/send-support", "POST", data);
+      return await apiRequest("POST", "/api/contact/send-support", data);
     },
     onSuccess: () => {
       toast({
