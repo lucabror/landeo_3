@@ -15,6 +15,8 @@ Preferred communication style: Simple, everyday language.
   - Applicato nuovo styling: text-[17px] font-light per header pagine principali
   - Aggiornati tutti i componenti: landing, login, contact, support, about, terms, privacy, admin-dashboard
   - Footer utilizza text-[15px] font-light per consistenza visiva
+  - Sidebar aggiornata con text-[15px] font-light per versione mobile
+  - Completato rebranding pagine features.tsx e pricing.tsx per mobile
   - Mantenuto colore amber-700 per coerenza con brand Landeo
 - **2025-01-29**: ✅ IMPLEMENTATI form di supporto e contatto che inviano email a borroluca@gmail.com
   - Pagina Support: sostituito semplice link con form completo (nome, email, oggetto, messaggio)
