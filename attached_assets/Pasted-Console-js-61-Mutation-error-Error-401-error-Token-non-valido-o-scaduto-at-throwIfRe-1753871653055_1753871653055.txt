@@ -1,0 +1,37 @@
+Console.js:61 🚨 Mutation error: Error: 401: {"error":"Token non valido o scaduto"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async apiRequest (queryClient.ts:32:3)
+    at async Object.mutationFn (hotel-setup.tsx:153:21)
+Mt.forEach.n.<computed> @ Console.js:61
+onError @ hotel-setup.tsx:175
+execute @ @tanstack_react-query.js?v=abbd80a2:1259
+await in execute
+mutate @ @tanstack_react-query.js?v=abbd80a2:2638
+(anonymous) @ @tanstack_react-query.js?v=abbd80a2:3352
+onSubmit @ hotel-setup.tsx:280
+(anonymous) @ chunk-EFI6BCH5.js?v=abbd80a2:1504
+await in (anonymous)
+onSubmit @ hotel-setup.tsx:402
+callCallback2 @ chunk-NXESFFTV.js?v=abbd80a2:3680
+invokeGuardedCallbackDev @ chunk-NXESFFTV.js?v=abbd80a2:3705
+invokeGuardedCallback @ chunk-NXESFFTV.js?v=abbd80a2:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-NXESFFTV.js?v=abbd80a2:3742
+executeDispatch @ chunk-NXESFFTV.js?v=abbd80a2:7046
+processDispatchQueueItemsInOrder @ chunk-NXESFFTV.js?v=abbd80a2:7066
+processDispatchQueue @ chunk-NXESFFTV.js?v=abbd80a2:7075
+dispatchEventsForPlugins @ chunk-NXESFFTV.js?v=abbd80a2:7083
+(anonymous) @ chunk-NXESFFTV.js?v=abbd80a2:7206
+batchedUpdates$1 @ chunk-NXESFFTV.js?v=abbd80a2:18966
+batchedUpdates @ chunk-NXESFFTV.js?v=abbd80a2:3585
+dispatchEventForPluginEventSystem @ chunk-NXESFFTV.js?v=abbd80a2:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-NXESFFTV.js?v=abbd80a2:5484
+dispatchEvent @ chunk-NXESFFTV.js?v=abbd80a2:5478
+dispatchDiscreteEvent @ chunk-NXESFFTV.js?v=abbd80a2:5455Understand this error
+Console.js:61 Hotel setup - User: {id: '123f4082-26d8-4df2-a034-3a6a17e65748', email: 'borroluca@gmail.com', name: 'Hotel Mario Rossi', type: 'hotel', hotelId: '123f4082-26d8-4df2-a034-3a6a17e65748'}
+Console.js:61 Hotel setup - Hotel ID: 123f4082-26d8-4df2-a034-3a6a17e65748
+Console.js:61 Hotel setup - Hotel data: undefined
+Console.js:61 Hotel setup - User: {id: '123f4082-26d8-4df2-a034-3a6a17e65748', email: 'borroluca@gmail.com', name: 'Hotel Mario Rossi', type: 'hotel', hotelId: '123f4082-26d8-4df2-a034-3a6a17e65748'}
+Console.js:61 Hotel setup - Hotel ID: 123f4082-26d8-4df2-a034-3a6a17e65748
+Console.js:61 Hotel setup - Hotel data: undefined
+ Stopping Trials as application is not D2, WebTop, xCP or eRoom
+contentScript.js:165 Stopping Trials as application is not D2, WebTop, xCP or eRoom
