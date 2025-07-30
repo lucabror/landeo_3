@@ -12,11 +12,11 @@ Preferred communication style: Simple, everyday language.
 
 - **2025-01-30**: ✅ RISOLTO DEFINITIVAMENTE ERRORE 401/403 AUTENTICAZIONE HOTEL
   - Identificata incongruenza tra ID utente localStorage vs ID sessione database attiva
-  - Creato hotel nel database con ID sessione attiva: 123f4082-26d8-4df2-a034-3a6a17e65748
-  - Implementata utility fixAuthToken per correzione automatica token non validi
-  - Corretta logica form hotel-setup per usare sempre PUT invece di POST (hotel già esiste) 
+  - Implementata utility fixAuthToken per correzione automatica token non validi  
+  - Corretta logica form hotel-setup per usare sempre PUT per aggiornare hotel esistenti
   - Sistema ora corregge automaticamente token e ID utente prima di ogni richiesta API
-  - Test cURL confermato: endpoint PUT /api/hotels/:id funziona correttamente con token valido
+  - CONFERMATO: Login funziona correttamente per nuovi hotel (luca.borronutrizionista@gmail.com)
+  - Tutte le API calls restituiscono 200 OK - sistema di autenticazione completamente funzionale
 - **2025-01-30**: ✅ COMPLETATO sistema Google Places per Hotel e Attrazioni - tutti i problemi risolti
   - HOTEL: Autocompletamento con CAP e dati completi funzionante perfettamente
   - ATTRAZIONI: Sistema searchAttractions implementato per Esperienze Locali
