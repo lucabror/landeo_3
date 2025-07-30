@@ -124,11 +124,11 @@ export default function HotelSetup() {
       // Se ci sono dati hotel, mostra in modalità read-only
       setIsEditing(false);
     } else {
-      // Se non ci sono dati, abilita modifica per la creazione e precompila email utente
+      // Hotel record exists but needs initial setup - enable editing
       setIsEditing(true);
       setSelectedServices([]);
       
-      // Set user email when creating new hotel
+      // Pre-populate user email for initial setup
       if (user?.email) {
         form.setValue('email', user.email);
       }
@@ -173,7 +173,7 @@ export default function HotelSetup() {
     onSuccess: () => {
       toast({
         title: "Successo",
-        description: hotel ? "Dati hotel aggiornati con successo!" : "Hotel creato con successo!",
+        description: "Hotel configurato con successo! Benvenuto in Landeo!",
       });
       // Invalidate the specific hotel query and dashboard queries
       queryClient.invalidateQueries({ queryKey: [`/api/hotels/${hotelId}`] });
