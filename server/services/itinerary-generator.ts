@@ -66,6 +66,8 @@ ${highMatchExperiences.length > 0 ?
      MATCH PERFETTO: ${match.matchingPreferences.join(", ")}
      Durata: ${match.experience.duration} | Prezzo: ${match.experience.priceRange}
      Località: ${match.experience.location}
+     Indirizzo: ${match.experience.address || 'Non specificato'}
+     Distanza dall'hotel: ${match.experience.distance || 'Non specificata'}
      Descrizione: ${match.experience.description}`).join('\n\n') :
   '   - Nessuna esperienza con match perfetto'
 }
@@ -76,7 +78,9 @@ ${mediumMatchExperiences.length > 0 ?
      Nome: ${match.experience.name} (${match.experience.category})
      Match parziale: ${match.matchingPreferences.join(", ") || "compatibile"}
      Durata: ${match.experience.duration} | Prezzo: ${match.experience.priceRange}
-     Località: ${match.experience.location}`) :
+     Località: ${match.experience.location}
+     Indirizzo: ${match.experience.address || 'Non specificato'}
+     Distanza dall'hotel: ${match.experience.distance || 'Non specificata'}`) :
   '   - Nessuna esperienza con match medio'
 }
 
@@ -84,7 +88,9 @@ ${mediumMatchExperiences.length > 0 ?
 ${lowMatchExperiences.length > 0 ? 
   lowMatchExperiences.map(match => `   - ID: ${match.experience.id}
      Nome: ${match.experience.name} (${match.experience.category})
-     Durata: ${match.experience.duration} | Località: ${match.experience.location}`) :
+     Durata: ${match.experience.duration} | Località: ${match.experience.location}
+     Indirizzo: ${match.experience.address || 'Non specificato'}
+     Distanza dall'hotel: ${match.experience.distance || 'Non specificata'}`) :
   '   - Nessuna esperienza standard'
 }
 
@@ -114,9 +120,11 @@ ${dates.map((date, index) => `    {
           "time": "09:00",
           "activity": "Nome attività mattutina",
           "location": "Dove si svolge",
-          "description": "Descrizione dell'attività",
+          "address": "Indirizzo completo se disponibile",
+          "description": "Descrizione completa dell'attività",
           "experienceId": "id_se_esperienza_locale",
           "duration": "durata stimata",
+          "distance": "distanza dall'hotel se disponibile",
           "notes": "Note specifiche per l'ospite"
         }
       ]
