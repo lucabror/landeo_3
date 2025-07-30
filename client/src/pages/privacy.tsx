@@ -72,7 +72,7 @@ export default function Privacy() {
         },
         {
           subtitle: "Conformità Legale",
-          text: "Possiamo divulgare informazioni quando richiesto per legge o per proteggere i diritti di AiTour o degli utenti."
+          text: "Possiamo divulgare informazioni quando richiesto per legge o per proteggere i diritti di Landeo o degli utenti."
         },
         {
           subtitle: "Mai Vendita",
