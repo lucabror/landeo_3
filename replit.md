@@ -10,11 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-- **2025-01-30**: ✅ RISOLTO problema Google Places API - configurazione chiave API sistemata
-  - Problema risolto: Google Places API key configurata correttamente per uso server-side
-  - Aggiornato servizio per usare Places API (New) con formato JSON corretto
-  - Autocompletamento hotel ora funziona perfettamente con suggerimenti real-time
-  - Sistema restituisce hotel italiani con dati completi: coordinates, telefono, sito web, CAP
+- **2025-01-30**: ✅ COMPLETATO sistema Google Places per Hotel e Attrazioni - tutti i problemi risolti
+  - HOTEL: Autocompletamento con CAP e dati completi funzionante perfettamente
+  - ATTRAZIONI: Sistema searchAttractions implementato per Esperienze Locali
+  - CRITICAL FIX: Rimosso campo "includedTypes" non supportato dall'API Google Places
+  - CRITICAL FIX: Email utente preservata durante selezione hotel dall'autocompletamento  
+  - CRITICAL FIX: CAP estratto correttamente da formattedAddress quando addressComponents non disponibile
+  - Sistema pronto per generazione AI esperienze locali entro 50km usando CAP hotel
 - **2025-01-30**: ✅ RISOLTO problema Resend email delivery - configurato dominio landeo.it per invio esterno
   - Problema: dominio landeo.it verificato ma email limitato solo a borroluca@gmail.com 
   - Causa: Resend richiede indirizzi mittente del dominio verificato per invio esterno

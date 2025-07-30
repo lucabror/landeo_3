@@ -100,7 +100,7 @@ export default function HotelSetup() {
         region: (hotel as any).region || '',
         postalCode: (hotel as any).postalCode || '',
         phone: (hotel as any).phone || '',
-        email: (hotel as any).email || '',
+        email: (hotel as any).email || user?.email || '', // Fallback to user email
         website: (hotel as any).website || '',
         description: (hotel as any).description || '',
         logoUrl: (hotel as any).logoUrl || '',
@@ -123,11 +123,16 @@ export default function HotelSetup() {
       // Se ci sono dati hotel, mostra in modalità read-only
       setIsEditing(false);
     } else {
-      // Se non ci sono dati, abilita modifica per la creazione
+      // Se non ci sono dati, abilita modifica per la creazione e precompila email utente
       setIsEditing(true);
       setSelectedServices([]);
+      
+      // Set user email when creating new hotel
+      if (user?.email) {
+        form.setValue('email', user.email);
+      }
     }
-  }, [hotel, form]);
+  }, [hotel, form, user]);
 
   // Legacy geocoding mutation (rimosso - ora usiamo l'autocomplete dinamico)
 
@@ -413,6 +418,9 @@ export default function HotelSetup() {
                       <HotelAutocomplete
                         value={form.watch("name")}
                         onSelect={(hotel) => {
+                          // Preserve current email from user account before populating other fields
+                          const currentEmail = form.getValues("email") || user?.email;
+                          
                           // Compila automaticamente tutti i campi
                           form.setValue("name", hotel.name);
                           form.setValue("address", hotel.formattedAddress);
@@ -421,6 +429,12 @@ export default function HotelSetup() {
                           form.setValue("postalCode", hotel.postalCode);
                           form.setValue("latitude", hotel.latitude.toString());
                           form.setValue("longitude", hotel.longitude.toString());
+                          
+                          // Set email to user's email (Google Places doesn't provide hotel email)
+                          if (currentEmail) {
+                            form.setValue("email", currentEmail);
+                          }
+                          
                           if (hotel.phone) {
                             form.setValue("phone", hotel.phone);
                           }
@@ -431,7 +445,7 @@ export default function HotelSetup() {
                           
                           toast({
                             title: "Hotel selezionato",
-                            description: `Dati caricati automaticamente per ${hotel.name}`,
+                            description: `Dati caricati automaticamente per ${hotel.name}. CAP: ${hotel.postalCode}`,
                           });
                         }}
                         placeholder="Inizia a digitare il nome del tuo hotel..."
