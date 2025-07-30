@@ -75,10 +75,8 @@ router.post("/register-hotel", async (req, res) => {
       expiresAt,
     });
 
-    // Invia email di verifica - URL deve puntare al frontend
-    const baseUrl = process.env.REPLIT_DOMAINS 
-      ? `https://${process.env.REPLIT_DOMAINS}` 
-      : 'http://localhost:5000';
+    // Invia email di verifica - URL deve puntare al dominio principale
+    const baseUrl = 'https://landeo.it';
     
     const verificationUrl = `${baseUrl}/registration-confirmed/${verificationToken}`;
 

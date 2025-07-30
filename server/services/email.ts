@@ -95,9 +95,7 @@ export async function sendGuestPreferencesEmail(
     const language = guestProfile.emailLanguage || 'it';
     const template = EMAIL_TEMPLATES[language as keyof typeof EMAIL_TEMPLATES];
     
-    const baseUrl = process.env.REPLIT_DOMAINS 
-      ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` 
-      : 'http://localhost:5000';
+    const baseUrl = 'https://landeo.it';
     const preferencesUrl = `${baseUrl}/guest-preferences/${preferencesToken}`;
     
     const checkinDate = new Date(guestProfile.checkInDate).toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US');
