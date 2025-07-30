@@ -600,6 +600,7 @@ export default function LocalExperiences() {
                         // Populate form with Google Places data
                         form.setValue("name", attraction.name);
                         form.setValue("location", `${attraction.city}, ${attraction.region}`);
+                        form.setValue("address", attraction.formattedAddress || "");
                         form.setValue("category", attraction.category);
                         form.setValue("description", `${attraction.name} a ${attraction.city}${attraction.formattedAddress ? ` - ${attraction.formattedAddress.split(',').slice(0, 2).join(', ')}` : ''}`);
                         form.setValue("rating", attraction.rating);
