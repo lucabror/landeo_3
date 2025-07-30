@@ -53,22 +53,8 @@ export function HotelAutocomplete({
   }, [query]);
 
   // Search hotels using the API
-  const { data: suggestions = [], isLoading } = useQuery({
+  const { data: suggestions = [], isLoading } = useQuery<HotelSuggestion[]>({
     queryKey: ['/api/hotels/search', debouncedQuery],
-    queryFn: async () => {
-      if (!debouncedQuery || debouncedQuery.length < 2) {
-        return [];
-      }
-      const response = await fetch(`/api/hotels/search?query=${encodeURIComponent(debouncedQuery)}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('sessionToken')}`
-        }
-      });
-      if (!response.ok) {
-        throw new Error('Failed to search hotels');
-      }
-      return response.json();
-    },
     enabled: debouncedQuery.length >= 2,
     staleTime: 30000, // Cache for 30 seconds
   });

@@ -129,8 +129,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Dynamic hotel search endpoint with Google Places API
-  app.get("/api/hotels/search", requireAuth({ userType: 'hotel' }), async (req, res) => {
+  // Dynamic hotel search endpoint with Google Places API (public endpoint)
+  app.get("/api/hotels/search", async (req, res) => {
     try {
       const { query } = req.query;
       
