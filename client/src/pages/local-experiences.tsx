@@ -216,13 +216,13 @@ export default function LocalExperiences() {
   const hotelId = user?.hotelId;
 
   // Fetch local experiences
-  const { data: experiences = [], isLoading } = useQuery({
+  const { data: experiences = [], isLoading } = useQuery<any[]>({
     queryKey: ["/api/hotels", hotelId, "local-experiences"],
     enabled: !!hotelId,
   });
 
   // Fetch guest profiles for matching
-  const { data: guestProfiles = [] } = useQuery({
+  const { data: guestProfiles = [] } = useQuery<any[]>({
     queryKey: ["/api/hotels", hotelId, "guest-profiles"],
     enabled: !!hotelId,
   });
@@ -234,7 +234,7 @@ export default function LocalExperiences() {
   });
 
   // Fetch pending attractions
-  const { data: pendingAttractions = [], isLoading: isLoadingPending } = useQuery({
+  const { data: pendingAttractions = [], isLoading: isLoadingPending } = useQuery<any[]>({
     queryKey: ["/api/hotels", hotelId, "pending-attractions"],
     enabled: !!hotelId,
   });
@@ -820,7 +820,7 @@ export default function LocalExperiences() {
                 
                 <div className="flex items-center space-x-2">
                   <Switch 
-                    checked={form.watch("isActive")} 
+                    checked={form.watch("isActive") || false} 
                     onCheckedChange={(checked) => form.setValue("isActive", checked)}
                   />
                   <Label>Esperienza attiva</Label>
@@ -972,7 +972,7 @@ export default function LocalExperiences() {
                 {selectedGuestId && selectedGuestId !== "none" && matchData && (
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                     <div className="text-sm text-gray-600">
-                      <strong>Preferenze:</strong> {(matchData as any)?.guestProfile?.preferences?.join(", ") || "Nessuna"}
+                      <strong>Preferenze:</strong> {((matchData as any)?.guestProfile?.preferences?.join(", ")) || "Nessuna"}
                     </div>
                   </div>
                 )}
@@ -1129,7 +1129,7 @@ export default function LocalExperiences() {
                         <div className="mt-3 flex justify-between items-center">
                           <div className="flex items-center">
                             <Switch 
-                              checked={experience.isActive} 
+                              checked={experience.isActive || false} 
                               onCheckedChange={(checked) => {
                                 updateMutation.mutate({
                                   id: experience.id,
