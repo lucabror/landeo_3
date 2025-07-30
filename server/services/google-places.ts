@@ -141,26 +141,9 @@ export class GooglePlacesService {
 
     try {
       console.log(`🔍 Searching attractions for query: "${query}"`);
-      
-      const searchTypes = [
-        'tourist_attraction',
-        'museum',
-        'amusement_park', 
-        'art_gallery',
-        'church',
-        'park',
-        'zoo',
-        'aquarium',
-        'night_club',
-        'restaurant',
-        'spa',
-        'shopping_mall',
-        'point_of_interest'
-      ];
 
       const requestBody = {
         textQuery: query,
-        includedTypes: searchTypes,
         maxResultCount: 20,
         ...(location && {
           locationBias: {
@@ -173,7 +156,7 @@ export class GooglePlacesService {
             }
           }
         }),
-        regionCode: 'IT', // Focus on Italy
+        regionCode: 'IT', // Focus on Italy  
         languageCode: 'it'
       };
 
