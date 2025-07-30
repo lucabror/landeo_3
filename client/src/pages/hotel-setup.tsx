@@ -16,6 +16,7 @@ import { hotelSetupSchema } from "@shared/schema";
 import type { HotelSetup } from "@shared/schema";
 
 import { useAuth } from "@/hooks/use-auth";
+import { HotelAutocomplete } from '@/components/HotelAutocomplete';
 
 // Available hotel services
 const HOTEL_SERVICES = [
@@ -33,7 +34,6 @@ export default function HotelSetup() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
   const [searchStatus, setSearchStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -129,44 +129,7 @@ export default function HotelSetup() {
     }
   }, [hotel, form]);
 
-  // Geocoding mutation
-  const searchHotelMutation = useMutation({
-    mutationFn: async ({ name, city, region }: { name: string; city?: string; region?: string }) => {
-      const res = await apiRequest("POST", "/api/hotels/geocode", { name, city, region });
-      return res.json();
-    },
-    onSuccess: (data) => {
-      // Aggiorna il form con i dati trovati
-      form.setValue("name", data.name);
-      form.setValue("address", data.address);
-      form.setValue("city", data.city);
-      form.setValue("region", data.region);
-      form.setValue("postalCode", data.postalCode);
-      form.setValue("latitude", data.latitude);
-      form.setValue("longitude", data.longitude);
-      
-      if (data.phone) form.setValue("phone", data.phone);
-      if (data.website) form.setValue("website", data.website);
-      
-      setSearchStatus('success');
-      setIsSearching(false);
-      
-      toast({
-        title: "Hotel trovato!",
-        description: `${data.name} in ${data.city}, ${data.region}`,
-      });
-    },
-    onError: (error: any) => {
-      setSearchStatus('error');
-      setIsSearching(false);
-      
-      toast({
-        title: "Hotel non trovato",
-        description: "Hotel Non trovato. Riprova a scrivere il nome oppure inserisci la struttura manualmente compilando tutti i campi",
-        variant: "destructive",
-      });
-    }
-  });
+  // Legacy geocoding mutation (rimosso - ora usiamo l'autocomplete dinamico)
 
   const mutation = useMutation({
     mutationFn: async (data: HotelSetup) => {
@@ -213,26 +176,7 @@ export default function HotelSetup() {
     },
   });
 
-  const handleHotelSearch = () => {
-    const hotelName = form.getValues("name");
-    if (!hotelName || hotelName.trim() === '') {
-      toast({
-        title: "Nome richiesto",
-        description: "Inserisci il nome dell'hotel per cercarlo",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSearching(true);
-    setSearchStatus('idle');
-    
-    searchHotelMutation.mutate({
-      name: hotelName,
-      city: form.getValues("city"),
-      region: form.getValues("region")
-    });
-  };
+  // Funzione handleHotelSearch rimossa - ora usiamo l'autocomplete dinamico
 
   // Logo upload mutation
   const logoUploadMutation = useMutation({
@@ -464,50 +408,53 @@ export default function HotelSetup() {
                   <Label htmlFor="name" className="flex items-center">
                     Nome Hotel <span className="text-red-500 ml-1">*</span>
                   </Label>
-                  <div className="flex gap-2 mt-1">
+                  {isEditing ? (
+                    <div className="mt-1">
+                      <HotelAutocomplete
+                        value={form.watch("name")}
+                        onSelect={(hotel) => {
+                          // Compila automaticamente tutti i campi
+                          form.setValue("name", hotel.name);
+                          form.setValue("address", hotel.formattedAddress);
+                          form.setValue("city", hotel.city);
+                          form.setValue("region", hotel.region);
+                          form.setValue("postalCode", hotel.postalCode);
+                          form.setValue("latitude", hotel.latitude.toString());
+                          form.setValue("longitude", hotel.longitude.toString());
+                          if (hotel.phone) {
+                            form.setValue("phone", hotel.phone);
+                          }
+                          if (hotel.website) {
+                            form.setValue("website", hotel.website);
+                          }
+                          setSearchStatus('success');
+                          
+                          toast({
+                            title: "Hotel selezionato",
+                            description: `Dati caricati automaticamente per ${hotel.name}`,
+                          });
+                        }}
+                        placeholder="Inizia a digitare il nome del tuo hotel..."
+                        className={form.formState.errors.name ? 'border-red-500' : ''}
+                      />
+                      {form.formState.errors.name && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {form.formState.errors.name.message}
+                        </p>
+                      )}
+                      <p className="text-xs text-gray-500 mt-1">
+                        Inizia a digitare e seleziona il tuo hotel per compilare automaticamente tutti i campi
+                      </p>
+                    </div>
+                  ) : (
                     <Input
                       id="name"
-                      {...form.register("name")}
+                      value={form.watch("name")}
                       placeholder="Grand Hotel Villa Medici"
-                      className={`flex-1 ${form.formState.errors.name ? 'border-red-500' : ''}`}
-                      disabled={!isEditing}
+                      className="mt-1"
+                      disabled={true}
+                      readOnly
                     />
-                    {isEditing && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleHotelSearch}
-                        disabled={isSearching}
-                        size="sm"
-                        className="px-3"
-                      >
-                        {isSearching ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : searchStatus === 'success' ? (
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                        ) : searchStatus === 'error' ? (
-                          <AlertCircle className="h-4 w-4 text-red-600" />
-                        ) : (
-                          <Search className="h-4 w-4" />
-                        )}
-                      </Button>
-                    )}
-                  </div>
-                  {form.formState.errors.name && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {form.formState.errors.name.message}
-                    </p>
-                  )}
-                  {!isSearching && searchStatus === 'idle' && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Clicca sul pulsante di ricerca per compilare automaticamente i dati geografici
-                    </p>
-                  )}
-                  {searchStatus === 'success' && (
-                    <p className="text-xs text-green-600 mt-1 flex items-center">
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      Dati hotel caricati automaticamente
-                    </p>
                   )}
                 </div>
 
