@@ -225,8 +225,8 @@ export async function generateItineraryPDF(
                 yPosition = 80; // Start higher to avoid layout issues
               }
 
-              // Activity row like spa treatment entry
-              const rowHeight = 60;
+              // Activity row like spa treatment entry (increased height for address info)
+              const rowHeight = (activity.location || activity.address) ? 75 : 60;
               doc.rect(leftMargin, yPosition, rightMargin - leftMargin, rowHeight).fill(colors.cardBackground);
               doc.strokeColor(colors.borderLight).lineWidth(0.5);
               doc.rect(leftMargin, yPosition, rightMargin - leftMargin, rowHeight).stroke();
@@ -237,25 +237,46 @@ export async function generateItineraryPDF(
                  .fillColor(colors.darkText)
                  .text(activity.activity, leftMargin + 15, yPosition + 10);
 
+              // Location and address information
+              if (activity.location || activity.address) {
+                let locationText = '';
+                if (activity.location && activity.address) {
+                  locationText = `${activity.location} - ${activity.address}`;
+                } else {
+                  locationText = activity.location || activity.address || '';
+                }
+                
+                doc.font('Helvetica')
+                   .fontSize(9)
+                   .fillColor(colors.mediumText)
+                   .text(locationText, leftMargin + 15, yPosition + 25, { 
+                     width: 300, 
+                     height: 12,
+                     ellipsis: true
+                   });
+              }
+
               // Source label with spa-style colors (without emoji to avoid PDF encoding issues)
+              const sourceYPosition = (activity.location || activity.address) ? yPosition + 38 : yPosition + 28;
               if (activity.source === 'preference-matched') {
                 doc.font('Helvetica')
                    .fontSize(8)
                    .fillColor(colors.primaryTeal)
-                   .text(`• ${template.preferenceMatched}`, leftMargin + 15, yPosition + 28);
+                   .text(`• ${template.preferenceMatched}`, leftMargin + 15, sourceYPosition);
               } else if (activity.source === 'hotel-suggested') {
                 doc.font('Helvetica')
                    .fontSize(8)
                    .fillColor(colors.lightTeal)
-                   .text(`• ${template.hotelSuggested}`, leftMargin + 15, yPosition + 28);
+                   .text(`• ${template.hotelSuggested}`, leftMargin + 15, sourceYPosition);
               }
 
               // Description
+              const descriptionYPosition = (activity.location || activity.address) ? yPosition + 52 : yPosition + 42;
               if (activity.description) {
                 doc.font('Helvetica')
                    .fontSize(9)
                    .fillColor(colors.mediumText)
-                   .text(activity.description, leftMargin + 15, yPosition + 42, { 
+                   .text(activity.description, leftMargin + 15, descriptionYPosition, { 
                      width: 300, 
                      height: 15,
                      ellipsis: true
@@ -331,7 +352,7 @@ export async function generateItineraryPDF(
           resolve(filePath); // Return the full absolute path instead of relative
         } catch (verifyError) {
           console.error('❌ PDF file verification failed:', verifyError);
-          reject(new Error(`PDF file not accessible: ${verifyError.message}`));
+          reject(new Error(`PDF file not accessible: ${verifyError instanceof Error ? verifyError.message : String(verifyError)}`));
         }
       });
 

@@ -188,6 +188,7 @@ export const itineraries = pgTable("itineraries", {
       time: string;
       activity: string;
       location: string;
+      address?: string;
       description: string;
       experienceId?: string;
       duration?: string;
