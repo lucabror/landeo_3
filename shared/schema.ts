@@ -61,7 +61,8 @@ export const localExperiences = pgTable("local_experiences", {
   name: text("name").notNull(),
   category: text("category").notNull(), // cultura, gastronomia, natura, relax, avventura
   description: text("description").notNull(),
-  location: text("location").notNull(),
+  location: text("location").notNull(), // Main locality/city
+  address: text("address"), // Specific street address
   distance: text("distance"), // e.g., "15 min", "25 km"
   duration: text("duration"), // e.g., "2 ore", "mezza giornata"
   priceRange: text("price_range"),
