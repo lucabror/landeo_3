@@ -46,7 +46,8 @@ ISTRUZIONI OBBLIGATORIE:
 8. IMPORTANTE: Per ogni attività, specifica SEMPRE il campo "source":
    - "preference-matched" per esperienze marcate come "PREFERENZA TOP" o "BUON MATCH"
    - "hotel-suggested" per esperienze marcate come "STANDARD"
-9. VINCOLO ASSOLUTO: Non aggiungere mai attività non presenti nella lista "ESPERIENZE LOCALI DISPONIBILI"
+9. INFORMAZIONI LOCALITÀ: Per ogni attività, includi sia "location" (località generale) che "address" (indirizzo specifico) quando disponibili dalle esperienze locali
+10. VINCOLO ASSOLUTO: Non aggiungere mai attività non presenti nella lista "ESPERIENZE LOCALI DISPONIBILI"
 
 Rispondi SOLO in formato JSON valido con questa struttura:
 {
@@ -61,6 +62,7 @@ Rispondi SOLO in formato JSON valido con questa struttura:
           "time": "09:00",
           "activity": "Nome attività",
           "location": "Luogo",
+          "address": "Indirizzo specifico (se disponibile)",
           "description": "Descrizione dettagliata",
           "experienceId": "id_esperienza_se_applicabile",
           "duration": "2 ore",
@@ -107,7 +109,8 @@ MANDATORY INSTRUCTIONS:
 8. IMPORTANT: For each activity, ALWAYS specify the "source" field:
    - "preference-matched" for experiences marked as "TOP PREFERENCE" or "GOOD MATCH"
    - "hotel-suggested" for experiences marked as "STANDARD"
-9. ABSOLUTE CONSTRAINT: Never add activities not present in the "AVAILABLE LOCAL EXPERIENCES" list
+9. LOCATION INFORMATION: For each activity, include both "location" (general area) and "address" (specific address) when available from local experiences
+10. ABSOLUTE CONSTRAINT: Never add activities not present in the "AVAILABLE LOCAL EXPERIENCES" list
 
 Respond ONLY in valid JSON format with this structure:
 {
@@ -122,6 +125,7 @@ Respond ONLY in valid JSON format with this structure:
           "time": "09:00",
           "activity": "Activity name",
           "location": "Location",
+          "address": "Specific address (if available)",
           "description": "Detailed description",
           "experienceId": "experience_id_if_applicable",
           "duration": "2 hours",
@@ -184,6 +188,7 @@ export async function generateItinerary(
       time: string;
       activity: string;
       location: string;
+      address?: string;
       description: string;
       experienceId?: string;
       duration?: string;
@@ -213,7 +218,8 @@ export async function generateItinerary(
     const preferenceList = match.matchingPreferences.length > 0 ? 
                           ` [${template.matchWith} ${match.matchingPreferences.join(", ")}]` : '';
     
-    return `${exp.name} (${exp.category}) - ${matchInfo}${preferenceList} - ${exp.description} - ${guestLanguage === 'it' ? 'Ubicazione' : 'Location'}: ${exp.location} - ${guestLanguage === 'it' ? 'Distanza' : 'Distance'}: ${exp.distance} - ${guestLanguage === 'it' ? 'Durata' : 'Duration'}: ${exp.duration} - Target: ${exp.targetAudience?.join(", ")}`;
+    const locationInfo = exp.address ? `${exp.location} - ${exp.address}` : exp.location;
+    return `${exp.name} (${exp.category}) - ${matchInfo}${preferenceList} - ${exp.description} - ${guestLanguage === 'it' ? 'Ubicazione' : 'Location'}: ${locationInfo} - ${guestLanguage === 'it' ? 'Distanza' : 'Distance'}: ${exp.distance} - ${guestLanguage === 'it' ? 'Durata' : 'Duration'}: ${exp.duration} - Target: ${exp.targetAudience?.join(", ")}`;
   }).join("\n");
 
   const prompt = template.promptTemplate(actualDays, hotel, guestProfile, experiencesText, checkInDate, checkOutDate);
