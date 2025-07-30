@@ -236,21 +236,33 @@ export default function HotelSetup() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Verifica tipo file
-    if (!file.type.includes('image/png') && !file.type.includes('image/jpeg') && !file.type.includes('image/jpg')) {
+    // Verifica tipo file - supporto esteso per sicurezza
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
       toast({
         title: "Formato non supportato",
-        description: "Carica solo file PNG o JPG",
+        description: "Carica solo file PNG, JPG, GIF o WebP",
         variant: "destructive",
       });
       return;
     }
 
-    // Verifica dimensione (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
+    // Verifica dimensione (2MB max per sicurezza)
+    if (file.size > 2 * 1024 * 1024) {
       toast({
         title: "File troppo grande",
-        description: "Il logo deve essere massimo 5MB",
+        description: "Il logo deve essere massimo 2MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Verifica nome file sicuro
+    const dangerousChars = /[<>:"|?*\x00-\x1f\x7f-\x9f]/;
+    if (dangerousChars.test(file.name) || file.name.includes('..') || file.name.includes('/') || file.name.includes('\\')) {
+      toast({
+        title: "Nome file non valido",
+        description: "Il nome del file contiene caratteri non permessi",
         variant: "destructive",
       });
       return;
@@ -742,7 +754,7 @@ export default function HotelSetup() {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/png,image/jpeg,image/jpg"
+                    accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
                     onChange={handleLogoUpload}
                     className="hidden"
                   />

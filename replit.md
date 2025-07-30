@@ -10,6 +10,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-07-30**: ✅ COMPLETATO validazione sicura upload file con magic numbers e sanitizzazione
+  - Implementata validazione magic numbers per prevenire file mascherati (JPEG, PNG, GIF, WebP)
+  - Doppia validazione: MIME type + estensione + intestazione file per sicurezza massima
+  - Path traversal protection avanzata: controlli `..`, `/`, `\`, encoding URL pericolosi
+  - Limite dimensione sicuro ridotto a 2MB per prevenire attacchi DoS
+  - Sanificazione nomi file: caratteri controllo, reserved names Windows, hidden files
+  - Cleanup automatico file non validi con `unlinkSync` in caso di errore
+  - Frontend aggiornato: supporto GIF/WebP, validazioni client-side rinforzate
+  - Applicato a endpoint `/api/upload/logo` con gestione errori completa
+  - TESTATO: sistema respinge file mascherati e accetta solo immagini valide
 - **2025-07-30**: ✅ COMPLETATO hashing sicuro session tokens con migrazione automatica
   - Implementata funzione `hashToken()` con SHA256 per sicurezza database
   - Token memorizzati come hash nel database, token originali restituiti agli utenti

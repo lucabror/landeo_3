@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import path from "path";
 import fs from "fs/promises";
-import { createWriteStream, unlinkSync, existsSync, mkdirSync } from "fs";
+import { createWriteStream, unlinkSync, existsSync, mkdirSync, readFileSync } from "fs";
 import { storage } from "./storage";
 import authRoutes from "./routes/auth";
 import hotelRegistrationRoutes from "./routes/hotel-registration";
@@ -34,17 +34,56 @@ import { Resend } from "resend";
 
 
 
-// Validation per nomi file sicuri
+// Validazione sicura per upload file - implementazione sicurezza avanzata
 function isValidFilename(filename: string): boolean {
   const invalidChars = /[<>:"/\\|?*\x00-\x1f]/;
   const reservedNames = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i;
+  const dangerousPatterns = /(\.\.|\/|\\|%2e%2e|%2f|%5c)/i; // Path traversal patterns
+  
   return !invalidChars.test(filename) && 
          !reservedNames.test(filename.split('.')[0]) &&
+         !dangerousPatterns.test(filename) &&
          filename.length > 0 && 
-         filename.length <= 255;
+         filename.length <= 255 &&
+         !/^\.|^-/.test(filename); // No hidden files or files starting with dash
 }
 
-// Configurazione multer per upload dei loghi
+// Validazione magic numbers per identificare il vero tipo di file
+function validateFileHeader(filepath: string, expectedType: string): boolean {
+  try {
+    const buffer = readFileSync(filepath);
+    const header = buffer.toString('hex', 0, 8).toUpperCase();
+    
+    // Magic numbers per tipi di file immagine
+    const signatures = {
+      'jpeg': ['FFD8FF'],
+      'png': ['89504E47'],
+      'gif': ['47494638'],
+      'webp': ['52494646'] // RIFF header, WebP si identifica nei byte 8-11
+    };
+    
+    // Controllo specifico per tipo
+    switch (expectedType.toLowerCase()) {
+      case 'jpeg':
+      case 'jpg':
+        return signatures.jpeg.some(sig => header.startsWith(sig));
+      case 'png':
+        return signatures.png.some(sig => header.startsWith(sig));
+      case 'gif':
+        return signatures.gif.some(sig => header.startsWith(sig));
+      case 'webp':
+        return header.startsWith(signatures.webp[0]) && 
+               buffer.toString('ascii', 8, 12) === 'WEBP';
+      default:
+        return false;
+    }
+  } catch (error) {
+    console.error('Error validating file header:', error);
+    return false;
+  }
+}
+
+// Configurazione multer sicura per upload loghi hotel
 const logoStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadsDir = path.join(process.cwd(), 'uploads', 'logos');
@@ -54,45 +93,83 @@ const logoStorage = multer.diskStorage({
     cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
-    const uniqueName = `logo-${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
+    // Genera nome sicuro con timestamp e random per unicità
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const safeExtension = path.extname(file.originalname).toLowerCase();
+    cb(null, file.fieldname + '-' + uniqueSuffix + safeExtension);
   }
 });
 
 const logoUpload = multer({
   storage: logoStorage,
-  limits: {
-    fileSize: 2 * 1024 * 1024, // 2MB (ridotto da 5MB)
+  limits: { 
+    fileSize: 2 * 1024 * 1024, // 2MB max per sicurezza
+    fieldNameSize: 100, // Limite nome campo
+    fieldSize: 1024, // Limite dimensione campo
+    fields: 1, // Solo un campo
+    files: 1 // Solo un file
   },
   fileFilter: (req, file, cb) => {
-    // Validazione rigorosa del tipo file
-    const allowedMimes = ['image/jpeg', 'image/png', 'image/jpg'];
-    const allowedExtensions = ['.jpg', '.jpeg', '.png'];
-    
-    if (!allowedMimes.includes(file.mimetype)) {
-      return cb(new Error('Solo file PNG e JPG sono consentiti'));
+    try {
+      // Validazione tipo MIME sicura - solo immagini
+      const allowedTypes = /jpeg|jpg|png|gif|webp/;
+      const allowedMimes = [
+        'image/jpeg', 
+        'image/jpg', 
+        'image/png', 
+        'image/gif', 
+        'image/webp'
+      ];
+      
+      // Controllo doppio: estensione E mimetype
+      const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+      const mimetype = allowedMimes.includes(file.mimetype.toLowerCase());
+      
+      if (!extname || !mimetype) {
+        return cb(new Error('Solo file immagine permessi (JPEG, PNG, GIF, WebP)'));
+      }
+      
+      // Validazione nome file sicuro
+      if (!isValidFilename(file.originalname)) {
+        return cb(new Error('Nome file non valido o pericoloso'));
+      }
+      
+      // Controllo lunghezza nome file originale
+      if (file.originalname.length > 100) {
+        return cb(new Error('Nome file troppo lungo'));
+      }
+      
+      // Controllo caratteri pericolosi aggiuntivi
+      const dangerousChars = /[<>:"|?*\x00-\x1f\x7f-\x9f]/;
+      if (dangerousChars.test(file.originalname)) {
+        return cb(new Error('Nome file contiene caratteri non permessi'));
+      }
+      
+      cb(null, true);
+    } catch (error) {
+      cb(new Error('Errore validazione file'));
     }
-    
-    const fileExtension = path.extname(file.originalname).toLowerCase();
-    if (!allowedExtensions.includes(fileExtension)) {
-      return cb(new Error('Estensione file non valida'));
-    }
-    
-    // Controllo dimensione filename per evitare path traversal
-    if (file.originalname.includes('..') || file.originalname.includes('/') || file.originalname.includes('\\')) {
-      return cb(new Error('Nome file non valido'));
-    }
-    
-    cb(null, true);
   }
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Logo upload endpoint
+  // Logo upload endpoint con validazione sicurezza avanzata
   app.post("/api/upload/logo", logoUpload.single('logo'), (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "Nessun file caricato" });
+      }
+
+      // Validazione magic numbers per prevenire file mascherati
+      const fileExtension = path.extname(req.file.originalname).toLowerCase().substring(1);
+      const isValidHeader = validateFileHeader(req.file.path, fileExtension);
+      
+      if (!isValidHeader) {
+        // Elimina il file non valido
+        unlinkSync(req.file.path);
+        return res.status(400).json({ 
+          message: "File non valido: il contenuto non corrisponde all'estensione" 
+        });
       }
 
       const logoUrl = `/uploads/logos/${req.file.filename}`;
@@ -105,6 +182,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
     } catch (error) {
       console.error('Logo upload error:', error);
+      
+      // Pulisci il file in caso di errore
+      if (req.file?.path && existsSync(req.file.path)) {
+        unlinkSync(req.file.path);
+      }
+      
       res.status(500).json({ 
         message: (error as Error).message || "Errore durante il caricamento del logo" 
       });
