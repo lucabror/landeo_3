@@ -7,7 +7,7 @@ import { Sidebar } from "@/components/sidebar";
 import { QRModal } from "@/components/qr-modal";
 import { useToast } from "@/hooks/use-toast";
 
-import { Link } from "wouter";
+
 import { 
   Route, 
   Eye, 
@@ -15,8 +15,7 @@ import {
   Calendar,
   Users,
   Clock,
-  Loader2,
-  Plus
+  Loader2
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
@@ -247,15 +246,9 @@ export default function Itineraries() {
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                   Nessun itinerario generato
                 </h3>
-                <p className="text-gray-500 mb-4">
-                  Inizia creando il primo itinerario personalizzato per i tuoi ospiti.
+                <p className="text-gray-500">
+                  Gli itinerari verranno visualizzati qui una volta generati per i tuoi ospiti.
                 </p>
-                <Link href="/">
-                  <Button className="bg-primary hover:bg-primary/90">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Genera Primo Itinerario
-                  </Button>
-                </Link>
               </div>
             )}
           </div>
