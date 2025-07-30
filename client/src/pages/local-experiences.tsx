@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -417,9 +417,19 @@ export default function LocalExperiences() {
   });
 
   const onSubmit = (data: InsertLocalExperience) => {
-    console.log("Form submitted:", data);
-    console.log("Is editing:", !!editingExperience);
-    console.log("Editing experience ID:", editingExperience?.id);
+    console.log("🔄 Form submitted:", data);
+    console.log("🔄 Is editing:", !!editingExperience);
+    console.log("🔄 Editing experience ID:", editingExperience?.id);
+    
+    // Validate required fields
+    if (!data.name || !data.category) {
+      toast({
+        title: "Errore",
+        description: "Nome e categoria sono obbligatori",
+        variant: "destructive",
+      });
+      return;
+    }
     
     // Process contact info
     const contactInfo: any = {};
@@ -436,7 +446,10 @@ export default function LocalExperiences() {
       contactInfo: Object.keys(contactInfo).length > 0 ? contactInfo : undefined,
     };
     
-    console.log("Submitting data:", submissionData);
+    console.log("🚀 Submitting data:", submissionData);
+    console.log("🚀 Mutation will use method:", editingExperience ? "PUT" : "POST");
+    console.log("🚀 Mutation will use URL:", editingExperience ? `/api/local-experiences/${editingExperience.id}` : "/api/local-experiences");
+    
     mutation.mutate(submissionData);
   };
 
@@ -597,6 +610,9 @@ export default function LocalExperiences() {
                   <MapPin className="mr-2 h-5 w-5" />
                   {editingExperience ? "Modifica Esperienza" : "Nuova Esperienza Locale"}
                 </DialogTitle>
+                <DialogDescription>
+                  {editingExperience ? "Modifica i dettagli dell'esperienza locale" : "Crea una nuova esperienza locale per i tuoi ospiti"}
+                </DialogDescription>
               </DialogHeader>
               
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
