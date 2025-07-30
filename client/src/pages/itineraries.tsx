@@ -6,14 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Sidebar } from "@/components/sidebar";
 import { QRModal } from "@/components/qr-modal";
 import { useToast } from "@/hooks/use-toast";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+
 import { Link } from "wouter";
 import { 
   Route, 
   Eye, 
   QrCode, 
-  FileText, 
-  Trash2, 
   Calendar,
   Users,
   Clock,
@@ -45,38 +43,13 @@ export default function Itineraries() {
     enabled: !!hotelId,
   });
 
-  // Delete mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await apiRequest("DELETE", `/api/itineraries/${id}`);
-    },
-    onSuccess: () => {
-      toast({
-        title: "Successo",
-        description: "Itinerario eliminato con successo!",
-      });
-      
-      // Invalidate all related queries immediately for instant UI update
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "itineraries"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "guest-profiles"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/hotels", hotelId, "stats"] });
-      
-      // Also invalidate any guest-specific itinerary queries
-      const guestProfiles = queryClient.getQueryData(["/api/hotels", hotelId, "guest-profiles"]) as any[];
-      if (guestProfiles) {
-        guestProfiles.forEach((profile: any) => {
-          queryClient.invalidateQueries({ queryKey: ["/api/guest-profiles", profile.id, "itinerary"] });
-        });
-      }
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Errore",
-        description: error.message || "Errore durante l'eliminazione",
-        variant: "destructive",
-      });
-    },
+  // Fetch hotel data for QR modal
+  const { data: hotel } = useQuery({
+    queryKey: ["/api/hotels", hotelId],
+    enabled: !!hotelId,
   });
+
+
 
   const handleShowQR = (itinerary: any) => {
     const guestProfile = guestProfiles?.find((g: any) => g.id === itinerary.guestProfileId);
@@ -84,9 +57,7 @@ export default function Itineraries() {
     setQrModalOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    deleteMutation.mutate(id);
-  };
+
 
   const handleShare = (itinerary: any) => {
     const domains = process.env.REPLIT_DOMAINS || "localhost:5000";
@@ -224,32 +195,7 @@ export default function Itineraries() {
                           <Share className="h-4 w-4 mr-1" />
                           Condividi
                         </Button>
-                        
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Eliminare l'itinerario?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Questa azione non può essere annullata. L'itinerario verrà eliminato definitivamente.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Annulla</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDelete(itinerary.id)} className="bg-red-600 hover:bg-red-700">
-                                Elimina
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+
                       </div>
                     </div>
                   </CardHeader>
