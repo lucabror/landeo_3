@@ -417,6 +417,10 @@ export default function LocalExperiences() {
   });
 
   const onSubmit = (data: InsertLocalExperience) => {
+    console.log("Form submitted:", data);
+    console.log("Is editing:", !!editingExperience);
+    console.log("Editing experience ID:", editingExperience?.id);
+    
     // Process contact info
     const contactInfo: any = {};
     const phoneValue = (form.watch("contactInfo") as any)?.phone;
@@ -427,10 +431,13 @@ export default function LocalExperiences() {
     if (emailValue) contactInfo.email = emailValue;
     if (websiteValue) contactInfo.website = websiteValue;
     
-    mutation.mutate({
+    const submissionData = {
       ...data,
       contactInfo: Object.keys(contactInfo).length > 0 ? contactInfo : undefined,
-    });
+    };
+    
+    console.log("Submitting data:", submissionData);
+    mutation.mutate(submissionData);
   };
 
   const handleEdit = (experience: any) => {
@@ -438,6 +445,8 @@ export default function LocalExperiences() {
     form.reset({
       ...experience,
       contactInfo: experience.contactInfo || {},
+      address: experience.address || "",
+      targetAudience: experience.targetAudience || [],
     });
     setIsDialogOpen(true);
   };
