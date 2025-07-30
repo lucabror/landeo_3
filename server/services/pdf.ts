@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import { createWriteStream } from "fs";
 import path from "path";
 import { Readable } from "stream";
+import { storage } from "../storage";
 
 // Multilingual PDF templates
 const PDF_TEMPLATES = {
@@ -47,6 +48,33 @@ export async function generateItineraryPDF(
       // Determine language from guest profile
       const language = (guestProfile.emailLanguage || 'it') as 'it' | 'en';
       const template = PDF_TEMPLATES[language];
+      
+      // Get local experiences to enrich activity data
+      const localExperiences = await storage.getLocalExperiences(hotel.id);
+      
+      // Enrich activities with local experience data
+      if (itinerary.days && Array.isArray(itinerary.days)) {
+        for (const day of itinerary.days) {
+          if (day.activities && Array.isArray(day.activities)) {
+            for (const activity of day.activities) {
+              if (activity.experienceId) {
+                const experience = localExperiences.find(exp => exp.id === activity.experienceId);
+                if (experience) {
+                  // Enrich with complete experience data
+                  activity.address = experience.address || activity.address;
+                  activity.distance = experience.distance || activity.distance;
+                  activity.location = experience.location || activity.location;
+                  // Don't override description if activity already has one, but fallback to experience description
+                  if (!activity.description && experience.description) {
+                    activity.description = experience.description;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      
       // Create directory if it doesn't exist
       const uploadsDir = path.join(process.cwd(), 'uploads', 'pdfs');
       await fs.mkdir(uploadsDir, { recursive: true });
@@ -225,8 +253,9 @@ export async function generateItineraryPDF(
                 yPosition = 80; // Start higher to avoid layout issues
               }
 
-              // Activity row like spa treatment entry (increased height for address info)
-              const rowHeight = (activity.location || activity.address) ? 75 : 60;
+              // Activity row like spa treatment entry (increased height for address info and distance)
+              const hasLocationInfo = activity.location || activity.address || activity.distance;
+              const rowHeight = hasLocationInfo ? 95 : 75;
               doc.rect(leftMargin, yPosition, rightMargin - leftMargin, rowHeight).fill(colors.cardBackground);
               doc.strokeColor(colors.borderLight).lineWidth(0.5);
               doc.rect(leftMargin, yPosition, rightMargin - leftMargin, rowHeight).stroke();
@@ -237,49 +266,60 @@ export async function generateItineraryPDF(
                  .fillColor(colors.darkText)
                  .text(activity.activity, leftMargin + 15, yPosition + 10);
 
-              // Location and address information
-              if (activity.location || activity.address) {
-                let locationText = '';
-                if (activity.location && activity.address) {
-                  locationText = `${activity.location} - ${activity.address}`;
-                } else {
-                  locationText = activity.location || activity.address || '';
-                }
-                
+              // Location, address and distance information
+              let currentY = yPosition + 25;
+              if (activity.location) {
                 doc.font('Helvetica')
                    .fontSize(9)
                    .fillColor(colors.mediumText)
-                   .text(locationText, leftMargin + 15, yPosition + 25, { 
-                     width: 300, 
-                     height: 12,
-                     ellipsis: true
+                   .text(`📍 ${activity.location}`, leftMargin + 15, currentY, { 
+                     width: 350
                    });
+                currentY += 12;
+              }
+              
+              if (activity.address) {
+                doc.font('Helvetica')
+                   .fontSize(8)
+                   .fillColor(colors.lightText)
+                   .text(`🏠 ${activity.address}`, leftMargin + 15, currentY, { 
+                     width: 350
+                   });
+                currentY += 11;
+              }
+              
+              if (activity.distance) {
+                doc.font('Helvetica')
+                   .fontSize(8)
+                   .fillColor(colors.lightTeal)
+                   .text(`📏 ${activity.distance}`, leftMargin + 15, currentY, { 
+                     width: 350
+                   });
+                currentY += 11;
               }
 
-              // Source label with spa-style colors (without emoji to avoid PDF encoding issues)
-              const sourceYPosition = (activity.location || activity.address) ? yPosition + 38 : yPosition + 28;
+              // Source label with spa-style colors
+              const sourceYPosition = hasLocationInfo ? currentY : yPosition + 28;
               if (activity.source === 'preference-matched') {
                 doc.font('Helvetica')
                    .fontSize(8)
                    .fillColor(colors.primaryTeal)
-                   .text(`• ${template.preferenceMatched}`, leftMargin + 15, sourceYPosition);
+                   .text(`🎯 ${template.preferenceMatched}`, leftMargin + 15, sourceYPosition);
               } else if (activity.source === 'hotel-suggested') {
                 doc.font('Helvetica')
                    .fontSize(8)
                    .fillColor(colors.lightTeal)
-                   .text(`• ${template.hotelSuggested}`, leftMargin + 15, sourceYPosition);
+                   .text(`🏨 ${template.hotelSuggested}`, leftMargin + 15, sourceYPosition);
               }
+              currentY += 12;
 
-              // Description
-              const descriptionYPosition = (activity.location || activity.address) ? yPosition + 52 : yPosition + 42;
+              // Description - NEVER truncated, full text
               if (activity.description) {
                 doc.font('Helvetica')
                    .fontSize(9)
                    .fillColor(colors.mediumText)
-                   .text(activity.description, leftMargin + 15, descriptionYPosition, { 
-                     width: 300, 
-                     height: 15,
-                     ellipsis: true
+                   .text(activity.description, leftMargin + 15, currentY, { 
+                     width: 350
                    });
               }
 

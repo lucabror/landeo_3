@@ -10,6 +10,19 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-07-30**: ✅ RISOLTO DEFINITIVAMENTE problemi PDF itinerari - testo completo e informazioni esperienze locali
+  - Rimosso troncamento testo descrizioni PDF: eliminato `ellipsis: true` e `height` limitato
+  - Aggiunte informazioni complete esperienze locali: indirizzo, distanza dall'hotel, posizione
+  - PDF ora mostra icone specifiche: 📍 posizione, 🏠 indirizzo, 📏 distanza, 🎯 preferenze, 🏨 hotel
+  - Implementato sistema enrichment dati attività con esperienze locali complete dal database
+  - Aumentata altezza righe attività (95px vs 75px) per contenere tutte le informazioni
+  - PDF ora include tutti i dati senza troncamenti per esperienza utente completa
+- **2025-07-30**: ✅ OTTIMIZZATO layout mobile landing page per conversione
+  - Pulsanti hero section impilati verticalmente su mobile con `flex-col` invece di `flex-row`
+  - Testo pulsante mobile ottimizzato: "Inizia Gratis" / "Genera 5 Itinerari Gratuiti" 
+  - Larghezza pulsanti responsive: `w-full sm:w-auto` per evitare overflow mobile
+  - Stesso pattern applicato sia hero section che sezione CTA finale per consistenza
+  - Layout perfettamente funzionale su tutti i dispositivi mobile e desktop
 - **2025-07-30**: ✅ RISOLTO DEFINITIVAMENTE problema CSS e autenticazione hotel
   - Sistemato errore CSS Tailwind `border-border` che impediva startup applicazione
   - Risolto problema autenticazione: hotel `luca.borronutrizionista@gmail.com` mancante dal database
