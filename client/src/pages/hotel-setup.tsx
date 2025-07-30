@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Sidebar } from "@/components/sidebar";
 import { useToast } from "@/hooks/use-toast";
+import { fixAuthToken } from "@/utils/fix-auth";
 import { Loader2, Save, Hotel, Search, MapPin, CheckCircle, AlertCircle, Upload, X, Image, Edit, Eye } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { hotelSetupSchema } from "@shared/schema";
@@ -150,6 +151,15 @@ export default function HotelSetup() {
       console.log("Mutation - Data:", dataWithServices);
       
       try {
+        // Fix authentication token before making request
+        const tokenFixed = fixAuthToken();
+        if (tokenFixed) {
+          console.log("Authentication token fixed - retrying request");
+        }
+        
+        const sessionToken = localStorage.getItem('sessionToken');
+        console.log("Mutation - Using session token:", sessionToken?.substring(0, 8) + '...');
+        
         const res = await apiRequest(method, url, dataWithServices);
         console.log("Mutation - Response status:", res.status);
         const result = await res.json();
