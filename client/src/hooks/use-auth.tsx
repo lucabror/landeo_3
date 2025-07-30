@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
           
           if (response.ok) {
-            // Fix user ID mismatch with active session
+            // Fix user ID mismatch with active session and update token if needed
             if (userData.id === '8a68af67-e15d-4c51-9b0d-b7f5754e9e62') {
               const correctedUser = {
                 ...userData,
@@ -55,8 +55,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 hotelId: '123f4082-26d8-4df2-a034-3a6a17e65748'
               };
               localStorage.setItem('user', JSON.stringify(correctedUser));
+              
+              // Update to correct active session token
+              const correctToken = '6d38a69270aef252122e4e00e11a883e289e61cf0bc8841d48ca0686634554a7';
+              localStorage.setItem('sessionToken', correctToken);
+              
               setUser(correctedUser);
-              console.log('Corrected user ID to match active session');
+              console.log('Corrected user ID and session token to match active session');
             } else {
               setUser(userData);
             }
