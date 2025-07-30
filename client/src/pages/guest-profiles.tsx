@@ -54,6 +54,7 @@ export default function GuestProfiles() {
   const [editingProfile, setEditingProfile] = useState<any>(null);
   const [viewingProfile, setViewingProfile] = useState<any>(null);
   const [isGeneratingItinerary, setIsGeneratingItinerary] = useState(false);
+  const [showItineraryWarning, setShowItineraryWarning] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -319,6 +320,9 @@ export default function GuestProfiles() {
         title: "Itinerario generato",
         description: "L'itinerario personalizzato è stato creato con successo!",
       });
+      
+      // Mostra il popup di avviso per la verifica dell'itinerario
+      setShowItineraryWarning(true);
     } catch (error: any) {
       toast({
         title: "Errore generazione itinerario",
@@ -1120,6 +1124,29 @@ export default function GuestProfiles() {
           </div>
         )}
       </div>
+
+      {/* Popup di avviso per verifica itinerario */}
+      <AlertDialog open={showItineraryWarning} onOpenChange={setShowItineraryWarning}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center text-amber-700">
+              <Route className="mr-2 h-5 w-5" />
+              Itinerario Generato
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-600 leading-relaxed">
+              Si prega di controllare attentamente l'itinerario generato prima di inviarlo al tuo ospite.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction 
+              onClick={() => setShowItineraryWarning(false)}
+              className="bg-amber-700 hover:bg-amber-800"
+            >
+              Ho capito
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
