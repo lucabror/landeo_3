@@ -261,11 +261,12 @@ export async function setupGoogleAuthenticator(
   // Generate QR code
   const qrCodeDataUrl = await qrcode.toDataURL(secret.otpauth_url || '');
 
-  // Store the secret in database (temporaneamente in chiaro per compatibilità)
+  // Cripta il secret prima di salvarlo
+  const encryptedSecret = encryptMfaSecret(secret.base32);
   const table = userType === 'hotel' ? hotels : adminUsers;
   await db
     .update(table)
-    .set({ mfaSecret: secret.base32 })
+    .set({ mfaSecret: encryptedSecret })
     .where(eq(table.id, userId));
 
   return {
@@ -290,9 +291,10 @@ export async function enableGoogleAuthenticator(
     return { success: false, error: 'Setup MFA non trovato' };
   }
 
-  // Verify the code (usando secret direttamente per compatibilità)
+  // Decripta il secret prima dell'uso
+  const decryptedSecret = decryptMfaSecret(user.mfaSecret);
   const verified = speakeasy.totp.verify({
-    secret: user.mfaSecret,
+    secret: decryptedSecret,
     encoding: 'base32',
     token: verificationCode,
     time: Date.now() / 1000,
@@ -329,9 +331,10 @@ export async function verifyGoogleAuthenticatorCode(
     return { success: false, error: 'MFA non configurato' };
   }
 
-  // Verify MFA code (usando secret direttamente per compatibilità)
+  // Decripta il secret prima dell'uso
+  const decryptedSecret = decryptMfaSecret(user.mfaSecret);
   const verified = speakeasy.totp.verify({
-    secret: user.mfaSecret,
+    secret: decryptedSecret,
     encoding: 'base32',
     token: code,
     time: Date.now() / 1000,
