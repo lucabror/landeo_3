@@ -28,45 +28,52 @@ export class GooglePlacesService {
     }
 
     try {
-      // Use Places API Text Search
-      const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query + " hotel")}&type=lodging&key=${this.apiKey}`;
+      // Use the new Places API (New) - Text Search
+      const searchUrl = 'https://places.googleapis.com/v1/places:searchText';
       
-      const response = await fetch(searchUrl);
+      const requestBody = {
+        textQuery: `${query} hotel`,
+        maxResultCount: 5,
+        locationBias: {
+          rectangle: {
+            low: { latitude: 35.0, longitude: 6.0 },  // Southern Italy
+            high: { latitude: 47.5, longitude: 19.0 } // Northern Italy
+          }
+        }
+      };
+
+      const response = await fetch(searchUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': this.apiKey,
+          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.nationalPhoneNumber,places.websiteUri,places.addressComponents'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
       const data = await response.json();
 
-      if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-        console.error('Google Places API error:', data.status, data.error_message);
-        
-        // If API key is blocked, provide helpful error message
-        if (data.status === 'REQUEST_DENIED' && data.error_message?.includes('legacy API')) {
-          console.error('Google Places API key configuration issue. Please enable Places API (New) in Google Cloud Console.');
-          return [];
-        }
-        
-        if (data.status === 'REQUEST_DENIED' && data.error_message?.includes('referer')) {
-          console.error('Google Places API key has HTTP referrer restrictions. Please configure it for server-side use.');
-          return [];
-        }
-        
+      if (!response.ok) {
+        console.error('Google Places API (New) error:', data);
         return [];
       }
 
-      if (!data.results || data.results.length === 0) {
+      if (!data.places || data.places.length === 0) {
         return [];
       }
 
-      // Process results and get detailed information
+      // Process results
       const hotels: HotelSuggestion[] = [];
       
-      for (const place of data.results.slice(0, 5)) { // Limit to top 5 results
+      for (const place of data.places) {
         try {
-          const details = await this.getPlaceDetails(place.place_id);
-          if (details) {
-            hotels.push(details);
+          const hotel = this.processPlaceResult(place);
+          if (hotel) {
+            hotels.push(hotel);
           }
         } catch (error) {
-          console.error('Error getting place details for', place.place_id, error);
-          // Continue with other places even if one fails
+          console.error('Error processing place result:', error);
         }
       }
 
@@ -77,59 +84,47 @@ export class GooglePlacesService {
     }
   }
 
-  private async getPlaceDetails(placeId: string): Promise<HotelSuggestion | null> {
+  private processPlaceResult(place: any): HotelSuggestion | null {
     try {
-      const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,address_components,geometry,formatted_phone_number,website&key=${this.apiKey}`;
-      
-      const response = await fetch(detailsUrl);
-      const data = await response.json();
-
-      if (data.status !== 'OK') {
-        console.error('Place details API error:', data.status);
-        return null;
-      }
-
-      const place = data.result;
-      
       // Parse address components
       let city = '';
       let region = '';
       let postalCode = '';
       let country = '';
 
-      if (place.address_components) {
-        for (const component of place.address_components) {
+      if (place.addressComponents) {
+        for (const component of place.addressComponents) {
           const types = component.types;
           
           if (types.includes('locality')) {
-            city = component.long_name;
+            city = component.longText;
           } else if (types.includes('administrative_area_level_2') && !city) {
-            city = component.long_name;
+            city = component.longText;
           } else if (types.includes('administrative_area_level_1')) {
-            region = component.long_name;
+            region = component.longText;
           } else if (types.includes('postal_code')) {
-            postalCode = component.long_name;
+            postalCode = component.longText;
           } else if (types.includes('country')) {
-            country = component.long_name;
+            country = component.longText;
           }
         }
       }
 
       return {
-        placeId: placeId,
-        name: place.name || '',
-        formattedAddress: place.formatted_address || '',
+        placeId: place.id,
+        name: place.displayName?.text || '',
+        formattedAddress: place.formattedAddress || '',
         city,
         region,
         postalCode,
         country,
-        latitude: place.geometry?.location?.lat || 0,
-        longitude: place.geometry?.location?.lng || 0,
-        phone: place.formatted_phone_number || '',
-        website: place.website || ''
+        latitude: place.location?.latitude || 0,
+        longitude: place.location?.longitude || 0,
+        phone: place.nationalPhoneNumber || '',
+        website: place.websiteUri || ''
       };
     } catch (error) {
-      console.error('Error getting place details:', error);
+      console.error('Error processing place:', error);
       return null;
     }
   }

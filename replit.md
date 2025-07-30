@@ -10,11 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-- **2025-01-30**: ⚠️ IDENTIFICATO problema Google Places API - configurazione chiave API bloccata
-  - Problema: Google Places API key ha restrizioni HTTP referrer che bloccano richieste server-side
-  - Errore: "Requests from referer <empty> are blocked" + "legacy API not enabled" 
-  - Soluzione richiesta: configurare API key Google Places senza restrizioni HTTP referrer per uso server-side
-  - Necessario: abilitare Places API (New) in Google Cloud Console e rimuovere restrizioni HTTP referrer
+- **2025-01-30**: ✅ RISOLTO problema Google Places API - configurazione chiave API sistemata
+  - Problema risolto: Google Places API key configurata correttamente per uso server-side
+  - Aggiornato servizio per usare Places API (New) con formato JSON corretto
+  - Autocompletamento hotel ora funziona perfettamente con suggerimenti real-time
+  - Sistema restituisce hotel italiani con dati completi: coordinates, telefono, sito web, CAP
 - **2025-01-30**: ✅ RISOLTO problema Resend email delivery - configurato dominio landeo.it per invio esterno
   - Problema: dominio landeo.it verificato ma email limitato solo a borroluca@gmail.com 
   - Causa: Resend richiede indirizzi mittente del dominio verificato per invio esterno
