@@ -139,13 +139,13 @@ export default function HotelSetup() {
 
   const mutation = useMutation({
     mutationFn: async (data: HotelSetup) => {
-      const method = hotel ? "PUT" : "POST";
-      const url = hotel && typeof hotel === 'object' && 'id' in hotel 
-        ? `/api/hotels/${hotel.id}` 
-        : "/api/hotels";
+      // Always use PUT method since hotel record exists
+      const method = "PUT";
+      const url = `/api/hotels/${hotelId}`;
       // Include selected services in the data
       const dataWithServices = { ...data, services: selectedServices };
       
+      console.log("✅ Using PUT method to update existing hotel");
       console.log("Mutation - Method:", method);
       console.log("Mutation - URL:", url);
       console.log("Mutation - Data:", dataWithServices);
