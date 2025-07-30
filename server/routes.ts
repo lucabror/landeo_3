@@ -1273,7 +1273,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const experience = await storage.createLocalExperience(validatedData);
       res.status(201).json(experience);
     } catch (error) {
-      res.status(400).json({ message: "Invalid local experience data" });
+      console.error('Local experience validation error:', error);
+      res.status(400).json({ 
+        message: "Invalid local experience data",
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 
