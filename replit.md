@@ -10,6 +10,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-07-30**: ✅ COMPLETATO sistema completo di rate limiting per tutte le API esterne
+  - Rate limiting OpenAI API: 5 richieste/minuto per itinerari, 3 richieste/minuto per attrazioni
+  - Rate limiting Resend email: 20 email/minuto per controllo invii multipli
+  - Rate limiting Google Places: 10 richieste/minuto per autocompletamento hotel/attrazioni  
+  - Rate limiting geolocalizzazione: 10 richieste/minuto per chiamate Nominatim
+  - Sistema di controllo costi: OpenAI limitato per evitare spese eccessive
+  - Protezione anti-abuso: blocco automatico di richieste multiple per tutte le API
+  - Messaggi utente informativi quando limite raggiunto con retry dopo 1 minuto
+  - IMPLEMENTATO: protezione completa per tutte le 4 API esterne del sistema
 - **2025-07-30**: ✅ COMPLETATO configurazione database ottimizzata con pool sicuro e monitoring
   - Pool connessioni avanzato: max 20, min 2 per bilanciare performance e risorse
   - Timeout sicuri: 30s idle, 2s connection, 30s query per prevenire hang e DoS

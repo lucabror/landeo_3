@@ -1,3 +1,42 @@
+// Rate limiting per Google Places API
+class GoogleApiRateLimiter {
+  private requests: { [key: string]: number[] } = {};
+  private maxRequests: number;
+  private windowMs: number;
+
+  constructor(maxRequests: number = 10, windowMs: number = 60 * 1000) {
+    this.maxRequests = maxRequests;
+    this.windowMs = windowMs;
+  }
+
+  async checkLimit(identifier: string = 'default'): Promise<boolean> {
+    const now = Date.now();
+    
+    // Inizializza array se non esiste
+    if (!this.requests[identifier]) {
+      this.requests[identifier] = [];
+    }
+
+    // Rimuovi richieste fuori dalla finestra temporale
+    this.requests[identifier] = this.requests[identifier].filter(
+      timestamp => now - timestamp < this.windowMs
+    );
+
+    // Controlla se abbiamo raggiunto il limite
+    if (this.requests[identifier].length >= this.maxRequests) {
+      console.warn(`⚠️ Google Places rate limit raggiunto per ${identifier}: ${this.requests[identifier].length}/${this.maxRequests} richieste in ${this.windowMs}ms`);
+      return false;
+    }
+
+    // Aggiungi la richiesta corrente
+    this.requests[identifier].push(now);
+    return true;
+  }
+}
+
+// Rate limiter per Google Places: max 10 richieste per minuto
+const googlePlacesLimiter = new GoogleApiRateLimiter(10, 60 * 1000);
+
 export interface HotelSuggestion {
   placeId: string;
   name: string;
@@ -28,6 +67,15 @@ export class GooglePlacesService {
     }
 
     try {
+      // Controlla rate limiting prima di chiamare Google Places API
+      const canMakeRequest = await googlePlacesLimiter.checkLimit('hotels');
+      if (!canMakeRequest) {
+        console.error('❌ Rate limit raggiunto per Google Places API. Riprova tra un minuto.');
+        throw new Error('Troppe richieste API Google Places. Riprova tra un minuto.');
+      }
+
+      console.log(`🏨 Google Places search per hotel: "${query}"`);
+
       // Use the new Places API (New) - Text Search
       const searchUrl = 'https://places.googleapis.com/v1/places:searchText';
       
@@ -140,6 +188,13 @@ export class GooglePlacesService {
     }
 
     try {
+      // Controlla rate limiting prima di chiamare Google Places API per attrazioni
+      const canMakeRequest = await googlePlacesLimiter.checkLimit('attractions');
+      if (!canMakeRequest) {
+        console.error('❌ Rate limit raggiunto per Google Places API (attrazioni). Riprova tra un minuto.');
+        throw new Error('Troppe richieste API Google Places per attrazioni. Riprova tra un minuto.');
+      }
+
       console.log(`🔍 Searching attractions for query: "${query}"`);
 
       const requestBody = {

@@ -1,6 +1,45 @@
 import { Resend } from 'resend';
 import type { Hotel, GuestProfile } from '@shared/schema';
 
+// Rate limiting per Resend API
+class EmailRateLimiter {
+  private requests: { [key: string]: number[] } = {};
+  private maxRequests: number;
+  private windowMs: number;
+
+  constructor(maxRequests: number = 20, windowMs: number = 60 * 1000) {
+    this.maxRequests = maxRequests;
+    this.windowMs = windowMs;
+  }
+
+  async checkLimit(identifier: string = 'default'): Promise<boolean> {
+    const now = Date.now();
+    
+    // Inizializza array se non esiste
+    if (!this.requests[identifier]) {
+      this.requests[identifier] = [];
+    }
+
+    // Rimuovi richieste fuori dalla finestra temporale
+    this.requests[identifier] = this.requests[identifier].filter(
+      timestamp => now - timestamp < this.windowMs
+    );
+
+    // Controlla se abbiamo raggiunto il limite
+    if (this.requests[identifier].length >= this.maxRequests) {
+      console.warn(`⚠️ Email rate limit raggiunto per ${identifier}: ${this.requests[identifier].length}/${this.maxRequests} richieste in ${this.windowMs}ms`);
+      return false;
+    }
+
+    // Aggiungi la richiesta corrente
+    this.requests[identifier].push(now);
+    return true;
+  }
+}
+
+// Rate limiter per email: max 20 email per minuto
+const emailLimiter = new EmailRateLimiter(20, 60 * 1000);
+
 // Inizializza Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -371,6 +410,15 @@ export async function sendGuestPreferencesEmail(
       return { success: false, error: `Email non valida: ${emailValidation.reason}` };
     }
 
+    // Controlla rate limiting prima di inviare email
+    const canSendEmail = await emailLimiter.checkLimit('preferences');
+    if (!canSendEmail) {
+      console.error('❌ Rate limit raggiunto per invio email. Riprova tra un minuto.');
+      return { success: false, error: 'Troppe richieste email. Riprova tra un minuto.' };
+    }
+
+    console.log(`📧 Invio email preferenze a ${sanitizedEmail} per ${sanitizedGuestName}`);
+
     const { data, error } = await resend.emails.send({
       from: `${sanitizedHotelName} <noreply@landeo.it>`,
       to: [sanitizedEmail],
@@ -534,6 +582,15 @@ export async function sendItineraryPDF(
   </div>
 </body>
 </html>`;
+
+    // Controlla rate limiting prima di inviare email itinerario
+    const canSendEmail = await emailLimiter.checkLimit('itinerary');
+    if (!canSendEmail) {
+      console.error('❌ Rate limit raggiunto per invio email itinerario. Riprova tra un minuto.');
+      return { success: false, error: 'Troppe richieste email. Riprova tra un minuto.' };
+    }
+
+    console.log(`📧 Invio email itinerario PDF a ${sanitizedRecipientEmail}`);
 
     const { data, error } = await resend.emails.send({
       from: `${sanitizeHtmlContent(hotel.name)} <noreply@landeo.it>`,
@@ -708,6 +765,15 @@ export async function sendCreditPurchaseInstructions(
 </body>
 </html>`;
 
+    // Controlla rate limiting prima di inviare email bonifico
+    const canSendEmail = await emailLimiter.checkLimit('bonifico');
+    if (!canSendEmail) {
+      console.error('❌ Rate limit raggiunto per invio email bonifico. Riprova tra un minuto.');
+      return { success: false, error: 'Troppe richieste email. Riprova tra un minuto.' };
+    }
+
+    console.log(`📧 Invio email istruzioni bonifico a ${sanitizedHotelEmail}`);
+
     const { data, error } = await resend.emails.send({
       from: `Luca Borro - Landeo <noreply@landeo.it>`,
       to: [sanitizedHotelEmail],
@@ -815,6 +881,15 @@ export async function sendSupportEmail({
   </div>
 </body>
 </html>`;
+
+    // Controlla rate limiting prima di inviare email supporto
+    const canSendEmail = await emailLimiter.checkLimit('supporto');
+    if (!canSendEmail) {
+      console.error('❌ Rate limit raggiunto per invio email supporto. Riprova tra un minuto.');
+      return false;
+    }
+
+    console.log(`📧 Invio email supporto da ${sanitizedEmail} per: ${sanitizedSubject}`);
 
     const { data, error } = await resend.emails.send({
       from: 'Supporto Landeo <supporto@landeo.it>',

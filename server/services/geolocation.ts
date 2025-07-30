@@ -1,5 +1,44 @@
 import fetch from 'node-fetch';
 
+// Rate limiting per API geocoding
+class ApiRateLimiter {
+  private requests: { [key: string]: number[] } = {};
+  private maxRequests: number;
+  private windowMs: number;
+
+  constructor(maxRequests: number = 10, windowMs: number = 60 * 1000) {
+    this.maxRequests = maxRequests;
+    this.windowMs = windowMs;
+  }
+
+  async checkLimit(identifier: string = 'default'): Promise<boolean> {
+    const now = Date.now();
+    
+    // Inizializza array se non esiste
+    if (!this.requests[identifier]) {
+      this.requests[identifier] = [];
+    }
+
+    // Rimuovi richieste fuori dalla finestra temporale
+    this.requests[identifier] = this.requests[identifier].filter(
+      timestamp => now - timestamp < this.windowMs
+    );
+
+    // Controlla se abbiamo raggiunto il limite
+    if (this.requests[identifier].length >= this.maxRequests) {
+      console.warn(`⚠️ Rate limit raggiunto per ${identifier}: ${this.requests[identifier].length}/${this.maxRequests} richieste in ${this.windowMs}ms`);
+      return false;
+    }
+
+    // Aggiungi la richiesta corrente
+    this.requests[identifier].push(now);
+    return true;
+  }
+}
+
+// Rate limiter per geocoding: max 10 richieste per minuto
+const geocodingLimiter = new ApiRateLimiter(10, 60 * 1000);
+
 export interface Coordinates {
   latitude: number;
   longitude: number;
@@ -30,6 +69,13 @@ export class GeolocationService {
     country: string = 'Italy'
   ): Promise<Coordinates | null> {
     try {
+      // Controlla rate limiting prima di chiamare API esterna
+      const canMakeRequest = await geocodingLimiter.checkLimit('nominatim');
+      if (!canMakeRequest) {
+        console.error('❌ Rate limit raggiunto per API Nominatim. Riprova tra un minuto.');
+        throw new Error('Troppe richieste API geocoding. Riprova tra un minuto.');
+      }
+
       // Build search query with available location data
       const searchParts = [postalCode];
       if (city) searchParts.push(city);
@@ -49,6 +95,9 @@ export class GeolocationService {
       });
 
       console.log(`🔗 URL geocoding: ${url}`);
+
+      // Aggiungi delay per rispettare le policy di Nominatim (1 richiesta al secondo)
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       const response = await fetch(url, {
         headers: {

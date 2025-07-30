@@ -3,6 +3,41 @@ import type { Hotel, LocalExperience, InsertLocalExperience } from "@shared/sche
 import { LANDEO_CATEGORIES } from "@shared/categories";
 import { GeolocationService, type Coordinates } from "./geolocation";
 
+// Rate limiting per OpenAI API nelle attrazioni
+class AttractionsRateLimiter {
+  private requests: { [key: string]: number[] } = {};
+  private maxRequests: number;
+  private windowMs: number;
+
+  constructor(maxRequests: number = 3, windowMs: number = 60 * 1000) {
+    this.maxRequests = maxRequests;
+    this.windowMs = windowMs;
+  }
+
+  async checkLimit(identifier: string = 'default'): Promise<boolean> {
+    const now = Date.now();
+    
+    if (!this.requests[identifier]) {
+      this.requests[identifier] = [];
+    }
+
+    this.requests[identifier] = this.requests[identifier].filter(
+      timestamp => now - timestamp < this.windowMs
+    );
+
+    if (this.requests[identifier].length >= this.maxRequests) {
+      console.warn(`⚠️ OpenAI attrazioni rate limit raggiunto per ${identifier}: ${this.requests[identifier].length}/${this.maxRequests} richieste in ${this.windowMs}ms`);
+      return false;
+    }
+
+    this.requests[identifier].push(now);
+    return true;
+  }
+}
+
+// Rate limiter per generazione attrazioni: max 3 richieste per minuto
+const attractionsLimiter = new AttractionsRateLimiter(3, 60 * 1000);
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function generateLocalExperiences(hotel: Hotel): Promise<InsertLocalExperience[]> {
@@ -71,6 +106,13 @@ Genera 18-25 attrazioni diverse, assicurandoti di:
   console.log(`🤖 Generazione AI attrazioni per ${locationContext.referencePoint}...`);
   
   try {
+    // Controlla rate limiting prima di chiamare OpenAI API per attrazioni
+    const canMakeRequest = await attractionsLimiter.checkLimit('attractions');
+    if (!canMakeRequest) {
+      console.error('❌ Rate limit raggiunto per OpenAI API (attrazioni). Riprova tra un minuto.');
+      throw new Error('Troppe richieste API OpenAI per generazione attrazioni. Riprova tra un minuto.');
+    }
+
     console.log("📝 Prompt inviato ad OpenAI:", enhancedPrompt.substring(0, 200) + "...");
     
     const response = await openai.chat.completions.create({

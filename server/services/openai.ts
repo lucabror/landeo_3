@@ -2,6 +2,45 @@ import OpenAI from "openai";
 import type { GuestProfile, Hotel, LocalExperience } from "@shared/schema";
 import { LANDEO_CATEGORIES } from "@shared/categories";
 
+// Rate limiting per OpenAI API - critico per controllo costi
+class OpenAIRateLimiter {
+  private requests: { [key: string]: number[] } = {};
+  private maxRequests: number;
+  private windowMs: number;
+
+  constructor(maxRequests: number = 5, windowMs: number = 60 * 1000) {
+    this.maxRequests = maxRequests;
+    this.windowMs = windowMs;
+  }
+
+  async checkLimit(identifier: string = 'default'): Promise<boolean> {
+    const now = Date.now();
+    
+    // Inizializza array se non esiste
+    if (!this.requests[identifier]) {
+      this.requests[identifier] = [];
+    }
+
+    // Rimuovi richieste fuori dalla finestra temporale
+    this.requests[identifier] = this.requests[identifier].filter(
+      timestamp => now - timestamp < this.windowMs
+    );
+
+    // Controlla se abbiamo raggiunto il limite
+    if (this.requests[identifier].length >= this.maxRequests) {
+      console.warn(`⚠️ OpenAI rate limit raggiunto per ${identifier}: ${this.requests[identifier].length}/${this.maxRequests} richieste in ${this.windowMs}ms`);
+      return false;
+    }
+
+    // Aggiungi la richiesta corrente
+    this.requests[identifier].push(now);
+    return true;
+  }
+}
+
+// Rate limiter per OpenAI: max 5 richieste per minuto per controllo costi
+const openaiLimiter = new OpenAIRateLimiter(5, 60 * 1000);
+
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY || (() => {
@@ -225,6 +264,15 @@ export async function generateItinerary(
   const prompt = template.promptTemplate(actualDays, hotel, guestProfile, experiencesText, checkInDate, checkOutDate);
 
   try {
+    // Controlla rate limiting prima di chiamare OpenAI API - critico per controllo costi
+    const canMakeRequest = await openaiLimiter.checkLimit('itinerary');
+    if (!canMakeRequest) {
+      console.error('❌ Rate limit raggiunto per OpenAI API. Riprova tra un minuto.');
+      throw new Error('Troppe richieste API OpenAI per generazione itinerari. Riprova tra un minuto.');
+    }
+
+    console.log(`🤖 Generazione itinerario AI per ${hotel.name} - ${guestProfile.referenceName}`);
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
