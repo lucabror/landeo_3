@@ -47,6 +47,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { LANDEO_CATEGORIES } from "@shared/categories";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GeolocationAnalysis from "@/components/GeolocationAnalysis";
+import { AttractionAutocomplete } from "@/components/AttractionAutocomplete";
 
 // Mapping delle categorie Landeo con icone e colori per il frontend
 const CATEGORY_CONFIGS = {
@@ -592,21 +593,33 @@ export default function LocalExperiences() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="name">Nome Esperienza *</Label>
-                    <Input
-                      id="name"
-                      {...form.register("name")}
-                      placeholder="es. Cinecittà World, Uffizi, Chianti Tour..."
-                      className="mt-1"
-                      onChange={(e) => {
-                        // Auto-suggest category based on name
-                        const name = e.target.value;
-                        if (name.length > 3 && !form.watch("category")) {
-                          const suggestedCategory = getSmartCategory(name, form.watch("description") || "");
-                          form.setValue("category", suggestedCategory);
+                    <AttractionAutocomplete
+                      value={form.watch("name")}
+                      onSelect={(attraction) => {
+                        // Populate form with Google Places data
+                        form.setValue("name", attraction.name);
+                        form.setValue("location", `${attraction.city}, ${attraction.region}`);
+                        form.setValue("category", attraction.category);
+                        form.setValue("description", `${attraction.name} a ${attraction.city}${attraction.formattedAddress ? ` - ${attraction.formattedAddress.split(',').slice(0, 2).join(', ')}` : ''}`);
+                        form.setValue("rating", attraction.rating);
+                        form.setValue("priceRange", attraction.priceRange);
+                        form.setValue("openingHours", attraction.openingHours);
+                        form.setValue("contactInfo", {
+                          phone: attraction.phone || "",
+                          website: attraction.website || "",
+                          email: ""
+                        });
+                        // Set geolocation data
+                        if (attraction.latitude && attraction.longitude) {
+                          form.setValue("experienceLatitude", attraction.latitude.toString());
+                          form.setValue("experienceLongitude", attraction.longitude.toString() );
+                          form.setValue("geoAccuracy", "high");
+                          form.setValue("lastGeoUpdate", new Date());
                         }
-                        // Update the form register
-                        form.register("name").onChange(e);
                       }}
+                      placeholder="Cerca su Google Places: musei, ristoranti, parchi..."
+                      hotelId={hotelId}
+                      className="mt-1"
                     />
                   </div>
                   
