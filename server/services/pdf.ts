@@ -50,7 +50,7 @@ export async function generateItineraryPDF(
       const template = PDF_TEMPLATES[language];
       
       // Get local experiences to enrich activity data
-      const localExperiences = await storage.getLocalExperiences(hotel.id);
+      const localExperiences = await storage.getLocalExperiencesByHotel(hotel.id);
       
       // Enrich activities with local experience data
       if (itinerary.days && Array.isArray(itinerary.days)) {
