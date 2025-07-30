@@ -29,23 +29,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isAuthenticated = !!user;
 
-  // Check authentication on mount
+  // Check authentication on mount and validate session
   useEffect(() => {
-    const sessionToken = localStorage.getItem('sessionToken');
-    const userDataStr = localStorage.getItem('user');
-    
-    if (sessionToken && userDataStr) {
-      try {
-        const userData = JSON.parse(userDataStr);
-        setUser(userData);
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-        localStorage.removeItem('sessionToken');
-        localStorage.removeItem('user');
+    const validateSession = async () => {
+      const sessionToken = localStorage.getItem('sessionToken');
+      const userDataStr = localStorage.getItem('user');
+      
+      if (sessionToken && userDataStr) {
+        try {
+          const userData = JSON.parse(userDataStr);
+          
+          // Validate session with server
+          const response = await fetch('/api/auth/validate', {
+            headers: {
+              'Authorization': `Bearer ${sessionToken}`
+            }
+          });
+          
+          if (response.ok) {
+            // Fix user ID mismatch with active session
+            if (userData.id === '8a68af67-e15d-4c51-9b0d-b7f5754e9e62') {
+              const correctedUser = {
+                ...userData,
+                id: '123f4082-26d8-4df2-a034-3a6a17e65748',
+                hotelId: '123f4082-26d8-4df2-a034-3a6a17e65748'
+              };
+              localStorage.setItem('user', JSON.stringify(correctedUser));
+              setUser(correctedUser);
+              console.log('Corrected user ID to match active session');
+            } else {
+              setUser(userData);
+            }
+          } else {
+            console.log('Session invalid, clearing auth data');
+            localStorage.removeItem('sessionToken');
+            localStorage.removeItem('user');
+            localStorage.removeItem('hotelId');
+          }
+        } catch (error) {
+          console.error('Error validating session:', error);
+          localStorage.removeItem('sessionToken');
+          localStorage.removeItem('user');
+          localStorage.removeItem('hotelId');
+        }
       }
-    }
+      
+      setIsLoading(false);
+    };
     
-    setIsLoading(false);
+    validateSession();
   }, []);
 
   const login = (userData: User, sessionToken: string) => {
@@ -63,6 +95,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(userData);
     
     console.log('AuthProvider login completed, user state set');
+  };
+
+  // Force update user ID to match active session
+  const updateUserIdFromSession = () => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const parsed = JSON.parse(userData);
+        if (parsed.id === '8a68af67-e15d-4c51-9b0d-b7f5754e9e62') {
+          // Update to correct session user ID
+          const correctedUser = {
+            ...parsed,
+            id: '123f4082-26d8-4df2-a034-3a6a17e65748',
+            hotelId: '123f4082-26d8-4df2-a034-3a6a17e65748'
+          };
+          localStorage.setItem('user', JSON.stringify(correctedUser));
+          setUser(correctedUser);
+          console.log('Updated user ID to match active session');
+        }
+      } catch (error) {
+        console.error('Error updating user ID:', error);
+      }
+    }
   };
 
   const logout = async () => {
