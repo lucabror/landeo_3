@@ -17,6 +17,7 @@ Preferred communication style: Simple, everyday language.
   - Implementato sistema enrichment dati attività con esperienze locali complete dal database
   - Aumentata altezza righe attività (95px vs 75px) per contenere tutte le informazioni
   - PDF ora include tutti i dati senza troncamenti per esperienza utente completa
+  - Risolti caratteri strani nel PDF: sostituite emoji con elenchi puntati semplici per compatibilità
 - **2025-07-30**: ✅ OTTIMIZZATO layout mobile landing page per conversione
   - Pulsanti hero section impilati verticalmente su mobile con `flex-col` invece di `flex-row`
   - Testo pulsante mobile ottimizzato: "Inizia Gratis" / "Genera 5 Itinerari Gratuiti" 
