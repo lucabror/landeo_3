@@ -23,6 +23,7 @@ import { generateQRCode } from "./services/qr";
 import { generateItineraryPDF } from "./services/pdf";
 import { enrichHotelData, isValidItalianLocation } from "./services/geocoding";
 import { sendGuestPreferencesEmail, sendCreditPurchaseInstructions, sendItineraryPDF, sendSupportEmail } from "./services/email";
+import { GooglePlacesService } from "./services/google-places";
 // Preference matcher temporaneamente rimosso per ricostruzione
 import { requireAuth } from "./services/security";
 import { randomUUID } from "crypto";
@@ -128,7 +129,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Hotel geocoding endpoint
+  // Dynamic hotel search endpoint with Google Places API
+  app.get("/api/hotels/search", requireAuth({ userType: 'hotel' }), async (req, res) => {
+    try {
+      const { query } = req.query;
+      
+      if (!query || typeof query !== 'string' || query.trim().length < 2) {
+        return res.json([]);
+      }
+
+      const googlePlaces = new GooglePlacesService();
+      const results = await googlePlaces.searchHotels(query.trim());
+      
+      // Filter only Italian hotels
+      const italianHotels = results.filter(hotel => 
+        hotel.country === 'Italy' || 
+        hotel.country === 'Italia' ||
+        hotel.formattedAddress.toLowerCase().includes('italy') ||
+        hotel.formattedAddress.toLowerCase().includes('italia')
+      );
+      
+      res.json(italianHotels);
+      
+    } catch (error) {
+      console.error("Hotel search error:", error);
+      res.status(500).json({ 
+        message: "Errore nella ricerca degli hotel",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Hotel geocoding endpoint (legacy - manteniamo per compatibilità)
   app.post("/api/hotels/geocode", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
       const { name, city, region } = req.body;
