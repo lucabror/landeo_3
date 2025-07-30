@@ -1,77 +1,107 @@
 <svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
   <defs>
+    <!-- Background gradient matching the provided image -->
     <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#fef7ed;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#fef3c7;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:0.3" />
+      <stop offset="0%" style="stop-color:#f5f1eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ede4d9;stop-opacity:1" />
     </linearGradient>
-    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#b45309;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    
+    <!-- Orange gradient for text -->
+    <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#c2410c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
     </linearGradient>
   </defs>
   
   <!-- Background -->
   <rect width="1200" height="630" fill="url(#bgGradient)"/>
   
-  <!-- Decorative elements -->
-  <circle cx="100" cy="100" r="60" fill="#f59e0b" opacity="0.1"/>
-  <circle cx="1100" cy="530" r="80" fill="#d97706" opacity="0.1"/>
-  <rect x="1050" y="50" width="100" height="100" fill="#b45309" opacity="0.05" rx="10"/>
-  
-  <!-- Main content container -->
-  <rect x="80" y="120" width="1040" height="390" fill="white" rx="20" opacity="0.95" stroke="#f59e0b" stroke-width="2"/>
-  
-  <!-- Logo placeholder (text-based since we can't embed images in SVG easily) -->
-  <text x="600" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="url(#textGradient)">
-    LANDEO
-  </text>
-  
-  <!-- Tagline -->
-  <text x="600" y="240" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#92400e" opacity="0.8">
-    Itinerari su misura
-  </text>
-  
-  <!-- Main headline -->
-  <text x="600" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="600" fill="#1f2937">
-    La piattaforma AI per hotel italiani
-  </text>
-  
-  <!-- Subheadline -->
-  <text x="600" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#4b5563">
-    Trasforma ogni soggiorno in un'esperienza indimenticabile
-  </text>
-  
-  <!-- Features -->
-  <g transform="translate(200, 380)">
-    <circle cx="0" cy="0" r="8" fill="#10b981"/>
-    <text x="20" y="6" font-family="Arial, sans-serif" font-size="18" fill="#374151">
-      Itinerari AI personalizzati
+  <!-- Left side content area -->
+  <g transform="translate(60, 60)">
+    <!-- Header badge -->
+    <rect x="0" y="20" width="280" height="30" fill="#f59e0b" rx="15"/>
+    <text x="140" y="38" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="white">
+      🚀 Nuova Generazione di Hospitality Management
+    </text>
+    
+    <!-- Main headline -->
+    <text x="0" y="120" font-family="Arial, sans-serif" font-size="42" font-weight="800" fill="#1f2937">
+      <tspan x="0" dy="0">Trasforma</tspan>
+      <tspan x="0" dy="50">l'esperienza</tspan>
+      <tspan x="0" dy="50" fill="url(#orangeGradient)">dei tuoi ospiti</tspan>
+    </text>
+    
+    <!-- Description -->
+    <text x="0" y="320" font-family="Arial, sans-serif" font-size="16" fill="#6b7280" font-weight="400">
+      <tspan x="0" dy="0">La prima piattaforma per Hotel Italiani che genera itinerari</tspan>
+      <tspan x="0" dy="22">personalizzati per gli ospiti tramite l'AI e automatizza</tspan>
+      <tspan x="0" dy="22">l'esperienza di soggiorno con tecnologia all'avanguardia.</tspan>
+    </text>
+    
+    <!-- CTA Buttons -->
+    <rect x="0" y="420" width="200" height="45" fill="#c2410c" rx="8"/>
+    <text x="100" y="447" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="white">
+      Inizia Gratis 5 itinerari gratuiti ›
+    </text>
+    
+    <rect x="220" y="420" width="120" height="45" fill="none" stroke="#c2410c" stroke-width="1" rx="8"/>
+    <text x="280" y="447" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#c2410c">
+      Scopri di Più
     </text>
   </g>
   
-  <g transform="translate(450, 380)">
-    <circle cx="0" cy="0" r="8" fill="#10b981"/>
-    <text x="20" y="6" font-family="Arial, sans-serif" font-size="18" fill="#374151">
-      PDF e QR code automatici
+  <!-- Right side - Itinerary card mockup -->
+  <g transform="translate(580, 120)">
+    <!-- Card background -->
+    <rect x="0" y="0" width="380" height="320" fill="white" rx="20" filter="drop-shadow(0 10px 25px rgba(0,0,0,0.1))"/>
+    
+    <!-- Card header -->
+    <rect x="20" y="20" width="340" height="50" fill="#f8fafc" rx="8"/>
+    <text x="40" y="35" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#1f2937">
+      Itinerario AI Generato
     </text>
+    
+    <!-- AI Brain icon -->
+    <circle cx="320" cy="50" r="20" fill="#c2410c"/>
+    <text x="320" y="56" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="white">🧠</text>
+    
+    <!-- Itinerary items -->
+    <g transform="translate(30, 90)">
+      <!-- Item 1 -->
+      <circle cx="10" cy="15" r="4" fill="#c2410c"/>
+      <text x="25" y="12" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#1f2937">
+        Colosseo &amp; Fori Imperiali
+      </text>
+      <text x="25" y="26" font-family="Arial, sans-serif" font-size="10" fill="#6b7280">
+        09:00 - 12:00
+      </text>
+      
+      <!-- Item 2 -->
+      <g transform="translate(0, 60)">
+        <circle cx="10" cy="15" r="4" fill="#c2410c"/>
+        <text x="25" y="12" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#1f2937">
+          Pranzo tipico romano
+        </text>
+        <text x="25" y="26" font-family="Arial, sans-serif" font-size="10" fill="#6b7280">
+          12:30 - 14:00
+        </text>
+      </g>
+      
+      <!-- Item 3 -->
+      <g transform="translate(0, 120)">
+        <circle cx="10" cy="15" r="4" fill="#c2410c"/>
+        <text x="25" y="12" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#1f2937">
+          Fontana di Trevi
+        </text>
+        <text x="25" y="26" font-family="Arial, sans-serif" font-size="10" fill="#6b7280">
+          15:00 - 16:30
+        </text>
+      </g>
+    </g>
   </g>
   
-  <g transform="translate(750, 380)">
-    <circle cx="0" cy="0" r="8" fill="#10b981"/>
-    <text x="20" y="6" font-family="Arial, sans-serif" font-size="18" fill="#374151">
-      Dashboard hotel completa
-    </text>
-  </g>
-  
-  <!-- Call to action -->
-  <rect x="450" y="420" width="300" height="50" fill="#f59e0b" rx="25"/>
-  <text x="600" y="452" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="600" fill="white">
-    Prova Gratuita - 5 Itinerari
-  </text>
-  
-  <!-- Website URL -->
-  <text x="600" y="550" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#6b7280">
-    landeo.it
+  <!-- Bottom branding -->
+  <text x="600" y="580" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="500" fill="#6b7280">
+    landeo.it - Itinerari su misura
   </text>
 </svg>

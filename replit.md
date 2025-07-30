@@ -10,6 +10,25 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-07-30**: ✅ CREATA immagine Open Graph professionale per condivisione social media
+  - Sostituita immagine generica con design professionale fornito dall'utente
+  - Immagine PNG ottimizzata 1200x630px per Facebook/LinkedIn/Twitter
+  - Include mockup "Itinerario AI Generato" con esempi Roma (Colosseo, pranzo tipico, Fontana di Trevi)
+  - Design con badge "Nuova Generazione di Hospitality Management" e CTA "Inizia Gratis 5 itinerari gratuiti"
+  - Meta tag Open Graph completi configurati nell'HTML per condivisione automatica
+  - Immagine accessibile su landeo.it/og-image.png per tutti i social network
+- **2025-07-30**: ✅ COMPLETATO sistema di navigazione completo per tutte le pagine pubbliche
+  - Implementato PublicHeader unificato con menu burger mobile responsive
+  - Menu desktop elegante: Home, Chi Siamo, Funzionalità, Prezzi, Contatti
+  - Pulsanti azione "Accedi" e "Demo Gratuita" ottimizzati per mobile e desktop
+  - Auto-scroll al top pagina implementato con hook useScrollToTop per migliorare UX
+  - Componente riutilizzabile applicato a tutte le pagine: landing, about, features, pricing, contact, support, privacy
+- **2025-07-30**: ✅ RISOLTO DEFINITIVAMENTE problema form di contatto
+  - Identificato e corretto errore parametri apiRequest: ora usa (method, url, data) invece di (url, method, data)
+  - Sistemato endpoint API /api/contact/send-support funzionante con test curl confermato
+  - Configurato invio email a info@landeo.it come richiesto dall'utente (cambiato da borroluca@gmail.com)
+  - Corretti entrambi i form: pagina contatti e pagina supporto con stessa logica
+  - Sistema email professionale con template HTML e rate limiting implementato
 - **2025-07-30**: ✅ OTTIMIZZATO LAYOUT MOBILE HEADER per tutti i siti pubblici
   - Riorganizzato header mobile con spaziatura ottimale tra logo e pulsanti
   - Logo ridotto da h-12 a h-10 su mobile per migliore proporzione
