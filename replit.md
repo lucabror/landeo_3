@@ -17,10 +17,11 @@ Preferred communication style: Simple, everyday language.
   - Logging dettagliato per debugging e troubleshooting futuro
   - Sistema mutation PUT ora funziona perfettamente per aggiornamenti esperienze
   - CONFERMATO: endpoint backend e frontend form submission funzionanti al 100%
-- **2025-07-30**: ✅ RIMOSSO pulsante eliminazione itinerari dalla pagina Itinerari Generati
+- **2025-07-30**: ✅ RIMOSSI pulsanti eliminazione e condivisione dalla pagina Itinerari Generati
   - Eliminato AlertDialog e pulsante Trash2 per prevenire eliminazioni accidentali
-  - Manager ora possono solo visualizzare, condividere e generare QR code itinerari
-  - Mantenute funzionalità: Visualizza, QR Code, Condividi per ogni itinerario
+  - Rimosso pulsante "Condividi" per semplificare interfaccia
+  - Manager ora possono solo visualizzare e generare QR code itinerari
+  - Mantenute funzionalità essenziali: Visualizza, QR Code per ogni itinerario
 - **2025-07-30**: ✅ AGGIUNTA indirizzo e distanza nella pagina "Vedi Itinerario" per modifica manuale
   - Aggiunti campi "Indirizzo" e "Distanza dal CAP hotel" nella modalità editing attività
   - Manager può ora modificare manualmente tutti i dettagli delle attrazioni prima di condividere

@@ -15,7 +15,6 @@ import {
   Calendar,
   Users,
   Clock,
-  Share,
   Loader2,
   Plus
 } from "lucide-react";
@@ -59,19 +58,7 @@ export default function Itineraries() {
 
 
 
-  const handleShare = (itinerary: any) => {
-    const domains = process.env.REPLIT_DOMAINS || "localhost:5000";
-    const domain = domains.split(',')[0];
-    const protocol = domain.includes('localhost') ? 'http' : 'https';
-    const shareUrl = `${protocol}://${domain}/itinerary/${itinerary.uniqueUrl}`;
-    
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      toast({
-        title: "Link Copiato",
-        description: "Il link all'itinerario è stato copiato negli appunti!",
-      });
-    });
-  };
+
 
   const getStatusConfig = (status: string) => {
     switch (status) {
@@ -186,15 +173,7 @@ export default function Itineraries() {
                             QR Code
                           </Button>
                         )}
-                        
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleShare(itinerary)}
-                        >
-                          <Share className="h-4 w-4 mr-1" />
-                          Condividi
-                        </Button>
+
 
                       </div>
                     </div>
