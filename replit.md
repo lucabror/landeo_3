@@ -10,6 +10,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-07-30**: ✅ COMPLETATO hashing sicuro session tokens con migrazione automatica
+  - Implementata funzione `hashToken()` con SHA256 per sicurezza database
+  - Token memorizzati come hash nel database, token originali restituiti agli utenti
+  - Sistema migrazione automatica: `validateSessionWithFallback` gestisce token legacy
+  - Compatibilità backward: sessioni esistenti migrate automaticamente al primo uso
+  - Funzione `cleanupLegacySessions` per manutenzione batch dei token legacy
+  - Sicurezza avanzata: database compromesso non espone token utilizzabili
+  - Applicato a tutte le operazioni: createSession, validateSession, invalidateSession, markMfaVerified
+  - TESTATO: tutti i nuovi token sono hash SHA256 di 64 caratteri nel database
 - **2025-07-30**: ✅ COMPLETATO sistema di validazione email robusta con controlli anti-spoofing
   - Implementata funzione `validateEmail` con oltre 10 controlli di sicurezza avanzati
   - Validazione RFC 5322 compliant con regex professionale e controlli pattern pericolosi

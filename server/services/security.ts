@@ -50,6 +50,44 @@ export async function verifyPassword(password: string, hashedPassword: string): 
   return bcrypt.compare(password, hashedPassword);
 }
 
+// Session token security - hash tokens before storing in database
+export function hashToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+// Utilità per pulire sessioni legacy non hashate (da usare per manutenzione)
+export async function cleanupLegacySessions(): Promise<number> {
+  try {
+    // Trova tutte le sessioni attive che potrebbero essere legacy (non hashate)
+    const allSessions = await db
+      .select()
+      .from(securitySessions)
+      .where(eq(securitySessions.isActive, true));
+    
+    let migratedCount = 0;
+    
+    for (const session of allSessions) {
+      // Se il token sembra essere un token originale (64 caratteri hex) invece di hash SHA256
+      if (session.sessionToken.length === 64 && /^[a-f0-9]+$/.test(session.sessionToken)) {
+        const hashedToken = hashToken(session.sessionToken);
+        
+        await db
+          .update(securitySessions)
+          .set({ sessionToken: hashedToken })
+          .where(eq(securitySessions.id, session.id));
+          
+        migratedCount++;
+      }
+    }
+    
+    console.log(`Migrated ${migratedCount} legacy session tokens to hashed format`);
+    return migratedCount;
+  } catch (error) {
+    console.error('Error during legacy session cleanup:', error);
+    return 0;
+  }
+}
+
 // MFA Secret Encryption (Vulnerabilità #23 - MFA Secret Storage)
 export function encryptMfaSecret(secret: string): string {
   const iv = crypto.randomBytes(16); // Generate random IV for each encryption
@@ -127,12 +165,13 @@ export async function createSecuritySession(
     );
 
   const sessionToken = crypto.randomBytes(32).toString('hex');
+  const hashedToken = hashToken(sessionToken); // Hash il token prima di salvarlo
   const expiresAt = new Date(Date.now() + SESSION_DURATION);
 
   await db.insert(securitySessions).values({
     userId,
     userType,
-    sessionToken,
+    sessionToken: hashedToken, // Salva l'hash invece del token originale
     ipAddress,
     userAgent: userAgent || 'unknown',
     expiresAt,
@@ -157,16 +196,43 @@ export async function validateSession(sessionToken: string): Promise<{
   userType: 'hotel' | 'admin';
   mfaVerified: boolean;
 } | null> {
-  const [session] = await db
+  const hashedToken = hashToken(sessionToken); // Hash il token per confrontarlo
+  
+  // Prima prova con il nuovo formato hashato
+  let [session] = await db
     .select()
     .from(securitySessions)
     .where(
       and(
-        eq(securitySessions.sessionToken, sessionToken),
+        eq(securitySessions.sessionToken, hashedToken), // Confronta con l'hash
         eq(securitySessions.isActive, true),
         gt(securitySessions.expiresAt, new Date())
       )
     );
+
+  // Se non trovato, prova con il formato legacy (per compatibilità con sessioni esistenti)
+  if (!session) {
+    [session] = await db
+      .select()
+      .from(securitySessions)
+      .where(
+        and(
+          eq(securitySessions.sessionToken, sessionToken), // Token originale non hashato
+          eq(securitySessions.isActive, true),
+          gt(securitySessions.expiresAt, new Date())
+        )
+      );
+      
+    // Se trovato con formato legacy, migra immediatamente al nuovo formato
+    if (session) {
+      await db
+        .update(securitySessions)
+        .set({ sessionToken: hashedToken })
+        .where(eq(securitySessions.sessionToken, sessionToken));
+      
+      console.log(`Migrated legacy session token to hashed format for user ${session.userId}`);
+    }
+  }
 
   return session
     ? {
@@ -178,17 +244,42 @@ export async function validateSession(sessionToken: string): Promise<{
 }
 
 export async function invalidateSession(sessionToken: string): Promise<void> {
-  await db
+  const hashedToken = hashToken(sessionToken); // Hash il token per trovare la sessione
+  
+  // Prova prima con il formato hashato
+  let result = await db
     .update(securitySessions)
     .set({ isActive: false })
-    .where(eq(securitySessions.sessionToken, sessionToken));
+    .where(eq(securitySessions.sessionToken, hashedToken));
+    
+  // Se non trovato, prova con il formato legacy (per compatibilità)
+  if (result.rowCount === 0) {
+    await db
+      .update(securitySessions)
+      .set({ isActive: false })
+      .where(eq(securitySessions.sessionToken, sessionToken));
+  }
 }
 
 export async function markSessionMfaVerified(sessionToken: string): Promise<void> {
-  await db
+  const hashedToken = hashToken(sessionToken); // Hash il token per trovare la sessione
+  
+  // Prova prima con il formato hashato
+  let result = await db
     .update(securitySessions)
     .set({ mfaVerified: true })
-    .where(eq(securitySessions.sessionToken, sessionToken));
+    .where(eq(securitySessions.sessionToken, hashedToken));
+    
+  // Se non trovato, prova con il formato legacy e migra
+  if (result.rowCount === 0) {
+    result = await db
+      .update(securitySessions)
+      .set({ 
+        mfaVerified: true,
+        sessionToken: hashedToken // Migra anche al nuovo formato
+      })
+      .where(eq(securitySessions.sessionToken, sessionToken));
+  }
 }
 
 // Account lockout management
