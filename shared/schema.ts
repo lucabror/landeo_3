@@ -192,6 +192,7 @@ export const itineraries = pgTable("itineraries", {
       description: string;
       experienceId?: string;
       duration?: string;
+      distance?: string;
       notes?: string;
       source?: 'preference-matched' | 'hotel-suggested';
     }>;

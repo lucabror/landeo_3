@@ -272,7 +272,7 @@ export async function generateItineraryPDF(
                 doc.font('Helvetica')
                    .fontSize(9)
                    .fillColor(colors.mediumText)
-                   .text(`📍 ${activity.location}`, leftMargin + 15, currentY, { 
+                   .text(`• Località: ${activity.location}`, leftMargin + 15, currentY, { 
                      width: 350
                    });
                 currentY += 12;
@@ -282,7 +282,7 @@ export async function generateItineraryPDF(
                 doc.font('Helvetica')
                    .fontSize(8)
                    .fillColor(colors.lightText)
-                   .text(`🏠 ${activity.address}`, leftMargin + 15, currentY, { 
+                   .text(`• Indirizzo: ${activity.address}`, leftMargin + 15, currentY, { 
                      width: 350
                    });
                 currentY += 11;
@@ -292,7 +292,7 @@ export async function generateItineraryPDF(
                 doc.font('Helvetica')
                    .fontSize(8)
                    .fillColor(colors.lightTeal)
-                   .text(`📏 ${activity.distance}`, leftMargin + 15, currentY, { 
+                   .text(`• Distanza: ${activity.distance}`, leftMargin + 15, currentY, { 
                      width: 350
                    });
                 currentY += 11;
@@ -304,12 +304,12 @@ export async function generateItineraryPDF(
                 doc.font('Helvetica')
                    .fontSize(8)
                    .fillColor(colors.primaryTeal)
-                   .text(`🎯 ${template.preferenceMatched}`, leftMargin + 15, sourceYPosition);
+                   .text(`• ${template.preferenceMatched}`, leftMargin + 15, sourceYPosition);
               } else if (activity.source === 'hotel-suggested') {
                 doc.font('Helvetica')
                    .fontSize(8)
                    .fillColor(colors.lightTeal)
-                   .text(`🏨 ${template.hotelSuggested}`, leftMargin + 15, sourceYPosition);
+                   .text(`• ${template.hotelSuggested}`, leftMargin + 15, sourceYPosition);
               }
               currentY += 12;
 
