@@ -616,7 +616,7 @@ export default function LocalExperiences() {
                           form.setValue("experienceLatitude", attraction.latitude.toString());
                           form.setValue("experienceLongitude", attraction.longitude.toString() );
                           form.setValue("geoAccuracy", "high");
-                          form.setValue("lastGeoUpdate", new Date());
+                          // Don't set lastGeoUpdate here - let the backend handle it
                         }
                       }}
                       placeholder="Cerca su Google Places: musei, ristoranti, parchi..."

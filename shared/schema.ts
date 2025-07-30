@@ -403,6 +403,9 @@ export const insertGuestProfileSchema = createInsertSchema(guestProfiles).omit({
 export const insertLocalExperienceSchema = createInsertSchema(localExperiences).omit({
   id: true,
   createdAt: true,
+}).extend({
+  // Allow date fields to accept both Date objects and strings
+  lastGeoUpdate: z.union([z.date(), z.string().transform((str) => new Date(str))]).optional(),
 });
 
 export const insertItinerarySchema = createInsertSchema(itineraries).omit({
