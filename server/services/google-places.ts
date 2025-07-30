@@ -94,7 +94,7 @@ export class GooglePlacesService {
 
       if (place.addressComponents) {
         for (const component of place.addressComponents) {
-          const types = component.types;
+          const types = component.types || [];
           
           if (types.includes('locality')) {
             city = component.longText;
