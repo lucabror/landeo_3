@@ -53,11 +53,23 @@ export function HotelAutocomplete({
   }, [query]);
 
   // Search hotels using the API
-  const { data: suggestions = [], isLoading } = useQuery<HotelSuggestion[]>({
+  const { data: suggestions = [], isLoading, error } = useQuery<HotelSuggestion[]>({
     queryKey: ['/api/hotels/search', debouncedQuery],
     enabled: debouncedQuery.length >= 2,
     staleTime: 30000, // Cache for 30 seconds
   });
+
+  // Debug logging
+  useEffect(() => {
+    if (debouncedQuery.length >= 2) {
+      console.log('HotelAutocomplete search:', {
+        query: debouncedQuery,
+        suggestions: suggestions?.length || 0,
+        isLoading,
+        error: error?.message
+      });
+    }
+  }, [debouncedQuery, suggestions, isLoading, error]);
 
   // Update isOpen based on suggestions and focus
   useEffect(() => {
