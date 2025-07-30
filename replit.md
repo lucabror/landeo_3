@@ -10,6 +10,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-07-30**: ✅ COMPLETATO aggiornamento policy password a 12 caratteri con complessità obbligatoria
+  - Aumentata sicurezza minima password da 8 a 12 caratteri in tutti gli endpoint
+  - Aggiunta validazione complessità: maiuscola, minuscola, numero, carattere speciale obbligatori  
+  - Applicata policy ai form: setupPasswordSchema, registrazione hotel, reset password
+  - Aggiornato bcrypt hash rounds da 10 a 12 per protezione più forte
+  - Implementato metodo updateHotelPassword mancante in storage per setup iniziale
+  - Risolti tutti gli errori LSP e conflitti di proprietà duplicate negli endpoint
+  - Sistema ora richiede password robuste: es. "Password123!" invece di "password123"
 - **2025-07-30**: ✅ COMPLETATO sistema di sicurezza avanzato con sanitizzazione input globale
   - Implementata funzione sanitizeInput completa per prevenire attacchi XSS e injection
   - Sistema rimuove tag script, protocolli javascript, event handlers HTML pericolosi

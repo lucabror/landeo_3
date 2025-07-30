@@ -16,6 +16,7 @@ import {
   guestPreferencesSchema,
   guestProfiles
 } from "@shared/schema";
+import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { generateItinerary } from "./services/openai";
@@ -318,8 +319,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         description: req.body.description ? sanitizeInput(req.body.description) : undefined,
         postalCode: req.body.postalCode ? sanitizeInput(req.body.postalCode) : undefined,
         email: req.body.email ? req.body.email.trim().toLowerCase() : undefined,
-        website: req.body.website ? sanitizeInput(req.body.website) : undefined,
-        description: req.body.description ? sanitizeInput(req.body.description) : undefined,
       };
 
       const validatedData = insertHotelSchema.partial().parse(sanitizedBody);
@@ -1706,14 +1705,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Password management
   app.post("/api/hotels/:hotelId/setup-password", async (req, res) => {
     try {
-      const { password } = req.body;
+      const { password: rawPassword } = req.body;
+      const password = sanitizeInput(rawPassword);
       
-      if (!password || password.length < 6) {
-        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      // Validazione password con policy aggiornata
+      const passwordSchema = z.string()
+        .min(12, 'Minimo 12 caratteri')
+        .max(128, 'Massimo 128 caratteri')
+        .refine(val => /[A-Z]/.test(val), 'Almeno una lettera maiuscola')
+        .refine(val => /[a-z]/.test(val), 'Almeno una lettera minuscola')
+        .refine(val => /\d/.test(val), 'Almeno un numero')
+        .refine(val => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val), 'Almeno un carattere speciale');
+      
+      const validation = passwordSchema.safeParse(password);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Password non valida", 
+          errors: validation.error.errors.map(e => e.message)
+        });
       }
       
       await storage.updateHotelPassword(req.params.hotelId, password);
-      res.json({ message: "Password updated successfully" });
+      res.json({ message: "Password aggiornata con successo" });
     } catch (error) {
       console.error('Update hotel password error:', error);
       res.status(500).json({ message: "Failed to update password" });
@@ -1722,14 +1735,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/admin/:adminId/setup-password", async (req, res) => {
     try {
-      const { password } = req.body;
+      const { password: rawPassword } = req.body;
+      const password = sanitizeInput(rawPassword);
       
-      if (!password || password.length < 6) {
-        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      // Validazione password con policy aggiornata
+      const passwordSchema = z.string()
+        .min(12, 'Minimo 12 caratteri')
+        .max(128, 'Massimo 128 caratteri')
+        .refine(val => /[A-Z]/.test(val), 'Almeno una lettera maiuscola')
+        .refine(val => /[a-z]/.test(val), 'Almeno una lettera minuscola')
+        .refine(val => /\d/.test(val), 'Almeno un numero')
+        .refine(val => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val), 'Almeno un carattere speciale');
+      
+      const validation = passwordSchema.safeParse(password);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Password non valida", 
+          errors: validation.error.errors.map(e => e.message)
+        });
       }
       
       await storage.updateAdministratorPassword(req.params.adminId, password);
-      res.json({ message: "Password updated successfully" });
+      res.json({ message: "Password aggiornata con successo" });
     } catch (error) {
       console.error('Update admin password error:', error);
       res.status(500).json({ message: "Failed to update password" });

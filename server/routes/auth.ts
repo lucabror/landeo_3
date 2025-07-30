@@ -42,14 +42,24 @@ const mfaVerifySchema = z.object({
   code: z.string().length(6, 'Il codice deve essere di 6 cifre'),
 });
 
+// Schema condiviso per validazione password
+const passwordSchema = z.string()
+  .min(12, 'Minimo 12 caratteri')
+  .max(128, 'Massimo 128 caratteri')
+  .refine(val => /[A-Z]/.test(val), 'Almeno una lettera maiuscola')
+  .refine(val => /[a-z]/.test(val), 'Almeno una lettera minuscola')
+  .refine(val => /\d/.test(val), 'Almeno un numero')
+  .refine(val => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val), 'Almeno un carattere speciale');
+
 const setupPasswordSchema = z.object({
   hotelId: z.string().uuid('ID hotel non valido'),
-  password: z.string()
-    .min(8, "Minimo 8 caratteri")
-    .refine(val => /[A-Z]/.test(val), "Almeno una lettera maiuscola")
-    .refine(val => /[a-z]/.test(val), "Almeno una lettera minuscola")
-    .refine(val => /\d/.test(val), "Almeno un numero")
-    .refine(val => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val), "Almeno un carattere speciale (!@#$%^&*)"),
+  password: passwordSchema,
+});
+
+const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Token richiesto'),
+  password: passwordSchema,
+  userType: z.enum(['hotel', 'admin'], { errorMap: () => ({ message: 'Tipo utente non valido' }) }),
 });
 
 // Hotel manager login
@@ -672,15 +682,16 @@ router.post('/forgot-password', async (req, res) => {
 // Password reset confirmation
 router.post('/reset-password', async (req, res) => {
   try {
-    const { token, password, userType } = req.body;
-    
-    if (!token || !password || !userType) {
-      return res.status(400).json({ error: 'Token, password e tipo utente richiesti' });
+    const validation = resetPasswordSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({ 
+        error: 'Dati non validi', 
+        details: validation.error.errors 
+      });
     }
-    
-    if (password.length < 8) {
-      return res.status(400).json({ error: 'La password deve essere di almeno 8 caratteri' });
-    }
+
+    const { token, password: rawPassword, userType } = validation.data;
+    const password = sanitizeInput(rawPassword);
     
     const now = new Date();
     let user;
@@ -696,7 +707,7 @@ router.post('/reset-password', async (req, res) => {
         return res.status(400).json({ error: 'Token non valido o scaduto' });
       }
       
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 12);
       
       await db.update(hotels)
         .set({ 

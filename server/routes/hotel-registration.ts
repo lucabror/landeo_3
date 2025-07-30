@@ -15,12 +15,12 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const registerHotelSchema = z.object({
   email: z.string().email("Email non valida").max(254, "Email troppo lunga"),
   password: z.string()
-    .min(8, "Minimo 8 caratteri")
-    .max(128, "Password troppo lunga")
+    .min(12, "Minimo 12 caratteri")
+    .max(128, "Massimo 128 caratteri")
     .refine(val => /[A-Z]/.test(val), "Almeno una lettera maiuscola")
     .refine(val => /[a-z]/.test(val), "Almeno una lettera minuscola")
     .refine(val => /\d/.test(val), "Almeno un numero")
-    .refine(val => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val), "Almeno un carattere speciale (!@#$%^&*)"),
+    .refine(val => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val), "Almeno un carattere speciale"),
 });
 
 // Schema per la verifica email
