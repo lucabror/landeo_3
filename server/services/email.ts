@@ -62,14 +62,74 @@ const EMAIL_TEMPLATES = {
   }
 };
 
-// Funzione per sanitizzare input email per prevenire email injection
-function sanitizeEmailInput(input: string): string {
-  if (!input) return '';
+// Funzione avanzata per sanitizzare input email - previene injection e validazione robusta
+export function sanitizeEmailInput(input: string): string {
+  if (!input || typeof input !== 'string') return '';
+  
   return input
-    .replace(/[\r\n]/g, '') // Rimuovi newlines che possono causare header injection
-    .replace(/[<>]/g, '') // Rimuovi caratteri che possono causare problemi
+    .replace(/[\r\n\x00-\x1F\x7F-\x9F]/g, '') // Rimuovi TUTTI i caratteri di controllo (inclusi Unicode)
+    .replace(/[<>'"]/g, '') // Rimuovi caratteri HTML pericolosi
+    .replace(/[\u200B-\u200F\u2028-\u202F\u205F-\u206F\uFEFF]/g, '') // Rimuovi caratteri Unicode invisibili
+    .replace(/\s+/g, ' ') // Normalizza spazi multipli a uno singolo
+    .replace(/[^\x20-\x7E\u00A0-\u00FF\u0100-\u017F\u0180-\u024F]/g, '') // Mantieni solo caratteri ASCII stampabili e Latin Extended
     .trim()
-    .substring(0, 254); // Limita lunghezza email
+    .toLowerCase() // Normalizza a minuscolo per consistenza email
+    .substring(0, 254); // Limite RFC 5321 per email (255 - 1 per null terminator)
+}
+
+// Validazione email robusta con controlli anti-spoofing e sicurezza
+export function validateEmail(email: string): { isValid: boolean; reason?: string } {
+  if (!email || typeof email !== 'string') {
+    return { isValid: false, reason: 'Email vuota o non valida' };
+  }
+
+  // Controllo lunghezza base RFC
+  if (email.length > 254) {
+    return { isValid: false, reason: 'Email troppo lunga (max 254 caratteri)' };
+  }
+
+  // Regex RFC 5322 compliant con controlli di sicurezza aggiuntivi
+  const emailRegex = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/;
+  
+  if (!emailRegex.test(email)) {
+    return { isValid: false, reason: 'Formato email non valido' };
+  }
+
+  // Controlla caratteri pericolosi che potrebbero bypassare sanitizzazione
+  const dangerousPatterns = [
+    /[\r\n\x00-\x1F\x7F-\x9F]/,  // Caratteri di controllo
+    /[<>'"]/,                     // HTML injection
+    /\.{2,}/,                     // Punti consecutivi
+    /@.*@/,                       // Doppia @
+    /^\.|\.$|@\.|\.@/,           // Punti malformati
+    /\s/                          // Spazi
+  ];
+
+  for (const pattern of dangerousPatterns) {
+    if (pattern.test(email)) {
+      return { isValid: false, reason: 'Email contiene caratteri non permessi' };
+    }
+  }
+
+  // Controlla dominio valido
+  const [localPart, domain] = email.split('@');
+  if (!localPart || !domain) {
+    return { isValid: false, reason: 'Formato email incompleto' };
+  }
+
+  // Controlla lunghezza parti
+  if (localPart.length > 64 || domain.length > 253) {
+    return { isValid: false, reason: 'Parti email troppo lunghe' };
+  }
+
+  // Controlla domini sospetti o temporanei (lista base)
+  const suspiciousDomains = ['tempmail', '10minutemail', 'guerrillamail', 'mailinator'];
+  const domainLower = domain.toLowerCase();
+  if (suspiciousDomains.some(suspicious => domainLower.includes(suspicious))) {
+    return { isValid: false, reason: 'Dominio email temporaneo non permesso' };
+  }
+
+  return { isValid: true };
 }
 
 function sanitizeHtmlContent(input: string): string {
@@ -300,13 +360,15 @@ export async function sendGuestPreferencesEmail(
 </body>
 </html>`;
 
-    // Sanitizza input critici
+    // Sanitizza e valida input critici
     const sanitizedEmail = sanitizeEmailInput(guestProfile.email || '');
     const sanitizedHotelName = sanitizeHtmlContent(hotel.name);
     const sanitizedGuestName = sanitizeHtmlContent(guestProfile.referenceName);
     
-    if (!sanitizedEmail || !sanitizedEmail.includes('@')) {
-      return { success: false, error: 'Email non valida' };
+    // Validazione email robusta
+    const emailValidation = validateEmail(sanitizedEmail);
+    if (!emailValidation.isValid) {
+      return { success: false, error: `Email non valida: ${emailValidation.reason}` };
     }
 
     const { data, error } = await resend.emails.send({
@@ -393,6 +455,13 @@ export async function sendItineraryPDF(
   }
 
   try {
+    // Sanitizza e valida email destinatario
+    const sanitizedRecipientEmail = sanitizeEmailInput(recipientEmail);
+    const emailValidation = validateEmail(sanitizedRecipientEmail);
+    if (!emailValidation.isValid) {
+      return { success: false, error: `Email destinatario non valida: ${emailValidation.reason}` };
+    }
+
     // Determine language from guest profile
     const language = (guestProfile?.emailLanguage || 'it') as 'it' | 'en';
     const template = PDF_EMAIL_TEMPLATES[language];
@@ -467,9 +536,9 @@ export async function sendItineraryPDF(
 </html>`;
 
     const { data, error } = await resend.emails.send({
-      from: `${hotel.name} <noreply@landeo.it>`,
-      to: [recipientEmail],
-      subject: `🗺️ ${template.title} - ${hotel.name}`,
+      from: `${sanitizeHtmlContent(hotel.name)} <noreply@landeo.it>`,
+      to: [sanitizedRecipientEmail],
+      subject: `🗺️ ${template.title} - ${sanitizeHtmlContent(hotel.name)}`,
       html: htmlContent,
       attachments: [{
         filename: `Itinerario_${itinerary.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
@@ -510,8 +579,11 @@ export async function sendCreditPurchaseInstructions(
     return {success: false, error: 'Email service not configured'};
   }
 
-  if (!hotel.email) {
-    return {success: false, error: 'Hotel email not found'};
+  // Sanitizza e valida email hotel
+  const sanitizedHotelEmail = sanitizeEmailInput(hotel.email || '');
+  const emailValidation = validateEmail(sanitizedHotelEmail);
+  if (!emailValidation.isValid) {
+    return { success: false, error: `Email hotel non valida: ${emailValidation.reason}` };
   }
 
   try {
@@ -638,7 +710,7 @@ export async function sendCreditPurchaseInstructions(
 
     const { data, error } = await resend.emails.send({
       from: `Luca Borro - Landeo <noreply@landeo.it>`,
-      to: [hotel.email],
+      to: [sanitizedHotelEmail],
       subject: `📋 Istruzioni Bonifico - Ordine Crediti ${packageName}`,
       html: htmlContent,
     });
@@ -675,6 +747,24 @@ export async function sendSupportEmail({
   subject: string;
   message: string;
 }): Promise<boolean> {
+  // Sanitizza e valida input critici
+  const sanitizedEmail = sanitizeEmailInput(email);
+  const sanitizedName = sanitizeHtmlContent(name);
+  const sanitizedSubject = sanitizeHtmlContent(subject);
+  const sanitizedMessage = sanitizeHtmlContent(message);
+
+  const emailValidation = validateEmail(sanitizedEmail);
+  if (!emailValidation.isValid) {
+    console.error(`Email mittente non valida: ${emailValidation.reason}`);
+    return false;
+  }
+
+  // Verifica lunghezza contenuti
+  if (sanitizedName.length > 100 || sanitizedSubject.length > 200 || sanitizedMessage.length > 5000) {
+    console.error('Contenuto troppo lungo. Limiti: nome 100, oggetto 200, messaggio 5000 caratteri');
+    return false;
+  }
+
   try {
     const htmlContent = `
 <!DOCTYPE html>
@@ -696,21 +786,21 @@ export async function sendSupportEmail({
     <div style="padding: 30px;">
       <div style="background: #f8fafc; border-left: 4px solid #f59e0b; padding: 20px; margin-bottom: 25px; border-radius: 0 8px 8px 0;">
         <h2 style="margin: 0 0 10px 0; color: #1f2937; font-size: 18px;">Oggetto:</h2>
-        <p style="margin: 0; font-size: 16px; font-weight: 600; color: #374151;">${subject}</p>
+        <p style="margin: 0; font-size: 16px; font-weight: 600; color: #374151;">${sanitizedSubject}</p>
       </div>
       
       <div style="margin-bottom: 25px;">
         <h3 style="color: #1f2937; font-size: 16px; margin-bottom: 10px;">Informazioni Contatto:</h3>
         <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb;">
-          <p style="margin: 0 0 8px 0;"><strong>Nome:</strong> ${name}</p>
-          <p style="margin: 0;"><strong>Email:</strong> ${email}</p>
+          <p style="margin: 0 0 8px 0;"><strong>Nome:</strong> ${sanitizedName}</p>
+          <p style="margin: 0;"><strong>Email:</strong> ${sanitizedEmail}</p>
         </div>
       </div>
       
       <div style="margin-bottom: 25px;">
         <h3 style="color: #1f2937; font-size: 16px; margin-bottom: 10px;">Messaggio:</h3>
         <div style="background: #f9fafb; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
-          <p style="margin: 0; line-height: 1.7; color: #374151; white-space: pre-wrap;">${message}</p>
+          <p style="margin: 0; line-height: 1.7; color: #374151; white-space: pre-wrap;">${sanitizedMessage}</p>
         </div>
       </div>
       
@@ -729,8 +819,8 @@ export async function sendSupportEmail({
     const { data, error } = await resend.emails.send({
       from: 'Supporto Landeo <supporto@landeo.it>',
       to: ['borroluca@gmail.com'],
-      replyTo: email,
-      subject: `[SUPPORTO] ${subject}`,
+      replyTo: sanitizedEmail,
+      subject: `[SUPPORTO] ${sanitizedSubject}`,
       html: htmlContent,
     });
 

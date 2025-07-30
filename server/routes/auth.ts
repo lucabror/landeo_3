@@ -24,6 +24,7 @@ import {
   createRateLimiter,
   sanitizeInput,
 } from '../services/security';
+import { sanitizeEmailInput, validateEmail } from '../services/email';
 
 const router = Router();
 
@@ -77,10 +78,20 @@ router.post('/login/hotel', loginLimiter, async (req, res) => {
     }
 
     const { email: rawEmail, password: rawPassword } = validation.data;
-    const email = sanitizeInput(rawEmail);
+    const email = sanitizeEmailInput(rawEmail);
     const password = sanitizeInput(rawPassword);
     const ipAddress = req.ip || 'unknown';
     const userAgent = req.get('User-Agent') || 'unknown';
+
+    // Validazione email robusta
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      await logSecurityEvent(null, 'hotel', 'login_failed_invalid_email', ipAddress, userAgent, { 
+        email: email.substring(0, 3) + '***',
+        reason: emailValidation.reason
+      });
+      return res.status(400).json({ error: `Email non valida: ${emailValidation.reason}` });
+    }
 
     // Find hotel by email
     const [hotel] = await db
@@ -174,10 +185,20 @@ router.post('/login/admin', loginLimiter, async (req, res) => {
     }
 
     const { email: rawEmail, password: rawPassword } = validation.data;
-    const email = sanitizeInput(rawEmail);
+    const email = sanitizeEmailInput(rawEmail);
     const password = sanitizeInput(rawPassword);
     const ipAddress = req.ip || 'unknown';
     const userAgent = req.get('User-Agent') || 'unknown';
+
+    // Validazione email robusta
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      await logSecurityEvent(null, 'admin', 'login_failed_invalid_email', ipAddress, userAgent, { 
+        email: email.substring(0, 3) + '***',
+        reason: emailValidation.reason
+      });
+      return res.status(400).json({ error: `Email non valida: ${emailValidation.reason}` });
+    }
 
     // Find admin by email
     const [admin] = await db
@@ -565,10 +586,17 @@ router.get('/me', requireAuth({ userType: 'both', requireMfa: true }), async (re
 // Password reset request
 router.post('/forgot-password', async (req, res) => {
   try {
-    const { email, userType } = req.body;
+    const { email: rawEmail, userType } = req.body;
     
-    if (!email || !userType) {
+    if (!rawEmail || !userType) {
       return res.status(400).json({ error: 'Email e tipo utente richiesti' });
+    }
+
+    // Sanitizza e valida email
+    const email = sanitizeEmailInput(rawEmail);
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      return res.status(400).json({ error: `Email non valida: ${emailValidation.reason}` });
     }
     
     let user;

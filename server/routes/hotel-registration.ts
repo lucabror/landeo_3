@@ -7,6 +7,7 @@ import { users, emailVerifications, hotels } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { Resend } from 'resend';
 import { sanitizeInput } from '../services/security';
+import { sanitizeEmailInput, validateEmail } from '../services/email';
 
 const router = express.Router();
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -36,8 +37,17 @@ router.post("/register-hotel", async (req, res) => {
       password: req.body.password
     });
     
-    const email = sanitizeInput(rawEmail);
+    const email = sanitizeEmailInput(rawEmail);
     const password = sanitizeInput(rawPassword);
+
+    // Validazione email robusta
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      return res.status(400).json({
+        success: false,
+        message: `Email non valida: ${emailValidation.reason}`,
+      });
+    }
 
     // Controlla se l'utente esiste già
     const existingUser = await db

@@ -10,6 +10,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-07-30**: ✅ COMPLETATO sistema di validazione email robusta con controlli anti-spoofing
+  - Implementata funzione `validateEmail` con oltre 10 controlli di sicurezza avanzati
+  - Validazione RFC 5322 compliant con regex professionale e controlli pattern pericolosi
+  - Protezione anti-spoofing: caratteri controllo, double @, punti malformati, domini temporanei
+  - Controlli lunghezza parti email (local part ≤64, domain ≤253 caratteri)
+  - Lista domini sospetti per bloccare email temporanee/usa-e-getta
+  - Sanitizzazione avanzata email con `sanitizeEmailInput`: rimozione caratteri pericolosi, normalizzazione
+  - Validazione applicata a TUTTI gli endpoint email: login hotel/admin, reset password, invio email, registrazione
+  - Sistema ora previene injection email, attacchi spoofing e email malformate in tutti i servizi
+  - TESTATO: email malformate respinte con messaggio specifico, email valide processate correttamente
 - **2025-07-30**: ✅ COMPLETATO aggiornamento policy password a 12 caratteri con complessità obbligatoria
   - Aumentata sicurezza minima password da 8 a 12 caratteri in tutti gli endpoint
   - Aggiunta validazione complessità: maiuscola, minuscola, numero, carattere speciale obbligatori  
