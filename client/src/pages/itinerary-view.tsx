@@ -100,6 +100,8 @@ export default function ItineraryView() {
       time: "09:00",
       activity: "Nuova attività",
       location: "",
+      address: "",
+      distance: "",
       description: "",
       duration: "1 ora",
       notes: ""
@@ -400,6 +402,24 @@ export default function ItineraryView() {
                                 </div>
                                 
                                 <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Indirizzo</label>
+                                  <Input 
+                                    value={activity.address || ""}
+                                    onChange={(e) => handleActivityChange(actIndex, 'address', e.target.value)}
+                                    placeholder="Via Roma 123, 00100 Roma"
+                                  />
+                                </div>
+                                
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">Distanza dal CAP hotel</label>
+                                  <Input 
+                                    value={activity.distance || ""}
+                                    onChange={(e) => handleActivityChange(actIndex, 'distance', e.target.value)}
+                                    placeholder="5 km da Assisi"
+                                  />
+                                </div>
+                                
+                                <div>
                                   <label className="block text-sm font-medium text-gray-700 mb-1">Descrizione</label>
                                   <Textarea 
                                     value={activity.description || ""}
@@ -465,8 +485,22 @@ export default function ItineraryView() {
                               <div className="space-y-3">
                                 {activity.location && (
                                   <div className="flex items-start space-x-2">
+                                    <MapPin className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                                    <span className="text-sm text-gray-600 font-medium">{activity.location}</span>
+                                  </div>
+                                )}
+                                
+                                {activity.address && (
+                                  <div className="flex items-start space-x-2">
                                     <MapPin className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                                    <span className="text-sm text-gray-600">{activity.location}</span>
+                                    <span className="text-sm text-gray-600">{activity.address}</span>
+                                  </div>
+                                )}
+                                
+                                {activity.distance && (
+                                  <div className="flex items-start space-x-2">
+                                    <MapPin className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                    <span className="text-sm text-gray-600">{activity.distance}</span>
                                   </div>
                                 )}
                                 

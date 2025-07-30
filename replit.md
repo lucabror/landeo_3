@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-07-30**: ✅ AGGIUNTA indirizzo e distanza nella pagina "Vedi Itinerario" per modifica manuale
+  - Aggiunti campi "Indirizzo" e "Distanza dal CAP hotel" nella modalità editing attività
+  - Manager può ora modificare manualmente tutti i dettagli delle attrazioni prima di condividere
+  - Visualizzazione con icone colorate: località (blu), indirizzo (grigio), distanza (verde)
+  - Campi inclusi anche in nuove attività create manualmente dai manager
+  - Sistema ora permette editing completo di tutte le informazioni mostrate nel PDF
 - **2025-07-30**: ✅ COMPLETATO sistema completo di rate limiting per tutte le API esterne
   - Rate limiting OpenAI API: 5 richieste/minuto per itinerari, 3 richieste/minuto per attrazioni
   - Rate limiting Resend email: 20 email/minuto per controllo invii multipli
