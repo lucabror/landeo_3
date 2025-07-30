@@ -891,7 +891,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Tutti i campi sono obbligatori" });
       }
       
-      if (!process.env.SENDGRID_API_KEY) {
+      if (!process.env.RESEND_API_KEY) {
         return res.status(500).json({ message: "Servizio email non configurato" });
       }
       

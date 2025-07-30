@@ -10,6 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-30**: ✅ RISOLTO problema Resend email delivery - configurato dominio landeo.it per invio esterno
+  - Problema: dominio landeo.it verificato ma email limitato solo a borroluca@gmail.com 
+  - Causa: Resend richiede indirizzi mittente del dominio verificato per invio esterno
+  - Sostituiti tutti gli indirizzi da @resend.dev a @landeo.it: noreply@, supporto@, onboarding@
+  - Sistema ora può inviare email a qualsiasi destinatario utilizzando il dominio verificato
 - **2025-01-30**: ✅ RISOLTO bug URL malformato nella email di registrazione
   - Problema: URL conteneva virgola invece di punto nel dominio "https://landeo.replit.app,landeo.it/"
   - Sostituito process.env.REPLIT_DOMAINS con dominio fisso "https://landeo.it"
