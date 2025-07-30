@@ -54,7 +54,7 @@ export function HotelAutocomplete({
 
   // Search hotels using the API
   const { data: suggestions = [], isLoading, error } = useQuery<HotelSuggestion[]>({
-    queryKey: ['/api/hotels/search', debouncedQuery],
+    queryKey: [`/api/hotels/search?query=${encodeURIComponent(debouncedQuery)}`],
     enabled: debouncedQuery.length >= 2,
     staleTime: 30000, // Cache for 30 seconds
   });
