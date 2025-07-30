@@ -454,14 +454,34 @@ export default function LocalExperiences() {
   };
 
   const handleEdit = (experience: any) => {
+    console.log("🔧 handleEdit called with:", experience);
+    
     setEditingExperience(experience);
-    form.reset({
-      ...experience,
-      contactInfo: experience.contactInfo || {},
+    
+    // Prepare form data with all fields
+    const formData = {
+      hotelId: experience.hotelId || hotelId || "",
+      name: experience.name || "",
+      category: experience.category || "",
+      description: experience.description || "",
+      location: experience.location || "",
       address: experience.address || "",
+      distance: experience.distance || "",
+      duration: experience.duration || "",
+      priceRange: experience.priceRange || "",
+      contactInfo: experience.contactInfo || {},
+      openingHours: experience.openingHours || "",
+      seasonality: experience.seasonality || "",
       targetAudience: experience.targetAudience || [],
-    });
+      rating: experience.rating || "",
+      imageUrl: experience.imageUrl || "",
+      isActive: experience.isActive !== undefined ? experience.isActive : true,
+    };
+    
+    console.log("🔧 Form data prepared:", formData);
+    form.reset(formData);
     setIsDialogOpen(true);
+    console.log("🔧 Dialog should be open now");
   };
 
   const handleDelete = (id: string) => {
@@ -1023,7 +1043,24 @@ export default function LocalExperiences() {
             {/* Local Experiences Grid */}
             {experiences.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {(selectedGuestId && selectedGuestId !== "none" && matchData ? (matchData as any)?.matches || [] : experiences.map((exp: any) => ({ experience: exp, matchType: 'low' as const, matchingPreferences: [] }))).map((match: any) => {
+                {(() => {
+                  // Safety check and data preparation
+                  if (!Array.isArray(experiences)) {
+                    console.error("Experiences is not an array:", experiences);
+                    return [];
+                  }
+                  
+                  if (selectedGuestId && selectedGuestId !== "none" && matchData) {
+                    const matches = (matchData as any)?.matches;
+                    return Array.isArray(matches) ? matches : [];
+                  } else {
+                    return experiences.map((exp: any) => ({ 
+                      experience: exp, 
+                      matchType: 'low' as const, 
+                      matchingPreferences: [] 
+                    }));
+                  }
+                })().map((match: any) => {
                   const experience = match.experience;
                   const categoryConfig = getCategoryConfig(experience.category);
                   const IconComponent = categoryConfig.icon;
@@ -1051,7 +1088,11 @@ export default function LocalExperiences() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleEdit(experience)}
+                              onClick={() => {
+                                console.log("🔧 Edit button clicked for experience:", experience.id);
+                                console.log("🔧 Experience data:", experience);
+                                handleEdit(experience);
+                              }}
                               className="opacity-0 group-hover:opacity-100 transition-opacity"
                             >
                               <Edit className="h-3 w-3" />
