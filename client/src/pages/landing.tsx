@@ -522,7 +522,8 @@ export default function Landing() {
           <div className="flex flex-col gap-4 justify-center">
             <Link href="/hotel-register">
               <Button size="lg" className="bg-white text-amber-700 hover:bg-gray-50 text-lg px-8 w-full sm:w-auto">
-                Registrazione Gratuita
+                <span className="hidden sm:inline">Registrazione Gratuita</span>
+                <span className="sm:hidden">Genera 5 Itinerari Gratuiti</span>
                 <ChevronRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
