@@ -96,12 +96,7 @@ export default function Itineraries() {
             </p>
           </div>
           
-          <Link href="/">
-            <Button className="bg-primary hover:bg-primary/90">
-              <Plus className="mr-2 h-4 w-4" />
-              Genera Nuovo Itinerario
-            </Button>
-          </Link>
+
         </div>
 
         {/* Itineraries List */}
@@ -155,12 +150,14 @@ export default function Itineraries() {
                       </div>
                       
                       <div className="flex space-x-2 ml-4">
-                        <Link href={`/itinerary/${itinerary.uniqueUrl}`}>
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-4 w-4 mr-1" />
-                            Visualizza
-                          </Button>
-                        </Link>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => window.open(`/itinerary/${itinerary.uniqueUrl}`, '_blank')}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          Visualizza
+                        </Button>
                         
                         {itinerary.qrCodeUrl && (
                           <Button 
