@@ -49,6 +49,23 @@ export default function HotelSetup() {
     enabled: !!hotelId,
   });
 
+  // Fetch hotel setup status
+  const { data: setupStatus } = useQuery({
+    queryKey: [`/api/hotels/${hotelId}/setup-status`],
+    enabled: !!hotelId,
+  });
+
+  // Check if hotel is fully configured
+  const isHotelConfigured = hotel && 
+    (hotel as any).name && 
+    (hotel as any).address && 
+    (hotel as any).city && 
+    (hotel as any).region && 
+    (hotel as any).postalCode && 
+    (hotel as any).phone &&
+    Array.isArray((hotel as any).services) && 
+    (hotel as any).services.length > 0;
+
   console.log("Hotel setup - User:", user);
   console.log("Hotel setup - Hotel ID:", hotelId);
   console.log("Hotel setup - Hotel data:", hotel);
@@ -354,18 +371,25 @@ export default function HotelSetup() {
                   </p>
                 </div>
               </div>
-              {hotel && !isEditing && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-2"
-                >
-                  <Edit className="h-4 w-4" />
-                  Modifica
-                </Button>
+              {!isEditing && (
+                <div className="flex flex-col items-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsEditing(true)}
+                    className={`flex items-center gap-2 ${!isHotelConfigured ? 'border-red-500 border-2' : ''}`}
+                  >
+                    <Edit className="h-4 w-4" />
+                    Modifica
+                  </Button>
+                  {!isHotelConfigured && (
+                    <p className="text-sm text-black mt-2 text-center">
+                      Clicca qui per aggiungere il tuo Hotel
+                    </p>
+                  )}
+                </div>
               )}
-              {hotel && isEditing && (
+              {isEditing && (
                 <div className="flex gap-2">
                   <Button
                     type="button"
