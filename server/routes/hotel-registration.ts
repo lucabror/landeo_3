@@ -6,6 +6,7 @@ import { db } from "../db";
 import { users, emailVerifications, hotels } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { Resend } from 'resend';
+import { sanitizeInput } from '../services/security';
 
 const router = express.Router();
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -30,10 +31,13 @@ const verifyEmailSchema = z.object({
 // Registrazione hotel - Step 1
 router.post("/register-hotel", async (req, res) => {
   try {
-    const { email, password } = registerHotelSchema.parse({
+    const { email: rawEmail, password: rawPassword } = registerHotelSchema.parse({
       email: req.body.email?.trim().toLowerCase(),
       password: req.body.password
     });
+    
+    const email = sanitizeInput(rawEmail);
+    const password = sanitizeInput(rawPassword);
 
     // Controlla se l'utente esiste già
     const existingUser = await db
@@ -170,7 +174,8 @@ router.post("/register-hotel", async (req, res) => {
 // Verifica email - Step 2
 router.post("/verify-email", async (req, res) => {
   try {
-    const { token } = verifyEmailSchema.parse(req.body);
+    const { token: rawToken } = verifyEmailSchema.parse(req.body);
+    const token = sanitizeInput(rawToken);
 
     // Trova il token di verifica
     const verification = await db

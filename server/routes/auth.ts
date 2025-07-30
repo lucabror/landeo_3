@@ -22,6 +22,7 @@ import {
   logSecurityEvent,
   requireAuth,
   createRateLimiter,
+  sanitizeInput,
 } from '../services/security';
 
 const router = Router();
@@ -65,7 +66,9 @@ router.post('/login/hotel', loginLimiter, async (req, res) => {
       });
     }
 
-    const { email, password } = validation.data;
+    const { email: rawEmail, password: rawPassword } = validation.data;
+    const email = sanitizeInput(rawEmail);
+    const password = sanitizeInput(rawPassword);
     const ipAddress = req.ip || 'unknown';
     const userAgent = req.get('User-Agent') || 'unknown';
 
@@ -160,7 +163,9 @@ router.post('/login/admin', loginLimiter, async (req, res) => {
       });
     }
 
-    const { email, password } = validation.data;
+    const { email: rawEmail, password: rawPassword } = validation.data;
+    const email = sanitizeInput(rawEmail);
+    const password = sanitizeInput(rawPassword);
     const ipAddress = req.ip || 'unknown';
     const userAgent = req.get('User-Agent') || 'unknown';
 
@@ -240,7 +245,9 @@ router.post('/setup-password', async (req, res) => {
       });
     }
 
-    const { hotelId, password } = validation.data;
+    const { hotelId: rawHotelId, password: rawPassword } = validation.data;
+    const hotelId = sanitizeInput(rawHotelId);
+    const password = sanitizeInput(rawPassword);
     const ipAddress = req.ip || 'unknown';
     const userAgent = req.get('User-Agent') || 'unknown';
 
@@ -320,7 +327,8 @@ router.post('/setup-mfa', requireAuth({ userType: 'both' }), async (req, res) =>
 // Enable Google Authenticator
 router.post('/enable-mfa', requireAuth({ userType: 'both' }), async (req, res) => {
   try {
-    const { code } = req.body;
+    const { code: rawCode } = req.body;
+    const code = sanitizeInput(rawCode);
     const { id: userId, type: userType } = (req as any).user;
     const ipAddress = req.ip || 'unknown';
     const userAgent = req.get('User-Agent') || 'unknown';
@@ -360,7 +368,9 @@ router.post('/verify-mfa', mfaLimiter, async (req, res) => {
       });
     }
 
-    const { sessionToken, code } = validation.data;
+    const { sessionToken: rawSessionToken, code: rawCode } = validation.data;
+    const sessionToken = sanitizeInput(rawSessionToken);
+    const code = sanitizeInput(rawCode);
     const ipAddress = req.ip || 'unknown';
     const userAgent = req.get('User-Agent') || 'unknown';
 

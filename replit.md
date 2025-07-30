@@ -10,6 +10,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-07-30**: ✅ COMPLETATO sistema di sicurezza avanzato con sanitizzazione input globale
+  - Implementata funzione sanitizeInput completa per prevenire attacchi XSS e injection
+  - Sistema rimuove tag script, protocolli javascript, event handlers HTML pericolosi
+  - Limite lunghezza input (10.000 caratteri) per prevenire attacchi DoS
+  - Sanitizzazione applicata a TUTTI gli endpoint: hotels, guest profiles, esperienze locali, admin, supporto
+  - Validazione filename sicura per upload file (previene path traversal)
+  - Sistema di crittografia AES-256-CBC per MFA secrets con random IV
+  - Configurazione sicura environment variables: JWT_SECRET, MFA_ENCRYPTION_KEY
+  - Correzione completa errori LSP e risoluzione conflitti import
+  - TESTATO: sistema respinge input pericolosi e processa correttamente richieste legittime
 - **2025-07-30**: ✅ RISOLTO DEFINITIVAMENTE problemi PDF itinerari - testo completo e informazioni esperienze locali
   - Rimosso troncamento testo descrizioni PDF: eliminato `ellipsis: true` e `height` limitato
   - Aggiunte informazioni complete esperienze locali: indirizzo, distanza dall'hotel, posizione

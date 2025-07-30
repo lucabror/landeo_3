@@ -25,22 +25,13 @@ import { enrichHotelData, isValidItalianLocation } from "./services/geocoding";
 import { sendGuestPreferencesEmail, sendCreditPurchaseInstructions, sendItineraryPDF, sendSupportEmail } from "./services/email";
 import { GooglePlacesService } from "./services/google-places";
 // Preference matcher temporaneamente rimosso per ricostruzione
-import { requireAuth } from "./services/security";
+import { requireAuth, sanitizeInput } from "./services/security";
 import { randomUUID } from "crypto";
 import QRCode from "qrcode";
 import PDFDocument from "pdfkit";
 import { Resend } from "resend";
 
-// Utility per sanitizzazione input
-function sanitizeInput(input: string): string {
-  if (!input) return '';
-  return input
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
-    .replace(/javascript:/gi, '') // Remove javascript: protocol
-    .replace(/on\w+\s*=/gi, '') // Remove event handlers
-    .trim()
-    .substring(0, 10000); // Limita lunghezza per prevenire DoS
-}
+
 
 // Validation per nomi file sicuri
 function isValidFilename(filename: string): boolean {
@@ -323,6 +314,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         city: req.body.city ? sanitizeInput(req.body.city) : undefined,
         region: req.body.region ? sanitizeInput(req.body.region) : undefined,
         phone: req.body.phone ? sanitizeInput(req.body.phone) : undefined,
+        website: req.body.website ? sanitizeInput(req.body.website) : undefined,
+        description: req.body.description ? sanitizeInput(req.body.description) : undefined,
+        postalCode: req.body.postalCode ? sanitizeInput(req.body.postalCode) : undefined,
         email: req.body.email ? req.body.email.trim().toLowerCase() : undefined,
         website: req.body.website ? sanitizeInput(req.body.website) : undefined,
         description: req.body.description ? sanitizeInput(req.body.description) : undefined,
@@ -923,7 +917,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Send support contact email
   app.post("/api/contact/send-support", async (req, res) => {
     try {
-      const { name, email, subject, message } = req.body;
+      const { name: rawName, email: rawEmail, subject: rawSubject, message: rawMessage } = req.body;
+      
+      // Sanitizza tutti gli input
+      const name = sanitizeInput(rawName);
+      const email = rawEmail ? rawEmail.trim().toLowerCase() : '';
+      const subject = sanitizeInput(rawSubject);
+      const message = sanitizeInput(rawMessage);
       
       if (!name || !email || !subject || !message) {
         return res.status(400).json({ message: "Tutti i campi sono obbligatori" });
@@ -955,7 +955,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Generate and send itinerary PDF via email using elegant spa-style PDF service
   app.post("/api/itinerary/:uniqueUrl/email-pdf", async (req, res) => {
     try {
-      const { recipientEmail, recipientName } = req.body;
+      const { recipientEmail: rawRecipientEmail, recipientName: rawRecipientName } = req.body;
+      const recipientEmail = rawRecipientEmail ? rawRecipientEmail.trim().toLowerCase() : '';
+      const recipientName = sanitizeInput(rawRecipientName);
       
       console.log('📧 EMAIL PDF REQUEST:', { recipientEmail, recipientName, uniqueUrl: req.params.uniqueUrl });
       
@@ -1786,7 +1788,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Approve credit purchase
   app.post("/api/admin/purchases/:purchaseId/approve", requireAuth({ userType: 'admin' }), async (req, res) => {
     try {
-      const { adminEmail, notes } = req.body;
+      const { adminEmail: rawAdminEmail, notes: rawNotes } = req.body;
+      const adminEmail = sanitizeInput(rawAdminEmail);
+      const notes = sanitizeInput(rawNotes);
       await storage.approveCreditPurchase(req.params.purchaseId, adminEmail, notes);
       res.json({ message: "Purchase approved successfully" });
     } catch (error) {
@@ -1797,7 +1801,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Reject credit purchase
   app.post("/api/admin/purchases/:purchaseId/reject", requireAuth({ userType: 'admin' }), async (req, res) => {
     try {
-      const { adminEmail, notes } = req.body;
+      const { adminEmail: rawAdminEmail, notes: rawNotes } = req.body;
+      const adminEmail = sanitizeInput(rawAdminEmail);
+      const notes = sanitizeInput(rawNotes);
       await storage.rejectCreditPurchase(req.params.purchaseId, adminEmail, notes);
       res.json({ message: "Purchase rejected successfully" });
     } catch (error) {
@@ -1808,7 +1814,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Manually adjust hotel credits
   app.post("/api/admin/hotels/:hotelId/adjust-credits", requireAuth({ userType: 'admin' }), async (req, res) => {
     try {
-      const { amount, description, adminEmail } = req.body;
+      const { amount, description: rawDescription, adminEmail: rawAdminEmail } = req.body;
+      const description = sanitizeInput(rawDescription);
+      const adminEmail = sanitizeInput(rawAdminEmail);
       await storage.adjustHotelCredits(req.params.hotelId, amount, description, adminEmail);
       res.json({ message: "Credits adjusted successfully" });
     } catch (error) {
@@ -1819,7 +1827,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Modify guest profile creation to use credits
   app.post("/api/guest-profiles", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
-      const validatedData = insertGuestProfileSchema.parse(req.body);
+      // Sanitizza input per guest profile
+      const sanitizedBody = {
+        ...req.body,
+        referenceName: req.body.referenceName ? sanitizeInput(req.body.referenceName) : undefined,
+        email: req.body.email ? req.body.email.trim().toLowerCase() : undefined,
+        specialRequests: req.body.specialRequests ? sanitizeInput(req.body.specialRequests) : undefined,
+      };
+      
+      const validatedData = insertGuestProfileSchema.parse(sanitizedBody);
       
       // Check if hotel has enough credits
       const credits = await storage.getHotelCredits(validatedData.hotelId);

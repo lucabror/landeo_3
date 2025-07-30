@@ -453,6 +453,17 @@ export function requireAuth(options: {
   };
 }
 
+// Input sanitization
+export function sanitizeInput(input: string): string {
+  if (!input) return '';
+  return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .trim();
+}
+
 // Rate limiting helper
 export function createRateLimiter(windowMs: number, max: number) {
   const attempts = new Map<string, { count: number; resetTime: number }>();
