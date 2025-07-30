@@ -126,7 +126,7 @@ router.post("/register-hotel", async (req, res) => {
           
           <div style="padding: 20px; text-align: center; background: #f3f4f6; color: #666;">
             <p style="margin: 0; font-size: 12px;">
-              © 2025 AiTour. Tutti i diritti riservati.
+              © 2025 Landeo. Tutti i diritti riservati.
             </p>
           </div>
         </div>

@@ -10,6 +10,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-29**: ✅ COMPLETATA eliminazione completa brand "AiTour" - sostituito con "Landeo"
+  - Eliminato messaggio registrazione confermata: "piattaforma AiTour" → "piattaforma Landeo" 
+  - Aggiornati tutti i riferimenti rimanenti in pagine discover-more, login, privacy, auth
+  - Email footer: "© 2025 AiTour" → "© 2025 Landeo"
+  - Titoli e sezioni: "Scelgono AiTour" → "Scelgono Landeo", "Quanto costa AiTour" → "Quanto costa Landeo"
+  - Sistema di autenticazione: "Futuro dominio: AiTour.it" → "Futuro dominio: Landeo.it"
+  - Rebranding completo: zero riferimenti "AiTour" rimanenti nel codebase
 - **2025-01-29**: ✅ AGGIORNATO slogan aziendale da "Itinerari su misura, emozioni autentiche" a "Itinerari su misura"
   - Rimossa linea di separazione sotto il logo in tutte le pagine
   - Applicato nuovo styling: text-[17px] font-light per header pagine principali

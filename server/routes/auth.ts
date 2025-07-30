@@ -639,7 +639,7 @@ router.post('/forgot-password', async (req, res) => {
                 
                 <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
                   <p style="color: #95a5a6; font-size: 12px; margin: 0;">
-                    Ambiente di sviluppo - Futuro dominio: AiTour.it
+                    Ambiente di sviluppo - Futuro dominio: Landeo.it
                   </p>
                 </div>
               </div>

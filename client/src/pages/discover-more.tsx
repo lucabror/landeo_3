@@ -133,7 +133,7 @@ export default function DiscoverMore() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-amber-800 bg-clip-text text-transparent">
-                  AiTour
+                  Landeo
                 </h1>
                 <p className="text-sm text-gray-600">AI per l'Ospitalità Italiana</p>
               </div>
@@ -164,7 +164,7 @@ export default function DiscoverMore() {
           <h1 className="text-5xl font-bold text-gray-900 mb-6">
             Perché gli Hotel di Successo
             <span className="block bg-gradient-to-r from-amber-700 to-amber-800 bg-clip-text text-transparent">
-              Scelgono AiTour
+              Scelgono Landeo
             </span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
@@ -392,7 +392,7 @@ export default function DiscoverMore() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Quanto costa realmente utilizzare AiTour?</CardTitle>
+                <CardTitle>Quanto costa realmente utilizzare Landeo?</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">

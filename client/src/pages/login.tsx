@@ -152,7 +152,7 @@ export default function Login({ userType }: LoginProps) {
       
       toast({
         title: "Accesso completato",
-        description: "Benvenuto nella piattaforma AiTour",
+        description: "Benvenuto nella piattaforma Landeo",
       });
       
       // Use regular routing instead of forced redirect
@@ -355,7 +355,7 @@ export default function Login({ userType }: LoginProps) {
             {userType === 'admin' ? 'Admin Login' : 'Hotel Manager Login'}
           </CardTitle>
           <CardDescription>
-            Accesso sicuro alla piattaforma AiTour
+            Accesso sicuro alla piattaforma Landeo
           </CardDescription>
         </CardHeader>
         

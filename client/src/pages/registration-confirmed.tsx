@@ -99,7 +99,7 @@ export default function RegistrationConfirmed({ token }: RegistrationConfirmedPr
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-800">
                   <strong>Perfetto!</strong> La tua registrazione è stata confermata con successo. 
-                  Ora puoi accedere alla piattaforma AiTour per configurare il tuo hotel e iniziare a creare esperienze uniche per i tuoi ospiti.
+                  Ora puoi accedere alla piattaforma Landeo per configurare il tuo hotel e iniziare a creare esperienze uniche per i tuoi ospiti.
                 </AlertDescription>
               </Alert>
               
