@@ -129,7 +129,256 @@ export class GooglePlacesService {
     }
   }
 
+  // Search for local attractions and points of interest
+  async searchAttractions(query: string, location?: { lat: number; lng: number }, radius: number = 50000): Promise<AttractionSuggestion[]> {
+    if (!this.apiKey) {
+      throw new Error('Google Places API key not configured');
+    }
 
+    if (!query || query.length < 2) {
+      return [];
+    }
+
+    try {
+      console.log(`🔍 Searching attractions for query: "${query}"`);
+      
+      const searchTypes = [
+        'tourist_attraction',
+        'museum',
+        'amusement_park', 
+        'art_gallery',
+        'church',
+        'park',
+        'zoo',
+        'aquarium',
+        'night_club',
+        'restaurant',
+        'spa',
+        'shopping_mall',
+        'point_of_interest'
+      ];
+
+      const requestBody = {
+        textQuery: query,
+        includedTypes: searchTypes,
+        maxResultCount: 20,
+        ...(location && {
+          locationBias: {
+            circle: {
+              center: {
+                latitude: location.lat,
+                longitude: location.lng
+              },
+              radius: radius
+            }
+          }
+        }),
+        regionCode: 'IT', // Focus on Italy
+        languageCode: 'it'
+      };
+
+      console.log('🌐 Google Places API request:', JSON.stringify(requestBody, null, 2));
+
+      const response = await fetch('https://places.googleapis.com/v1/places:searchText', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': this.apiKey,
+          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.addressComponents,places.location,places.types,places.nationalPhoneNumber,places.websiteUri,places.rating,places.userRatingCount,places.priceLevel,places.regularOpeningHours,places.primaryType'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Google Places API error:', response.status, errorText);
+        throw new Error(`Google Places API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(`✅ Found ${data.places?.length || 0} attractions from Google Places API`);
+
+      const attractions: AttractionSuggestion[] = [];
+      
+      if (data.places) {
+        for (const place of data.places) {
+          try {
+            const attraction = this.processAttractionResult(place);
+            if (attraction) {
+              attractions.push(attraction);
+            }
+          } catch (error) {
+            console.error('Error processing attraction result:', error);
+          }
+        }
+      }
+
+      return attractions;
+    } catch (error) {
+      console.error('Error searching attractions:', error);
+      return [];
+    }
+  }
+
+  private processAttractionResult(place: any): AttractionSuggestion | null {
+    try {
+      // Parse address components
+      let city = '';
+      let region = '';
+      let postalCode = '';
+      let country = '';
+
+      if (place.addressComponents) {
+        for (const component of place.addressComponents) {
+          const types = component.types || [];
+          
+          if (types.includes('locality')) {
+            city = component.longText;
+          } else if (types.includes('administrative_area_level_2') && !city) {
+            city = component.longText;
+          } else if (types.includes('administrative_area_level_1')) {
+            region = component.longText;
+          } else if (types.includes('postal_code')) {
+            postalCode = component.longText;
+          } else if (types.includes('country')) {
+            country = component.longText;
+          }
+        }
+      }
+
+      // Map Google Places types to our categories
+      const primaryType = place.primaryType || '';
+      const allTypes = place.types || [];
+      const category = this.mapGoogleTypesToCategory(primaryType, allTypes);
+
+      // Format opening hours
+      let openingHours = '';
+      if (place.regularOpeningHours?.weekdayDescriptions) {
+        openingHours = place.regularOpeningHours.weekdayDescriptions.join('; ');
+      }
+
+      // Format price range
+      let priceRange = '';
+      if (place.priceLevel !== undefined) {
+        const priceMap = {
+          0: 'Gratuito',
+          1: '€ - Economico',
+          2: '€€ - Medio',
+          3: '€€€ - Costoso',
+          4: '€€€€ - Molto costoso'
+        };
+        priceRange = priceMap[place.priceLevel as keyof typeof priceMap] || '';
+      }
+
+      return {
+        placeId: place.id,
+        name: place.displayName?.text || '',
+        formattedAddress: place.formattedAddress || '',
+        city,
+        region,
+        postalCode,
+        country,
+        latitude: place.location?.latitude || 0,
+        longitude: place.location?.longitude || 0,
+        phone: place.nationalPhoneNumber || '',
+        website: place.websiteUri || '',
+        category,
+        primaryType,
+        types: allTypes,
+        rating: place.rating ? place.rating.toString() : '',
+        userRatingCount: place.userRatingCount || 0,
+        priceRange,
+        openingHours
+      };
+    } catch (error) {
+      console.error('Error processing attraction:', error);
+      return null;
+    }
+  }
+
+  private mapGoogleTypesToCategory(primaryType: string, allTypes: string[]): string {
+    // Map Google Places types to our 20 Landeo categories
+    const categoryMappings: { [key: string]: string } = {
+      'museum': 'Museo',
+      'art_gallery': 'Museo',
+      'archaeological_site': 'Sito Archeologico',
+      'historical_landmark': 'Monumento Storico',
+      'monument': 'Monumento Storico',
+      'place_of_worship': 'Chiesa o Luogo Religioso',
+      'church': 'Chiesa o Luogo Religioso',
+      'hindu_temple': 'Chiesa o Luogo Religioso',
+      'mosque': 'Chiesa o Luogo Religioso',
+      'synagogue': 'Chiesa o Luogo Religioso',
+      'tourist_attraction': 'Borgo Storico',
+      'cultural_center': 'Evento Culturale',
+      'performing_arts_theater': 'Evento Culturale',
+      'restaurant': 'Ristorante Tipico',
+      'meal_takeaway': 'Ristorante Tipico',
+      'food': 'Ristorante Tipico',
+      'bar': 'Cantina/Enoteca',
+      'liquor_store': 'Cantina/Enoteca',
+      'supermarket': 'Mercato o Bottega Locale',
+      'grocery_or_supermarket': 'Mercato o Bottega Locale',
+      'shopping_mall': 'Mercato o Bottega Locale',
+      'store': 'Laboratorio Artigianale',
+      'park': 'Parco Naturale',
+      'national_park': 'Parco Naturale',
+      'campground': 'Trekking/Escursione',
+      'hiking_area': 'Trekking/Escursione',
+      'natural_feature': 'Lago/Spiaggia',
+      'beach': 'Lago/Spiaggia',
+      'botanical_garden': 'Giardino Botanico/Storico',
+      'zoo': 'Giardino Botanico/Storico',
+      'amusement_park': 'Sport Avventura/Outdoor',
+      'gym': 'Sport Avventura/Outdoor',
+      'bicycle_store': 'Cicloturismo',
+      'spa': 'Centro Termale/SPA',
+      'beauty_salon': 'Centro Termale/SPA',
+      'clothing_store': 'Shopping Locale',
+      'jewelry_store': 'Shopping Locale',
+      'night_club': 'Locali/Divertimento',
+      'casino': 'Locali/Divertimento'
+    };
+
+    // Check primary type first
+    if (categoryMappings[primaryType]) {
+      return categoryMappings[primaryType];
+    }
+
+    // Check all types
+    for (const type of allTypes) {
+      if (categoryMappings[type]) {
+        return categoryMappings[type];
+      }
+    }
+
+    // Default fallback
+    return 'Esperienza Unica del Territorio';
+  }
+
+
+}
+
+// Interface for attraction suggestions from Google Places
+export interface AttractionSuggestion {
+  placeId: string;
+  name: string;
+  formattedAddress: string;
+  city: string;
+  region: string;
+  postalCode: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+  phone?: string;
+  website?: string;
+  category: string;
+  primaryType: string;
+  types: string[];
+  rating: string;
+  userRatingCount: number;
+  priceRange: string;
+  openingHours: string;
 }
 
 export const googlePlacesService = new GooglePlacesService();

@@ -160,6 +160,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Attractions search endpoint for local experiences
+  app.get("/api/attractions/search", async (req, res) => {
+    try {
+      const query = req.query.query as string;
+      const hotelId = req.query.hotelId as string;
+      
+      if (!query) {
+        return res.json([]);
+      }
+
+      let location;
+      // If hotelId provided, get hotel location for better search results
+      if (hotelId) {
+        try {
+          const hotel = await storage.getHotel(hotelId);
+          if (hotel && hotel.latitude && hotel.longitude) {
+            location = {
+              lat: parseFloat(hotel.latitude),
+              lng: parseFloat(hotel.longitude)
+            };
+          }
+        } catch (error) {
+          console.log('Could not get hotel location for attraction search:', error);
+        }
+      }
+      
+      const googlePlaces = new GooglePlacesService();
+      const attractions = await googlePlaces.searchAttractions(query, location);
+      res.json(attractions);
+    } catch (error) {
+      console.error('Attractions search error:', error);
+      res.status(500).json({ 
+        message: "Failed to search attractions",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
   // Hotel geocoding endpoint (legacy - manteniamo per compatibilità)
   app.post("/api/hotels/geocode", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
