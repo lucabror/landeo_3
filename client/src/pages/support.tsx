@@ -175,28 +175,36 @@ export default function Support() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <Link href="/">
-              <div className="flex items-center space-x-3">
-                <div>
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
                   <img 
                     src={landeoLogo} 
                     alt="Landeo" 
-                    className="h-12 w-auto block"
+                    className="h-10 sm:h-12 w-auto block"
                   />
-                  <p className="text-amber-700 tracking-wide whitespace-nowrap text-[17px] font-light">
+                  <p className="text-amber-700 tracking-wide whitespace-nowrap text-[15px] sm:text-[17px] font-light">
                     Itinerari su misura
                   </p>
                 </div>
               </div>
             </Link>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <Link href="/login">
-                <Button variant="ghost" className="text-gray-700 hover:text-amber-700">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-gray-700 hover:text-amber-700 px-3 sm:px-4 py-2 text-sm"
+                >
                   Accedi
                 </Button>
               </Link>
               <Link href="/hotel-register">
-                <Button className="bg-amber-700 hover:bg-amber-800 text-white">
-                  Inizia Gratis
+                <Button 
+                  size="sm"
+                  className="bg-amber-700 hover:bg-amber-800 text-white px-3 sm:px-4 py-2 text-sm"
+                >
+                  <span className="hidden sm:inline">Inizia Gratis</span>
+                  <span className="sm:hidden">Demo</span>
                 </Button>
               </Link>
             </div>

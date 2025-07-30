@@ -28,28 +28,39 @@ export default function Landing() {
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-stone-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3">
-              <div>
+          <div className="flex justify-between items-center py-4 sm:py-4">
+            {/* Logo Section */}
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
                 <img 
                   src={landeoLogo} 
                   alt="Landeo" 
-                  className="h-12 w-auto block"
+                  className="h-10 sm:h-12 w-auto block"
                 />
-                <p className="text-amber-700 tracking-wide whitespace-nowrap text-[17px] font-light">
+                <p className="text-amber-700 tracking-wide whitespace-nowrap text-[15px] sm:text-[17px] font-light">
                   Itinerari su misura
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            
+            {/* Navigation Buttons - Mobile Optimized */}
+            <div className="flex items-center gap-2 sm:gap-4">
               <Link href="/login">
-                <Button variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="border-amber-300 text-amber-700 hover:bg-amber-50 px-3 sm:px-4 py-2 text-sm"
+                >
                   Accedi
                 </Button>
               </Link>
               <Link href="/hotel-register">
-                <Button className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900">
-                  Demo Gratuita (genera 5 itinerari gratuiti)
+                <Button 
+                  size="sm"
+                  className="bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900 px-3 sm:px-4 py-2 text-sm"
+                >
+                  <span className="hidden sm:inline">Demo Gratuita</span>
+                  <span className="sm:hidden">Demo</span>
                 </Button>
               </Link>
             </div>

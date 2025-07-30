@@ -10,6 +10,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-07-30**: ✅ OTTIMIZZATO LAYOUT MOBILE HEADER per tutti i siti pubblici
+  - Riorganizzato header mobile con spaziatura ottimale tra logo e pulsanti
+  - Logo ridotto da h-12 a h-10 su mobile per migliore proporzione
+  - Pulsanti ridimensionati: size="sm" con padding responsivo (px-3 su mobile, px-4 desktop)
+  - Testo pulsante semplificato: "Demo Gratuita" → "Demo" su mobile
+  - Gap ridotto da space-x-4 a gap-2 (mobile) e gap-4 (desktop)
+  - Applicato uniformemente a tutte le pagine: landing, about, features, pricing, contact, support, privacy
+  - Layout mobile ora pulito e professionale senza sovrapposizioni
 - **2025-07-30**: ✅ IMPLEMENTATO SISTEMA NOTIFICA EMAIL SUPER-ADMIN per conferme bonifici
   - Creata funzione sendBankTransferNotification utilizzando Resend API
   - Email automatiche professionali inviate a borroluca@gmail.com e info@landeo.it
