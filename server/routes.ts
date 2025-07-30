@@ -829,7 +829,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       doc.text(`Titolo: ${itinerary.title}`, 50, 200);
 
       // Generate QR code
-      const itineraryUrl = `${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/itinerary/${itinerary.uniqueUrl}`;
+      const itineraryUrl = `https://landeo.it/itinerary/${itinerary.uniqueUrl}`;
       const qrCodeDataUrl = await QRCode.toDataURL(itineraryUrl, { width: 200 });
       
       // Add QR code to PDF

@@ -10,6 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **2025-01-30**: ✅ RISOLTO bug URL malformato nella email di registrazione
+  - Problema: URL conteneva virgola invece di punto nel dominio "https://landeo.replit.app,landeo.it/"
+  - Sostituito process.env.REPLIT_DOMAINS con dominio fisso "https://landeo.it"
+  - Corretti tutti i servizi: hotel-registration.ts, email.ts, qr.ts, routes.ts
+  - Email di conferma registrazione ora usa URL corretto per verifica account
+  - Sistema QR code e email preferenze ospiti ora usano dominio principale
 - **2025-01-29**: ✅ COMPLETATA eliminazione completa brand "AiTour" - sostituito con "Landeo"
   - Eliminato messaggio registrazione confermata: "piattaforma AiTour" → "piattaforma Landeo" 
   - Aggiornati tutti i riferimenti rimanenti in pagine discover-more, login, privacy, auth

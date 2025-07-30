@@ -5,11 +5,8 @@ import path from "path";
 
 export async function generateQRCode(uniqueUrl: string, hotel: Hotel): Promise<string> {
   try {
-    // Get domain from environment or use default
-    const domains = process.env.REPLIT_DOMAINS || "localhost:5000";
-    const domain = domains.split(',')[0];
-    const protocol = domain.includes('localhost') ? 'http' : 'https';
-    const fullUrl = `${protocol}://${domain}/itinerary/${uniqueUrl}`;
+    // Use the main domain
+    const fullUrl = `https://landeo.it/itinerary/${uniqueUrl}`;
 
     // Generate QR code as data URL
     const qrCodeDataUrl = await QRCode.toDataURL(fullUrl, {
