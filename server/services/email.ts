@@ -802,6 +802,206 @@ export async function sendCreditPurchaseInstructions(
   }
 }
 
+// Send bank transfer confirmation notification to super admin
+export async function sendBankTransferNotification(
+  hotel: Hotel,
+  purchase: {
+    id: string;
+    packageType: string;
+    packagePrice: number;
+    creditsAmount: number;
+    createdAt: string;
+  }
+): Promise<{success: boolean, error?: string}> {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY non configurata. Notifica super-admin non inviata.');
+    return {success: false, error: 'Email service not configured'};
+  }
+
+  try {
+    const packageNames = {
+      basic: "Pacchetto Base",
+      standard: "Pacchetto Standard", 
+      premium: "Pacchetto Premium",
+      enterprise: "Pacchetto Enterprise"
+    };
+
+    const packageName = packageNames[purchase.packageType as keyof typeof packageNames] || "Pacchetto Crediti";
+    const orderDate = new Date(purchase.createdAt).toLocaleDateString('it-IT');
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #f8f9fa; }
+    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 30px; text-align: center; }
+    .header h1 { margin: 0; font-size: 28px; font-weight: 300; }
+    .content { padding: 30px; }
+    .alert { background: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; padding: 15px; margin: 20px 0; }
+    .hotel-info { background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0; }
+    .order-details { background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 20px 0; }
+    .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    td { padding: 8px 0; border-bottom: 1px solid #eee; }
+    .label { font-weight: bold; width: 30%; }
+    .urgent { color: #dc3545; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>💰 Bonifico Confermato dall'Hotel</h1>
+      <p>Notifica Amministratore - Landeo</p>
+    </div>
+    
+    <div class="content">
+      <div class="alert">
+        <strong>🔔 AZIONE RICHIESTA:</strong> Un hotel manager ha confermato di aver effettuato il bonifico bancario per un ordine crediti.
+      </div>
+      
+      <h3>📋 Dettagli Hotel</h3>
+      <div class="hotel-info">
+        <table>
+          <tr>
+            <td class="label">Hotel:</td>
+            <td><strong>${hotel.name}</strong></td>
+          </tr>
+          <tr>
+            <td class="label">Email:</td>
+            <td>${hotel.email}</td>
+          </tr>
+          <tr>
+            <td class="label">Telefono:</td>
+            <td>${hotel.phone || 'Non specificato'}</td>
+          </tr>
+          <tr>
+            <td class="label">Città:</td>
+            <td>${hotel.city}, ${hotel.region}</td>
+          </tr>
+          <tr>
+            <td class="label">Indirizzo:</td>
+            <td>${hotel.address || 'Non specificato'}</td>
+          </tr>
+        </table>
+      </div>
+      
+      <h3>💳 Dettagli Ordine</h3>
+      <div class="order-details">
+        <table>
+          <tr>
+            <td class="label">ID Ordine:</td>
+            <td><code>${purchase.id}</code></td>
+          </tr>
+          <tr>
+            <td class="label">Pacchetto:</td>
+            <td><strong>${packageName}</strong></td>
+          </tr>
+          <tr>
+            <td class="label">Crediti:</td>
+            <td><strong>${purchase.creditsAmount}</strong> crediti</td>
+          </tr>
+          <tr>
+            <td class="label">Importo:</td>
+            <td class="urgent"><strong>€${purchase.packagePrice}</strong></td>
+          </tr>
+          <tr>
+            <td class="label">Data Ordine:</td>
+            <td>${orderDate}</td>
+          </tr>
+          <tr>
+            <td class="label">Data Conferma:</td>
+            <td><strong>${new Date().toLocaleDateString('it-IT')} alle ${new Date().toLocaleTimeString('it-IT')}</strong></td>
+          </tr>
+        </table>
+      </div>
+      
+      <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 20px; margin: 20px 0; border-radius: 4px;">
+        <h4 style="color: #1976d2; margin-top: 0;">📝 Prossimi Passi</h4>
+        <ol style="margin: 0; padding-left: 20px;">
+          <li>Verifica l'arrivo del bonifico sul conto BANCO BPM</li>
+          <li>Controlla che l'importo corrisponda a <strong>€${purchase.packagePrice}</strong></li>
+          <li>Accedi alla dashboard admin per approvare l'ordine</li>
+          <li>I crediti verranno automaticamente accreditati all'hotel</li>
+        </ol>
+      </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <p style="margin-bottom: 10px;">Accedi alla dashboard amministratore:</p>
+        <a href="https://landeo.it/admin-login" style="display: inline-block; background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+          Dashboard Admin
+        </a>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p><strong>Landeo Hotel Management System</strong></p>
+      <p>Questa è una notifica automatica del sistema. Non rispondere a questa email.</p>
+      <p>© 2025 Landeo. Tutti i diritti riservati.</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const textContent = `
+BONIFICO CONFERMATO DALL'HOTEL - Landeo
+
+DETTAGLI HOTEL:
+- Hotel: ${hotel.name}
+- Email: ${hotel.email}  
+- Città: ${hotel.city}, ${hotel.region}
+
+DETTAGLI ORDINE:
+- ID Ordine: ${purchase.id}
+- Pacchetto: ${packageName}
+- Crediti: ${purchase.creditsAmount}
+- Importo: €${purchase.packagePrice}
+- Data Ordine: ${orderDate}
+- Data Conferma: ${new Date().toLocaleDateString('it-IT')} alle ${new Date().toLocaleTimeString('it-IT')}
+
+AZIONE RICHIESTA:
+1. Verifica l'arrivo del bonifico sul conto BANCO BPM
+2. Controlla che l'importo corrisponda a €${purchase.packagePrice}
+3. Accedi alla dashboard admin per approvare l'ordine
+4. I crediti verranno automaticamente accreditati all'hotel
+
+Dashboard Admin: https://landeo.it/admin-login
+
+---
+Landeo Hotel Management System
+Notifica automatica - Non rispondere a questa email
+`;
+
+    // Controlla rate limiting per notifiche admin
+    const canSendEmail = await emailLimiter.checkLimit('admin-notifications');
+    if (!canSendEmail) {
+      console.warn('Rate limit raggiunto per notifiche admin. Notifica non inviata.');
+      return { success: false, error: 'Rate limit reached for admin notifications' };
+    }
+
+    // Invia email a entrambi gli indirizzi super-admin
+    const recipients = ['borroluca@gmail.com', 'info@landeo.it'];
+    
+    for (const recipient of recipients) {
+      await resend.emails.send({
+        from: 'Notifiche Landeo <noreply@landeo.it>',
+        to: recipient,
+        subject: `🚨 BONIFICO CONFERMATO: ${hotel.name} - €${purchase.packagePrice}`,
+        text: textContent,
+        html: htmlContent,
+      });
+    }
+
+    console.log('✅ Bank transfer notification sent to super-admin successfully');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error sending bank transfer notification:', error);
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
 export async function sendSupportEmail({
   name,
   email,

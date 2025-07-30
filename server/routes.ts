@@ -1707,9 +1707,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Confirm bank transfer by hotel
   app.post("/api/hotels/:hotelId/purchases/:purchaseId/confirm-transfer", requireAuth({ userType: 'hotel' }), async (req, res) => {
     try {
+      console.log('🏦 Hotel confirming bank transfer:', { hotelId: req.params.hotelId, purchaseId: req.params.purchaseId });
+      
+      // Get purchase and hotel data for notification
+      const [purchases, hotel] = await Promise.all([
+        storage.getCreditPurchasesByHotel(req.params.hotelId),
+        storage.getHotel(req.params.hotelId)
+      ]);
+      
+      const purchase = purchases.find(p => p.id === req.params.purchaseId);
+      if (!purchase) {
+        return res.status(404).json({ message: "Purchase not found" });
+      }
+      
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+      
+      // Confirm the bank transfer
       await storage.confirmBankTransfer(req.params.purchaseId);
+      console.log('✅ Bank transfer confirmed successfully');
+      
+      // Send notification to super-admin
+      console.log('📧 Sending notification to super-admin...');
+      try {
+        const { sendBankTransferNotification } = await import('../services/email.js');
+        const notificationResult = await sendBankTransferNotification(hotel, {
+          id: purchase.id,
+          packageType: purchase.packageType,
+          packagePrice: purchase.packagePrice,
+          creditsAmount: purchase.creditsAmount,
+          createdAt: purchase.createdAt.toISOString()
+        });
+        
+        if (notificationResult.success) {
+          console.log('✅ Super-admin notification sent successfully');
+        } else {
+          console.warn('⚠️ Failed to send super-admin notification:', notificationResult.error);
+        }
+      } catch (emailError) {
+        console.error('❌ Error sending super-admin notification:', emailError);
+      }
+      
       res.json({ message: "Bank transfer confirmed successfully" });
     } catch (error) {
+      console.error('❌ Error confirming bank transfer:', error);
       res.status(500).json({ message: "Failed to confirm bank transfer" });
     }
   });

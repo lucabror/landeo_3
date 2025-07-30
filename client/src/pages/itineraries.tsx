@@ -50,7 +50,7 @@ export default function Itineraries() {
 
 
   const handleShowQR = (itinerary: any) => {
-    const guestProfile = guestProfiles?.find((g: any) => g.id === itinerary.guestProfileId);
+    const guestProfile = Array.isArray(guestProfiles) ? guestProfiles.find((g: any) => g.id === itinerary.guestProfileId) : null;
     setSelectedItinerary({ ...itinerary, guestProfile });
     setQrModalOpen(true);
   };
@@ -106,8 +106,8 @@ export default function Itineraries() {
           </div>
         ) : (
           <div className="space-y-6">
-            {itineraries?.map((itinerary: any) => {
-              const guestProfile = guestProfiles?.find((g: any) => g.id === itinerary.guestProfileId);
+            {Array.isArray(itineraries) && itineraries.map((itinerary: any) => {
+              const guestProfile = Array.isArray(guestProfiles) ? guestProfiles.find((g: any) => g.id === itinerary.guestProfileId) : null;
               const statusConfig = getStatusConfig(itinerary.status);
               
               return (
@@ -237,7 +237,7 @@ export default function Itineraries() {
               );
             })}
             
-            {(!itineraries || itineraries.length === 0) && (
+            {(!itineraries || !Array.isArray(itineraries) || itineraries.length === 0) && (
               <div className="text-center py-12">
                 <Route className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
