@@ -1,0 +1,77 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fef7ed;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#fef3c7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:0.3" />
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#b45309;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="100" cy="100" r="60" fill="#f59e0b" opacity="0.1"/>
+  <circle cx="1100" cy="530" r="80" fill="#d97706" opacity="0.1"/>
+  <rect x="1050" y="50" width="100" height="100" fill="#b45309" opacity="0.05" rx="10"/>
+  
+  <!-- Main content container -->
+  <rect x="80" y="120" width="1040" height="390" fill="white" rx="20" opacity="0.95" stroke="#f59e0b" stroke-width="2"/>
+  
+  <!-- Logo placeholder (text-based since we can't embed images in SVG easily) -->
+  <text x="600" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="url(#textGradient)">
+    LANDEO
+  </text>
+  
+  <!-- Tagline -->
+  <text x="600" y="240" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#92400e" opacity="0.8">
+    Itinerari su misura
+  </text>
+  
+  <!-- Main headline -->
+  <text x="600" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="600" fill="#1f2937">
+    La piattaforma AI per hotel italiani
+  </text>
+  
+  <!-- Subheadline -->
+  <text x="600" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#4b5563">
+    Trasforma ogni soggiorno in un'esperienza indimenticabile
+  </text>
+  
+  <!-- Features -->
+  <g transform="translate(200, 380)">
+    <circle cx="0" cy="0" r="8" fill="#10b981"/>
+    <text x="20" y="6" font-family="Arial, sans-serif" font-size="18" fill="#374151">
+      Itinerari AI personalizzati
+    </text>
+  </g>
+  
+  <g transform="translate(450, 380)">
+    <circle cx="0" cy="0" r="8" fill="#10b981"/>
+    <text x="20" y="6" font-family="Arial, sans-serif" font-size="18" fill="#374151">
+      PDF e QR code automatici
+    </text>
+  </g>
+  
+  <g transform="translate(750, 380)">
+    <circle cx="0" cy="0" r="8" fill="#10b981"/>
+    <text x="20" y="6" font-family="Arial, sans-serif" font-size="18" fill="#374151">
+      Dashboard hotel completa
+    </text>
+  </g>
+  
+  <!-- Call to action -->
+  <rect x="450" y="420" width="300" height="50" fill="#f59e0b" rx="25"/>
+  <text x="600" y="452" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="600" fill="white">
+    Prova Gratuita - 5 Itinerari
+  </text>
+  
+  <!-- Website URL -->
+  <text x="600" y="550" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#6b7280">
+    landeo.it
+  </text>
+</svg>
