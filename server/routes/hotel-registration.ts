@@ -82,7 +82,7 @@ router.post("/register-hotel", async (req, res) => {
 
     try {
       const emailResult = await resend.emails.send({
-        from: 'onboarding@resend.dev',
+        from: 'onboarding@landeo.it',
         to: email,
         subject: 'Conferma il tuo account Landeo',
         html: `
@@ -134,7 +134,7 @@ router.post("/register-hotel", async (req, res) => {
       console.log("Email di verifica inviata con successo:", {
         id: emailResult.data?.id,
         to: email,
-        from: 'onboarding@resend.dev'
+        from: 'onboarding@landeo.it'
       });
 
     } catch (emailError) {

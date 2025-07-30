@@ -310,7 +310,7 @@ export async function sendGuestPreferencesEmail(
     }
 
     const { data, error } = await resend.emails.send({
-      from: `${sanitizedHotelName} <onboarding@resend.dev>`,
+      from: `${sanitizedHotelName} <noreply@landeo.it>`,
       to: [sanitizedEmail],
       subject: template.subject(sanitizedHotelName),
       html: htmlContent,
@@ -467,7 +467,7 @@ export async function sendItineraryPDF(
 </html>`;
 
     const { data, error } = await resend.emails.send({
-      from: `${hotel.name} <onboarding@resend.dev>`,
+      from: `${hotel.name} <noreply@landeo.it>`,
       to: [recipientEmail],
       subject: `🗺️ ${template.title} - ${hotel.name}`,
       html: htmlContent,
@@ -637,7 +637,7 @@ export async function sendCreditPurchaseInstructions(
 </html>`;
 
     const { data, error } = await resend.emails.send({
-      from: `Luca Borro - Landeo <onboarding@resend.dev>`,
+      from: `Luca Borro - Landeo <noreply@landeo.it>`,
       to: [hotel.email],
       subject: `📋 Istruzioni Bonifico - Ordine Crediti ${packageName}`,
       html: htmlContent,
@@ -727,7 +727,7 @@ export async function sendSupportEmail({
 </html>`;
 
     const { data, error } = await resend.emails.send({
-      from: 'Supporto Landeo <support@resend.dev>',
+      from: 'Supporto Landeo <supporto@landeo.it>',
       to: ['borroluca@gmail.com'],
       replyTo: email,
       subject: `[SUPPORTO] ${subject}`,
