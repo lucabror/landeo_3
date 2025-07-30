@@ -118,7 +118,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createHotel(insertHotel: InsertHotel): Promise<Hotel> {
-    const [hotel] = await db.insert(hotels).values([insertHotel]).returning();
+    // Ensure required fields have default values if not provided
+    const hotelData = {
+      address: '',
+      city: '',
+      region: '',
+      postalCode: '',
+      phone: '',
+      ...insertHotel,
+    };
+    const [hotel] = await db.insert(hotels).values([hotelData]).returning();
     return hotel;
   }
 
@@ -354,10 +363,6 @@ export class DatabaseStorage implements IStorage {
 
   async deleteLocalExperience(id: string): Promise<void> {
     await db.delete(localExperiences).where(eq(localExperiences.id, id));
-  }
-
-  async deleteAllLocalExperiences(hotelId: string): Promise<void> {
-    await db.delete(localExperiences).where(eq(localExperiences.hotelId, hotelId));
   }
 
   async deleteAllLocalExperiences(hotelId: string): Promise<void> {
