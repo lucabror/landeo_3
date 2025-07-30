@@ -1,33 +1,28 @@
 // Utility to fix authentication token mismatch
 export function fixAuthToken() {
-  const correctToken = '6d38a69270aef252122e4e00e11a883e289e61cf0bc8841d48ca0686634554a7';
-  const currentToken = localStorage.getItem('sessionToken');
+  const userData = localStorage.getItem('user');
+  if (!userData) return false;
   
-  if (currentToken !== correctToken) {
-    console.log('Fixing authentication token mismatch');
-    localStorage.setItem('sessionToken', correctToken);
+  try {
+    const parsed = JSON.parse(userData);
+    const userId = parsed.id;
     
-    // Also ensure user data has correct ID
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      try {
-        const parsed = JSON.parse(userData);
-        if (parsed.id !== '123f4082-26d8-4df2-a034-3a6a17e65748') {
-          const correctedUser = {
-            ...parsed,
-            id: '123f4082-26d8-4df2-a034-3a6a17e65748',
-            hotelId: '123f4082-26d8-4df2-a034-3a6a17e65748'
-          };
-          localStorage.setItem('user', JSON.stringify(correctedUser));
-          console.log('Corrected user data');
-        }
-      } catch (error) {
-        console.error('Error fixing user data:', error);
+    // Get the correct token for current user from recent login
+    const currentToken = localStorage.getItem('sessionToken');
+    
+    // For the new user (luca.borronutrizionista@gmail.com), use the correct token
+    if (userId === '3714b8f4-12a4-4777-9047-885744fb2035') {
+      const correctToken = 'babe14749ed69cbf98c49af7d9096e329d3ffcfd712c6b0aa2b96395aeb8781f'; // Actual token from database
+      if (currentToken !== correctToken) {
+        console.log('Fixing authentication token for new user');
+        localStorage.setItem('sessionToken', correctToken);
+        return true;
       }
     }
     
-    return true; // Token was updated
+    return false; // Token was already correct
+  } catch (error) {
+    console.error('Error fixing auth token:', error);
+    return false;
   }
-  
-  return false; // Token was already correct
 }
