@@ -56,14 +56,16 @@ CONTESTO GEOGRAFICO:
 ${locationContext.nearbyAreas.length > 0 ? `Aree circostanti da considerare: ${locationContext.nearbyAreas.join(', ')}` : ''}
 
 FORMATO OUTPUT (Tabella Markdown):
-| Nome | Categoria | Distanza (km) | Descrizione | Perché è consigliata |
-|------|-----------|---------------|-------------|---------------------|
-| [Nome attrazione] | [Numero. Nome categoria] | [X] | [Descrizione breve e accattivante] | [Motivo specifico per cui vale la pena visitarla] |
+| Nome | Categoria | Distanza (km) | Località | Indirizzo | Descrizione | Perché è consigliata |
+|------|-----------|---------------|----------|-----------|-------------|---------------------|
+| [Nome attrazione] | [Numero. Nome categoria] | [X] | [Comune/Località] | [Via/Indirizzo specifico] | [Descrizione breve e accattivante] | [Motivo specifico per cui vale la pena visitarla] |
 
 Genera 18-25 attrazioni diverse, assicurandoti di:
+- Includere SEMPRE località e indirizzo precisi per ogni attrazione
 - Coprire tutte le principali categorie disponibili nella zona
 - Variare le distanze da 5km a 50km
 - Includere sia attrazioni famose che gemme nascoste locali
+- Fornire indirizzi reali e verificabili
 - Considerare il contesto stagionale e l'accessibilità`;
 
   console.log(`🤖 Generazione AI attrazioni per ${locationContext.referencePoint}...`);
@@ -133,7 +135,17 @@ function parseMarkdownToExperiences(markdownContent: string, hotelId: string): I
       const cells = line.split('|').map(cell => cell.trim()).filter(cell => cell);
       
       if (cells.length >= 5) {
-        const [nome, categoriaAI, distanzaStr, descrizione, perche] = cells;
+        let nome, categoriaAI, distanzaStr, localita, indirizzo, descrizione, perche;
+        
+        if (cells.length >= 7) {
+          // New format with separate locality and address
+          [nome, categoriaAI, distanzaStr, localita, indirizzo, descrizione, perche] = cells;
+        } else {
+          // Old format with just 5 columns
+          [nome, categoriaAI, distanzaStr, descrizione, perche] = cells;
+          localita = nome; // Use attraction name as locality fallback
+          indirizzo = "";
+        }
         
         // Estrae il numero della categoria dal formato "1. Museo"
         const categoryMatch = categoriaAI.match(/^(\d+)\.\s*(.+)$/);
@@ -165,7 +177,8 @@ function parseMarkdownToExperiences(markdownContent: string, hotelId: string): I
           name: nome,
           category: landeaCategory.value,
           description: descrizione,
-          location: nome, // Use attraction name as location  
+          location: localita || nome, // Use locality or attraction name as fallback
+          address: indirizzo || "", // Specific address if available
           distance: `${distanceKm} km`,
           whyRecommended: perche
         });
